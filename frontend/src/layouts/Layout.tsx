@@ -16,31 +16,35 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       sx={{
         display: 'flex',
         height: '100vh',
+        width: '100vw',
         backgroundColor: theme.palette.background.paper,
       }}
     >
+      {/* Sidebar */}
       <Sidebar />
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', width:'100%', height:'100%' }}>
+        {/* Header */}
         <Box
           component="header"
           sx={{
-            height: '70px',
-            backgroundColor: 'transparent',
-            padding: '0 52px',
+            height: 'calc(9.1vh)', 
+            width: 'calc(94vw)',
+            paddingRight: 'calc(6vh)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end',
-            gap: 3,
+            gap: 'calc(1.5vw)',
           }}
         >
-          <Box />
           <ArchiveButton label={'Archivio'} />
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography
               variant="subtitle1"
               sx={{
-                width: '28px',
-                height: '28px',
+                width: 'calc(4vh)',
+                height: 'calc(4vh)',
+                fontSize: 'clamp(2px, 1.1vw, 70px)',
                 backgroundColor: theme.palette.secondary.main,
                 borderRadius: '100%',
                 textAlign: 'center',
@@ -49,26 +53,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               M
             </Typography>
-            <Typography variant="subtitle1" sx={{ marginLeft: '8px' }}>
+            <Typography variant="subtitle1" sx={{ marginLeft: 'calc(0.5vw)', fontSize: 'clamp(2px, 1.2vw, 80px)', }}>
               Mario Rossi
             </Typography>
           </Box>
         </Box>
+
+        {/* Content */}
         <Box
           component="main"
           sx={{
-            padding: ' 0px 24px 24px 0px',
-            height: '100%',
-            overflow: 'auto',
+            padding: '0px calc(1.5vw) calc(1.5vw) 0px',
+            height: 'calc(95vh)',
+            width: 'calc(94vw)',
           }}
         >
           <Box
             sx={{
-              padding: '24px',
-              height: '100%',
-              overflow: 'auto',
+              height: 'calc(88vh)',
               backgroundColor: theme.palette.background.default,
-              borderRadius: '26px',
+              borderRadius: 'calc(1.7vw)',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',

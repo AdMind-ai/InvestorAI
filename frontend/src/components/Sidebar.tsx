@@ -10,8 +10,8 @@ import ChatIcon from '../assets/icons/chat-icon.svg'
 import ChatIconActive from '../assets/icons/chat-icon-active.svg'
 import CEOIcon from '../assets/icons/ceo-icon.svg'
 import CEOIconActive from '../assets/icons/ceo-icon-active.svg'
-import MarketingIcon from '../assets/icons/marketing-icon.svg'
-import MarketingIconActive from '../assets/icons/marketing-icon-active.svg'
+import MarketIcon from '../assets/icons/market-icon.svg'
+import MarketIconActive from '../assets/icons/market-icon-active.svg'
 import EarningsIcon from '../assets/icons/earnings-icon.svg'
 import EarningsIconActive from '../assets/icons/earnings-icon-active.svg'
 import FinanceIcon from '../assets/icons/finance-icon.svg'
@@ -20,18 +20,18 @@ import SecurityIcon from '../assets/icons/security-icon.svg'
 // Menu com links e ícones
 const menuItems = [
   { title: 'Home', path: '/', icon: HomeIcon, activeIcon: HomeIconActive },
-  { title: 'Chat', path: '/chat', icon: ChatIcon, activeIcon: ChatIconActive },
+  { title: 'Chat', path: '/chat-assistant', icon: ChatIcon, activeIcon: ChatIconActive },
   {
     title: 'CEO Perception',
-    path: '/ceo',
+    path: '/ceo-perception',
     icon: CEOIcon,
     activeIcon: CEOIconActive,
   },
   {
-    title: 'Marketing',
-    path: '/marketing',
-    icon: MarketingIcon,
-    activeIcon: MarketingIconActive,
+    title: 'Market',
+    path: '/market-intelligence',
+    icon: MarketIcon,
+    activeIcon: MarketIconActive,
   },
   {
     title: 'Earnings',
@@ -60,103 +60,117 @@ const Sidebar: React.FC = () => {
   return (
     <Box
       sx={{
+        zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        height: '100vh',
+        width: 'calc(7vw)',
+        minWidth: '20px', 
+        maxWidth: '400px',
+        color: theme.palette.text.primary,
       }}
     >
-      <Box>
+
+      {/* Logo */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: 'calc(6vw)',
+          minWidth: '20px', 
+          maxWidth: '400px',
+          textAlign: 'center',
+          height: 'calc(8.5vh)', 
+          borderBottom: `calc(0.1vh) solid ${theme.palette.background.paper}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {/* Logo Icon */}
         <Box
           sx={{
-            width: '100px',
-            backgroundColor: 'transparent',
-            color: theme.palette.text.primary,
+            fontSize: 'clamp(10px, 4vw, 250px)',
+            fontWeight: 700,
+            color: theme.palette.primary.main,
           }}
         >
-          {/* Logo ou Cabeçalho */}
-          <Box
-            sx={{
-              textAlign: 'center',
-              height: '70px',
-              borderBottom: `1px solid ${theme.palette.background.paper}`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Box
-              sx={{
-                fontSize: '60px',
-                fontWeight: 700,
-                color: theme.palette.primary.main,
-              }}
-            >
-              ʌ
-            </Box>
-          </Box>
+          ʌ
         </Box>
+      </Box>
 
-        {/* Lista de menus */}
-        <Box sx={{ marginTop: 2 }}>
-          <List
-            sx={{
-              padding: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            {menuItems.map((item) => {
-              const isActive = activePath === item.path
-              return (
-                <ListItem
-                  key={item.title}
-                  onClick={() => handleNavigation(item.path)}
+      {/* Menu Functions */}
+      <Box sx={{ 
+        marginTop: 'calc(11vh)', 
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
+        <List
+          sx={{
+            padding: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 'calc(0.5vw)',
+          }}
+        >
+          {menuItems.map((item) => {
+            const isActive = activePath === item.path
+            return (
+              <ListItem
+                key={item.title}
+                onClick={() => handleNavigation(item.path)}
+                sx={{
+                  padding: 0,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: 'calc(4vw)',
+                  height: 'calc(4vw)',
+                  cursor: 'pointer',
+                  backgroundColor: isActive
+                    ? theme.palette.text.primary
+                    : 'transparent',
+                  borderRadius: 'calc(0.5vw)',
+                  '&:hover': {
+                    backgroundColor: isActive
+                      ? 'black'
+                      : 'rgba(0, 0, 0, 0.1)',
+                    borderRadius: 'calc(0.5vw)',
+                  },
+                }}
+              >
+                <ListItemIcon
                   sx={{
+                    display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: '70px',
-                    height: '70px',
-                    cursor: 'pointer',
-                    backgroundColor: isActive
-                      ? theme.palette.text.primary
-                      : 'transparent',
-                    borderRadius: '8px',
-                    '&:hover': {
-                      backgroundColor: isActive
-                        ? 'black'
-                        : 'rgba(0, 0, 0, 0.1)',
-                      borderRadius: '8px',
-                    },
+                    width: 'calc(4vw)',
+                    minWidth: '10px', 
+                    maxWidth: '400px',
                   }}
                 >
-                  <ListItemIcon
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      width: '100%',
-                      height: '100%',
+                  <img
+                    src={isActive ? item.activeIcon : item.icon}
+                    alt={`${item.title} Icon`}
+                    style={{ 
+                      width: 'calc(2vw)',
+                      height: 'calc(2vw)',
                     }}
-                  >
-                    <img
-                      src={isActive ? item.activeIcon : item.icon}
-                      alt={`${item.title} Icon`}
-                      style={{ width: '35px', height: '35px' }}
-                    />
-                  </ListItemIcon>
-                </ListItem>
-              )
-            })}
-          </List>
-        </Box>
+                  />
+                </ListItemIcon>
+              </ListItem>
+            )
+          })}
+        </List>
       </Box>
 
       {/* Adm */}
       <Box
         sx={{
-          marginBottom: 3,
+          marginBottom: 'calc(5vh)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -165,12 +179,12 @@ const Sidebar: React.FC = () => {
         <Divider sx={{ width: 'calc(70%)' }} />
         <List
           sx={{
-            marginTop: 1,
+            marginTop: 'calc(0.5vw)',
             padding: 0,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 1,
+            gap: 'calc(0.5vw)',
           }}
         >
           {admItems.map((item) => {
@@ -180,18 +194,19 @@ const Sidebar: React.FC = () => {
                 key={item.title}
                 onClick={() => handleNavigation(item.path)}
                 sx={{
+                  padding: 0,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  width: '70px',
-                  height: '70px',
+                  width: 'calc(4vw)',
+                  height: 'calc(4vw)',
                   cursor: 'pointer',
                   backgroundColor: isActive
                     ? theme.palette.text.primary
                     : 'transparent',
-                  borderRadius: '8px',
+                  borderRadius: 'calc(0.5vw)',
                   '&:hover': {
                     backgroundColor: isActive ? 'black' : 'rgba(0, 0, 0, 0.1)',
-                    borderRadius: '8px',
+                    borderRadius: 'calc(0.5vw)',
                   },
                 }}
               >
@@ -200,14 +215,18 @@ const Sidebar: React.FC = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: '100%',
-                    height: '100%',
+                    width: 'calc(4vw)',
+                    minWidth: '10px', 
+                    maxWidth: '400px',
                   }}
                 >
                   <img
                     src={isActive ? item.activeIcon : item.icon}
                     alt={`${item.title} Icon`}
-                    style={{ width: '35px', height: '35px' }}
+                    style={{ 
+                      width: 'calc(2vw)',
+                      height: 'calc(2vw)',
+                    }}
                   />
                 </ListItemIcon>
               </ListItem>
@@ -215,6 +234,7 @@ const Sidebar: React.FC = () => {
           })}
         </List>
       </Box>
+      
     </Box>
   )
 }

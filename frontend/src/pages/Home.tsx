@@ -6,7 +6,7 @@ import HomeCard from '../components/HomeCard'
 // Importação dos ícones
 import ChatIcon from '../assets/icons/chat-icon.svg'
 import CEOIcon from '../assets/icons/ceo-icon.svg'
-import MarketingIcon from '../assets/icons/marketing-icon.svg'
+import MarketIcon from '../assets/icons/market-icon.svg'
 import EarningsIcon from '../assets/icons/earnings-icon.svg'
 
 const Home: React.FC = () => {
@@ -27,7 +27,7 @@ const Home: React.FC = () => {
       title: 'Market Intelligence',
       description:
         'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
-      icon: MarketingIcon,
+      icon: MarketIcon,
     },
     {
       title: 'Earnings',
@@ -39,16 +39,17 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
-      <Box sx={{}}>
         <Box
           sx={{
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: 'center',
+            padding: 'calc(5vh) calc(5vh) calc(5vh) calc(5vh)',
+            overflow: 'auto',
             height: '100%',
             width: '100%',
-            rowGap: 3,
-            columnGap: 4,
+            rowGap: 'calc(3vh)',
+            columnGap: 'calc(2vw)',
           }}
         >
           {cards.map((card, index) => (
@@ -61,7 +62,6 @@ const Home: React.FC = () => {
             </Box>
           ))}
         </Box>
-      </Box>
     </Layout>
   )
 }

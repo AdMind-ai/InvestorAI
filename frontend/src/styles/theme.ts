@@ -47,11 +47,11 @@ const theme: Theme = createTheme({
     },
     background: {
       default: '#FFFFFF', //white
-      paper: '#E4E4E4', //grey
+      paper: '#E4E4E4', //light grey
     },
     text: {
       primary: '#292929', //black
-      secondary: '#707070', //grey
+      secondary: '#707070', //dark grey
     },
     action: {
       disabled: '#E4E4E4',
@@ -91,6 +91,21 @@ const theme: Theme = createTheme({
           display: 'flex',
           height: '260px',
           margin: 0,
+        },
+      },
+    },
+    MuiCssBaseline: {
+      styleOverrides: {
+        '*::-webkit-scrollbar': {
+          width: '5px', 
+        },
+        '*::-webkit-scrollbar-thumb': {
+          backgroundColor: '#707070', 
+          borderRadius: '2.5px', 
+        },
+        '*::-webkit-scrollbar-track': {
+          backgroundColor: '#E4E4E4', 
+          borderRadius: '2.5px', 
         },
       },
     },
