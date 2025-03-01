@@ -41,7 +41,6 @@ const cards = [
 ]
 
 const Home: React.FC = () => {
-
   return (
     <Layout>
       <Box

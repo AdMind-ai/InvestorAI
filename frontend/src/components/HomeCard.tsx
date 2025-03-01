@@ -13,7 +13,7 @@ interface CardProps {
 const HomeCard: React.FC<CardProps> = ({ title, description, icon, path }) => {
   const theme = useTheme()
   const navigate = useNavigate()
-  
+
   const handleNavigation = (path: string) => {
     navigate(path)
   }
@@ -48,10 +48,9 @@ const HomeCard: React.FC<CardProps> = ({ title, description, icon, path }) => {
       <Typography variant="body2">{description}</Typography>
 
       {/* Botão */}
-      <Button 
-        variant="contained"
-        onClick={() => handleNavigation(path)}
-      >VAI ALLA FUNZIONE</Button>
+      <Button variant="contained" onClick={() => handleNavigation(path)}>
+        VAI ALLA FUNZIONE
+      </Button>
     </Card>
   )
 }
