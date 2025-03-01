@@ -1,15 +1,22 @@
 import React from 'react'
 import { useTheme } from '@mui/material/styles'
 import { Box, Button, Typography, Card } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 interface CardProps {
   title: string
   description: string
   icon: string
+  path: string
 }
 
-const HomeCard: React.FC<CardProps> = ({ title, description, icon }) => {
+const HomeCard: React.FC<CardProps> = ({ title, description, icon, path }) => {
   const theme = useTheme()
+  const navigate = useNavigate()
+  
+  const handleNavigation = (path: string) => {
+    navigate(path)
+  }
 
   return (
     <Card
@@ -41,7 +48,10 @@ const HomeCard: React.FC<CardProps> = ({ title, description, icon }) => {
       <Typography variant="body2">{description}</Typography>
 
       {/* Botão */}
-      <Button variant="contained">VAI ALLA FUNZIONE</Button>
+      <Button 
+        variant="contained"
+        onClick={() => handleNavigation(path)}
+      >VAI ALLA FUNZIONE</Button>
     </Card>
   )
 }
