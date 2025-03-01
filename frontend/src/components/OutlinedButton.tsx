@@ -1,14 +1,14 @@
 import React from 'react'
 import { Button } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import { SvgIconProps } from '@mui/material/SvgIcon'
 
 interface OutlinedButtonProps {
-  icon?: React.ReactElement // Aqui garantimos que icon é um ReactElement
+  icon?: React.ReactElement<SvgIconProps> 
   title: string
   color: number
 }
 
-// Array com as cores desejadas
 const iconColors = ['#4040FF', '#EAB400', '#FF1A72']
 
 const OutlinedButton: React.FC<OutlinedButtonProps> = ({
