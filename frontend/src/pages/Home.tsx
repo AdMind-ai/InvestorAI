@@ -2,7 +2,6 @@ import React from 'react'
 import { Box } from '@mui/material'
 import Layout from '../layouts/Layout'
 import HomeCard from '../components/HomeCard'
-import { useNavigate, useLocation } from 'react-router-dom'
 
 // Importação dos ícones
 import ChatIcon from '../assets/icons/chat-icon.svg'
