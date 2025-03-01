@@ -22,7 +22,7 @@ const ArchiveButton: React.FC<ArchiveButtonProps> = ({ label }) => {
         textTransform: 'none',
         width: 'calc(7.2vw)',
         height: 'calc(4.9vh)',
-        minWidth: '10px', 
+        minWidth: '10px',
         maxWidth: '450px',
         color: theme.palette.text.secondary,
         '&:hover': {

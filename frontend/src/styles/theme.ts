@@ -38,12 +38,12 @@ const theme: Theme = createTheme({
     primary: {
       main: '#DF7C33', //orange
       light: '#FCE8DA',
-      contrastText: '#FFFFFF',
+      contrastText: '#FFFFFF', //white
     },
     secondary: {
       main: '#681C7F', //purple
       light: '#CBAAD5',
-      contrastText: '#FFFFFF',
+      contrastText: '#FFFFFF', //white
     },
     background: {
       default: '#FFFFFF', //white
@@ -97,15 +97,15 @@ const theme: Theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         '*::-webkit-scrollbar': {
-          width: '5px', 
+          width: '5px',
         },
         '*::-webkit-scrollbar-thumb': {
-          backgroundColor: '#707070', 
-          borderRadius: '2.5px', 
+          backgroundColor: '#707070',
+          borderRadius: '2.5px',
         },
         '*::-webkit-scrollbar-track': {
-          backgroundColor: '#E4E4E4', 
-          borderRadius: '2.5px', 
+          backgroundColor: '#E4E4E4',
+          borderRadius: '2.5px',
         },
       },
     },

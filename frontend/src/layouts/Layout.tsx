@@ -23,12 +23,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Sidebar */}
       <Sidebar />
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', width:'100%', height:'100%' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          height: '100%',
+        }}
+      >
         {/* Header */}
         <Box
           component="header"
           sx={{
-            height: 'calc(9.1vh)', 
+            height: 'calc(9.1vh)',
             width: 'calc(94vw)',
             paddingRight: 'calc(6vh)',
             display: 'flex',
@@ -53,7 +60,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               M
             </Typography>
-            <Typography variant="subtitle1" sx={{ marginLeft: 'calc(0.5vw)', fontSize: 'clamp(2px, 1.2vw, 80px)', }}>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                marginLeft: 'calc(0.5vw)',
+                fontSize: 'clamp(2px, 1.2vw, 80px)',
+              }}
+            >
               Mario Rossi
             </Typography>
           </Box>

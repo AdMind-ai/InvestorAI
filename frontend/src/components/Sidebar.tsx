@@ -20,7 +20,12 @@ import SecurityIcon from '../assets/icons/security-icon.svg'
 // Menu com links e ícones
 const menuItems = [
   { title: 'Home', path: '/', icon: HomeIcon, activeIcon: HomeIconActive },
-  { title: 'Chat', path: '/chat-assistant', icon: ChatIcon, activeIcon: ChatIconActive },
+  {
+    title: 'Chat',
+    path: '/chat-assistant',
+    icon: ChatIcon,
+    activeIcon: ChatIconActive,
+  },
   {
     title: 'CEO Perception',
     path: '/ceo-perception',
@@ -66,12 +71,11 @@ const Sidebar: React.FC = () => {
         justifyContent: 'space-between',
         height: '100vh',
         width: 'calc(7vw)',
-        minWidth: '20px', 
+        minWidth: '20px',
         maxWidth: '400px',
         color: theme.palette.text.primary,
       }}
     >
-
       {/* Logo */}
       <Box
         sx={{
@@ -79,10 +83,10 @@ const Sidebar: React.FC = () => {
           top: 0,
           left: 0,
           width: 'calc(6vw)',
-          minWidth: '20px', 
+          minWidth: '20px',
           maxWidth: '400px',
           textAlign: 'center',
-          height: 'calc(8.5vh)', 
+          height: 'calc(8.5vh)',
           borderBottom: `calc(0.1vh) solid ${theme.palette.background.paper}`,
           display: 'flex',
           alignItems: 'center',
@@ -102,12 +106,14 @@ const Sidebar: React.FC = () => {
       </Box>
 
       {/* Menu Functions */}
-      <Box sx={{ 
-        marginTop: 'calc(11vh)', 
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}>
+      <Box
+        sx={{
+          marginTop: 'calc(11vh)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
         <List
           sx={{
             padding: 0,
@@ -135,9 +141,7 @@ const Sidebar: React.FC = () => {
                     : 'transparent',
                   borderRadius: 'calc(0.5vw)',
                   '&:hover': {
-                    backgroundColor: isActive
-                      ? 'black'
-                      : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: isActive ? 'black' : 'rgba(0, 0, 0, 0.1)',
                     borderRadius: 'calc(0.5vw)',
                   },
                 }}
@@ -148,14 +152,14 @@ const Sidebar: React.FC = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     width: 'calc(4vw)',
-                    minWidth: '10px', 
+                    minWidth: '10px',
                     maxWidth: '400px',
                   }}
                 >
                   <img
                     src={isActive ? item.activeIcon : item.icon}
                     alt={`${item.title} Icon`}
-                    style={{ 
+                    style={{
                       width: 'calc(2vw)',
                       height: 'calc(2vw)',
                     }}
@@ -216,14 +220,14 @@ const Sidebar: React.FC = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     width: 'calc(4vw)',
-                    minWidth: '10px', 
+                    minWidth: '10px',
                     maxWidth: '400px',
                   }}
                 >
                   <img
                     src={isActive ? item.activeIcon : item.icon}
                     alt={`${item.title} Icon`}
-                    style={{ 
+                    style={{
                       width: 'calc(2vw)',
                       height: 'calc(2vw)',
                     }}
@@ -234,7 +238,6 @@ const Sidebar: React.FC = () => {
           })}
         </List>
       </Box>
-      
     </Box>
   )
 }

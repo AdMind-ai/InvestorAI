@@ -39,29 +39,29 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            padding: 'calc(5vh) calc(5vh) calc(5vh) calc(5vh)',
-            overflow: 'auto',
-            height: '100%',
-            width: '100%',
-            rowGap: 'calc(3vh)',
-            columnGap: 'calc(2vw)',
-          }}
-        >
-          {cards.map((card, index) => (
-            <Box key={index}>
-              <HomeCard
-                title={card.title}
-                description={card.description}
-                icon={card.icon}
-              />
-            </Box>
-          ))}
-        </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          padding: 'calc(5vh) calc(5vh) calc(5vh) calc(5vh)',
+          overflow: 'auto',
+          height: '100%',
+          width: '100%',
+          rowGap: 'calc(3vh)',
+          columnGap: 'calc(2vw)',
+        }}
+      >
+        {cards.map((card, index) => (
+          <Box key={index}>
+            <HomeCard
+              title={card.title}
+              description={card.description}
+              icon={card.icon}
+            />
+          </Box>
+        ))}
+      </Box>
     </Layout>
   )
 }

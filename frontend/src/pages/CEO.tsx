@@ -19,7 +19,8 @@ const CEO: React.FC = () => {
     setFields(newFields)
   }
 
-  const allFieldsFilled = fields.length > 0 && fields.every(field => field.trim() !== '')
+  const allFieldsFilled =
+    fields.length > 0 && fields.every((field) => field.trim() !== '')
 
   return (
     <Layout>
@@ -33,8 +34,16 @@ const CEO: React.FC = () => {
           width: '100%',
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2vw' }}>
-          <Typography variant='h2' sx={{ marginLeft: '1vw' }}>CEO Perception</Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '0.2vw',
+          }}
+        >
+          <Typography variant="h2" sx={{ marginLeft: '1vw' }}>
+            CEO Perception
+          </Typography>
           <Typography
             variant="subtitle1"
             sx={{
@@ -44,7 +53,7 @@ const CEO: React.FC = () => {
               cursor: 'pointer',
               '&:hover': {
                 color: theme.palette.secondary.light,
-              }
+              },
             }}
             onClick={() => console.log('Click!')}
           >
@@ -70,10 +79,19 @@ const CEO: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            Scrivi qui fino a tre nomi di persona, business o notizia e scopri le percezioni online
+            Scrivi qui fino a tre nomi di persona, business o notizia e scopri
+            le percezioni online
           </Typography>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '75vw' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              width: '100%',
+              maxWidth: '75vw',
+            }}
+          >
             {fields.map((field, index) => (
               <TextField
                 key={index}
@@ -82,7 +100,13 @@ const CEO: React.FC = () => {
                 fullWidth
                 value={field}
                 onChange={(e) => handleChange(index, e.target.value)}
-                sx={{ '& .MuiOutlinedInput-root': { height: '50px', borderRadius: '12px', fontSize: '17px' } }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    height: '50px',
+                    borderRadius: '12px',
+                    fontSize: '17px',
+                  },
+                }}
               />
             ))}
           </Box>
@@ -94,7 +118,7 @@ const CEO: React.FC = () => {
                 marginTop: '8px',
                 color: theme.palette.secondary.main,
                 cursor: 'pointer',
-                '&:hover': { textDecoration: 'underline' }
+                '&:hover': { textDecoration: 'underline' },
               }}
               onClick={handleAddField}
             >
