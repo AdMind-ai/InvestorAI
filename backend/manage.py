@@ -7,6 +7,7 @@ import sys
 def main():
     """Run administrative tasks."""
     settings_module = 'backend.production' if 'WEBSITE_HOSTNAME' in os.environ else 'backend.settings'
+    print(settings_module)
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
     try:
         from django.core.management import execute_from_command_line
