@@ -28,6 +28,7 @@ jobs:
         run: |
           echo "WEBSITE_HOSTNAME=${{ secrets.WEBSITE_HOSTNAME }}" >> $GITHUB_ENV
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "AZURE_POSTGRESQL_CONNECTIONSTRING=${{ secrets.AZURE_POSTGRESQL_CONNECTIONSTRING }}" >> $GITHUB_ENV
 
       - name: Create and start virtual environment
         run: |
