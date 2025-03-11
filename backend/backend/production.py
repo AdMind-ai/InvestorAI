@@ -13,6 +13,7 @@ CORS_ALLOW_ALL_ORIGINS = ['https://app.investorai.it']
 
 # Disable debug mode in production
 DEBUG = False
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # Middleware configuration for handling requests and security
 MIDDLEWARE = [

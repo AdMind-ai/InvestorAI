@@ -16,11 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# from core.views.index_view import IndexView
+from rest_framework.routers import DefaultRouter
+from core.views.api import CoreViewSet, APIRootView
+
+router = DefaultRouter()
+router.register(r'core', CoreViewSet, basename='core')
 
 urlpatterns = [
+    path('', APIRootView.as_view(), name="api-root"),
+    path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
     path('api/', include('core.urls')),
-    # path('', IndexView.as_view(), name='index')
 ]
