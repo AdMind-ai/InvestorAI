@@ -3,6 +3,8 @@ from .settings import *  # Import all settings from the base settings file
 from .settings import BASE_DIR  # Import BASE_DIR from the base settings file
 
 # Allowed domains the project is allowed to serve
+website_hostname = os.getenv('WEBSITE_HOSTNAME')
+print(website_hostname)
 ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']]
 
 # List of trusted origins for unsafe requests (e.g., CSRF protection)
