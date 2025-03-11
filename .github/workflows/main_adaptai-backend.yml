@@ -27,6 +27,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "WEBSITE_HOSTNAME=${{ secrets.WEBSITE_HOSTNAME }}" >> $GITHUB_ENV
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
 
       - name: Create and start virtual environment
         run: |
