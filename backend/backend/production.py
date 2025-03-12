@@ -11,7 +11,11 @@ ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']]
 CSRF_TRUSTED_ORIGINS = ['https://' + os.environ['WEBSITE_HOSTNAME']]
 
 # List of allowed origins for CORS (Cross-Origin Resource Sharing)
-CORS_ALLOW_ALL_ORIGINS = ['https://app.investorai.it']
+# CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    "https://app.investorai.it",
+]
+
 
 # Disable debug mode in production
 DEBUG = False
