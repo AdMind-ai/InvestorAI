@@ -20,7 +20,7 @@ const ArchiveButton: React.FC<ArchiveButtonProps> = ({ label }) => {
         borderRadius: 'calc(0.5vw)',
         padding: 0,
         textTransform: 'none',
-        width: 'calc(7.2vw)',
+        width: 'calc(10.2vh)',
         height: 'calc(4.9vh)',
         minWidth: '10px',
         maxWidth: '450px',
@@ -37,8 +37,8 @@ const ArchiveButton: React.FC<ArchiveButtonProps> = ({ label }) => {
         src={ArchiveIcon}
         alt="Archive Icon"
         sx={{
-          width: 'clamp(1px, 1.2vw, 90px)',
-          height: 'clamp(1px, 1.2vw, 90px)',
+          width: "1.8vh",
+          height: "1.8vh",
           marginRight: 'calc(0.5vw)',
         }}
       />
@@ -46,7 +46,7 @@ const ArchiveButton: React.FC<ArchiveButtonProps> = ({ label }) => {
       <Typography
         variant="button"
         sx={{
-          fontSize: 'clamp(2px, 1.1vw, 70px)',
+          fontSize: "1.6vh",
           fontWeight: 400,
           color: theme.palette.text.secondary,
         }}
