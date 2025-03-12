@@ -4,12 +4,12 @@ import { useTheme } from '@mui/material/styles'
 import { SvgIconProps } from '@mui/material/SvgIcon'
 
 interface OutlinedButtonProps {
-  icon?: React.ReactElement<SvgIconProps> 
+  icon?: React.ReactElement<SvgIconProps>
   title: string
   color: number
 }
 
-const iconColors = ['#4040FF', '#EAB400', '#FF1A72']
+const iconColors = ['#5072CC', '#EAB400', '#FF1A72']
 
 const OutlinedButton: React.FC<OutlinedButtonProps> = ({
   icon,
@@ -22,7 +22,7 @@ const OutlinedButton: React.FC<OutlinedButtonProps> = ({
   const iconColor = iconColors[colorIndex - 1]
 
   const styledIcon = icon
-    ? React.cloneElement(icon, { sx: { color: iconColor } })
+    ? React.cloneElement(icon, { sx: { color: iconColor, fontSize: '1.5rem' } }) // Ajusta tamanho do ícone
     : null
 
   return (
@@ -36,7 +36,13 @@ const OutlinedButton: React.FC<OutlinedButtonProps> = ({
         borderRadius: '8px',
         border: `2px solid ${theme.palette.grey[300]}`,
         textTransform: 'none',
-        padding: '4px 1px',
+        display: 'flex',
+        alignItems: 'center',
+        paddingX: '12px', 
+        paddingY: '8px',  
+        gap: 0, 
+        whiteSpace: 'nowrap',
+        width: 'auto',
         height: '6vh',
         '&:hover': {
           backgroundColor: '#f3f4f6',

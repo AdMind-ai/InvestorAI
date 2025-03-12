@@ -14,10 +14,14 @@ import SimpleDropdown from '../components/SimpleDropdown'
 import OutlinedButton from '../components/OutlinedButton'
 
 // Importação dos ícones
+import OverviewIcon from '@mui/icons-material/AnalyticsOutlined'
+import SearchWebIcon from '@mui/icons-material/TravelExploreOutlined';
 import AttachFileIcon from '@mui/icons-material/AttachFile'
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
-import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined'
-import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined'
+
+// import AttachFileIcon from '@mui/icons-material/AttachFile'
+// import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
+// import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined'
+// import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined'
 
 const Chat: React.FC = () => {
   const theme = useTheme()
@@ -182,7 +186,7 @@ const Chat: React.FC = () => {
               />
 
               {/* Attach File Button - Bottom Left */}
-              <Button
+              {/* <Button
                 sx={{
                   position: 'absolute',
                   left: '16px',
@@ -200,7 +204,30 @@ const Chat: React.FC = () => {
                 }}
               >
                 <AttachFileIcon />
-              </Button>
+              </Button> */}
+
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: '16px',
+                  bottom: '16px',
+                  padding: 0,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 2,
+                }}
+              >
+                <OutlinedButton
+                  icon={<AttachFileIcon />}
+                  title="Immagine/documento"
+                  color={1}
+                />
+                <OutlinedButton
+                  icon={<SearchWebIcon />}
+                  title="Searchweb"
+                  color={1}
+                />
+              </Box>
 
               {/* Send Button - Bottom Right */}
               <Button
@@ -214,6 +241,7 @@ const Chat: React.FC = () => {
                   padding: '6px 16px',
                   textTransform: 'none',
                   width: 'calc(9.5vw)',
+                  fontSize: '17px',
                 }}
               >
                 Invia
@@ -223,6 +251,11 @@ const Chat: React.FC = () => {
 
           <Box sx={{ display: 'flex', gap: 2 }}>
             <OutlinedButton
+              icon={<OverviewIcon />}
+              title="Overview del titolo"
+              color={1}
+            />
+            {/* <OutlinedButton
               icon={<DescriptionOutlinedIcon />}
               title="Scrivi articolo"
               color={1}
@@ -236,8 +269,9 @@ const Chat: React.FC = () => {
               icon={<CampaignOutlinedIcon />}
               title="Summarize Text"
               color={3}
-            />
+            /> */}
           </Box>
+
         </Box>
       </Box>
     </Layout>
