@@ -20,11 +20,11 @@ const ArchiveButton: React.FC<ArchiveButtonProps> = ({ label }) => {
         borderRadius: 'calc(0.5vw)',
         padding: 0,
         textTransform: 'none',
-        width: 'calc(10.2vh)',
-        height: 'calc(4.9vh)',
+        width: 'calc(13.6vh)',
+        height: 'calc(4.3vh)',
         minWidth: '10px',
         maxWidth: '450px',
-        color: theme.palette.text.secondary,
+        backgroundColor: theme.palette.background.default,
         '&:hover': {
           backgroundColor: 'rgba(0, 0, 0, 0.05)',
           borderColor: theme.palette.text.secondary,
@@ -37,16 +37,16 @@ const ArchiveButton: React.FC<ArchiveButtonProps> = ({ label }) => {
         src={ArchiveIcon}
         alt="Archive Icon"
         sx={{
-          width: "1.8vh",
-          height: "1.8vh",
-          marginRight: 'calc(0.5vw)',
+          width: "2vh",
+          height: "2vh",
+          marginRight: 'calc(0.3vw)',
         }}
       />
       {/* Texto do botão */}
       <Typography
         variant="button"
         sx={{
-          fontSize: "1.6vh",
+          fontSize: "1.9vh",
           fontWeight: 400,
           color: theme.palette.text.secondary,
         }}

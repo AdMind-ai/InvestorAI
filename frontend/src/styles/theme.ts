@@ -37,13 +37,13 @@ const theme: Theme = createTheme({
   },
   palette: {
     primary: {
-      main: '#DF7C33', //orange
+      main: '#ED6008', //orange
       light: '#FCE8DA',
       contrastText: '#FFFFFF', //white
     },
     secondary: {
-      main: '#681C7F', //purple
-      light: '#CBAAD5',
+      main: '#5072CC', //blue
+      light: '#CED7EC',
       contrastText: '#FFFFFF', //white
     },
     background: {
@@ -72,10 +72,10 @@ const theme: Theme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#DF7C33',
+          backgroundColor: '#0E39B0',
           color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: '#D06C20',
+            backgroundColor: '#0C338C',
           },
         },
       },

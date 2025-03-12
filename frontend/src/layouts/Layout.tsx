@@ -54,18 +54,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           sx={{
             height: "calc(9.1vh)",
             width: "calc(94vw)",
-            paddingRight: "calc(6vh)",
+            paddingRight: "calc(3vh)",
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
-            gap: "calc(1.5vw)",
+            gap: "calc(1.3vh)",
           }}
         >
           <ArchiveButton label={"Archivio"} />
 
           {/* User Dropdown */}
           <Box
-            sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+            sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              cursor: "pointer", 
+              padding: '0.5vh 0.8vw',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                borderRadius: 'calc(4vh)',
+              },
+            }}
             onClick={handleMenuOpen}
           >
             <Avatar
@@ -74,7 +83,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 color: theme.palette.primary.contrastText,
                 width: "4vh",
                 height: "4vh",
-                fontSize: "1.8vh",
+                fontSize: "2.5vh",
               }}
             >
               {userInitial}
@@ -83,7 +92,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               variant="subtitle1"
               sx={{
                 marginLeft: "0.5vw",
-                fontSize: "1.8vh",
+                fontSize: "2.5vh",
                 color: theme.palette.text.primary,
               }}
             >
@@ -132,7 +141,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           sx={{
             padding: '0px calc(1.5vw) calc(1.5vw) 0px',
             height: 'calc(95vh)',
-            width: 'calc(94vw)',
+            width: 'calc(95vw)',
           }}
         >
           <Box

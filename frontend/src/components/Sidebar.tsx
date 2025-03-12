@@ -14,8 +14,13 @@ import MarketIcon from '../assets/icons/market-icon.svg'
 import MarketIconActive from '../assets/icons/market-icon-active.svg'
 import EarningsIcon from '../assets/icons/earnings-icon.svg'
 import EarningsIconActive from '../assets/icons/earnings-icon-active.svg'
+import ESGIcon from '../assets/icons/esg-icon.svg'
+import ESGIconActive from '../assets/icons/esg-icon-active.svg'
 import FinanceIcon from '../assets/icons/finance-icon.svg'
 import SecurityIcon from '../assets/icons/security-icon.svg'
+
+// Logos
+import InvestorLogo from '../assets/logos/svg/NOPAYOFF_LEFT_POSITIVE.svg'
 
 // Menu com links e ícones
 const menuItems = [
@@ -44,6 +49,12 @@ const menuItems = [
     icon: EarningsIcon,
     activeIcon: EarningsIconActive,
   },
+  {
+    title: 'ESG',
+    path: '/esg',
+    icon: ESGIcon,
+    activeIcon: ESGIconActive,
+  },
 ]
 
 const admItems = [
@@ -70,7 +81,7 @@ const Sidebar: React.FC = () => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         height: '100vh',
-        width: 'calc(7vw)',
+        width: 'calc(5vw)',
         minWidth: '20px',
         maxWidth: '400px',
         color: theme.palette.text.primary,
@@ -95,14 +106,15 @@ const Sidebar: React.FC = () => {
       >
         {/* Logo Icon */}
         <Box
+          component="img"
+          src={InvestorLogo}
+          alt="Investor Logo"
           sx={{
-            fontSize: 'clamp(10px, 4vw, 250px)',
-            fontWeight: 700,
-            color: theme.palette.primary.main,
+            width: "30vh",
+            height: "30vh",
+            marginLeft: 'calc(11vw)',
           }}
-        >
-          ʌ
-        </Box>
+        />
       </Box>
 
       {/* Menu Functions */}
@@ -133,15 +145,15 @@ const Sidebar: React.FC = () => {
                   padding: 0,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  width: 'calc(4vw)',
-                  height: 'calc(4vw)',
+                  width: 'calc(3vw)',
+                  height: 'calc(3vw)',
                   cursor: 'pointer',
                   backgroundColor: isActive
-                    ? theme.palette.text.primary
+                    ? theme.palette.primary.main
                     : 'transparent',
                   borderRadius: 'calc(0.5vw)',
                   '&:hover': {
-                    backgroundColor: isActive ? 'black' : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: isActive ? theme.palette.primary.light : 'rgba(0, 0, 0, 0.1)',
                     borderRadius: 'calc(0.5vw)',
                   },
                 }}
@@ -151,7 +163,7 @@ const Sidebar: React.FC = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: 'calc(4vw)',
+                    width: 'calc(3vw)',
                     minWidth: '10px',
                     maxWidth: '400px',
                   }}
@@ -160,8 +172,8 @@ const Sidebar: React.FC = () => {
                     src={isActive ? item.activeIcon : item.icon}
                     alt={`${item.title} Icon`}
                     style={{
-                      width: 'calc(2vw)',
-                      height: 'calc(2vw)',
+                      width: 'calc(1.5vw)',
+                      height: 'calc(1.5vw)',
                     }}
                   />
                 </ListItemIcon>
@@ -201,15 +213,15 @@ const Sidebar: React.FC = () => {
                   padding: 0,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  width: 'calc(4vw)',
-                  height: 'calc(4vw)',
+                  width: 'calc(3vw)',
+                  height: 'calc(3vw)',
                   cursor: 'pointer',
                   backgroundColor: isActive
-                    ? theme.palette.text.primary
+                    ? theme.palette.primary.main
                     : 'transparent',
                   borderRadius: 'calc(0.5vw)',
                   '&:hover': {
-                    backgroundColor: isActive ? 'black' : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: isActive ? theme.palette.primary.light : 'rgba(0, 0, 0, 0.1)',
                     borderRadius: 'calc(0.5vw)',
                   },
                 }}
@@ -219,7 +231,7 @@ const Sidebar: React.FC = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: 'calc(4vw)',
+                    width: 'calc(3vw)',
                     minWidth: '10px',
                     maxWidth: '400px',
                   }}
@@ -228,8 +240,8 @@ const Sidebar: React.FC = () => {
                     src={isActive ? item.activeIcon : item.icon}
                     alt={`${item.title} Icon`}
                     style={{
-                      width: 'calc(2vw)',
-                      height: 'calc(2vw)',
+                      width: 'calc(1.5vw)',
+                      height: 'calc(1.5vw)',
                     }}
                   />
                 </ListItemIcon>
