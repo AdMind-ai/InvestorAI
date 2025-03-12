@@ -26,18 +26,6 @@ import InvestorLogo from '../assets/logos/svg/NOPAYOFF_LEFT_POSITIVE.svg'
 const menuItems = [
   { title: 'Home', path: '/', icon: HomeIcon, activeIcon: HomeIconActive },
   {
-    title: 'Chat',
-    path: '/chat-assistant',
-    icon: ChatIcon,
-    activeIcon: ChatIconActive,
-  },
-  {
-    title: 'CEO Perception',
-    path: '/ceo-perception',
-    icon: CEOIcon,
-    activeIcon: CEOIconActive,
-  },
-  {
     title: 'Market',
     path: '/market-intelligence',
     icon: MarketIcon,
@@ -48,6 +36,18 @@ const menuItems = [
     path: '/earnings',
     icon: EarningsIcon,
     activeIcon: EarningsIconActive,
+  },
+  {
+    title: 'CEO Perception',
+    path: '/ceo-perception',
+    icon: CEOIcon,
+    activeIcon: CEOIconActive,
+  },
+  {
+    title: 'Chat',
+    path: '/chat-assistant',
+    icon: ChatIcon,
+    activeIcon: ChatIconActive,
   },
   {
     title: 'ESG',

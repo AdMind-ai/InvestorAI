@@ -13,7 +13,7 @@ const theme: Theme = createTheme({
     },
     h3: {
       fontSize: '24px',
-      fontWeight: 400, // Regular
+      fontWeight: 700, // Regular
     },
     body1: {
       fontSize: '22px',
@@ -26,6 +26,7 @@ const theme: Theme = createTheme({
     subtitle1: {
       fontSize: '17px',
       fontWeight: 400, // Regular
+      lineHeight: '1.2',
     },
     button: {
       fontWeight: 700,
@@ -88,9 +89,9 @@ const theme: Theme = createTheme({
           border: '1px solid #E4E4E4',
           backgroundColor: '#FFFFFF',
           boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.29)',
-          padding: '16px 24px 22px 24px',
+          padding: '16px 24px 18px 24px',
           display: 'flex',
-          height: '260px',
+          height: '250px',
           margin: 0,
         },
       },

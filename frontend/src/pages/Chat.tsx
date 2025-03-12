@@ -65,7 +65,7 @@ const Chat: React.FC = () => {
                 }
                 sx={{ gap: '4px', maxHeight: '4.2vh' }}
               >
-                {['GPT-4o mini', 'GPT-4o', 'GPT-o3'].map((model) => (
+                {['GPT-4o mini', 'GPT-4o', 'GPT-4.5', 'o3 mini'].map((model) => (
                   <ToggleButton
                     key={model}
                     value={model}
@@ -136,7 +136,7 @@ const Chat: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            In che cosa posso esserti utile oggi?
+            Scrivi ciò di cui hai bisogno nella chat oppure seleziona un’attività che desideri svolgere dall’elenco sottostante.
           </Typography>
 
           {/* Text Area */}
@@ -164,7 +164,7 @@ const Chat: React.FC = () => {
                 multiline
                 minRows={1}
                 value={''}
-                placeholder="Scrivi qualcosa"
+                placeholder="Come posso esserti d’aiuto?"
                 sx={{
                   fontSize: '10px',
                   backgroundColor: 'inherit',

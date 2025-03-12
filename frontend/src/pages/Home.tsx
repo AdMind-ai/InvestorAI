@@ -11,32 +11,32 @@ import EarningsIcon from '../assets/icons/earnings-icon.svg'
 
 const cards = [
   {
-    title: 'Chat Assistant',
-    description:
-      'Chiedi al tuo assistente virtuale: risposte rapide, informazioni precise e supporto costante.',
-    icon: ChatIcon,
-    path: '/chat-assistant',
-  },
-  {
-    title: 'CEO perception',
-    description:
-      'Analizza e monitora come una persona, un business o una notizia viene percepita online.',
-    icon: CEOIcon,
-    path: '/ceo-perception',
-  },
-  {
     title: 'Market Intelligence',
     description:
-      'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
+    'Conduce ricerche e analisi sul mercato di riferimento dei principali competitors e sui peers quotati sui capital markets internazionali.',
     icon: MarketIcon,
     path: '/market-intelligence',
   },
   {
     title: 'Earnings',
     description:
-      'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
+    'Traduce in molteplici lingue investor presentation, trascrive webcast, prepara investor speech e crea contenuti social rapidamente grazie all’AI.',
     icon: EarningsIcon,
     path: '/earnings',
+  },
+  {
+    title: 'CEO perception',
+    description:
+    'Monitora e analizza la percezione online del CEO e dei key manager aziendali attraverso la potenza dell’AI.',
+    icon: CEOIcon,
+    path: '/ceo-perception',
+  },
+  {
+    title: 'Chat Assistant',
+    description:
+      'Assistente virtuale rapido, sicuro e totalmente privato per ottenere risposte immediatamente anche su informazioni price sensitive non ancora pubbliche.',
+    icon: ChatIcon,
+    path: '/chat-assistant',
   },
 ]
 
@@ -48,16 +48,15 @@ const Home: React.FC = () => {
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'center',
-          padding: 'calc(5vh) calc(5vh) calc(5vh) calc(5vh)',
+          padding: 'calc(5vh) calc(3vh) calc(5vh) calc(3vh)',
           overflow: 'auto',
           height: '100%',
           width: '100%',
-          rowGap: 'calc(3vh)',
-          columnGap: 'calc(2vw)',
+          gap:1,
         }}
       >
         {cards.map((card, index) => (
-          <Box key={index}>
+          <Box key={index} sx={{padding:'10px 10px'}}>
             <HomeCard
               title={card.title}
               description={card.description}
