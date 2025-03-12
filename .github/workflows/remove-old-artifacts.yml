@@ -1,13 +1,13 @@
 name: Remove old artifacts
 on:
-  # schedule:
-  #   - cron: "0 1 * * *"
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  schedule:
+    - cron: "0 1 * * *"
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
 jobs:
   remove-old-artifacts:
     runs-on: ubuntu-latest
