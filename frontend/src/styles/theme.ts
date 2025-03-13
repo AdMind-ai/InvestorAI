@@ -63,9 +63,11 @@ const theme: Theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
+          fontSize: '17px',
           width: '170px',
           height: '36px',
           borderRadius: '10px',
+          fontWeight: 700,
           '&.Mui-disabled': {
             backgroundColor: '#E4E4E4',
             color: '#707070',
@@ -73,14 +75,21 @@ const theme: Theme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#0E39B0',
+          backgroundColor: '#0E39B0', // Primary
           color: '#FFFFFF',
           '&:hover': {
             backgroundColor: '#0C338C',
           },
         },
+        containedSecondary: { 
+          backgroundColor: '#ED6008',  // Secondary
+          color: '#FFFFFF',
+          '&:hover': {
+            backgroundColor: '#C64D06', 
+          },
+        },
       },
-    },
+    },    
     MuiCard: {
       styleOverrides: {
         root: {

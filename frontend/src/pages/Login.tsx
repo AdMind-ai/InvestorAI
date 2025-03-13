@@ -47,6 +47,7 @@ const Login: React.FC = () => {
       }
     } catch (error) {
       alert("An error occurred while logging in.");
+      console.error("Error logging in:", error);
     }
   };
 

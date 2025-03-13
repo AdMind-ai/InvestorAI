@@ -18,7 +18,7 @@ const cards = [
     path: '/market-intelligence',
   },
   {
-    title: 'Earnings',
+    title: 'Earnings Call',
     description:
     'Traduce in molteplici lingue investor presentation, trascrive webcast, prepara investor speech e crea contenuti social rapidamente grazie all’AI.',
     icon: EarningsIcon,

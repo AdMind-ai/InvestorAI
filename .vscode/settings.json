@@ -22,5 +22,6 @@
     "cSpell.words": [
         "corsheaders",
         "simplejwt"
-    ]
+    ],
+    "python-envs.pythonProjects": []
 }

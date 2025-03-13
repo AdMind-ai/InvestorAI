@@ -1,15 +1,18 @@
 import React, { useState } from 'react'
-import { Button, Menu, MenuItem, Box } from '@mui/material'
+import { Button, Menu, MenuItem, Box, Typography, ListItemIcon } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import CheckIcon from '@mui/icons-material/Check';
 
 interface SimpleDropdownProps {
   title: string
   options: string[]
+  onSelect?: (selectedOption: string) => void
 }
 
-const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options }) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
+const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, onSelect }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedIndex, setSelectedIndex] = useState<null | number>(null);
+  const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
@@ -18,6 +21,12 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options }) => {
   const handleClose = () => {
     setAnchorEl(null)
   }
+
+  const handleSelect = (index: number) => {
+    setSelectedIndex(index);
+    onSelect?.(options[index])
+    handleClose();
+  };
 
   return (
     <Box sx={{ padding: 0 }}>
@@ -36,10 +45,37 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options }) => {
       >
         {title}
       </Button>
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          style: {
+            borderRadius: 10,  
+            backgroundColor: '#f9f9f9', 
+          },
+        }}
+      >
         {options.map((option, index) => (
-          <MenuItem key={index} onClick={handleClose}>
-            {option}
+          <MenuItem
+            key={index}
+            onClick={() => handleSelect(index)}
+            selected={index === selectedIndex}
+            sx={{
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+              },
+              fontWeight: index === selectedIndex ? 'bold' : 'normal',
+              fontSize: '14px', 
+              borderRadius: 10,  
+            }}
+          >
+            {index === selectedIndex && (
+              <ListItemIcon>
+                <CheckIcon fontSize="small" />
+              </ListItemIcon>
+            )}
+            <Typography variant="inherit">{option}</Typography>
           </MenuItem>
         ))}
       </Menu>
