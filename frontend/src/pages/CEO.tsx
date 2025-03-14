@@ -29,7 +29,7 @@ interface NewsItem {
 
 const mockData: Record<string, NewsItem[]> = {
   'Mario Rossi': [
-    { title: 'Title', preview: 'La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...', link: '#', sentiment: 92 },
+    { title: 'Title La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario', preview: 'La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...', link: '#', sentiment: 92 },
     { title: 'Title', preview: 'Innovazione e sostenibilità: Mario Rossi svela il futuro...', link: '#', sentiment: 65 },
     { title: 'Title', preview: 'Crisi aziendale criticata da Mario Rossi...', link: '#', sentiment: 90 },
   ],

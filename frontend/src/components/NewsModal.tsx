@@ -71,8 +71,19 @@ const NewsModal: React.FC<NewsModalProps> = ({
         </Box>
 
         {/* Title */}
-        <Typography variant="body2" sx={{ fontWeight: 'bold', pl:2 }}>{title}</Typography>
-        
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 'bold',
+            px: 2,
+            whiteSpace: 'nowrap',      
+            overflow: 'hidden',       
+            textOverflow: 'ellipsis', 
+          }}
+        >
+          {title}
+        </Typography>   
+
         {/* Content */}
         <Box 
           sx={{ 
