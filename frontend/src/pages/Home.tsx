@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import Layout from '../layouts/Layout'
 import HomeCard from '../components/HomeCard'
 
@@ -44,27 +44,43 @@ const Home: React.FC = () => {
   return (
     <Layout>
       <Box
-        sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          padding: 'calc(5vh) calc(3vh) calc(5vh) calc(3vh)',
-          overflow: 'auto',
-          height: '100%',
-          width: '100%',
-          gap:1,
-        }}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'auto',
+        height: '100%',
+        width: '100%',
+      }}
       >
-        {cards.map((card, index) => (
-          <Box key={index} sx={{padding:'10px 10px'}}>
-            <HomeCard
-              title={card.title}
-              description={card.description}
-              icon={card.icon}
-              path={card.path}
-            />
-          </Box>
-        ))}
+        <Typography variant="h3" sx={{textAlign: 'center', padding:'0px 0px', paddingTop:'5vh'}}>
+          Cosa vuoi fare oggi?
+        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            padding: 'calc(4vh) calc(3vh) calc(4vh) calc(3vh)',
+            // overflow: 'auto',
+            height: '84%',
+            width: '90%',
+            // backgroundColor: 'blue',
+            gap:1,
+          }}
+          >
+          {cards.map((card, index) => (
+            <Box key={index} sx={{padding:'10px 20px'}}>
+              <HomeCard
+                title={card.title}
+                description={card.description}
+                icon={card.icon}
+                path={card.path}
+                />
+            </Box>
+          ))}
+        </Box>
       </Box>
     </Layout>
   )

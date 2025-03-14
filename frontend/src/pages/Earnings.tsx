@@ -101,7 +101,7 @@ const Earnings: React.FC = () => {
         <Divider />
 
         {/* Main Content */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'top', width: '100%', height: '100%', paddingTop: '1.5vw' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'top', width: '100%', height: '100%', paddingTop: '1.5vw' }} >
           
           {/* Selection Buttons */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -112,7 +112,22 @@ const Earnings: React.FC = () => {
               sx={{ display: 'flex', gap: 2, borderRadius: '12px', overflow: 'visible', width: '98%' }}
             >
               {Options.map((option) => (
-                <ToggleButton key={option.title} value={option.title} sx={{ borderRadius: '10px !important', padding: '8px 16px', fontWeight: 'bold', height: 'calc(5.3vh)', color: theme.palette.text.primary, border: `1px solid ${theme.palette.grey[300]} !important`, '&.Mui-selected': { backgroundColor: theme.palette.primary.light, borderColor: `${theme.palette.primary.main} !important`, } }}>
+                <ToggleButton
+                  key={option.title}
+                  value={option.title}
+                  sx={{
+                    borderRadius: '10px !important',
+                    padding: '8px 16px',
+                    fontWeight: selectedOption === option.title ? 'bold' : 'regular',
+                    height: 'calc(5.3vh)',
+                    color: theme.palette.text.primary,
+                    border: `1px solid ${theme.palette.grey[300]} !important`,
+                    '&.Mui-selected': {
+                      backgroundColor: theme.palette.primary.light,
+                      borderColor: `${theme.palette.primary.main} !important`,
+                    },
+                  }}
+                >
                   {option.title}
                 </ToggleButton>
               ))}

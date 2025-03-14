@@ -1,76 +1,140 @@
-// import { useTheme } from '@mui/material/styles'
-// import { useNavigate } from 'react-router-dom'
-import { Box, Button, TextField } from '@mui/material'
-import SimpleDropdown from '../SimpleDropdown'
-import { useState } from 'react'
+import { Box, Button, IconButton, Menu, MenuItem } from '@mui/material';
+import { useState } from 'react';
+import CustomTextArea from '../CustomTextArea';
+import AudioUploadArea from '../AudioUploadArea';
+import jsPDF from 'jspdf';
+import downloadIcon from '../../assets/icons/download-icon.svg';
 
 const Trascrizione = () => {
-  // const theme = useTheme()
-  // const navigate = useNavigate()
-  const [selectedLanguage, setSelectedLanguage] = useState<null | string>(null);
-  const [selectedVoice, setSelectedVoice] = useState<null | string>(null);
+  const [selectedAudioFile, setSelectedAudioFile] = useState<File | null>(null);
   const [text, setText] = useState<string>('');
+  const [showTextArea, setShowTextArea] = useState<boolean>(false);
 
-  const isButtonEnabled =
-    selectedLanguage !== null && selectedVoice !== null && text.trim().length > 0;
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  // const handleNavigation = (path: string) => {
-  //   navigate(path)
-  // }
+  const isButtonEnabled = selectedAudioFile !== null;
+
+  const handleFileUpload = (file: File) => {
+    console.log('Arquivo carregado:', file);
+    // Aqui você pode enviar o arquivo para backend ou processar o conteúdo
+  };
+
+  const handleClickTrascrivi = () => {
+    setShowTextArea(true);
+    handleFileUpload(selectedAudioFile as File);
+  };
+
+  const handleDownloadClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDownloadPDF = (formatName: string) => {
+    handleCloseMenu();
+    
+    const doc = new jsPDF();
+
+    doc.text(text, 10, 10);
+    doc.save(`${formatName}.pdf`);
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '2vw', alignItems: 'center' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', width: '98%' }}>
-        {/* Dropdown Lingua */}
-        <SimpleDropdown title="Lingua" options={['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco']} onSelect={setSelectedLanguage} />
-
-        {/* Dropdown Voce */}
-        <SimpleDropdown title="Voce speaker" options={['Voce sintetica 1_Christopher', 'Voce sintetica 2_Bill', 'Voce sintetica 3_Hanna']} onSelect={setSelectedVoice} />
-      </Box>
-
-      {/* Text Area */}
-      <Box sx={{ position: 'relative', width: '98%', marginTop: '12px' }}>
-        <TextField
-          variant="outlined"
-          fullWidth
-          multiline
-          minRows={1}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Text here."
-          sx={{
-            fontSize: '10px',
-            backgroundColor: 'inherit',
-            borderRadius: '2vh',
-            '& .MuiOutlinedInput-root': {
-              display: 'flex',
-              flexDirection: 'column',
-              borderRadius: '2vh',
-              fontSize: '17px',
-              minHeight: '200px', 
-              maxHeight: '250px',
-              overflow: 'auto', 
-            },
-            '& .MuiOutlinedInput-input': {
-              overflowY: 'auto', 
-              maxHeight: '300px',
-            },
+      {/* Upload Area */}
+      <Box sx={{ width: '98%' }}>
+        <AudioUploadArea
+          selectedFile={selectedAudioFile}
+          setSelectedFile={(f) => {
+            setSelectedAudioFile(f);
+            setShowTextArea(false);
+            setText('');
           }}
         />
       </Box>
 
+      {/* TextArea */}
+      {showTextArea && (
+        <Box sx={{ marginTop: '1vw', width: '98%', position: 'relative' }}>
+          <IconButton
+            sx={{
+              zIndex: 1,
+              position: 'absolute',
+              bottom: '8px',
+              right: '10px',
+              bgcolor: 'transparent',
+              '&:hover': { backgroundColor: '#efefef' },
+            }}
+            onClick={handleDownloadClick}
+            size="small"
+          >
+            <img src={downloadIcon} alt="Download" style={{height:'20px', width:'20px'}} />
+          </IconButton>
+
+          <CustomTextArea
+            value={text}
+            onChange={setText}
+            placeholder=""
+            height='35vh'
+            isDisabled={true}
+          />
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+            anchorOrigin={{
+              vertical: 'top',  
+              horizontal: 'center', 
+            }}
+            transformOrigin={{
+              vertical: 'bottom',     
+              horizontal: 'right', 
+            }}
+            sx={{
+              '& .MuiPaper-root': { borderRadius: 5, boxShadow: '0 4px 8px rgba(0,0,0,0.1)', backgroundColor: 'white', padding: '0px 10px', border: '2px solid #ddd' },
+            }}
+          >
+            <Box sx={{ p: '0px 16px', fontWeight: 'bold', fontSize:'20px' }}>
+              Scarica:
+            </Box>
+            <MenuItem onClick={() => handleDownloadPDF('Carta_Intestata')} sx={{ fontSize:'16px', borderRadius: '7px', padding: '2px 10px' }}>
+              Carta Intestata
+            </MenuItem>
+            <MenuItem onClick={() => handleDownloadPDF('Comunicato_Stampa_ita')} sx={{ fontSize:'16px', borderRadius: '7px', padding: '2px 10px' }}>
+              Comunicato Stampa ita
+            </MenuItem>
+            <MenuItem onClick={() => handleDownloadPDF('Comunicato_Stampa_eng')} sx={{ fontSize:'16px', borderRadius: '7px', padding: '2px 10px' }}>
+              Comunicato Stampa eng
+            </MenuItem>
+            <MenuItem onClick={() => handleDownloadPDF('Documento_PDF')} sx={{ fontSize:'16px', borderRadius: '7px', padding: '2px 10px' }}>
+              PDF
+            </MenuItem>
+          </Menu>
+        </Box>
+      )}
 
       {/* Generate Button */}
       <Button
         variant="contained"
-        disabled={!isButtonEnabled}
-        sx={{ borderRadius: '6px', padding: '6px 16px', textTransform: 'none', width: 'calc(9.5vw)', fontSize: '17px', marginTop: '2vw' }}
+        color="secondary"
+        disabled={!isButtonEnabled || showTextArea} 
+        onClick={handleClickTrascrivi}
+        sx={{
+          borderRadius: '6px',
+          padding: '6px 16px',
+          textTransform: 'none',
+          width: 'calc(9.5vw)',
+          fontSize: '17px', 
+          marginTop: '2vw'
+        }}
       >
-        Genera
+        Trascrivi
       </Button>
     </Box>
-    
-  )
+  );
 }
 
-export default Trascrizione
+export default Trascrizione;

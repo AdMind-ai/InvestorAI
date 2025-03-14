@@ -23,32 +23,32 @@ const HomeCard: React.FC<CardProps> = ({ title, description, icon, path }) => {
       sx={{
         flexDirection: 'column',
         justifyContent: 'space-between',
-        aspectRatio: '2.3 / 1',
+        aspectRatio: '2.2 / 1',
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.3 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {/* Ícone */}
         <Box
           component="img"
           src={icon}
           alt={`${title} Icon`}
           sx={{
-            width: '50px',
-            height: '50px',
+            width: '40px',
+            height: '40px',
             objectFit: 'contain',
             color: theme.palette.secondary.main,
           }}
         />
 
         {/* Título */}
-        <Typography variant="h3">{title}</Typography>
+        <Typography variant="h4">{title}</Typography>
       </Box>
 
       {/* Descrição */}
       <Typography variant="subtitle1">{description}</Typography>
 
       {/* Botão */}
-      <Button variant="contained" sx={{fontSize: '13px'}} onClick={() => handleNavigation(path)}>
+      <Button variant="contained" sx={{fontSize: '12px', width:'165px', height:'32px', backgroundColor:'#103AB1'}} onClick={() => handleNavigation(path)}>
         VAI ALLA FUNZIONE
       </Button>
     </Card>

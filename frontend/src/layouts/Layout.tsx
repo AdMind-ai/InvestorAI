@@ -52,9 +52,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Box
           component="header"
           sx={{
+            // backgroundColor:'red',
             height: "calc(9.1vh)",
-            width: "calc(94vw)",
-            paddingRight: "calc(3vh)",
+            width: "calc(93vw)",
+            paddingRight: "calc(4vh)",
+            paddingTop: "calc(1.5vh)",  
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
@@ -124,6 +126,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             <MenuItem
               sx={{
+                fontSize: "2vh",
+                backgroundColor: "white",
                 "&:hover": {
                   backgroundColor: theme.palette.action.hover,
                 },
@@ -139,14 +143,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Box
           component="main"
           sx={{
-            padding: '0px calc(1.5vw) calc(1.5vw) 0px',
-            height: 'calc(95vh)',
-            width: 'calc(95vw)',
+            padding: '1vh calc(1vw) calc(2vw) 0vh',
+            height: 'calc(88vh)',
+            width: 'calc(93vw)',
+            // backgroundColor:'blue',
           }}
         >
           <Box
             sx={{
-              height: 'calc(88vh)',
+              height: 'calc(87vh)',
               backgroundColor: theme.palette.background.default,
               borderRadius: 'calc(1.7vw)',
               display: 'flex',

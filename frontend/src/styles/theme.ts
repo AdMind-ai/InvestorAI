@@ -15,6 +15,10 @@ const theme: Theme = createTheme({
       fontSize: '24px',
       fontWeight: 700, // Regular
     },
+    h4: {
+      fontSize: '18px',
+      fontWeight: 700, // Regular
+    },
     body1: {
       fontSize: '22px',
       fontWeight: 400, // Regular
@@ -24,13 +28,18 @@ const theme: Theme = createTheme({
       fontWeight: 400, // Regular
     },
     subtitle1: {
-      fontSize: '17px',
+      fontSize: '13px',
+      fontWeight: 400, // Regular
+      lineHeight: '1.2',
+    },
+    subtitle2: {
+      fontSize: '16px',
       fontWeight: 400, // Regular
       lineHeight: '1.2',
     },
     button: {
       fontWeight: 700,
-      fontSize: '13px',
+      fontSize: '16px',
       padding: 0,
       letterSpacing: '0%',
       textTransform: 'none',
@@ -63,10 +72,10 @@ const theme: Theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          fontSize: '17px',
+          fontSize: '16px',
           width: '170px',
           height: '36px',
-          borderRadius: '10px',
+          borderRadius: '8px',
           fontWeight: 700,
           '&.Mui-disabled': {
             backgroundColor: '#E4E4E4',
@@ -75,7 +84,7 @@ const theme: Theme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#0E39B0', // Primary
+          backgroundColor: '#5072CC', // Primary
           color: '#FFFFFF',
           '&:hover': {
             backgroundColor: '#0C338C',
@@ -98,9 +107,9 @@ const theme: Theme = createTheme({
           border: '1px solid #E4E4E4',
           backgroundColor: '#FFFFFF',
           boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.29)',
-          padding: '16px 24px 18px 24px',
+          padding: '16px 22px 18px 22px',
           display: 'flex',
-          height: '250px',
+          height: '200px',
           margin: 0,
         },
       },

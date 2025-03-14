@@ -45,6 +45,7 @@ const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
       {/* Generate Button */}
       <Button
         variant="contained"
+        color='secondary'
         disabled={!isButtonEnabled}
         sx={{ borderRadius: '6px', padding: '6px 16px', textTransform: 'none', width: 'calc(9.5vw)', fontSize: '17px', marginTop: '2vw' }}
       >

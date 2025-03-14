@@ -81,9 +81,9 @@ const Sidebar: React.FC = () => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         height: '100vh',
-        width: 'calc(5vw)',
+        width: 'calc(7vw)',
         minWidth: '20px',
-        maxWidth: '400px',
+        maxWidth: '410px',
         color: theme.palette.text.primary,
       }}
     >
@@ -110,9 +110,10 @@ const Sidebar: React.FC = () => {
           src={InvestorLogo}
           alt="Investor Logo"
           sx={{
-            width: "30vh",
-            height: "30vh",
-            marginLeft: 'calc(11vw)',
+            width: "27vh",
+            height: "27vh",
+            marginLeft: 'calc(11.5vw)',
+            marginTop: 'calc(2.5vh)',
           }}
         />
       </Box>
@@ -132,7 +133,7 @@ const Sidebar: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 'calc(0.5vw)',
+            gap: 'calc(0.7vw)',
           }}
         >
           {menuItems.map((item) => {
