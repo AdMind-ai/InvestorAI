@@ -18,7 +18,10 @@ import SadFace from '../assets/icons/sad-face.svg';
 import HappyFace from '../assets/icons/happy-face.svg';
 import NeutralFace from '../assets/icons/neutral-face.svg';
 
+import NewsModal from '../components/NewsModal';
+
 interface NewsItem {
+  title: string;
   preview: string;
   link: string;
   sentiment: number;
@@ -26,39 +29,51 @@ interface NewsItem {
 
 const mockData: Record<string, NewsItem[]> = {
   'Mario Rossi': [
-    { preview: 'La rivoluzione digitale di Mario Rossi sta cambiando...', link: '#', sentiment: 92 },
-    { preview: 'Innovazione e sostenibilità: Mario Rossi svela il futuro...', link: '#', sentiment: 65 },
-    { preview: 'Crisi aziendale criticata da Mario Rossi...', link: '#', sentiment: 90 },
+    { title: 'Title', preview: 'La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...', link: '#', sentiment: 92 },
+    { title: 'Title', preview: 'Innovazione e sostenibilità: Mario Rossi svela il futuro...', link: '#', sentiment: 65 },
+    { title: 'Title', preview: 'Crisi aziendale criticata da Mario Rossi...', link: '#', sentiment: 90 },
   ],
   'Elvira Giacomelli': [
-    { preview: 'Un trionfo assoluto: Elvira Giacomelli annuncia investimenti...', link: '#', sentiment: 28 },
-    { preview: 'Elvira Giacomelli affronta polemiche...', link: '#', sentiment: 24 },
+    { title: 'Title', preview: 'Un trionfo assoluto: Elvira Giacomelli annuncia investimenti...', link: '#', sentiment: 28 },
+    { title: 'Title', preview: 'Elvira Giacomelli affronta polemiche...', link: '#', sentiment: 24 },
   ],
   'Luigi Farris': [
-    { preview: 'Luigi Farris Rivoluziona il Settore Tecnologico...', link: '#', sentiment: 73 },
-    { preview: 'Luigi Farris CEO dell’Anno...', link: '#', sentiment: 45 },
-    { preview: 'Investimenti Record per Luigi Farris...', link: '#', sentiment: 23 },
-    { preview: 'Green Revolution: Luigi Farris annuncia importante novità', link: '#', sentiment: 73 },
-    { preview: 'Luigi Farris: “Pensavo Fosse Impossibile…”', link: '#', sentiment: 43 },
-    { preview: 'Critiche Pioggia su Luigi Farris...', link: '#', sentiment: 23 },
-    { preview: 'Luigi Farris annuncia il futuro...', link: '#', sentiment: 73 },
-    { preview: 'Nuova Era Digitale con Luigi Farris...', link: '#', sentiment: 45 },
-    { preview: 'Luigi Farris Svela il segreto del successo...', link: '#', sentiment: 23 },
-    { preview: 'Luigi Farris Rivoluziona il Settore Tecnologico...', link: '#', sentiment: 73 },
-    { preview: 'Luigi Farris CEO dell’Anno...', link: '#', sentiment: 45 },
-    { preview: 'Investimenti Record per Luigi Farris...', link: '#', sentiment: 23 },
-    { preview: 'Green Revolution: Luigi Farris annuncia importante novità', link: '#', sentiment: 73 },
-    { preview: 'Luigi Farris: “Pensavo Fosse Impossibile…”', link: '#', sentiment: 43 },
-    { preview: 'Critiche Farris...', link: '#', sentiment: 23 },
-    { preview: 'Luigi Farris annuncia il futuro...', link: '#', sentiment: 73 },
-    { preview: 'Nuova Era Digitale con Luigi Farris...', link: '#', sentiment: 45 },
-    { preview: 'Luigi Farris Svela il segreto del successo...', link: '#', sentiment: 23 },
+    { title: 'Title', preview: 'Luigi Farris Rivoluziona il Settore Tecnologico digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando Luigi Farris Rivoluziona il Settore Tecnologico digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando Luigi Farris Rivoluziona il Settore Tecnologico digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando Luigi Farris Rivoluziona il Settore Tecnologico digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando......', link: '#', sentiment: 73 },
+    { title: 'Title', preview: 'Luigi Farris CEO dell’Anno...', link: '#', sentiment: 45 },
+    { title: 'Title', preview: 'Investimenti Record digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...per Luigi Farris...', link: '#', sentiment: 23 },
+    { title: 'Title', preview: 'Green Revolution: Luigi Farris annuncia importante novità', link: '#', sentiment: 73 },
+    { title: 'Title', preview: 'Luigi Farris: digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...“Pensavo Fosse Impossibile…”', link: '#', sentiment: 43 },
+    { title: 'Title', preview: 'Critiche Pioggia su Luigi Farris...', link: '#', sentiment: 23 },
+    { title: 'Title', preview: 'Luigi Farris annuncia il futuro...', link: '#', sentiment: 73 },
+    { title: 'Title', preview: 'Nuova Era Digitaledigitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando... con Luigi Farris...', link: '#', sentiment: 45 },
+    { title: 'Title', preview: 'Luigi Farris Svela il segreto del successo...', link: '#', sentiment: 23 },
+    { title: 'Title', preview: 'Luigi Farris digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando La rivoluzione digitale di Mario Rossi sta cambiando...Rivoluziona il Settore Tecnologico...', link: '#', sentiment: 73 },
+    { title: 'Title', preview: 'Luigi Farris CEO dell’Anno...', link: '#', sentiment: 45 },
+    { title: 'Title', preview: 'Investimenti Record per Luigi Farris...', link: '#', sentiment: 23 },
+    { title: 'Title', preview: 'Green Revolution: Luigi Farris annuncia importante novità', link: '#', sentiment: 73 },
+    { title: 'Title', preview: 'Luigi Farris: “Pensavo Fosse Impossibile…”', link: '#', sentiment: 43 },
+    { title: 'Title', preview: 'Critiche Farris...', link: '#', sentiment: 23 },
+    { title: 'Title', preview: 'Luigi Farris annuncia il futuro...', link: '#', sentiment: 73 },
+    { title: 'Title', preview: 'Nuova Era Digitale con Luigi Farris...', link: '#', sentiment: 45 },
+    { title: 'Title', preview: 'Luigi Farris Svela il segreto del successo...', link: '#', sentiment: 23 },
   ],
 };
 
 const CEOPage: React.FC = () => {
   const theme = useTheme();
   const [selectedPerson, setSelectedPerson] = useState<string>('Mario Rossi');
+  
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [modalContent, setModalContent] = useState<NewsItem | null>(null);
+
+  const MAX_LENGTH = 200; 
+  const getPreviewText = (text:string) => {
+    if (text.length > MAX_LENGTH) {
+      return text.slice(0, MAX_LENGTH) + '...'; 
+    }
+    return text;
+  };
+
   const [page, setPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(6);
 
@@ -234,8 +249,9 @@ const CEOPage: React.FC = () => {
                   borderBottom: '1px solid #f0f0f0',
                 }}
               >
+                {/* News Preview */}
                 <Typography
-                  variant='subtitle2'
+                  variant="subtitle2"
                   sx={{
                     width: '60%',
                     overflow: 'hidden',
@@ -244,22 +260,29 @@ const CEOPage: React.FC = () => {
                     padding: '0px 10px',
                   }}
                 >
-                  {news.preview}
+                  {getPreviewText(news.preview)}
                 </Typography>
-                <Link 
-                  href={news.link}
+
+                {/* News Link */}
+                <Link
+                  fontSize='16px'
+                  component="button"
+                  onClick={() => {
+                    setModalContent(news);
+                    setModalOpen(true);
+                  }}
                   sx={{
-                    fontSize: '16px',
-                    color: (theme) => theme.palette.secondary.main, 
-                    textDecorationColor: (theme) => theme.palette.secondary.main, 
-                    '&:hover': {
-                      color: (theme) => theme.palette.secondary.dark,
-                      textDecorationColor: (theme) => theme.palette.secondary.dark,
-                    },
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: theme.palette.secondary.main,
+                    textDecoration: 'underline',
                   }}
                 >
                   Vai all'articolo
                 </Link>
+
+                {/* News Sentiment */}
                 <Typography
                   variant='h6'
                   sx={{
@@ -336,6 +359,16 @@ const CEOPage: React.FC = () => {
           </Paper>
         </Box>
       </Box>
+      {modalContent && (
+        <NewsModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          sentiment={modalContent.sentiment}
+          title={modalContent.title}
+          content={modalContent.preview}
+          originalLink={modalContent.link}
+        />
+      )}
     </Layout>
   );
 };
