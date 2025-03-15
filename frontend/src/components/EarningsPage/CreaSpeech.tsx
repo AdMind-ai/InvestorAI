@@ -4,6 +4,7 @@ import { Box, Button } from '@mui/material'
 import SimpleDropdown from '../SimpleDropdown'
 import { useState,useEffect } from 'react'
 import CustomTextArea from '../CustomTextArea'
+import AudioPlayer from '../AudioPlayer';
 
 interface CreaSpeechProps {
   onChange: (isEnabled: boolean) => void
@@ -15,6 +16,7 @@ const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
   const [selectedLanguage, setSelectedLanguage] = useState<null | string>(null);
   const [selectedVoice, setSelectedVoice] = useState<null | string>(null);
   const [text, setText] = useState<string>('');
+  const [isGenerated, setIsGenerated] = useState<boolean>(false);
 
   const isButtonEnabled =
     selectedLanguage !== null && selectedVoice !== null && text.trim().length > 0;
@@ -42,11 +44,27 @@ const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
         <CustomTextArea value={text} onChange={setText} placeholder="Inserisci il testo qui." height='35vh' />
       </Box>
 
+      {/* Audio Player */}
+      {isGenerated && (
+        <Box
+          sx={{
+            width: '98%',
+            display: 'flex',
+            alignItems: 'center',
+            marginTop: '1vw',
+            backgroundColor: '#f5f5f5',
+          }}
+        >
+          <AudioPlayer src="/audio/audio-file.wav" audioTitle="audio-file.wav"/>
+        </Box>
+      )}
+
       {/* Generate Button */}
       <Button
         variant="contained"
         color='secondary'
         disabled={!isButtonEnabled}
+        onClick={() => setIsGenerated(true)}
         sx={{ borderRadius: '6px', padding: '6px 16px', textTransform: 'none', width: 'calc(9.5vw)', fontSize: '17px', marginTop: '2vw' }}
       >
         Genera

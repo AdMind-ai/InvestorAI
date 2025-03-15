@@ -39,11 +39,10 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, onSelec
           color: 'black',
           fontSize: '16px',
           padding: '0px 12px',
-          // backgroundColor:'red',
           width: 'auto',
         }}
       >
-        {title}
+        {selectedIndex !== null ? options[selectedIndex] : title}
       </Button>
       <Menu
         anchorEl={anchorEl}
