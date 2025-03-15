@@ -52,7 +52,6 @@ const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
             display: 'flex',
             alignItems: 'center',
             marginTop: '1vw',
-            backgroundColor: '#f5f5f5',
           }}
         >
           <AudioPlayer src="/audio/audio-file.wav" audioTitle="audio-file.wav"/>
