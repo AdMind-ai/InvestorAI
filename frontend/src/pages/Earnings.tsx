@@ -80,7 +80,7 @@ const Earnings: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {isButtonEnabled? <SaveCleanButtons /> : null}
             <Typography
-              variant="subtitle1"
+              variant="subtitle2"
               sx={{
                 marginRight: '1vw',
                 marginLeft: '1.2vw',

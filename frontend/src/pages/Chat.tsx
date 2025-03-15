@@ -67,7 +67,7 @@ const Chat: React.FC = () => {
                 onChange={(_, newValue) =>
                   newValue && setSelectedModel(newValue)
                 }
-                sx={{ gap: '4px', maxHeight: '4.2vh' }}
+                sx={{ gap: '4px', maxHeight: '4.1vh' }}
               >
                 {['GPT-4o mini', 'GPT-4o', 'GPT-4.5', 'o3 mini'].map((model) => (
                   <ToggleButton
@@ -75,6 +75,7 @@ const Chat: React.FC = () => {
                     value={model}
                     sx={{
                       textTransform: 'none',
+                      fontSize:'14px',
                       fontWeight: 'regular',
                       color: theme.palette.text.primary,
                       backgroundColor: 'transparent',
@@ -102,7 +103,7 @@ const Chat: React.FC = () => {
             <SimpleDropdown title="Chat salvate" options={['']} />
 
             <Typography
-              variant="subtitle1"
+              variant="subtitle2"
               sx={{
                 marginRight: '1vw',
                 color: theme.palette.text.secondary,

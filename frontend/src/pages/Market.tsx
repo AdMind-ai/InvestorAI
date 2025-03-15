@@ -33,7 +33,7 @@ const Market: React.FC = () => {
             Market Intelligence
           </Typography>
           <Typography
-            variant="subtitle1"
+            variant="subtitle2"
             sx={{
               marginRight: '1vw',
               color: theme.palette.text.secondary,
