@@ -50,7 +50,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, onDelete, isTran
       sx={{
         width: '100%',
         maxWidth: '40vw',
-        maxHeight: '32vh',
+        maxHeight: isTranslated? '42vh':'32vh',
         overflow: 'auto',
         padding: '0px 10px',
         backgroundColor: 'inherit',
