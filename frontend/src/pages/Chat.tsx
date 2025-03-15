@@ -26,6 +26,7 @@ import AttachFileIcon from '@mui/icons-material/AttachFile'
 const Chat: React.FC = () => {
   const theme = useTheme()
   const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
+  const [text, setText] = useState('')
 
   return (
     <Layout>
@@ -160,6 +161,9 @@ const Chat: React.FC = () => {
                 position: 'relative',
                 width: '100%',
                 marginTop: '12px',
+                // border:
+                // borderRadius:
+                // backgroundColor:'red',
               }}
             >
               {/* Text Box */}
@@ -167,21 +171,23 @@ const Chat: React.FC = () => {
                 variant="outlined"
                 fullWidth
                 multiline
-                minRows={1}
-                value={''}
+                minRows={2}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
                 placeholder="Come posso esserti d’aiuto?"
                 sx={{
                   fontSize: '10px',
                   backgroundColor: 'inherit',
                   borderRadius: '12px',
                   minHeight: '50px',
+                  maxHeight: '300px',
+                  overflow: 'hidden',
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
+                    borderRadius: '12px',
                     paddingBottom: '70px',
                     fontSize: '17px',
                     minHeight: '50px',
                     color: theme.palette.text.secondary,
-                    overflow: 'auto',
                   },
                 }}
               />
