@@ -12,9 +12,11 @@ interface Message {
 
 interface ChatMessageListProps {
   messages: Message[]
+  citations?: string[];
 }
 
-const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages }) => {
+
+const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations = [] }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -39,16 +41,20 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages }) => {
     toast.success('Codice copiato!')
   }
 
-  const fixExcessiveLineBreaks = (content: string) => {
-    return content.replace(/(<br\s*\/?>\s*){1,}/gi, '<br><br>');
-  };
+  // const fixExcessiveLineBreaks = (content: string) => {
+  //   return content.replace(/(<br\s*\/?>\s*){1,}/gi, '<br><br>');
+  // };
 
-  const processCitations = (text: string, citations: string[]) => {
-    return text.replace(/\[(\d+)\]/g, (match, citationNumber) => {
-      const link = citations[parseInt(citationNumber) - 1];
-      return link ? `[${citationNumber}](${link})` : match;
+  const citeLinks = (text: string, citations: string[]) => {
+    return text.replace(/\[(\d+)\]/g, (match, num) => {
+      const citationLink = citations[parseInt(num) - 1];
+      if (citationLink) {
+        return `[ [${num}] ](${citationLink})`;
+      }
+      return match;
     });
   };
+  
 
   return (
     <Box 
@@ -61,7 +67,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages }) => {
     >
       {messages.map((msg, idx) => {
         const { thinkText, content: originalContent  } = parseThinkTag(msg.content)
-        const content = fixExcessiveLineBreaks(originalContent);
+        // const content = fixExcessiveLineBreaks(originalContent);
+        const contentWithCitations = citeLinks(originalContent, citations);
         return (
           <Box key={idx} display="flex" justifyContent={msg.sender === 'user' ? 'flex-end' : 'flex-start'} mb={0.5}>
             <Paper 
@@ -174,6 +181,20 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages }) => {
                         {children}
                       </td>
                     ),
+                    a: ({ href, children, ...props }) => (
+                      <a 
+                        href={href} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        style={{ 
+                          textDecoration: 'none', 
+                          color: '#ED6008',     
+                        }}
+                        {...props}
+                      >
+                        {children}
+                      </a>
+                    ),
                     code({ node, className, children, ...props }) {
                       const match = /language-(\w+)/.exec(className || '');
                       const language = match ? match[1] : '';
@@ -208,7 +229,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages }) => {
                     }
                   }}
                 >
-                  {content}
+                  {contentWithCitations}
                 </ReactMarkdown>
               </Typography>
 

@@ -1,3 +1,4 @@
+import json
 import os
 from openai import OpenAI
 from django.http import StreamingHttpResponse
@@ -53,15 +54,26 @@ class PerplexityAPIView(APIView):
                         ],
                         stream=True,
                     )
+
+                    citations_sent = False
+
                     for response in response_stream:
                         if response.choices:
-                            # Acesse diretamente o conteúdo:
+                            # Enviar citações no primeiro chunk se ainda não enviado
+                            if not citations_sent:
+                                citations_data = {
+                                    "citations": response.citations
+                                }
+                                print("citations: ", citations_data)
+                                yield f"_CITATIONS_START_{json.dumps(citations_data)}_CITATIONS_END_\n"
+                                citations_sent = True
+
                             delta_content = response.choices[0].delta.content
-                            # Para depuração
-                            print(delta_content)
-                            yield delta_content
+                            if delta_content:
+                                print(delta_content, end="")
+                                yield delta_content
+
                 except Exception as e:
-                    print("Error:", str(e))
                     yield f"Erro: {str(e)}"
 
             return StreamingHttpResponse(stream_response(), content_type="text/plain")

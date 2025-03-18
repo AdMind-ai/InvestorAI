@@ -15,6 +15,7 @@ interface ChatInputAreaProps {
   selectedModel: string;
   searchWebEnabled: boolean;
   isEmptyMessages: boolean;
+  setCitations?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -22,6 +23,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   selectedModel,
   searchWebEnabled,
   isEmptyMessages,
+  setCitations
 }) => {
   const theme = useTheme();
   const [text, setText] = useState('');
@@ -48,27 +50,25 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
   const handleOverviewClick = async () => {
     setLoading(true);
-  
+    
     try {
       const response = await fetchWithAuth('/perplexity/', {
         method: 'POST',
         body: JSON.stringify({
-          message: "Please give me a deep overview about FOPE SPA, listed in the Italian Stock Market, stock price and general overview for the last 24 hours. Answer in Italian."
+          message: "Please give me a deep overview about the company FOPE SPA, listed in the Italian Stock Market, stock price and general overview for the last 24 hours. Please answer in Italian language."
         })
       });
   
       if (!response.ok || !response.body) {
-        onSend('Erro ao conectar ao backend Django.', 'ai');
+        onSend('Erro ao conectar.', 'ai');
         setLoading(false);
         return;
       }
+      setLoading(false);
   
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
-      
-      // Inicia mensagem vazia para streaming
-      onSend('', 'ai', true);
-      setLoading(false);
+      let citationsReceived = false;
   
       while (true) {
         const { done, value } = await reader.read();
@@ -76,12 +76,25 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   
         const chunk = decoder.decode(value, { stream: true });
   
-        // Enviar conteúdo parcial da IA em tempo real
-        onSend(chunk, 'ai', true);
+        if (!citationsReceived && chunk.includes('_CITATIONS_START_')) {
+          const citationsJson = chunk.substring(
+            chunk.indexOf('_CITATIONS_START_') + '_CITATIONS_START_'.length,
+            chunk.indexOf('_CITATIONS_END_')
+          );
+          const citations = JSON.parse(citationsJson).citations;
+          setCitations?.(citations);
+          citationsReceived = true;
+  
+          const cleanedChunk = chunk.substring(chunk.indexOf('_CITATIONS_END_') + '_CITATIONS_END_'.length);
+          onSend(cleanedChunk, 'ai', true);
+        } else {
+          onSend(chunk, 'ai', true); 
+        }
       }
+  
     } catch (error) {
-      onSend('Erro ao conectar ao backend Django.', 'ai');
-      console.error(error);
+      console.error('Erro ao conectar:', error);
+      onSend('Erro ao conectar.', 'ai');
     } finally {
       setLoading(false);
     }

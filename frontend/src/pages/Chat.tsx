@@ -14,6 +14,7 @@ interface Message {
 const Chat: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
   const [messages, setMessages] = useState<Message[]>([])
+  const [citations, setCitations] = useState<string[]>([])
   const [searchWebEnabled, setSearchWebEnabled] = useState(false)
 
   const handleSendMessage = (message: string, sender: 'user'|'ai', isStream: boolean = false) => {
@@ -65,12 +66,13 @@ const Chat: React.FC = () => {
           {/* Messages Container */}
           {messages.length > 0 ? (
             <>
-              <ChatMessageList messages={messages} />
+              <ChatMessageList messages={messages} citations={citations} />
               <ChatInputArea 
                 onSend={handleSendMessage} 
                 selectedModel={selectedModel} 
                 searchWebEnabled={searchWebEnabled}
                 isEmptyMessages={false}
+                setCitations={setCitations}
               />
             </>
           ) : (
@@ -79,6 +81,7 @@ const Chat: React.FC = () => {
               selectedModel={selectedModel} 
               searchWebEnabled={searchWebEnabled}
               isEmptyMessages={true}
+              setCitations={setCitations}
             />
             // <ChatEmptyState onSendMessage={(msg)=>handleSendMessage(msg,"user")} />
           )}
