@@ -12,6 +12,25 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+# Environment Keys
+OPENAI_KEY = os.environ['OPENAI_KEY']
+PERPLEXITY_KEY = os.environ['PERPLEXITY_KEY']
+
+keys = [
+    'OPENAI_KEY',
+    'PERPLEXITY_KEY'
+]
+missing_keys = [key for key in keys if not os.getenv(key)]
+
+if missing_keys:
+    raise Exception(
+        f"The following environment variables are not set: {', '.join(missing_keys)}")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

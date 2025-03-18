@@ -8,6 +8,13 @@ interface ChatHeaderProps {
   setSelectedModel: (model: string) => void;
 }
 
+export const modelMapping: Record<string, string> = {
+  "GPT-4o mini": "gpt-4o-mini",
+  "GPT-4o": "gpt-4o",
+  "GPT-4.5": "gpt-4.5-preview",
+  "o3 mini": "o3-mini"
+};
+
 const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel }) => {
   const theme = useTheme()
 
@@ -39,7 +46,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel
             onChange={(_, value) => value && setSelectedModel(value)}
             sx={{ gap: '4px', maxHeight: '4.1vh' }}
           >
-            {['GPT-4o mini', 'GPT-4o', 'GPT-4.5', 'o3 mini'].map(model => (
+            {Object.keys(modelMapping).map(model => (
               <ToggleButton key={model} value={model}
                 sx={{
                   textTransform: 'none',

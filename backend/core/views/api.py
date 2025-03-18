@@ -31,6 +31,7 @@ class APIRootView(APIView):
             },
             "core": {
                 "core_endpoint": request.build_absolute_uri(reverse("hello")),
+                "perplexity": request.build_absolute_uri(reverse("perplexity")),
                 "core_list": request.build_absolute_uri(reverse("core-list")),
             }
         })

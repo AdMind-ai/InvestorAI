@@ -14,15 +14,26 @@ interface Message {
 const Chat: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
   const [messages, setMessages] = useState<Message[]>([])
+  const [searchWebEnabled, setSearchWebEnabled] = useState(false)
 
-  const handleSendMessage = (text: string) => {
-    if (!text.trim()) return
-    setMessages(messages => [...messages, { sender: 'user', content: text }])
-
-    setTimeout(() => {
-      setMessages(prev => [...prev, { sender: 'ai', content: 'Resposta da IA aqui...' }])
-    }, 500)
-  }
+  const handleSendMessage = (message: string, sender: 'user'|'ai', isStream: boolean = false) => {
+    if (!isStream) {
+      // comportamento normal (não-streaming)
+      setMessages(messages => [...messages, { sender, content: message }]);
+    } else {
+      // comportamento de streaming 
+      setMessages(messages => {
+        const lastMessage = messages[messages.length - 1];
+        if (sender === 'ai' && lastMessage?.sender === 'ai') {
+          // Atualiza última mensagem quando sender for 'ai'
+          return [...messages.slice(0, -1), { sender: 'ai', content: lastMessage.content + message }];
+        } else {
+          // Inicia uma nova mensagem de streaming
+          return [...messages, { sender, content: message }];
+        }
+      });
+    }
+  };
 
   return (
     <Layout>
@@ -55,10 +66,21 @@ const Chat: React.FC = () => {
           {messages.length > 0 ? (
             <>
               <ChatMessageList messages={messages} />
-              <ChatInputArea onSend={handleSendMessage} />
+              <ChatInputArea 
+                onSend={handleSendMessage} 
+                selectedModel={selectedModel} 
+                searchWebEnabled={searchWebEnabled}
+                isEmptyMessages={false}
+              />
             </>
           ) : (
-            <ChatEmptyState onSendMessage={handleSendMessage} />
+            <ChatInputArea 
+              onSend={handleSendMessage} 
+              selectedModel={selectedModel} 
+              searchWebEnabled={searchWebEnabled}
+              isEmptyMessages={true}
+            />
+            // <ChatEmptyState onSendMessage={(msg)=>handleSendMessage(msg,"user")} />
           )}
         </Box>
       </Box>
