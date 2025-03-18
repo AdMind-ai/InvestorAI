@@ -133,13 +133,11 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             stream: true, 
           });
   
-          let isFirst = true;
           
           for await (const chunk of stream) {
             const delta = chunk.choices[0]?.delta?.content;
             if (delta) {
               onSend(delta, 'ai', true);
-              isFirst = false;
             }
           }
   
@@ -157,13 +155,11 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           stream: true, 
         });
   
-        let isFirst = true;
         
         for await (const chunk of stream) {
           const delta = chunk.choices[0]?.delta?.content;
           if (delta) {
             onSend(delta, 'ai', true);
-            isFirst = false;
           }
         }
   
