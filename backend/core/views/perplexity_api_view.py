@@ -1,6 +1,6 @@
 import json
 import os
-from openai import OpenAI
+import requests
 from django.http import StreamingHttpResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -41,40 +41,67 @@ class PerplexityAPIView(APIView):
             if not api_key:
                 return Response({"error": "API Key is missing"}, status=500)
 
-            client = OpenAI(api_key=api_key,
-                            base_url="https://api.perplexity.ai")
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+
+            request_body = {
+                "model": "sonar-deep-research",
+                "messages": [
+                    {"role": "system", "content": SYSTEM_MESSAGE},
+                    {"role": "user", "content": message},
+                ],
+                "stream": True
+            }
 
             def stream_response():
                 try:
-                    response_stream = client.chat.completions.create(
-                        model="sonar-deep-research",
-                        messages=[
-                            {"role": "system", "content": SYSTEM_MESSAGE},
-                            {"role": "user", "content": message},
-                        ],
-                        stream=True,
+                    response = requests.post(
+                        "https://api.perplexity.ai/chat/completions",
+                        headers=headers,
+                        json=request_body,
+                        stream=True,  # manter streaming ativado
+                        timeout=(10, 120)  # conexão: 10s, leitura: 60s
                     )
+                    response.raise_for_status()
 
                     citations_sent = False
 
-                    for response in response_stream:
-                        if response.choices:
-                            # Enviar citações no primeiro chunk se ainda não enviado
-                            if not citations_sent:
-                                citations_data = {
-                                    "citations": response.citations
-                                }
-                                print()
-                                print("citations: ", citations_data)
-                                yield f"_CITATIONS_START_{json.dumps(citations_data)}_CITATIONS_END_\n"
-                                citations_sent = True
+                    # Streaming linha por linha
+                    for line in response.iter_lines(decode_unicode=True):
+                        if not line.strip():
+                            continue  # pula linhas apenas com espaços ou vazias
 
-                            delta_content = response.choices[0].delta.content
-                            if delta_content:
-                                print(delta_content, end="")
-                                yield delta_content
+                        # remover o prefixo 'data: ' padrão, se existir
+                        if line.startswith("data: "):
+                            line = line[len("data: "):].strip()
 
-                except Exception as e:
+                        if line == "[DONE]":
+                            break  # final do stream
+
+                        try:
+                            # agora seguro fazer parsing
+                            json_response = json.loads(line)
+                        except json.JSONDecodeError:
+                            continue  # pula linhas inválidas que não podem ser convertidas em json
+
+                        # seu código de envio das citations aqui
+                        if not citations_sent and "citations" in json_response:
+                            citations_data = {
+                                "citations": json_response["citations"]
+                            }
+                            yield f"_CITATIONS_START_{json.dumps(citations_data)}_CITATIONS_END_\n"
+                            citations_sent = True
+
+                        # envio incremental do conteúdo
+                        delta = json_response.get("choices", [{}])[
+                            0].get("delta", {})
+                        delta_content = delta.get("content")
+                        if delta_content:
+                            yield delta_content
+
+                except requests.RequestException as e:
                     yield f"Erro: {str(e)}"
 
             return StreamingHttpResponse(stream_response(), content_type="text/plain")
