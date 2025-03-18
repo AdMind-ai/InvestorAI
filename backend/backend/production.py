@@ -17,6 +17,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
+
+
+
 # Disable debug mode in production
 DEBUG = False
 SECRET_KEY = os.environ['SECRET_KEY']

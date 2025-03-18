@@ -2,18 +2,17 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login'
-import Market from './pages/Market'
+// import Market from './pages/Market'
 import Chat from './pages/Chat'
 import CEO from './pages/CEO'
 import Earnings from './pages/Earnings'
-// import ChatPage from './pages/ChatOld'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 
 const AppRoutes = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <Routes>
           {/* Public Route (login) */}
           <Route path="/login" element={<Login />} />
@@ -22,7 +21,7 @@ const AppRoutes = () => {
           <Route element={<PrivateRoute />}>
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/market-intelligence" element={<Market />} />
+            <Route path="/market-intelligence" element={<Home />} />
             <Route path="/chat-assistant" element={<Chat />} />
             <Route path="/ceo-perception" element={<CEO />} />
             <Route path="/earnings" element={<Earnings />} />
@@ -30,8 +29,8 @@ const AppRoutes = () => {
             <Route path="*" element={<Home />} />
           </Route>
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 

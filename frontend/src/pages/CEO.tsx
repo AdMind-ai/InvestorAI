@@ -85,7 +85,7 @@ const CEOPage: React.FC = () => {
 
     const calculateRows = () => {
       const containerHeight = containerRef.current!.clientHeight;
-      console.log(containerHeight);
+      // console.log(containerHeight);
       const firstNewsItem = containerRef.current!.querySelector('[data-news-item]');
       const itemHeight = firstNewsItem?.clientHeight || 55; 
       const paginationHeight = 40;

@@ -51,11 +51,6 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    auth?.logout();
-    navigate("/login");
-  };
-
   const styles: { [key: string]: CSSProperties } = {
     container: {
       display: "flex",
@@ -129,7 +124,6 @@ const Login: React.FC = () => {
     <div style={styles.container}>
       <div style={styles.loginContainer}>
         <h2 style={styles.loginTitle}>LOGIN</h2>
-        {!auth?.token ? (
           <form style={styles.form} onSubmit={handleSubmit}>
             <label style={styles.label}>Username</label>
             <input
@@ -152,11 +146,6 @@ const Login: React.FC = () => {
 
             <button style={styles.button}>Login</button>
           </form>
-        ) : (
-          <button style={styles.buttonLogout} onClick={handleLogout}>
-            Logout
-          </button>
-        )}
       </div>
     </div>
   );
