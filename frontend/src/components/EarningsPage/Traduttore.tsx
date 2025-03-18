@@ -27,7 +27,7 @@ const Traduttore = () => {
       const newDocuments: Document[] = [];
 
       for (let i = 0; i < 10; i++) {
-        let file_id = Date.now() + Math.random();
+        const file_id = Date.now() + Math.random();
         newDocuments.push({
           id: file_id,
           name: `file_name_${file_id}.txt`,

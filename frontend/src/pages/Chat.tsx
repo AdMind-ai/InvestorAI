@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout'
 import ChatHeader from '../components/ChatPage/ChatHeader'
 import ChatMessageList from '../components/ChatPage/ChatMessageList'
 import ChatInputArea from '../components/ChatPage/ChatInputArea'
-import ChatEmptyState from '../components/ChatPage/ChatEmptyState'
+// import ChatEmptyState from '../components/ChatPage/ChatEmptyState'
 
 interface Message {
   sender: 'user' | 'ai'
@@ -15,7 +15,7 @@ const Chat: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
   const [messages, setMessages] = useState<Message[]>([])
   const [citations, setCitations] = useState<string[]>([])
-  const [searchWebEnabled, setSearchWebEnabled] = useState(false)
+  const [searchWebEnabled] = useState(false)
 
   const handleSendMessage = (message: string, sender: 'user'|'ai', isStream: boolean = false) => {
     if (!isStream) {

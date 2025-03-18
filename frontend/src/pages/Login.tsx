@@ -32,7 +32,7 @@ const Login: React.FC = () => {
       console.log(message);
       navigate("/home");
     }
-  }, [auth?.token, navigate]);
+  }, [auth?.token, navigate, message]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

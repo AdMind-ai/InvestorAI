@@ -102,7 +102,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
                   remarkPlugins={[remarkGfm]} 
                   rehypePlugins={[rehypeHighlight]}
                   components={{
-                    p: ({ node, children, ...props }) => (
+                    p: ({ children, ...props }) => (
                       <Typography component="p" sx={{ margin: '0px 0', lineHeight: '1.5', fontSize:'1rem' }} {...props}>
                         {children}
                       </Typography>
@@ -195,7 +195,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
                         {children}
                       </a>
                     ),
-                    code({ node, className, children, ...props }) {
+                    code({ className, children, ...props }) {
                       const match = /language-(\w+)/.exec(className || '');
                       const language = match ? match[1] : '';
                   

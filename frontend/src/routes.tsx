@@ -6,7 +6,7 @@ import Market from './pages/Market'
 import Chat from './pages/Chat'
 import CEO from './pages/CEO'
 import Earnings from './pages/Earnings'
-import ChatPage from './pages/ChatOld'
+// import ChatPage from './pages/ChatOld'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 
