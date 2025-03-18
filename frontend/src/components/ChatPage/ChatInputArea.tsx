@@ -102,21 +102,26 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
   const handleSubmit = async () => {
     if (!text.trim()) return;
-
+  
     onSend(text, 'user');
-
+  
     let finalPrompt = text;
     if (searchWebEnabled && isWebSearch) {
       finalPrompt += "\n\nCerca sul web informazioni sull'argomento sopra e completa la tua risposta.";
     }
-
+  
+    setText('');
+    setFile(null);
+  
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
+      
       reader.onloadend = async () => {
         const base64data = reader.result as string;
+        
         try {
-          const response = await openai.chat.completions.create({
+          const stream = await openai.chat.completions.create({
             model: realModelOpenAI,
             messages: [{
               role: 'user',
@@ -124,34 +129,49 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                 { type: 'text', text: finalPrompt },
                 { type: 'image_url', image_url: { url: base64data } }
               ]
-            }]
+            }],
+            stream: true, 
           });
-
-          const aiResponse = response.choices[0].message.content;
-          onSend(aiResponse || 'Sem resposta.', 'ai');
+  
+          let isFirst = true;
+          
+          for await (const chunk of stream) {
+            const delta = chunk.choices[0]?.delta?.content;
+            if (delta) {
+              onSend(delta, 'ai', true);
+              isFirst = false;
+            }
+          }
+  
         } catch (error) {
           onSend('Erro ao gerar resposta da OpenAI.', 'ai');
           console.error(error);
         }
       };
+  
     } else {
       try {
-        const response = await openai.chat.completions.create({
+        const stream = await openai.chat.completions.create({
           model: realModelOpenAI,
-          messages: [{ role: 'user', content: finalPrompt }]
+          messages: [{ role: 'user', content: finalPrompt }],
+          stream: true, 
         });
-
-        const aiResponse = response.choices[0].message.content;
-        onSend(aiResponse || 'Sem resposta.', 'ai');
-
+  
+        let isFirst = true;
+        
+        for await (const chunk of stream) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) {
+            onSend(delta, 'ai', true);
+            isFirst = false;
+          }
+        }
+  
       } catch (error) {
         onSend('Erro ao gerar resposta da OpenAI.', 'ai');
         console.error(error);
       }
     }
-
-    setText('');
-    setFile(null);
   };
 
   const realModelOpenAI = isWebSearch ? 'gpt-4o-search-preview' : (modelMapping[selectedModel] || 'gpt-4o-mini');
