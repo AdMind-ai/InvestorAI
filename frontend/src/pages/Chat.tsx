@@ -4,7 +4,6 @@ import Layout from '../layouts/Layout'
 import ChatHeader from '../components/ChatPage/ChatHeader'
 import ChatMessageList from '../components/ChatPage/ChatMessageList'
 import ChatInputArea from '../components/ChatPage/ChatInputArea'
-// import ChatEmptyState from '../components/ChatPage/ChatEmptyState'
 
 interface Message {
   sender: 'user' | 'ai'
