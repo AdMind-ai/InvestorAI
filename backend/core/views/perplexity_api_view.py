@@ -64,6 +64,7 @@ class PerplexityAPIView(APIView):
                                 citations_data = {
                                     "citations": response.citations
                                 }
+                                print()
                                 print("citations: ", citations_data)
                                 yield f"_CITATIONS_START_{json.dumps(citations_data)}_CITATIONS_END_\n"
                                 citations_sent = True
