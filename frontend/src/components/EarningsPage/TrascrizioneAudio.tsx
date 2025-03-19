@@ -96,7 +96,8 @@ const Trascrizione = () => {
             onChange={setText}
             placeholder=""
             height='35vh'
-            isDisabled={true}
+            isDisabled={false}
+            showTyping={showTextArea}
           />
 
           <Menu

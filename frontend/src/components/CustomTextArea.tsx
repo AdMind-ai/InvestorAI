@@ -1,4 +1,5 @@
 import { Box, TextField } from '@mui/material';
+import { DotTyping } from './DotTyping';
 
 interface CustomTextAreaProps {
   value: string;
@@ -6,9 +7,10 @@ interface CustomTextAreaProps {
   placeholder?: string;
   height?: string;
   isDisabled?: boolean;
+  showTyping?: boolean;
 }
 
-const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeholder = "Text here.", height = '30vh', isDisabled=false }) => {
+const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeholder = "Text here.", height = '30vh', isDisabled=false, showTyping=false }) => {
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%', marginTop: '12px' }}>
       <TextField
@@ -40,6 +42,17 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeh
           },
         }}
       />
+      {showTyping && !value && (
+        <Box sx={{
+          position: 'absolute',
+          top: 16,
+          left: 20,
+          fontSize: '1.2rem',
+          pointerEvents: 'none',
+        }}>
+          <DotTyping/>
+        </Box>
+      )}
     </Box>
   );
 };
