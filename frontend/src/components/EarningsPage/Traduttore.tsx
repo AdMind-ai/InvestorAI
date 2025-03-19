@@ -1,7 +1,7 @@
 // import { useTheme } from '@mui/material/styles'
 import { Box, Button } from '@mui/material'
 import SimpleDropdown from '../SimpleDropdown'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CustomTextArea from '../CustomTextArea'
 import UploadableTextArea from '../UploadableTextArea'
 import DocumentList from '../DocumentList';
@@ -27,8 +27,6 @@ const languageMap: Record<string, string> = {
 
 const Traduttore = () => {
   // const theme = useTheme()
-  const [selectedLanguageOriginal, setSelectedLanguageOriginal] = useState<null | string>(null);
-  const [selectedLanguageTarget, setSelectedLanguageTarget] = useState<null | string>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>('');
   const [translatedText, setTranslatedText] = useState<string>('');
@@ -38,6 +36,19 @@ const Traduttore = () => {
   const [documentsTranslated, setDocumentsTranslated] = useState<Document[]>([]);
   // const [file, setFile] = useState<File | null>(null);
   const [files, setFiles] = useState<File[]>([]);
+  
+  // Languages
+  const [selectedLanguageOriginal, setSelectedLanguageOriginal] = useState<null | string>(null);
+  const [selectedLanguageTarget, setSelectedLanguageTarget] = useState<null | string>(null);
+  const [filteredOriginalLanguages, setFilteredOriginalLanguages] = useState<string[]>([]);
+  const [filteredTargetLanguages, setFilteredTargetLanguages] = useState<string[]>([]);
+
+  const languages = ['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco'];
+  
+  useEffect(() => {
+    setFilteredOriginalLanguages(languages.filter(lang => lang !== selectedLanguageTarget));
+    setFilteredTargetLanguages(languages.filter(lang => lang !== selectedLanguageOriginal));
+  }, [selectedLanguageOriginal, selectedLanguageTarget]);
 
   const handleDeleteDocument = (id: number) => {
     setDocumentsTranslated((prevDocs) => prevDocs.filter((doc) => doc.id !== id));
@@ -163,7 +174,7 @@ const Traduttore = () => {
           }}
         >
           {/* Dropdown Lingua originale */}
-          <SimpleDropdown title="Lingua originale" options={['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco']} onSelect={setSelectedLanguageOriginal} />
+          <SimpleDropdown title="Lingua originale" options={filteredOriginalLanguages} onSelect={setSelectedLanguageOriginal} />
           {/* Upload Area */}
           <UploadableTextArea text={text} setText={setText} onFileUpload={handleFileUpload} />
         </Box>
@@ -175,7 +186,7 @@ const Traduttore = () => {
           }}
         >
           {/* Dropdown Lingua target */}
-          <SimpleDropdown title="Lingua target" options={['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco']} onSelect={setSelectedLanguageTarget} />
+          <SimpleDropdown title="Lingua target" options={filteredTargetLanguages} onSelect={setSelectedLanguageTarget} />
           {/* TextArea */}
           {
             isFileTranslated ? (
