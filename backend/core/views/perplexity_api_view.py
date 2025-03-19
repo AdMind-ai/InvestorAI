@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
-from core.serializers import PerplexityRequestSerializer
+from core.serializers.perplexity_serializer import PerplexityRequestSerializer
 
 SYSTEM_MESSAGE = (
     "You are an advanced deep search AI. Your role is to understand and process "

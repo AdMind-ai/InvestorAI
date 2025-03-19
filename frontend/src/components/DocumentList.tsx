@@ -6,12 +6,14 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
+import { saveAs } from 'file-saver';
+import { api } from '../api/api';
 
 interface Document {
   id: number;
   name: string;
   type: string; // pdf, txt, doc, docx, odt, rtf, xls, xlsx
-  translatedUrl?: string; // URL do documento traduzido (opcional)
+  translatedUrl?: string; 
 }
 
 interface DocumentListProps {
@@ -25,6 +27,23 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, onDelete, isTran
   if (!documents || documents.length === 0) {
     return null; // Não renderiza nada se não houver documentos
   }
+  
+  const handleOpenProtectedDoc = async (document: Document) => {
+    if (!document.translatedUrl) {
+      alert("Documento traduzido não disponível.");
+      return;
+    }
+  
+    try {
+      const response = await api.get(document.translatedUrl, { responseType: 'blob' });
+  
+      // Usa file-saver para baixar automaticamente:
+      saveAs(response.data, document.name);
+    } catch (error) {
+      console.error("Erro ao baixar o documento:", error);
+      alert("Não foi possível baixar o documento.");
+    }
+  };
 
   const getIconForType = (type: string) => {
     switch (type) {
@@ -43,7 +62,10 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, onDelete, isTran
       default:
         return <InsertDriveFileOutlinedIcon fontSize="small" />;
     }
+    
   };
+
+
 
   return (
     <Box
@@ -85,10 +107,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, onDelete, isTran
             {/* Alternar entre exclusão e link de documento traduzido */}
             {isTranslated ? (
               <Typography
-                component="a"
-                href={document.translatedUrl || '#'} // URL do documento traduzido
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => handleOpenProtectedDoc(document)} 
                 sx={{
                   fontSize: '12px',
                   color: theme.palette.primary.main,

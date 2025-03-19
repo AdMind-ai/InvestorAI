@@ -17,9 +17,6 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
-
-
-
 # Disable debug mode in production
 DEBUG = False
 SECRET_KEY = os.environ['SECRET_KEY']
@@ -72,6 +69,3 @@ DATABASES = {
         "PASSWORD": CONNECTION_STR['password'],
     }
 }
-
-# Define the root directory for collected static files
-STATIC_ROOT = BASE_DIR / 'staticfiles'

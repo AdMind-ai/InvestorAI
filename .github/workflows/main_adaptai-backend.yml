@@ -30,7 +30,8 @@ jobs:
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
           echo "AZURE_POSTGRESQL_CONNECTIONSTRING=${{ secrets.AZURE_POSTGRESQL_CONNECTIONSTRING }}" >> $GITHUB_ENV
           echo "OPENAI_KEY=${{ secrets.OPENAI_KEY }}" >> $GITHUB_ENV
-          echo "PERPLEXITY_KEY=${{ secrets.PERPLEXITY_KEY }}" >> $GITHUB_ENV
+          echo "PERPLEXITY_KEY=${{ secrets.PERPLEXITY_KEY }}" >> $GITHUB_ENV 
+          echo "DEEPL_KEY=${{ secrets.DEEPL_KEY }}" >> $GITHUB_ENV
 
       - name: Create and start virtual environment
         run: |

@@ -32,6 +32,8 @@ class APIRootView(APIView):
             "core": {
                 "core_endpoint": request.build_absolute_uri(reverse("hello")),
                 "perplexity": request.build_absolute_uri(reverse("perplexity")),
-                "core_list": request.build_absolute_uri(reverse("core-list")),
+                "deepl_file": request.build_absolute_uri(reverse("translatefile")),
+                "deepl_text": request.build_absolute_uri(reverse("translatetext")),
+                # "core_list": request.build_absolute_uri(reverse("core-list")),
             }
         })

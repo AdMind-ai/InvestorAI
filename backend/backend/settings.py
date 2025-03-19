@@ -20,10 +20,12 @@ load_dotenv()
 # Environment Keys
 OPENAI_KEY = os.environ['OPENAI_KEY']
 PERPLEXITY_KEY = os.environ['PERPLEXITY_KEY']
+DEEPL_KEY = os.environ['DEEPL_KEY']
 
 keys = [
     'OPENAI_KEY',
-    'PERPLEXITY_KEY'
+    'PERPLEXITY_KEY',
+    'DEEPL_KEY'
 ]
 missing_keys = [key for key in keys if not os.getenv(key)]
 
@@ -180,3 +182,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 AUTH_USER_MODEL = "users.CustomUser"
+
+
+# Define the root directory for collected media files
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Define the root directory for collected static files
+STATIC_URL = 'staticfiles/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
