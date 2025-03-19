@@ -5,7 +5,7 @@ import DocumentList from './DocumentList';
 interface UploadableTextAreaProps {
   text: string;
   setText: (value: string) => void;
-  onFileUpload: (file: File) => void;
+  onFileUpload: (file: File | File[]) => void;
 }
 
 interface Document {

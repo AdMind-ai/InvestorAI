@@ -94,10 +94,15 @@ class DeeplTranslationFile:
 
             temp_file.close()
 
-            formatted_date = datetime.now().strftime("%Y-%m-%d")
-            new_filename = f"{filename_without_extension}_{formatted_date}_tradotto{extension}"
+            formatted_date = datetime.now().strftime("%Y-%m-%d-%H%M%S%f")
+            clean_filename = filename_without_extension.replace(
+                "_tradotto", "")
+            new_filename = f"{clean_filename}_{formatted_date}_tradotto{extension}"
 
             final_path = os.path.join(aisolutions_path, new_filename)
+            if os.path.exists(final_path):
+                os.remove(final_path)
+
             os.rename(temp_file.name, final_path)
 
             return new_filename

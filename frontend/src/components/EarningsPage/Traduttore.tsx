@@ -32,11 +32,12 @@ const Traduttore = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>('');
   const [translatedText, setTranslatedText] = useState<string>('');
-  const [textFileTranslated, setTextFileTranslated] = useState<string>('');
+  // const [textFileTranslated, setTextFileTranslated] = useState<string>('');
   const [isTranslated, setIsTranslated] = useState<boolean>(false);
   const [isFileTranslated, setIsFileTranslated] = useState<boolean>(false);
   const [documentsTranslated, setDocumentsTranslated] = useState<Document[]>([]);
-  const [file, setFile] = useState<File | null>(null);
+  // const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
   const handleDeleteDocument = (id: number) => {
     setDocumentsTranslated((prevDocs) => prevDocs.filter((doc) => doc.id !== id));
@@ -47,12 +48,14 @@ const Traduttore = () => {
 
   // Send Button Activation
   const isButtonEnabled =
-    selectedLanguageOriginal !== null && selectedLanguageTarget !== null && (text.trim().length > 0 || file !== null);
+    selectedLanguageOriginal !== null && selectedLanguageTarget !== null && (text.trim().length > 0 || files.length > 0);
 
   // File Upload
-  const handleFileUpload = (file: File) => {
-    setFile(file);
-    // console.log(file);
+  const handleFileUpload = (file: File | File[]) => {
+    setFiles(prevFiles => [
+      ...prevFiles,
+      ...(Array.isArray(file) ? file : [file])
+    ]);
   };
 
   const handleTranslation = async () => {
@@ -63,41 +66,51 @@ const Traduttore = () => {
 
     setIsLoading(true); 
     try {
-      if (file) { 
+      if (files.length > 0) { 
         setIsTranslated(false);
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('origin', languageMap[selectedLanguageOriginal!]);
-        formData.append('target', languageMap[selectedLanguageTarget!]);
+
+        const translationRequests = files.map(file => {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('origin', languageMap[selectedLanguageOriginal!]);
+          formData.append('target', languageMap[selectedLanguageTarget!]);
   
-        const response = await api.post('/deepl/file/', formData, {
-          headers: { "Content-Type": "multipart/form-data" }
+          return api.post('/deepl/file/', formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+          });
         });
-        
-        const translatedFileUrl = `/deepl/file?document=${response.data.document}`;
-        const translatedFileName = response.data.document || file.name;
-        const fileExtension = getFileExtension(translatedFileName);
-          
-        const newTranslatedDocument = {
-          id: Date.now(),
-          name: translatedFileName,
-          type: fileExtension,
-          translatedUrl: translatedFileUrl,
-        };
-        setDocumentsTranslated((prevDocs) => [...prevDocs, newTranslatedDocument]);
-        setIsFileTranslated(true);
   
-        // Obtém texto do arquivo traduzido:
-        const fileResponse = await api.get(translatedFileUrl, { responseType: 'blob' });
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const contentAsText = (event.target?.result as string) || '';
-          setTextFileTranslated(contentAsText); 
-          setIsLoading(false);
-          console.log(textFileTranslated);
-        };
-        reader.readAsText(fileResponse.data);
-        setFile(null);
+        const responses = await Promise.all(translationRequests);
+        
+        const translatedDocuments: Document[] = responses.map((res, idx) => {
+          const translatedFileUrl = `/deepl/file?document=${res.data.document}`;
+          const translatedFileName = res.data.document || files[idx].name;
+          const fileExtension = getFileExtension(translatedFileName);
+
+          return {
+            id: Date.now() + idx,
+            name: translatedFileName,
+            type: fileExtension,
+            translatedUrl: translatedFileUrl,
+          };
+        });
+
+        setDocumentsTranslated(prevDocs => [...prevDocs, ...translatedDocuments]);
+        setIsFileTranslated(true);
+        setFiles([]);
+        setIsLoading(false);
+  
+        // // Obtém texto do arquivo traduzido:
+        // const fileResponse = await api.get(translatedFileUrl, { responseType: 'blob' });
+        // const reader = new FileReader();
+        // reader.onload = (event) => {
+        //   const contentAsText = (event.target?.result as string) || '';
+        //   setTextFileTranslated(contentAsText); 
+        //   setIsLoading(false);
+        //   console.log(textFileTranslated);
+        // };
+        // reader.readAsText(fileResponse.data);
+        // setFile(null);
   
       } else if (text.trim()) { 
         setIsFileTranslated(false);
