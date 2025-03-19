@@ -1,5 +1,6 @@
 import os
 import tempfile
+from datetime import datetime
 
 import deepl
 from django.conf import settings
@@ -58,7 +59,7 @@ class DeeplTranslationFile:
 
         file_b = file.read()
         translator = deepl.Translator(self.key)
-        _, extension = os.path.splitext(file.name)
+        filename_without_extension, extension = os.path.splitext(file.name)
         aisolutions_path = os.path.join(settings.MEDIA_ROOT, 'files')
         os.makedirs(aisolutions_path, exist_ok=True)
 
@@ -90,6 +91,16 @@ class DeeplTranslationFile:
                     target_lang=target_lang,
                     source_lang=source_lang[:2],
                 )
+
+            temp_file.close()
+
+            formatted_date = datetime.now().strftime("%Y-%m-%d")
+            new_filename = f"{filename_without_extension}_{formatted_date}_tradotto{extension}"
+
+            final_path = os.path.join(aisolutions_path, new_filename)
+            os.rename(temp_file.name, final_path)
+
+            return new_filename
 
         except deepl.DocumentTranslationException as error:
             doc_id = error.document_handle.id

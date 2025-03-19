@@ -97,15 +97,16 @@ const Traduttore = () => {
           console.log(textFileTranslated);
         };
         reader.readAsText(fileResponse.data);
+        setFile(null);
   
       } else if (text.trim()) { 
-        setIsLoading(true);
+        setIsFileTranslated(false);
         const response = await api.post('/deepl/text/', {
           text: text,
           origin: languageMap[selectedLanguageOriginal!],
           target: languageMap[selectedLanguageTarget!],
         });
-  
+        
         setTranslatedText(response.data.translated_text);
         console.log(response.data.translated_text)
         setIsTranslated(true);
@@ -166,7 +167,7 @@ const Traduttore = () => {
           {
             isFileTranslated ? (
               <Box sx={{ position: 'relative', width: '100%', height: '100%', marginTop: '12px', borderRadius: '2vh', border: '1px solid #ddd', py: '16px', display: 'flex', justifyContent: 'center' }}>
-                <DocumentList documents={documentsTranslated} onDelete={handleDeleteDocument} isTranslated={true} />
+                <DocumentList documents={[...documentsTranslated].reverse()} onDelete={handleDeleteDocument} isTranslated={true} />
               </Box>
             ) : isTranslated ? (
               <CustomTextArea 
