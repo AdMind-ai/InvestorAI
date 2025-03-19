@@ -28,21 +28,22 @@ const languageMap: Record<string, string> = {
 const Traduttore = () => {
   // const theme = useTheme()
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  // Text
   const [text, setText] = useState<string>('');
-  const [translatedText, setTranslatedText] = useState<string>('');
-  // const [textFileTranslated, setTextFileTranslated] = useState<string>('');
   const [isTranslated, setIsTranslated] = useState<boolean>(false);
+  const [translatedText, setTranslatedText] = useState<string>('');
+  
+  // Files
+  const [files, setFiles] = useState<File[]>([]);
   const [isFileTranslated, setIsFileTranslated] = useState<boolean>(false);
   const [documentsTranslated, setDocumentsTranslated] = useState<Document[]>([]);
-  // const [file, setFile] = useState<File | null>(null);
-  const [files, setFiles] = useState<File[]>([]);
   
   // Languages
   const [selectedLanguageOriginal, setSelectedLanguageOriginal] = useState<null | string>(null);
   const [selectedLanguageTarget, setSelectedLanguageTarget] = useState<null | string>(null);
   const [filteredOriginalLanguages, setFilteredOriginalLanguages] = useState<string[]>([]);
   const [filteredTargetLanguages, setFilteredTargetLanguages] = useState<string[]>([]);
-
   const languages = ['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco'];
   
   useEffect(() => {
@@ -50,16 +51,18 @@ const Traduttore = () => {
     setFilteredTargetLanguages(languages.filter(lang => lang !== selectedLanguageOriginal));
   }, [selectedLanguageOriginal, selectedLanguageTarget]);
 
+  // Send Button Activation
+  const isButtonEnabled =
+    selectedLanguageOriginal !== null && selectedLanguageTarget !== null && (text.trim().length > 0 || files.length > 0);
+
+
+  // File Delete 
   const handleDeleteDocument = (id: number) => {
     setDocumentsTranslated((prevDocs) => prevDocs.filter((doc) => doc.id !== id));
     if (documentsTranslated.length === 0) {
       setIsFileTranslated(false);
     }
   };
-
-  // Send Button Activation
-  const isButtonEnabled =
-    selectedLanguageOriginal !== null && selectedLanguageTarget !== null && (text.trim().length > 0 || files.length > 0);
 
   // File Upload
   const handleFileUpload = (file: File | File[]) => {
@@ -69,6 +72,12 @@ const Traduttore = () => {
     ]);
   };
 
+  // File Extension
+  const getFileExtension = (filename: string) => {
+    return filename.substring(filename.lastIndexOf('.') + 1, filename.length);
+  };
+
+  // Translation
   const handleTranslation = async () => {
     if (!selectedLanguageOriginal || !selectedLanguageTarget) {
       alert("Por favor selecione os idiomas corretamente.");
@@ -110,19 +119,7 @@ const Traduttore = () => {
         setIsFileTranslated(true);
         setFiles([]);
         setIsLoading(false);
-  
-        // // Obtém texto do arquivo traduzido:
-        // const fileResponse = await api.get(translatedFileUrl, { responseType: 'blob' });
-        // const reader = new FileReader();
-        // reader.onload = (event) => {
-        //   const contentAsText = (event.target?.result as string) || '';
-        //   setTextFileTranslated(contentAsText); 
-        //   setIsLoading(false);
-        //   console.log(textFileTranslated);
-        // };
-        // reader.readAsText(fileResponse.data);
-        // setFile(null);
-  
+
       } else if (text.trim()) { 
         setIsFileTranslated(false);
         const response = await api.post('/deepl/text/', {
@@ -145,11 +142,6 @@ const Traduttore = () => {
       setIsLoading(false);
     }
     
-  };
-  
-  // Função adicional claramente simples para extrair extensão do arquivo
-  const getFileExtension = (filename: string) => {
-    return filename.substring(filename.lastIndexOf('.') + 1, filename.length);
   };
 
 
@@ -212,7 +204,6 @@ const Traduttore = () => {
         }
         </Box>
       </Box>
-
 
       {/* Generate Button */}
       <Button

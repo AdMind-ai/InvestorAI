@@ -4,24 +4,38 @@ import CustomTextArea from '../CustomTextArea';
 import AudioUploadArea from '../AudioUploadArea';
 import jsPDF from 'jspdf';
 import downloadIcon from '../../assets/icons/download-icon.svg';
+import { api } from '../../api/api'
 
 const Trascrizione = () => {
   const [selectedAudioFile, setSelectedAudioFile] = useState<File | null>(null);
   const [text, setText] = useState<string>('');
   const [showTextArea, setShowTextArea] = useState<boolean>(false);
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const isButtonEnabled = selectedAudioFile !== null;
 
-  const handleFileUpload = (file: File) => {
-    console.log('Arquivo carregado:', file);
-    // Aqui você pode enviar o arquivo para backend ou processar o conteúdo
+  const handleFileUpload = async () => {
+    if (!selectedAudioFile) return;
+
+    const formData = new FormData();
+    formData.append('file', selectedAudioFile);
+
+    try {
+      const response = await api.post('/openai/audio-transcription/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setText(response.data.text);
+    } catch (error) {
+      console.error('Erro ao transcrever o áudio:', error);
+      // Adicione tratamento de erro se necessário
+    }
   };
 
   const handleClickTrascrivi = () => {
     setShowTextArea(true);
-    handleFileUpload(selectedAudioFile as File);
+    handleFileUpload();
   };
 
   const handleDownloadClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -36,8 +50,12 @@ const Trascrizione = () => {
     handleCloseMenu();
     
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const marginX = 10;
+    const marginY = 20;
+    const maxWidth = pageWidth - marginX * 2;
 
-    doc.text(text, 10, 10);
+    doc.text(text, marginX, marginY, { maxWidth, align: "left" });
     doc.save(`${formatName}.pdf`);
   };
 

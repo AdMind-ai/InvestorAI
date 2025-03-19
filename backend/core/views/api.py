@@ -30,10 +30,11 @@ class APIRootView(APIView):
                 "user_detail_current": request.build_absolute_uri(reverse("users-detail", kwargs={'pk': user_id})),
             },
             "core": {
+                # "core_list": request.build_absolute_uri(reverse("core-list")),
                 "core_endpoint": request.build_absolute_uri(reverse("hello")),
                 "perplexity": request.build_absolute_uri(reverse("perplexity")),
                 "deepl_file": request.build_absolute_uri(reverse("translatefile")),
                 "deepl_text": request.build_absolute_uri(reverse("translatetext")),
-                # "core_list": request.build_absolute_uri(reverse("core-list")),
+                "openai_audio-transcription": request.build_absolute_uri(reverse("audio-transcription")),
             }
         })

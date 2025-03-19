@@ -61,32 +61,28 @@ class PerplexityAPIView(APIView):
                         "https://api.perplexity.ai/chat/completions",
                         headers=headers,
                         json=request_body,
-                        stream=True,  # manter streaming ativado
-                        timeout=(10, 120)  # conexão: 10s, leitura: 60s
+                        stream=True,
+                        timeout=(10, 120)
                     )
                     response.raise_for_status()
 
                     citations_sent = False
 
-                    # Streaming linha por linha
                     for line in response.iter_lines(decode_unicode=True):
                         if not line.strip():
-                            continue  # pula linhas apenas com espaços ou vazias
+                            continue
 
-                        # remover o prefixo 'data: ' padrão, se existir
                         if line.startswith("data: "):
                             line = line[len("data: "):].strip()
 
                         if line == "[DONE]":
-                            break  # final do stream
+                            break
 
                         try:
-                            # agora seguro fazer parsing
                             json_response = json.loads(line)
                         except json.JSONDecodeError:
-                            continue  # pula linhas inválidas que não podem ser convertidas em json
+                            continue
 
-                        # seu código de envio das citations aqui
                         if not citations_sent and "citations" in json_response:
                             citations_data = {
                                 "citations": json_response["citations"]
@@ -94,7 +90,6 @@ class PerplexityAPIView(APIView):
                             yield f"_CITATIONS_START_{json.dumps(citations_data)}_CITATIONS_END_\n"
                             citations_sent = True
 
-                        # envio incremental do conteúdo
                         delta = json_response.get("choices", [{}])[
                             0].get("delta", {})
                         delta_content = delta.get("content")
