@@ -36,5 +36,6 @@ class APIRootView(APIView):
                 "deepl_file": request.build_absolute_uri(reverse("translatefile")),
                 "deepl_text": request.build_absolute_uri(reverse("translatetext")),
                 "openai_audio-transcription": request.build_absolute_uri(reverse("audio-transcription")),
+                "elevenlabs_text-to-speech": request.build_absolute_uri(reverse("text-to-speech")),
             }
         })

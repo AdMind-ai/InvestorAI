@@ -4,6 +4,7 @@ from .perplexity_api_view import PerplexityAPIView
 from .translate_file_view import TranslateFileView
 from .translate_text_view import TranslateTextView
 from .audio_transcript_view import AudioTranscriptView
+from .text_to_speech_view import ElevenlabsTextToSpeechView
 
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     'PerplexityAPIView',
     'TranslateFileView',
     'TranslateTextView',
-    'AudioTranscriptView'
+    'AudioTranscriptView',
+    'ElevenlabsTextToSpeechView'
 ]

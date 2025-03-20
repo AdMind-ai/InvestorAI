@@ -21,11 +21,13 @@ load_dotenv()
 OPENAI_KEY = os.environ['OPENAI_KEY']
 PERPLEXITY_KEY = os.environ['PERPLEXITY_KEY']
 DEEPL_KEY = os.environ['DEEPL_KEY']
+ELEVENLABS_KEY = os.environ['ELEVENLABS_KEY']
 
 keys = [
     'OPENAI_KEY',
     'PERPLEXITY_KEY',
-    'DEEPL_KEY'
+    'DEEPL_KEY',
+    'ELEVENLABS_KEY'
 ]
 missing_keys = [key for key in keys if not os.getenv(key)]
 

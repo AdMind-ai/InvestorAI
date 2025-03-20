@@ -1,6 +1,6 @@
 # core/urls.py
 from django.urls import path
-from .views import ExampleView, PerplexityAPIView, TranslateFileView, TranslateTextView, AudioTranscriptView
+from .views import ExampleView, PerplexityAPIView, TranslateFileView, TranslateTextView, AudioTranscriptView, ElevenlabsTextToSpeechView
 
 urlpatterns = [
     path('hello/', ExampleView.as_view(), name='hello'),
@@ -9,4 +9,6 @@ urlpatterns = [
     path('deepl/text/', TranslateTextView.as_view(), name='translatetext'),
     path('openai/audio-transcription/',
          AudioTranscriptView.as_view(), name='audio-transcription'),
+    path('elevenlabs/text-to-speech/',
+         ElevenlabsTextToSpeechView.as_view(), name='text-to-speech',),
 ]
