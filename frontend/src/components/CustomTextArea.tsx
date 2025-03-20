@@ -12,7 +12,7 @@ interface CustomTextAreaProps {
 
 const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeholder = "Text here.", height = '30vh', isDisabled=false, showTyping=false }) => {
   return (
-    <Box sx={{ position: 'relative', width: '100%', height: '100%', marginTop: '12px' }}>
+    <Box sx={{ position: 'relative', width: '100%', height, marginTop: '12px' }}>
       <TextField
         variant="outlined"
         disabled={isDisabled}
@@ -24,6 +24,7 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeh
         placeholder={placeholder}
         sx={{
           flex: 1,
+          height: '100%',
           fontSize: '10px',
           backgroundColor: 'inherit',
           borderRadius: '2vh',
@@ -33,12 +34,11 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeh
             flexDirection: 'column',
             borderRadius: '2vh',
             fontSize: '17px',
-            height: { height },
-            overflow: 'auto',
+            height: '100%',
           },
           '& .MuiOutlinedInput-input': {
-            overflowY: 'auto',
-            height: { height },
+            height: '100%!important',
+            overflowY: 'auto!important',
           },
         }}
       />
