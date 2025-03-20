@@ -5,6 +5,7 @@ import Login from './pages/Login'
 // import Market from './pages/Market'
 import Chat from './pages/Chat'
 import CEO from './pages/CEO'
+import ESG from './pages/ESG'
 import Earnings from './pages/Earnings'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
@@ -25,7 +26,7 @@ const AppRoutes = () => {
             <Route path="/chat-assistant" element={<Chat />} />
             <Route path="/ceo-perception" element={<CEO />} />
             <Route path="/earnings" element={<Earnings />} />
-            <Route path="/esg" element={<Home />} />
+            <Route path="/esg" element={<ESG />} />
             <Route path="*" element={<Home />} />
           </Route>
         </Routes>

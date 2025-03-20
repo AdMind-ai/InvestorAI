@@ -26,6 +26,7 @@ const theme: Theme = createTheme({
     body2: {
       fontSize: '18.9px',
       fontWeight: 400, // Regular
+      lineHeight: '1',
     },
     subtitle1: {
       fontSize: '13px',
@@ -35,7 +36,7 @@ const theme: Theme = createTheme({
     subtitle2: {
       fontSize: '16px',
       fontWeight: 400, // Regular
-      lineHeight: '1.2',
+      lineHeight: '1',
     },
     button: {
       fontWeight: 700,
