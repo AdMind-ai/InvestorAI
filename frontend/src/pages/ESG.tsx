@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTheme } from '@mui/material/styles';
 import {
   Box,
   Divider,
@@ -10,12 +11,14 @@ import {
   Link,
   IconButton
 } from '@mui/material';
+import {Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button} from '@mui/material';
 import Layout from '../layouts/Layout';
-import { useTheme } from '@mui/material/styles';
+import dayjs from 'dayjs';
+// Icons
+import WarningAmberIcon from '@mui/icons-material/WarningRounded';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import dayjs from 'dayjs';
-
+import CloseIcon from '@mui/icons-material/Close';
 
 interface NewsItem {
   title: string;
@@ -70,6 +73,9 @@ const ESGPage: React.FC = () => {
   const [data, setData] = useState(mockData);
   const [page, setPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(6);
+  // Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [articleToDeleteIndex, setArticleToDeleteIndex] = useState<number | null>(null);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const currentData = data[selectedCategory] || [];
@@ -132,11 +138,51 @@ const ESGPage: React.FC = () => {
     }
   };
 
+  // Handle "Confirm Delete" action in modal
+  const confirmDelete = () => {
+    if (articleToDeleteIndex !== null) {
+      handleRemoveNews(articleToDeleteIndex);
+      setArticleToDeleteIndex(null);
+    }
+    setIsModalOpen(false);
+  };
+
+  // Handle "Cancel Delete" action (modal close)
+  const cancelDelete = () => {
+    setArticleToDeleteIndex(null);
+    setIsModalOpen(false);
+  };
+
 
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
-        <Typography variant="h2" sx={{ marginBottom: '0.2vw' }}>ESG News</Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '0.2vw',
+          }}
+        >
+          <Typography variant="h2" sx={{ marginLeft: '1vw' }}>
+            ESG News
+          </Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              marginRight: '1vw',
+              color: theme.palette.text.secondary,
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              '&:hover': {
+                color: theme.palette.secondary.light,
+              },
+            }}
+            onClick={() => console.log('Click!')}
+          >
+            Cronologia
+          </Typography>
+        </Box>
         <Divider sx={{ marginBottom: 2.5 }} />
         
         {/* Toggle buttons */}
@@ -212,7 +258,8 @@ const ESGPage: React.FC = () => {
                     <IconButton
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleRemoveNews((page-1) * rowsPerPage + idx);
+                        setArticleToDeleteIndex((page-1) * rowsPerPage + idx);
+                        setIsModalOpen(true);
                       }}
                     >
                       <DeleteOutlineIcon sx={{ color: '#e53935' }} />
@@ -330,6 +377,37 @@ const ESGPage: React.FC = () => {
           />
         </Box>
 
+        <Dialog open={isModalOpen} onClose={cancelDelete}>
+          <DialogTitle sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', justifyContent: 'center', mt:2, fontSize:'26px' }}>
+            <Box sx={{display: 'flex', alignItems: 'center'}}>
+              <WarningAmberIcon sx={{ color: '#000', mr: 1}}/>
+              Conferma richiesta
+              <WarningAmberIcon sx={{ color: '#000', ml: 1}}/>
+            </Box>
+            <IconButton
+              onClick={cancelDelete}
+              sx={{ position: 'absolute', top:10, right:10 }}
+            >
+              <CloseIcon sx={{color:'#000'}} />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ color: 'black', textAlign: 'center', fontSize:'20px', my:0.5, mx:1 }}>
+              Vuoi davvero eliminare questo articolo?<br />
+              Una volta eliminato, non sarà possibile recuperarlo.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{justifyContent: 'center', pb:2.5, mb:2}}>
+            <Button 
+              variant="contained" 
+              onClick={confirmDelete} 
+              sx={{ bgcolor: '#d32f2f', color: '#fff', py:2.6,
+                '&:hover': {bgcolor: '#c62828'} }}
+            >
+              Elimina post
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Layout>
   );

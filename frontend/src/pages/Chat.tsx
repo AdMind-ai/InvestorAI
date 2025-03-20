@@ -41,7 +41,7 @@ const Chat: React.FC = () => {
         sx={{
         display: 'flex',
         flexDirection: 'column',
-        padding: 'calc(3vh)',
+        padding: '2.2vh 3vh',
         overflow: 'auto',
         height: '100%',
         width: '100%',

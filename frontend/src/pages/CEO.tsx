@@ -125,7 +125,7 @@ const CEOPage: React.FC = () => {
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
-        <Typography variant="h2" sx={{ marginBottom: '0.2vw' }}>CEO Perception</Typography>
+        <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw'}}>CEO Perception</Typography>
         <Divider sx={{ marginBottom: 3 }} />
         <Box
           sx={{
