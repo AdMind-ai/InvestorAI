@@ -9,7 +9,6 @@ from core.utils.delete_file import delete_file
 
 class OpenAISpeechToText:
     def __init__(self, openai_key):
-        self.authorization = openai_key
         self.client = OpenAI(api_key=openai_key)
 
     def send(self, file):

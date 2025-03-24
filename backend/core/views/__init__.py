@@ -1,17 +1,23 @@
 # core/views/__init__.py
 from .example_view import ExampleView
-from .perplexity_api_view import PerplexityAPIView
-from .translate_file_view import TranslateFileView
-from .translate_text_view import TranslateTextView
-from .audio_transcript_view import AudioTranscriptView
-from .text_to_speech_view import ElevenlabsTextToSpeechView
+
+from .perplexity import PerplexityDeepSearchView
+from .perplexity import PerplexityESGNewsView
+from .deepl import DeeplTranslateFileView
+from .deepl import DeeplTranslateTextView
+from .openai import OpenAiAudioTranscriptView
+from .openai import OpenAIESGNewsView
+from .elevenlabs import ElevenlabsTextToSpeechView
+from .esg_article_view import ESGArticleViewSet
 
 
 __all__ = [
-    'ExampleView',
-    'PerplexityAPIView',
-    'TranslateFileView',
-    'TranslateTextView',
-    'AudioTranscriptView',
-    'ElevenlabsTextToSpeechView'
+    'PerplexityDeepSearchView',
+    'PerplexityESGNewsView',
+    'DeeplTranslateFileView',
+    'DeeplTranslateTextView',
+    'OpenAiAudioTranscriptView',
+    'OpenAIESGNewsView',
+    'ElevenlabsTextToSpeechView',
+    'ESGArticleViewSet'
 ]

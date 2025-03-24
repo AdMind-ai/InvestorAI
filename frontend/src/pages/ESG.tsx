@@ -12,8 +12,10 @@ import {
   IconButton
 } from '@mui/material';
 import {Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button} from '@mui/material';
-import Layout from '../layouts/Layout';
+import { CircularProgress } from '@mui/material';
 import dayjs from 'dayjs';
+import Layout from '../layouts/Layout';
+import { api } from '../api/api';
 // Icons
 import WarningAmberIcon from '@mui/icons-material/WarningRounded';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
@@ -21,45 +23,19 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface NewsItem {
+  id: number;
   title: string;
-  preview: string;
-  link: string;
-  sentiment: number;
-  date?: string;
+  summary: string;
+  url: string;
+  source: string;
+  author: string;
+  date_published: string;
+  topic: string;
+  created_at: string;
 }
 
-const mockData: Record<string, NewsItem[]> = {
-  'Evoluzione del contesto normativo': [
-    { title: 'Evoluzione Del Contesto Normativo ESG: Globali', preview: 'Evoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese Globali', link: '#' , sentiment:80},
-    { title: "Nuove Normative ESG: Un Futuro Sostenibile Che Diventa Obbligo", preview: 'Nel panorama globale dell\'evoluzione regolamentare...', link: '#' , sentiment:90},
-    { title: "ESG E Regolamentazione: Come Le Aziende Si Adattano All'evoluzione Normativa", preview: '...', link: '#' , sentiment:60},
-    { title: "Lo Strumento Della Normativa Per L'ESG: Una Spinta Al Cambiamento Sostenibile", preview: '...', link: '#' , sentiment:75},
-    { title: 'Evoluzaione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese Globali', preview: '...', link: '#' , sentiment:80},
-    { title: "Nuovae Normative ESG: Un Futuro Sostenibile Che Diventa Obbligo", preview: 'Nel panorama globale dell\'evoluzione regolamentare...', link: '#' , sentiment:90},
-    { title: "ESG E Regolaamentazione: Come Le Aziende Si Adattano All'evoluzione Normativa", preview: '...', link: '#' , sentiment:60},
-    { title: "Lo Strumento Dellaa Normativa Per L'ESG: Una Spinta Al Cambiamento Sostenibile", preview: '...', link: '#' , sentiment:75},
-    { title: 'Evoluzione Del Contesto Noarmativo ESG: Opportunità E Sfide Per Le Imprese Globali', preview: '...', link: '#' , sentiment:80},
-    { title: "Nuove Normative ESG: Un aFuturo Sostenibile Che Diventa Obbligo", preview: 'Nel panorama globale dell\'evoluzione regolamentare...', link: '#' , sentiment:90},
-    { title: "ESG E Regolamentazioane: Come Le Aziende Si Adattano All'evoluzione Normativa", preview: '...', link: '#' , sentiment:60},
-    { title: "Lo Strumento Delala Normativa Per L'ESG: Una Spinta Al Cambiamento Sostenibile", preview: '...', link: '#' , sentiment:75},
-    { title: 'Evoluzione sel Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese Globali', preview: '...', link: '#' , sentiment:80},
-    { title: "Nuove Normatives ESG: Un Futuro Sostenibile Che Diventa Obbligo", preview: 'Nel panorama globale dell\'evoluzione regolamentare...', link: '#' , sentiment:90},
-    { title: "ESG E Regolamenstazione: Come Le Aziende Si Adattano All'evoluzione Normativa", preview: '...', link: '#' , sentiment:60},
-    { title: "Lo Strumento Delsla Normativa Per L'ESG: Una Spinta Al Cambiamento Sostenibile", preview: '...', link: '#' , sentiment:75},
-    { title: 'Evoluzioned Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese Globali', preview: '...', link: '#' , sentiment:80},
-    { title: "Nuove Norfmative ESG: Un Futuro Sostenibile Che Diventa Obbligo", preview: 'Nel panorama globale dell\'evoluzione regolamentare...', link: '#' , sentiment:90},
-    { title: "ESG E Regolamgentazione: Come Le Aziende Si Adattano All'evoluzione Normativa", preview: '...', link: '#' , sentiment:60},
-    { title: "Lo Strumento Delhla Normativa Per L'ESG: Una Spinta Al Cambiamento Sostenibile", preview: '...', link: '#' , sentiment:75},
-  ],
-  'News reati informativi':[
-    { title: 'Evoluzione Del Contesto Normativo ESG: Globali', preview: 'Evoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese GlobaliEvoluzione Del Contesto Normativo ESG: Opportunità E Sfide Per Le Imprese Globali', link: '#' , sentiment:80},
-    { title: "Nuove Normative ESG: Un Futuro Sostenibile Che Diventa Obbligo", preview: 'Nel panorama globale dell\'evoluzione regolamentare...', link: '#' , sentiment:90},
-  ],
-  'Responsabilità amministratori':[],
-  'Rischi reputazionali':[]
-};
 
-const categories = [
+const topics = [
   'Evoluzione del contesto normativo',
   'News reati informativi',
   'Responsabilità amministratori',
@@ -68,9 +44,17 @@ const categories = [
 
 const ESGPage: React.FC = () => {
   const theme = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  const [selectedArticle, setSelectedArticle] = useState<NewsItem | null>(mockData[categories[0]][0]);
-  const [data, setData] = useState(mockData);
+  const [loadingGenerateArticles, setLoadingGenerateArticles] = useState<boolean>(false);
+  const [loadingArticlesList, setLoadingArticlesList] = useState<boolean>(false);
+  const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('openai');
+  const [selectedCategory, setSelectedCategory] = useState(topics[0]);
+  const [selectedArticle, setSelectedArticle] = useState<NewsItem | null>();
+  const [data, setData] = useState<Record<string, NewsItem[]>>({
+    'Evoluzione del contesto normativo': [],
+    'News reati informativi': [],
+    'Responsabilità amministratori': [],
+    'Rischi reputazionali': [],
+  });
   const [page, setPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(6);
   // Modal
@@ -79,22 +63,22 @@ const ESGPage: React.FC = () => {
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const currentData = data[selectedCategory] || [];
+  const sortedData = [...currentData].sort((a, b) =>
+    dayjs(b.date_published).diff(dayjs(a.date_published))
+  );
   const isLastPage = page === Math.ceil(currentData.length / rowsPerPage);
-  const displayedNews = currentData.slice(
+  const displayedNews = sortedData.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
   
-  const previewDate = selectedArticle?.date ? dayjs(selectedArticle.date) : dayjs(); 
-  const formattedDate = previewDate.format('DD MMMM YYYY - HH:mm');
-  
-  
+  // Controls how many articles on page based on height
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       const container = containerRef.current;
       if (container) {
         const totalHeight = container.clientHeight;
-        console.log(totalHeight)
+        // console.log(totalHeight)
         
         const itemHeight = 45; 
         const minSpacingRem = 0.8; 
@@ -102,7 +86,7 @@ const ESGPage: React.FC = () => {
         const minSpacingPx = minSpacingRem * remToPx;
   
         let maxItems = Math.floor((totalHeight) / (itemHeight + minSpacingPx));
-        console.log(maxItems)
+        // console.log(maxItems)
   
         if (maxItems >= currentData.length) {
           setRowsPerPage(currentData.length);
@@ -123,25 +107,34 @@ const ESGPage: React.FC = () => {
     setSelectedArticle(article);
   };
 
-  const handleRemoveNews = (removeIdx: number) => {
-    setData(prevData => {
-      const newDataCategory = prevData[selectedCategory].filter((_, idx) => idx !== removeIdx);
+  const handleRemoveNews = async (articleId: number) => {
+    try {
+      await api.delete(`/esg-articles/${articleId}/`);
   
-      return ({
-        ...prevData,
-        [selectedCategory]: newDataCategory,
+      // remove article from state
+      setData(prevData => {
+        const newDataCategory = prevData[selectedCategory].filter(article => article.id !== articleId);
+  
+        return {
+          ...prevData,
+          [selectedCategory]: newDataCategory,
+        };
       });
-    });
   
-    if (selectedArticle && removeIdx === displayedNews.findIndex(n => n.title === selectedArticle.title)) {
-      setSelectedArticle(null);
+      if (selectedArticle && selectedArticle.id === articleId) {
+        setSelectedArticle(null);
+      }
+  
+    } catch (error) {
+      console.error("Erro ao deletar artigo:", error);
     }
   };
 
   // Handle "Confirm Delete" action in modal
   const confirmDelete = () => {
     if (articleToDeleteIndex !== null) {
-      handleRemoveNews(articleToDeleteIndex);
+      const article = currentData[articleToDeleteIndex];
+      handleRemoveNews(article.id);
       setArticleToDeleteIndex(null);
     }
     setIsModalOpen(false);
@@ -152,6 +145,85 @@ const ESGPage: React.FC = () => {
     setArticleToDeleteIndex(null);
     setIsModalOpen(false);
   };
+
+  // Generate Articles
+  const fetchESGArticles = async (topic: string) => {
+    const endpoint = selectedProvider === 'openai' ? '/openai/esg-news/' : '/perplexity/esg-news/';
+    const response = await api.post(endpoint, { topic });
+    console.log(response)
+    return response.data.articles;
+  };
+  
+  const handleFetchArticles = async () => {
+    setLoadingGenerateArticles(true);
+    try {
+      // parallel requests 
+      await Promise.all(topics.map(fetchESGArticles));
+      setLoadingGenerateArticles(false);
+
+    } catch (error) {
+      setLoadingGenerateArticles(false);
+      console.error("Error fetching ESG articles:", error);
+    }
+    try {
+      setLoadingArticlesList(true)
+      const refreshedArticles = await api.get<NewsItem[]>("/esg-articles/");
+  
+      const groupedData: Record<string, NewsItem[]> = {
+        'Evoluzione del contesto normativo': [],
+        'News reati informativi': [],
+        'Responsabilità amministratori': [],
+        'Rischi reputazionali': [],
+      };
+  
+      refreshedArticles.data.forEach(article => {
+        groupedData[article.topic]?.push(article);
+      });
+  
+      setData(groupedData);
+      setSelectedCategory(topics[0]);
+      setSelectedArticle(groupedData[topics[0]][0] || null);
+      setLoadingArticlesList(false)
+  
+    } catch (error) {
+      setLoadingGenerateArticles(false);
+      console.error("Error updating ESG Articles:", error);
+    }
+  };
+
+  // Load Articles
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoadingArticlesList(true)
+        const res = await api.get<NewsItem[]>("/esg-articles/");
+
+        const groupedData: Record<string, NewsItem[]> = {
+          'Evoluzione del contesto normativo': [],
+          'News reati informativi': [],
+          'Responsabilità amministratori': [],
+          'Rischi reputazionali': [],
+        };
+  
+        res.data.forEach(article => {
+          if(groupedData[article.topic]) {
+            groupedData[article.topic].push(article);
+          }
+        });
+  
+        setData(groupedData);
+        setSelectedCategory(topics[0]);
+        setSelectedArticle(groupedData[topics[0]][0] || null);
+        setLoadingArticlesList(false)
+      } catch (error) {
+        console.error("Erro carregando artigos ESG:", error);
+      }
+    };
+  
+    loadData();
+  }, []);
+  
+  
 
 
   return (
@@ -167,6 +239,8 @@ const ESGPage: React.FC = () => {
           <Typography variant="h2" sx={{ marginLeft: '1vw' }}>
             ESG News
           </Typography>
+
+
           <Typography
             variant="subtitle2"
             sx={{
@@ -189,10 +263,10 @@ const ESGPage: React.FC = () => {
         <ToggleButtonGroup
           value={selectedCategory}
           exclusive
-          onChange={(_, value) => { if(value){ setSelectedCategory(value); setSelectedArticle(mockData[value][0] || null); setPage(1); } }}
+          onChange={(_, value) => { if(value){ setSelectedCategory(value); setSelectedArticle(data[value][0] || null); setPage(1); } }}
           sx={{ display: 'flex', gap:2, borderRadius: '12px', overflow: 'visible', width: '100%', mb: 2 }}
         >
-          {categories.map(name => (
+          {topics.map(name => (
             <ToggleButton
               key={name}
               value={name}
@@ -215,60 +289,95 @@ const ESGPage: React.FC = () => {
 
         {/* Titles and News */}
         <Box ref={containerRef} sx={{ display: 'flex', gap: '1rem', height: '57.1vh', width:'100%' }}>
-
-          {/* News List */}
-          <Box sx={{ flex: '1.2', overflowY: 'hidden', 
-            // border: `1px solid #E4E4E4`, 
-            borderRadius: '12px' }}>
-            <Box sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: (rowsPerPage < currentData.length && !isLastPage) ? 'space-between' : 'flex-start',
-              height: '100%',
-            }}>
-              {displayedNews.map((news, idx) => {
-                const isLastItem = idx === displayedNews.length - 1;
-                const marginBottom = (rowsPerPage < currentData.length && !isLastPage) ? 0 : (isLastItem ? 0 : '0.9rem');
-          
-                return(
-                  <Box
-                    key={idx}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      width: '100%',
-                      padding: '6.5px 14px',
-                      mb: marginBottom,
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      bgcolor: '#fff',
-                      border: selectedArticle?.title === news.title ? '1px solid #2097df' : `1px solid #E4E4E4`,
-                      boxShadow: '0px 1px 4px rgba(0,0,0,0.06)',
-                      '&:hover': {
-                        bgcolor: selectedArticle?.title === news.title ? '#fff' : '#f1f1f1'
-                      },
-                    }}
-                    onClick={() => handleArticleClick(news)}
-                  >
-                    <Typography sx={{ fontSize: '15px', mr: 1 }}>
-                      {news.title}
-                    </Typography>
-
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setArticleToDeleteIndex((page-1) * rowsPerPage + idx);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      <DeleteOutlineIcon sx={{ color: '#e53935' }} />
-                    </IconButton>
-                  </Box>
-                );
-              })}
+          {loadingArticlesList ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '50%' }}>
+              <CircularProgress />
             </Box>
-          </Box>
+          ) : (
+            <>
+              {/* News List */}
+              <Box sx={{ flex: '1.2', overflowY: 'hidden', 
+                // border: `1px solid #E4E4E4`, 
+                borderRadius: '12px' }}>
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: (rowsPerPage < currentData.length && !isLastPage) ? 'space-between' : 'flex-start',
+                  height: '100%',
+                }}>
+                  {displayedNews.map((news, idx) => {
+                    const isLastItem = idx === displayedNews.length - 1;
+                    const marginBottom = (rowsPerPage < currentData.length && !isLastPage) ? 0 : (isLastItem ? 0 : '0.9rem');
+                    const isNew = dayjs(news.created_at).isSame(dayjs(), 'day');
+
+                    return(
+                      <Box
+                        key={idx}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          width: '100%',
+                          padding: '6.5px 8px 6.5px 14px',
+                          mb: marginBottom,
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          bgcolor: '#fff',
+                          border: selectedArticle?.title === news.title ? '1px solid #2097df' : `1px solid #E4E4E4`,
+                          boxShadow: '0px 1px 4px rgba(0,0,0,0.06)',
+                          '&:hover': {
+                            bgcolor: selectedArticle?.title === news.title ? '#fff' : '#f1f1f1'
+                          },
+                        }}
+                        onClick={() => handleArticleClick(news)}
+                      >
+                        <Typography sx={{ fontSize: '15px', mr: 1, width: '85%', overflow:'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                          {news.title}
+                        </Typography>
+
+                        <Box sx={{display: 'flex', alignItems:'center'}}>
+                          {/* New Tag */}
+                          {isNew && (
+                            <Box
+                              sx={{
+                                bgcolor: theme.palette.secondary.main,
+                                color: '#fff',
+                                padding: '2px 6px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                lineHeight: '1',
+                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              New
+                            </Box>
+                          )}
+
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setArticleToDeleteIndex((page - 1) * rowsPerPage + idx);
+                              setIsModalOpen(true);
+                            }}
+                            sx={{
+                              '&:hover': {
+                                bgcolor: 'transparent',
+                              },
+                            }}
+                          >
+                            <DeleteOutlineIcon sx={{ color: '#e53935' }} />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </Box>
+            </>
+          )}
+
           {/* News Details */}
           <Box sx={{
             flex: 1,
@@ -312,28 +421,28 @@ const ESGPage: React.FC = () => {
                     }}>
                       <CalendarTodayOutlinedIcon sx={{ color: '#9a9a9a', fontSize: '12px', mr: 1 }} />
                       <Typography variant='body2' sx={{ color: '#9a9a9a', fontSize: '13px', whiteSpace: 'nowrap' }}>
-                        {formattedDate}
+                        {dayjs(selectedArticle.date_published).format('DD MMMM YYYY')}
                       </Typography>
                     </Box>
                   </Box>
 
                   <Typography variant='body2' sx={{ height: '100%', lineHeight: '1.4', fontSize: '15px', whiteSpace: 'pre-line', overflow: 'auto', pr: 1 }}>
-                    {selectedArticle.preview}
+                    {selectedArticle.summary}
                   </Typography>
 
-                  <Typography variant='subtitle2' sx={{ color: '#9a9a9a', fontSize: '15px', fontStyle: 'italic', mt: 1 }}>
-                    Source: <Link href={selectedArticle.link} target="_blank" sx={{ color: '#2097df', textDecoration: 'none' }}>
-                      {selectedArticle.link}
+                  <Typography variant='subtitle2' sx={{ color: '#9a9a9a', fontSize: '15px', fontStyle: 'italic', mt: 1, pb:0.5, overflow:'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                    Source: <Link href={selectedArticle.url} target="_blank" sx={{ color: '#2097df', textDecoration: 'none' }}>
+                      {selectedArticle.url}
                     </Link>
                   </Typography>
 
                 </>
               ) : (
-                <Typography variant='h6'>Seleziona un articolo</Typography>
+                <Typography variant='h6'></Typography>
               )}
             </Box>
           </Box>
-
+            
         </Box>
 
         {/* Pagination igual ao que tinha */}
@@ -375,7 +484,28 @@ const ESGPage: React.FC = () => {
               },
             }}
           />
+
+
+          {/* Test Component */}
+          <Box sx={{height: 'calc(4.5vh)', ml:40}}>
+            <ToggleButtonGroup
+              value={selectedProvider}
+              exclusive
+              onChange={(_, newProvider) => {
+                if (newProvider) setSelectedProvider(newProvider);
+              }}
+              sx={{height: 'calc(4vh)', mr:1.5 }}
+            >
+              <ToggleButton value="perplexity">Perplexity</ToggleButton>
+              <ToggleButton value="openai">OpenAI</ToggleButton>
+            </ToggleButtonGroup>
+            <Button variant='contained' onClick={handleFetchArticles} sx={{height: 'calc(4vh)'}}>
+              {loadingGenerateArticles ? <CircularProgress size={24} color="inherit" /> : 'Generate articles'}
+            </Button>
+          </Box>
         </Box>
+
+        
 
         <Dialog open={isModalOpen} onClose={cancelDelete}>
           <DialogTitle sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', justifyContent: 'center', mt:2, fontSize:'26px' }}>

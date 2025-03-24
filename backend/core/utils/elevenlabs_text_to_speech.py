@@ -9,20 +9,19 @@ from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 
 
-CUSTON_VOICES = {
-    'sRveAWnt4yJqxspzpLhv': {
-        'it': 'PSp7S6ST9fDNXDwEzX0m'
-    },
-    'iYm4Mj4mf3x5liAlkFQ0': {
-        'it': 'PSp7S6ST9fDNXDwEzX0m'
-    }
-}
-
-
 class ElevenlabsTextToSpeech:
-    def __init__(self, authorization):
-        self.authorization = authorization
-        self.client = ElevenLabs(api_key=settings.ELEVENLABS_KEY)
+
+    CUSTOM_VOICES = {
+        'sRveAWnt4yJqxspzpLhv': {
+            'it': 'PSp7S6ST9fDNXDwEzX0m'
+        },
+        'iYm4Mj4mf3x5liAlkFQ0': {
+            'it': 'PSp7S6ST9fDNXDwEzX0m'
+        }
+    }
+
+    def __init__(self, elevenlabs_key):
+        self.client = ElevenLabs(api_key=elevenlabs_key)
 
     def send(
         self,
@@ -36,7 +35,7 @@ class ElevenlabsTextToSpeech:
     ):
 
         if id_voice in ["sRveAWnt4yJqxspzpLhv", "iYm4Mj4mf3x5liAlkFQ0", ]:
-            poss_text_to_speech_id_voice = CUSTON_VOICES.get(
+            poss_text_to_speech_id_voice = self.CUSTOM_VOICES.get(
                 id_voice, {}).get(language)
             text_to_speech_id_voice = poss_text_to_speech_id_voice if poss_text_to_speech_id_voice else 'nPczCjzI2devNBz1zQrb'
 

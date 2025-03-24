@@ -6,7 +6,7 @@ import deepl
 from django.conf import settings
 
 
-class DeeplTranslationFile:
+class DeeplTranslation:
 
     GLOSSARIES = {
         'IT_PT': '9f605aa7-564c-4033-9996-36186296f4e0',
@@ -51,11 +51,10 @@ class DeeplTranslationFile:
         'spanish': 'ES',
     }
 
-    def __init__(self, authorization):
-        self.key = settings.DEEPL_KEY
-        self.authorization = authorization
+    def __init__(self, deepl_key):
+        self.key = deepl_key
 
-    def translate(self, file, target, origin):
+    def translate_file(self, file, target, origin):
 
         file_b = file.read()
         translator = deepl.Translator(self.key)

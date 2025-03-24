@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
+
 from core.serializers.perplexity_serializer import PerplexityRequestSerializer
 
 SYSTEM_MESSAGE = (
@@ -19,7 +20,7 @@ SYSTEM_MESSAGE = (
 )
 
 
-class PerplexityAPIView(APIView):
+class PerplexityDeepSearchView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]

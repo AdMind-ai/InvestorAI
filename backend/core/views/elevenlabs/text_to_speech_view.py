@@ -8,9 +8,7 @@ import os
 
 from core.serializers.text_to_speech_serializer import \
     ElevenlabsTextToSpeechSerializer
-
-from ..utils.elevenlabs_text_to_speech import ElevenlabsTextToSpeech
-from ..utils.is_authorization import is_authorization
+from core.utils.elevenlabs_text_to_speech import ElevenlabsTextToSpeech
 
 
 class ElevenlabsTextToSpeechView(APIView):
@@ -23,12 +21,6 @@ class ElevenlabsTextToSpeechView(APIView):
         serializer = ElevenlabsTextToSpeechSerializer(data=request.data)
 
         if serializer.is_valid():
-            openai_key = os.getenv("OPENAI_KEY")
-            if not is_authorization(openai_key):
-                return Response(
-                    {'detail': 'Unauthorized access.'},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
 
             try:
                 send = serializer._validated_data.get('send')
@@ -42,7 +34,10 @@ class ElevenlabsTextToSpeechView(APIView):
                 use_speaker_boost = serializer._validated_data.get(
                     'use_speaker_boost', True
                 )
-                speech = ElevenlabsTextToSpeech(openai_key)
+
+                elevenlabs_key = os.getenv("ELEVENLABS_KEY")
+                speech = ElevenlabsTextToSpeech(elevenlabs_key)
+
                 audio = speech.send(
                     send=send,
                     language=language,
@@ -52,9 +47,11 @@ class ElevenlabsTextToSpeechView(APIView):
                     style=style,
                     use_speaker_boost=use_speaker_boost,
                 )
+
                 return Response(
                     {'audio': audio}, status=status.HTTP_201_CREATED
                 )
+
             except Exception as e:
                 return Response(
                     {'detail': 'Incorrect API key'},

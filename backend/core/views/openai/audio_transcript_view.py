@@ -9,12 +9,9 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 from core.serializers.audio_transcript_serializer import AudioTranscriptSerializer
 from core.utils.openai_audio_transcript import OpenAISpeechToText
-from ..utils.is_authorization import is_authorization
-
-import os
 
 
-class AudioTranscriptView(APIView):
+class OpenAiAudioTranscriptView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
@@ -30,14 +27,9 @@ class AudioTranscriptView(APIView):
         serializer = AudioTranscriptSerializer(data=request.data)
 
         if serializer.is_valid():
-            openai_key = os.getenv("OPENAI_KEY")
-            if not is_authorization(openai_key):
-                return Response(
-                    {'detail': 'Unauthorized access.'},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-
             file = serializer._validated_data.get('file', None)
+
+            openai_key = os.getenv("OPENAI_KEY")
             speech = OpenAISpeechToText(openai_key)
             return Response(
                 {'text': speech.send(file)}, status=status.HTTP_201_CREATED

@@ -30,12 +30,13 @@ class APIRootView(APIView):
                 "user_detail_current": request.build_absolute_uri(reverse("users-detail", kwargs={'pk': user_id})),
             },
             "core": {
-                # "core_list": request.build_absolute_uri(reverse("core-list")),
-                "core_endpoint": request.build_absolute_uri(reverse("hello")),
-                "perplexity": request.build_absolute_uri(reverse("perplexity")),
-                "deepl_file": request.build_absolute_uri(reverse("translatefile")),
-                "deepl_text": request.build_absolute_uri(reverse("translatetext")),
+                "perplexity_deep-search": request.build_absolute_uri(reverse("deep-search")),
+                "perplexity_esg-news": request.build_absolute_uri(reverse("perplexity-esg-news")),
+                "deepl_file": request.build_absolute_uri(reverse("translate-file")),
+                "deepl_text": request.build_absolute_uri(reverse("translate-text")),
                 "openai_audio-transcription": request.build_absolute_uri(reverse("audio-transcription")),
+                "openai_esg-news": request.build_absolute_uri(reverse("openai-esg-news")),
                 "elevenlabs_text-to-speech": request.build_absolute_uri(reverse("text-to-speech")),
+                "esg-articles": request.build_absolute_uri(reverse("esgarticle-list")),
             }
         })

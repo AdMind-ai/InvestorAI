@@ -1,0 +1,24 @@
+from django.db import models
+
+
+class ESGArticle(models.Model):
+    TOPIC_CHOICES = [
+        ("Evoluzione del contesto normativo", "Evoluzione del contesto normativo"),
+        ("News reati informativi", "News reati informativi"),
+        ("Responsabilità amministratori", "Responsabilità amministratori"),
+        ("Rischi reputazionali", "Rischi reputazionali")
+    ]
+
+    topic = models.CharField(max_length=100, choices=TOPIC_CHOICES)
+    title = models.CharField(max_length=250)
+    author = models.CharField(max_length=100, default="Sconosciuto")
+    summary = models.TextField()
+    source = models.CharField(max_length=150)
+    url = models.URLField()
+    language = models.CharField(max_length=30, default="Italian")
+    date_published = models.DateField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.topic} - {self.title}"

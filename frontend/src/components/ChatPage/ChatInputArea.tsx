@@ -52,7 +52,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     setLoading(true);
     
     try {
-      const response = await fetchWithAuth('/perplexity/', {
+      const response = await fetchWithAuth('/perplexity/deep-search/', {
         method: 'POST',
         body: JSON.stringify({
           message: "Please give me a deep overview about the company FOPE SPA, listed in the Italian Stock Market, stock price and general overview for the last 24 hours. Please answer in Italian language."
