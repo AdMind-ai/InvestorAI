@@ -1,9 +1,11 @@
 # core/views/__init__.py
 from .deep_search_view import PerplexityDeepSearchView
 from .esg_news_view import PerplexityESGNewsView
+from .ceo_news_view import PerplexityCEONewsView
 
 
 __all__ = [
     'PerplexityDeepSearchView',
-    'PerplexityESGNewsView'
+    'PerplexityESGNewsView',
+    'PerplexityCEONewsView'
 ]

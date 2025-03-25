@@ -32,11 +32,14 @@ class APIRootView(APIView):
             "core": {
                 "perplexity_deep-search": request.build_absolute_uri(reverse("deep-search")),
                 "perplexity_esg-news": request.build_absolute_uri(reverse("perplexity-esg-news")),
+                "perplexity_ceo-news": request.build_absolute_uri(reverse("perplexity-ceo-news")),
                 "deepl_file": request.build_absolute_uri(reverse("translate-file")),
                 "deepl_text": request.build_absolute_uri(reverse("translate-text")),
                 "openai_audio-transcription": request.build_absolute_uri(reverse("audio-transcription")),
                 "openai_esg-news": request.build_absolute_uri(reverse("openai-esg-news")),
+                "openai_ceo-news": request.build_absolute_uri(reverse("openai-ceo-news")),
                 "elevenlabs_text-to-speech": request.build_absolute_uri(reverse("text-to-speech")),
                 "esg-articles": request.build_absolute_uri(reverse("esgarticle-list")),
+                "ceo-articles": request.build_absolute_uri(reverse("ceoarticle-list")),
             }
         })

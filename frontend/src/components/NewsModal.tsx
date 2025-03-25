@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Box, Typography, Link, Paper, Avatar } from '@mui/material';
 import SadFace from '../assets/icons/sad-face.svg';
 import HappyFace from '../assets/icons/happy-face.svg';
@@ -7,7 +8,7 @@ import NeutralFace from '../assets/icons/neutral-face.svg';
 interface NewsModalProps {
   open: boolean;
   onClose: () => void;
-  sentiment: number;
+  sentiment: number | null;
   title: string;
   content: string;
   originalLink: string;
@@ -23,10 +24,24 @@ const NewsModal: React.FC<NewsModalProps> = ({
 }) => {
 
   const sentimentText =
-    sentiment >= 60 ? 'Alto' : sentiment >= 40 ? 'Medio' : 'Basso';
+    sentiment === null ? '--' : 
+    sentiment >= 60 ? 'Alto' : 
+    sentiment >= 40 ? 'Medio' : 
+    'Basso';
+  
+  const sentimentPercentage = 
+    sentiment === null ? '-- ' : `${sentiment}`;
+
   const sentimentColor =
-    sentiment >= 60 ? '#4CAF50' : sentiment >= 40 ? '#FF9800' : '#F44336';
-  const SentimentIcon = sentiment >= 60 ? HappyFace : sentiment >= 40 ? NeutralFace : SadFace;
+    sentiment === null ? 'grey' : 
+    sentiment >= 60 ? '#4CAF50' : 
+    sentiment >= 40 ? '#FF9800' : '#F44336';
+
+  const SentimentIcon = 
+    sentiment === null ? NeutralFace : 
+    sentiment >= 60 ? HappyFace : 
+    sentiment >= 40 ? NeutralFace : 
+    SadFace;
 
   return (
     <Box
@@ -62,10 +77,10 @@ const NewsModal: React.FC<NewsModalProps> = ({
           <Avatar sx={{ bgcolor: 'transparent', mr: 0.5 }}>
             <img src={SentimentIcon} alt="Sentiment Icon" style={{ width: 25, height: 25 }} />
           </Avatar>
-          <Typography variant="subtitle2" sx={{  }}>
+          <Typography variant="subtitle2">
             Sentiment medio{' '}
             <span style={{ color: sentimentColor, fontWeight: 'bold', fontSize: '1.1rem' }}>
-              {sentiment}% • {sentimentText}
+              {sentimentPercentage}% • {sentimentText}
             </span>
           </Typography>
         </Box>
@@ -88,22 +103,23 @@ const NewsModal: React.FC<NewsModalProps> = ({
         <Box 
           sx={{ 
             overflow: 'auto', 
-            mt: 1, 
+            mt: 2, 
             height: 'calc(72%)', 
             paddingRight: 1,
             borderRadius: '12px',
             border: '1px solid #E4E4E4',
-            padding: '12px',
+            padding: '0px 12px',
+            fontSize: '0.9rem',
           }}
         >
-          <Typography variant="subtitle2" component="div" whiteSpace="pre-wrap">
+          <ReactMarkdown>
             {content}
-          </Typography>
+          </ReactMarkdown>
         </Box>
 
         {/* Link */}
         <Box sx={{ position: 'absolute', bottom: '15px', left: '24px', fontSize: '1rem' }}>
-          <Link href={originalLink} target="_blank">
+          <Link href={originalLink} target="_blank" rel="noopener noreferrer">
             Vai all'articolo originale
           </Link>
         </Box>
