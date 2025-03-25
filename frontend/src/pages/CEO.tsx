@@ -142,10 +142,12 @@ const CEOPage: React.FC = () => {
     setLoadingGenerateArticles(true);
     try {
       // parallel requests 
-      const result = await fetchCEOArticles(selectedPerson);
-      const numCreated = result.num_created;
-      const personality = result.personality;
-      toast.success(`${numCreated} new articles for: ${personality}`);
+      const results = await Promise.all(personalities.map(fetchCEOArticles));
+      results.forEach(result => {
+        const numCreated = result.num_created;
+        const personality = result.personality;
+        toast.success(`${numCreated} new articles for: ${personality}`);
+      });
       setLoadingGenerateArticles(false);
 
     } catch (error) {
