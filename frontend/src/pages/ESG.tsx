@@ -9,12 +9,18 @@ import {
   Pagination,
   PaginationItem,
   Link,
-  IconButton
+  IconButton,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
-import {Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button} from '@mui/material';
-import { CircularProgress } from '@mui/material';
 import dayjs from 'dayjs';
 import Layout from '../layouts/Layout';
+import { toast } from 'react-toastify'
 import { api } from '../api/api';
 // Icons
 import WarningAmberIcon from '@mui/icons-material/WarningRounded';
@@ -64,7 +70,7 @@ const ESGPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const currentData = data[selectedCategory] || [];
   const sortedData = [...currentData].sort((a, b) =>
-    dayjs(b.date_published).diff(dayjs(a.date_published))
+    dayjs(b.created_at).diff(dayjs(a.created_at))
   );
   const isLastPage = page === Math.ceil(currentData.length / rowsPerPage);
   const displayedNews = sortedData.slice(
@@ -151,14 +157,19 @@ const ESGPage: React.FC = () => {
     const endpoint = selectedProvider === 'openai' ? '/openai/esg-news/' : '/perplexity/esg-news/';
     const response = await api.post(endpoint, { topic });
     console.log(response)
-    return response.data.articles;
+    return response.data;
   };
   
   const handleFetchArticles = async () => {
     setLoadingGenerateArticles(true);
     try {
       // parallel requests 
-      await Promise.all(topics.map(fetchESGArticles));
+      const results = await Promise.all(topics.map(fetchESGArticles));
+      results.forEach(result => {
+        const numCreated = result.num_created;
+        const topic = result.topic;
+        toast.success(`${numCreated} new articles for: ${topic}`);
+      });
       setLoadingGenerateArticles(false);
 
     } catch (error) {

@@ -11,6 +11,9 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from core.serializers.esg_news_serializer import ESGNewsSerializer
 from core.models.esg_article_model import ESGArticle
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class PerplexityESGNewsView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -24,32 +27,48 @@ class PerplexityESGNewsView(APIView):
 
         topic = serializer.validated_data['topic']
 
-        headers = {
-            "Authorization": f"Bearer {os.getenv('PERPLEXITY_KEY')}",
-            "Content-Type": "application/json"
-        }
+        max_retries = 2
+        for attempt in range(max_retries + 1):
+            print(
+                f"----------------------------------------Attempt {attempt}: {topic}----------------------------------------")
+            try:
 
-        response = requests.post("https://api.perplexity.ai/chat/completions",
-                                 headers=headers, json={
-                                     "model": "sonar-pro",
-                                     "messages": [
-                                         {"role": "system",
-                                          "content": generate_perplexity_system()},
-                                         {"role": "user", "content": generate_perplexity_prompt(
-                                             topic)},
-                                     ],
-                                 })
+                headers = {
+                    "Authorization": f"Bearer {os.getenv('PERPLEXITY_KEY')}",
+                    "Content-Type": "application/json"
+                }
 
-        response.raise_for_status()
-        data = response.json()
-        content = data['choices'][0]['message']['content']
+                response = requests.post("https://api.perplexity.ai/chat/completions",
+                                         headers=headers, json={
+                                             "model": "sonar-pro",
+                                             "messages": [
+                                                 {"role": "system",
+                                                  "content": generate_perplexity_system()},
+                                                 {"role": "user", "content": generate_perplexity_prompt(
+                                                  topic)},
+                                             ],
+                                         })
 
-        try:
-            json_content = json.loads(content)
-        except json.JSONDecodeError as e:
-            return Response({"error": "Invalid JSON response", "details": str(e), "raw_content": content}, status=500)
+                response.raise_for_status()
+                data = response.json()
+
+                try:
+                    content = data['choices'][0]['message']['content']
+                    content = sanitize_json(content)
+                    json_content = json.loads(content)
+                except json.JSONDecodeError as e:
+                    logger.error(f"Erro ao decodificar JSON: {e}")
+                    logger.error(f"Conteúdo Bruto: {content}")
+                    return Response({"error": "Invalid JSON response", "details": str(e), "raw_content": content}, status=500)
+
+                break
+            except Exception as e:
+                logger.error(f"Failed to fetch data after retries: {e}")
+                if attempt == max_retries:
+                    return Response({"error": "Failed to fetch data after retries"}, status=500)
 
         created_articles = []
+        num_created = 0
         for article_data in json_content["articles"]:
             article, created = ESGArticle.objects.get_or_create(
                 title=article_data["title"],
@@ -63,6 +82,8 @@ class PerplexityESGNewsView(APIView):
                     "date_published": article_data["date_published"]
                 }
             )
+            if created:
+                num_created += 1
             created_articles.append(article)
 
         serialized_articles = [
@@ -76,12 +97,20 @@ class PerplexityESGNewsView(APIView):
                 "language": article.language,
                 "date_published": article.date_published,
                 "topic": article.topic,
-                "date_requested": article.created_at.isoformat()
+                "created_at": article.created_at.isoformat()
             }
             for article in created_articles
         ]
 
-        return Response({"articles": serialized_articles})
+        print(
+            f"----------------------------------------{topic}----------------------------------------")
+        logger.debug(
+            f"articles: {serialized_articles}, num_created: {num_created}")
+        return Response({
+            "articles": serialized_articles,
+            "num_created": num_created,
+            "topic": topic
+        })
 
 
 def generate_perplexity_system():
@@ -96,7 +125,7 @@ def generate_perplexity_system():
   Requisiti:
   - Solo fonti autorevoli, nazionali e riconosciute.
   - No fonti dubbie.
-  - Devi selezionare massimo 2 articoli.
+  - Devi selezionare massimo 5 articoli.
   - Risposta ESCLUSIVAMENTE in formato JSON:
     {{
       "articles": [
@@ -123,7 +152,7 @@ def generate_perplexity_prompt(topic):
     formattedDate = today.strftime("%Y-%m-%d")
 
     return f"""
-  Trova almeno 1 e al massimo 2 articoli recenti e altamente rilevanti sul tema '{topic}' relativi all'ESG in Italia.
+  Trova almeno 2 e al massimo 5 articoli recenti e altamente rilevanti sul tema '{topic}' relativi all'ESG in Italia.
 
   ### Istruzioni dettagliate:
   1. Cerca esclusivamente articoli pubblicati dal {formattedTwoDaysAgo} al {formattedDate}, relativi specificamente all'argomento ESG in Italia.
@@ -135,5 +164,26 @@ def generate_perplexity_prompt(topic):
   7. Non inserire articoli troppo simili fra loro o dello stesso editore/rete.
   8. Se l'articolo è più breve di 2000 caratteri, puoi fare il riassunto minore.
 
-  Risposta: Solo JSON, come da istruzioni precedenti.
+  Risposta: Solo JSON, come:
+    {{
+      "articles": [
+        {{
+          "title": "<Titolo accurato dell'articolo>",
+          "author": "<Nome autore o 'Sconosciuto'>",
+          "summary": "<Riassunto significativo e ben strutturato di almeno 2000 caratteri oppure meno se l'articolo è troppo breve>",
+          "source": "<Fonte ufficiale dell'articolo>",
+          "url": "<Link diretto e funzionante all'articolo>",
+          "language": "Italian",
+          "date_published": "<YYYY-MM-DD nel formato ISO 8601>"
+        }}
+      ]
+    }}
   """
+
+
+def sanitize_json(content):
+    content = content.strip()
+    if content.startswith("```"):
+        content = content.split("\n", 1)[1].rsplit("\n", 1)[0]
+
+    return content.replace('\r', '').replace('\t', '')

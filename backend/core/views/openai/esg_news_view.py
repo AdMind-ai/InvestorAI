@@ -29,30 +29,44 @@ class OpenAIESGNewsView(APIView):
 
         topic = serializer.validated_data['topic']
 
-        completion = client.chat.completions.create(
-            model="gpt-4o-search-preview",
-            messages=[
-                {"role": "system", "content": generate_openai_system()},
-                {"role": "user", "content": generate_openai_prompt(topic)},
-            ],
-            max_tokens=16000
-        )
+        max_retries = 2
+        for attempt in range(max_retries + 1):
+            print(
+                f"----------------------------------------Attempt {attempt}: {topic}----------------------------------------")
+            try:
+                completion = client.chat.completions.create(
+                    model="gpt-4o-search-preview",
+                    messages=[
+                        {"role": "system", "content": generate_openai_system()},
+                        {"role": "user",
+                            "content": generate_openai_prompt(topic)},
+                    ],
+                    max_tokens=16000
+                )
 
-        content = completion.choices[0].message.content
-        logger.debug(f"Resposta bruta do endpoint: {content}")
+                content = completion.choices[0].message.content
+                # logger.debug(f"Resposta bruta do endpoint: {content}")
 
-        try:
-            json_content = json.loads(content)
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON inválido recebido: {content}")
-            return Response({"error": "Invalid JSON response", "details": str(e), "raw_content": content}, status=500)
+                try:
+                    json_content = json.loads(content)
+                except json.JSONDecodeError as e:
+                    logger.error(f"JSON inválido recebido: {content}")
+                    return Response({"error": "Invalid JSON response", "details": str(e), "raw_content": content}, status=500)
 
-        if 'articles' not in json_content:
-            logger.error(
-                f"Campo 'articles' ausente na resposta: {json_content}")
-            return Response({"error": "Missing 'articles' key", "raw_content": json_content}, status=500)
+                if 'articles' not in json_content:
+                    logger.error(
+                        f"Campo 'articles' ausente na resposta: {json_content}")
+                    return Response({"error": "Missing 'articles' key", "raw_content": json_content}, status=500)
+
+                break
+
+            except Exception as e:
+                logger.error(f"Erro ao tentar buscar dados: {e}")
+                if attempt == max_retries:
+                    return Response({"error": "Failed to fetch data after retries"}, status=500)
 
         created_articles = []
+        num_created = 0
         for article_data in json_content["articles"]:
             article, created = ESGArticle.objects.get_or_create(
                 title=article_data["title"],
@@ -66,6 +80,9 @@ class OpenAIESGNewsView(APIView):
                     "date_published": article_data["date_published"]
                 }
             )
+            if created:
+                num_created += 1
+
             created_articles.append(article)
 
         serialized_articles = [
@@ -79,12 +96,19 @@ class OpenAIESGNewsView(APIView):
                 "language": article.language,
                 "date_published": article.date_published,
                 "topic": article.topic,
-                "created_at": article.created_at
+                "created_at": article.created_at.isoformat()
             }
             for article in created_articles
         ]
-
-        return Response({"articles": serialized_articles})
+        print(
+            f"----------------------------------------{topic}----------------------------------------")
+        logger.debug(
+            f"articles: {serialized_articles}, num_created: {num_created}")
+        return Response({
+            "articles": serialized_articles,
+            "num_created": num_created,
+            "topic": topic
+        })
 
 
 def generate_openai_system():
@@ -99,7 +123,7 @@ def generate_openai_system():
     Requisiti:
     - Solo fonti autorevoli, nazionali e riconosciute.
     - No fonti dubbie.
-    - Devi selezionare massimo 2 articoli.
+    - Devi selezionare massimo 5 articoli.
     - Risposta ESCLUSIVAMENTE in formato JSON:
       {{
         "articles": [
@@ -126,7 +150,7 @@ def generate_openai_prompt(topic):
     formattedDate = today.strftime("%Y-%m-%d")
 
     return f"""
-    Trova almeno 1 e al massimo 2 articoli recenti e altamente rilevanti sul tema '{topic}' relativi all'ESG in Italia.
+    Trova almeno 2 e al massimo 5 articoli recenti e altamente rilevanti sul tema '{topic}' relativi all'ESG in Italia.
 
     ### Istruzioni dettagliate:
     1. Cerca esclusivamente articoli pubblicati dal {formattedTwoDaysAgo} al {formattedDate}, relativi specificamente all'argomento ESG in Italia.
