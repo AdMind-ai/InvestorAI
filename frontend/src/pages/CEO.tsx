@@ -41,6 +41,8 @@ interface NewsItem {
 
 const personalities = ['Mario Rossi', 'Elvira Giacomelli', 'Luigi Farris']
 
+
+
 const CEOPage: React.FC = () => {
   const theme = useTheme();
   const [selectedPerson, setSelectedPerson] = useState<string>('Mario Rossi');
@@ -70,6 +72,22 @@ const CEOPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const currentData = data[selectedPerson] || [];
 
+  
+  // Articles Data
+  const sortedData = [...currentData].sort((a, b) =>
+    dayjs(b.created_at).diff(dayjs(a.created_at))
+  );
+  const displayedNews = sortedData.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+
+  // Load Articles on page initialization
+  useEffect(() => {
+    loadData();
+  }, []);
+
+
   // Controls how many articles on page based on height
   useEffect(() => {
     const calculateRows = () => {
@@ -81,7 +99,7 @@ const CEOPage: React.FC = () => {
       if (!firstNewsItem) return;
   
       const itemHeight = firstNewsItem.clientHeight || 55; 
-      const paginationHeight = 40;
+      const paginationHeight = 50;
       const headerHeight = 50;
       const availableHeight = containerHeight - paginationHeight - headerHeight - 20;
   
@@ -97,18 +115,13 @@ const CEOPage: React.FC = () => {
     };
   }, [containerRef.current]);
 
+
+  // Calculate the total number of pages 
   useEffect(() => {
     const totalPages = Math.ceil(currentData.length / rowsPerPage);
     if (page > totalPages && totalPages !== 0) setPage(totalPages);
   }, [rowsPerPage, currentData.length, page]);
 
-  const sortedData = [...currentData].sort((a, b) =>
-    dayjs(b.created_at).diff(dayjs(a.created_at))
-  );
-  const displayedNews = sortedData.slice(
-    (page - 1) * rowsPerPage,
-    page * rowsPerPage
-  );
 
   // Sentiment
   const validSentiments = currentData.filter(item => item.sentiment !== null && item.sentiment !== undefined);
@@ -116,7 +129,6 @@ const CEOPage: React.FC = () => {
   const averageSentiment = validSentiments.length
   ? Math.round(validSentiments.reduce((acc, cur) => acc + parseFloat(cur.sentiment), 0) / validSentiments.length)
   : null; 
-
 
   const sentimentText = 
     averageSentiment === null ? '--' : 
@@ -135,6 +147,9 @@ const CEOPage: React.FC = () => {
     const endpoint = selectedProvider === 'openai' ? '/openai/ceo-news/' : '/perplexity/ceo-news/';
     const response = await api.post(endpoint, { personality });
     console.log(response)
+    const numCreated = response.data.num_created;
+    toast.success(`${numCreated} new articles for: ${personality}`);
+    loadData();
     return response.data;
   };
 
@@ -142,12 +157,7 @@ const CEOPage: React.FC = () => {
     setLoadingGenerateArticles(true);
     try {
       // parallel requests 
-      const results = await Promise.all(personalities.map(fetchCEOArticles));
-      results.forEach(result => {
-        const numCreated = result.num_created;
-        const personality = result.personality;
-        toast.success(`${numCreated} new articles for: ${personality}`);
-      });
+      await Promise.all(personalities.map(fetchCEOArticles));
       setLoadingGenerateArticles(false);
 
     } catch (error) {
@@ -155,59 +165,37 @@ const CEOPage: React.FC = () => {
       console.error("Error fetching CEO articles:", error);
       toast.error(`Error fetching CEO articles`);
     }
+  };
+
+
+  // Load Articles 
+  const loadData = async () => {
     try {
       setLoadingArticlesList(true)
-      const refreshedArticles = await api.get<NewsItem[]>("/ceo-articles/");
-  
+      const res = await api.get<NewsItem[]>("/ceo-articles/");
+
       const groupedData: Record<string, NewsItem[]> = {
         'Mario Rossi': [],
         'Elvira Giacomelli': [],
         'Luigi Farris': [],
       };
   
-      refreshedArticles.data.forEach(article => {
-        groupedData[article.personality]?.push(article);
+
+      res.data.forEach(article => {
+        if(groupedData[article.personality]) {
+          groupedData[article.personality].push(article);
+        }
       });
-  
+
       setData(groupedData);
+      setSelectedPerson(personalities[0]);
       setLoadingArticlesList(false)
-  
     } catch (error) {
-      setLoadingGenerateArticles(false);
-      console.error("Error updating CEO Articles:", error);
+      console.error("Error updating ESG articles:", error);
     }
   };
 
-  // Load Articles
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoadingArticlesList(true)
-        const res = await api.get<NewsItem[]>("/ceo-articles/");
 
-        const groupedData: Record<string, NewsItem[]> = {
-          'Mario Rossi': [],
-          'Elvira Giacomelli': [],
-          'Luigi Farris': [],
-        };
-    
-  
-        res.data.forEach(article => {
-          if(groupedData[article.personality]) {
-            groupedData[article.personality].push(article);
-          }
-        });
-  
-        setData(groupedData);
-        setSelectedPerson(personalities[0]);
-        setLoadingArticlesList(false)
-      } catch (error) {
-        console.error("Erro carregando artigos ESG:", error);
-      }
-    };
-  
-    loadData();
-  }, []);
 
 
   return (

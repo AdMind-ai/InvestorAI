@@ -54,6 +54,7 @@ class PerplexityCEONewsView(APIView):
                 data = response.json()
 
                 try:
+                    print(data)
                     content = data['choices'][0]['message']['content']
                     content = sanitize_json(content)
                     json_content = json.loads(content)
@@ -127,17 +128,18 @@ def generate_perplexity_system():
     formattedDate = today.strftime("%Y-%m-%d")
 
     return f"""
-    Sei un'assistente specializzata in ricerca di articoli che menzionano personalità specifiche e il loro legame con i criteri ESG, pubblicati tra il {formattedTwoDaysAgo} e il {formattedDate}.
+    Sei un'assistente specializzata nella ricerca di articoli, notizie o pubblicazioni che menzionano aziende e il loro legame con i criteri ESG, pubblicati tra il {formattedTwoDaysAgo} e il {formattedDate}.
 
     Requisiti:
-    - Solo fonti autorevoli, nazionali e riconosciute.
-    - No fonti dubbie.
-    - Devi selezionare massimo 3 articoli che menzionano la personalità.
+    - Assicurati che la risposta includa il contenuto completo di ogni articolo o pubblicazione e limita i risultati a un massimo di 3 elementi.
+    - Solo fonti autorevoli e importanti nel settore economico e corporativo, nazionali e riconosciute.
+    - Evita fonti dubbie o non verificabili.
     - Includi il contenuto completo dell'articolo.
+    - Assicurati che il JSON sia valido: tratta correttamente i caratteri speciali e usa escaping dove necessario.
     - Risposta ESCLUSIVAMENTE in formato JSON:
-      {{
+    {{
         "articles": [
-          {{
+        {{
             "title": "<Titolo accurato dell'articolo>",
             "author": "<Nome autore o 'Sconosciuto'>",
             "content": "<Contenuto completo dell'articolo>",
@@ -145,9 +147,9 @@ def generate_perplexity_system():
             "url": "<Link diretto e funzionante all'articolo>",
             "language": "Italian",
             "date_published": "<YYYY-MM-DD nel formato ISO 8601>"
-          }}
+        }}
         ]
-      }}
+    }}
 
     Non aggiungere nulla oltre al JSON. Il tuo output deve essere ESCLUSIVAMENTE il JSON nel formato specificato.
     """
@@ -160,20 +162,20 @@ def generate_perplexity_prompt(personality):
     formattedDate = today.strftime("%Y-%m-%d")
 
     return f"""
-    Trova almeno 1 e al massimo 3 articoli recenti e altamente rilevanti che menzionano '{personality}'.
+    Trova articoli, notizie o pubblicazioni recenti e rilevanti che menzionano '{personality}'.
 
     ### Istruzioni dettagliate:
-    1. Cerca esclusivamente articoli pubblicati dal {formattedTwoDaysAgo} al {formattedDate}.
+    1. Cerca esclusivamente contenuti pubblicati dal {formattedTwoDaysAgo} al {formattedDate}.
     2. Seleziona fonti autorevoli, affidabili e ben conosciute.
-    3. Gli URL devono essere link diretti agli articoli funzionanti (senza paywall o reindirizzamenti).
-    4. Fornisce il contenuto completo dell'articolo.
+    3. Gli URL devono essere link diretti ai contenuti funzionanti (senza paywall o reindirizzamenti).
+    4. Fornisci il contenuto completo dell'articolo.
     5. Usa rigorosamente il formato ISO 8601 (YYYY-MM-DD) per la data di pubblicazione.
-    6. Escludi articoli troppo simili fra loro o dello stesso editore/rete.
+    6. Escludi contenuti troppo simili fra loro o dello stesso editore/rete.
 
-    Risposta: Solo JSON, come:
-      {{
+    Risposta: Solo JSON valido. Assicurati che i caratteri speciali siano gestiti correttamente:
+    {{
         "articles": [
-          {{
+        {{
             "title": "<Titolo accurato dell'articolo>",
             "author": "<Nome autore o 'Sconosciuto'>",
             "content": "<Contenuto completo dell'articolo>",
@@ -181,9 +183,11 @@ def generate_perplexity_prompt(personality):
             "url": "<Link diretto e funzionante all'articolo>",
             "language": "Italian",
             "date_published": "<YYYY-MM-DD nel formato ISO 8601>"
-          }}
+        }}
         ]
-      }}
+    }}
+
+    Se non trovi nessun articolo, ritorna la struttura JSON con "articles" vuoto. 
     """
 
 

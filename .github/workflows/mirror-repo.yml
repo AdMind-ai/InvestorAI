@@ -1,19 +1,21 @@
-# name: Mirror to Secondary Repo
+name: Mirror to Secondary Repo
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 
-# jobs:
-#   mirror:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout código
-#         uses: actions/checkout@v3
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
 
-#       - name: Espelhar repositório
-#         run: |
+      - name: Espelhar repositório
+        run: |
+          cd backend
+
 #           git config --global user.name "GitHub Actions"
 #           git config --global user.email "actions@github.com"
 #           git remote add mirror https://oauth2:${{ secrets.GH_TOKEN }}@github.com/AdMind-ai/InvestorAI.git
