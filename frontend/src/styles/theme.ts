@@ -31,12 +31,16 @@ const theme: Theme = createTheme({
     subtitle1: {
       fontSize: '13px',
       fontWeight: 400, // Regular
-      lineHeight: '1.2',
+      lineHeight: '1.3',
     },
     subtitle2: {
       fontSize: '16px',
       fontWeight: 400, // Regular
       lineHeight: '1',
+    },
+    caption: {
+      fontSize: '12px',
+      fontWeight: 400, // Regular
     },
     button: {
       fontWeight: 700,

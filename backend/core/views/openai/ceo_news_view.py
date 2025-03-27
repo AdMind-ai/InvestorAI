@@ -41,7 +41,7 @@ class OpenAICEONewsView(APIView):
             print(
                 f"---------------------Attempt {attempt}: {personality}---------------------")
             try:
-                response = response_openai_api(personality)
+                # Using Chat Completions
                 # response = client.chat.completions.create(
                 #     model="gpt-4o-search-preview",
                 #     messages=[
@@ -50,7 +50,11 @@ class OpenAICEONewsView(APIView):
                 #             "content": generate_openai_prompt(personality)},
                 #     ],
                 # )
+                # content = response.choices[0].message.content
+                # logger.debug(f"Resposta bruta do endpoint: {content}")
 
+                # Using Response API
+                response = response_openai_api(personality)
                 response_text = ''
                 for output in response.output:
                     if output.type == 'message':
@@ -71,9 +75,6 @@ class OpenAICEONewsView(APIView):
                 print("Input Tokens:", usage.input_tokens)
                 print("Output Tokens:", usage.output_tokens)
                 print("Total Tokens:", usage.total_tokens)
-
-                # content = response.choices[0].message.content
-                # logger.debug(f"Resposta bruta do endpoint: {content}")
 
                 try:
                     json_content = json.loads(response_text)
