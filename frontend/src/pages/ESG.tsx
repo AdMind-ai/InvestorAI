@@ -156,6 +156,8 @@ const ESGPage: React.FC = () => {
   const fetchESGArticles = async (topic: string) => {
     const endpoint = selectedProvider === 'openai' ? '/openai/esg-news/' : '/perplexity/esg-news/';
     const response = await api.post(endpoint, { topic });
+    toast.success(`${response.data.num_created} new articles for: ${topic}`);
+    loadData();
     console.log(response)
     return response.data;
   };
@@ -164,73 +166,45 @@ const ESGPage: React.FC = () => {
     setLoadingGenerateArticles(true);
     try {
       // parallel requests 
-      const results = await Promise.all(topics.map(fetchESGArticles));
-      results.forEach(result => {
-        const numCreated = result.num_created;
-        const topic = result.topic;
-        toast.success(`${numCreated} new articles for: ${topic}`);
-      });
+      await Promise.all(topics.map(fetchESGArticles));
       setLoadingGenerateArticles(false);
 
     } catch (error) {
       setLoadingGenerateArticles(false);
       console.error("Error fetching ESG articles:", error);
+      toast.error(`Error fetching ESG articles`);
     }
+  };
+
+  // Load Articles
+  const loadData = async () => {
     try {
       setLoadingArticlesList(true)
-      const refreshedArticles = await api.get<NewsItem[]>("/esg-articles/");
-  
+      const res = await api.get<NewsItem[]>("/esg-articles/");
+
       const groupedData: Record<string, NewsItem[]> = {
         'Evoluzione del contesto normativo': [],
         'News reati informativi': [],
         'Responsabilità amministratori': [],
         'Rischi reputazionali': [],
       };
-  
-      refreshedArticles.data.forEach(article => {
-        groupedData[article.topic]?.push(article);
+
+      res.data.forEach(article => {
+        if(groupedData[article.topic]) {
+          groupedData[article.topic].push(article);
+        }
       });
-  
+
       setData(groupedData);
       setSelectedCategory(topics[0]);
       setSelectedArticle(groupedData[topics[0]][0] || null);
       setLoadingArticlesList(false)
-  
     } catch (error) {
-      setLoadingGenerateArticles(false);
-      console.error("Error updating ESG Articles:", error);
+      console.error("Erro carregando artigos ESG:", error);
     }
   };
 
-  // Load Articles
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoadingArticlesList(true)
-        const res = await api.get<NewsItem[]>("/esg-articles/");
-
-        const groupedData: Record<string, NewsItem[]> = {
-          'Evoluzione del contesto normativo': [],
-          'News reati informativi': [],
-          'Responsabilità amministratori': [],
-          'Rischi reputazionali': [],
-        };
-  
-        res.data.forEach(article => {
-          if(groupedData[article.topic]) {
-            groupedData[article.topic].push(article);
-          }
-        });
-  
-        setData(groupedData);
-        setSelectedCategory(topics[0]);
-        setSelectedArticle(groupedData[topics[0]][0] || null);
-        setLoadingArticlesList(false)
-      } catch (error) {
-        console.error("Erro carregando artigos ESG:", error);
-      }
-    };
-  
     loadData();
   }, []);
   
