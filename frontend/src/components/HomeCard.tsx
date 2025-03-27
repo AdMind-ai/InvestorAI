@@ -23,7 +23,7 @@ const HomeCard: React.FC<CardProps> = ({ title, description, icon, path }) => {
       sx={{
         flexDirection: 'column',
         justifyContent: 'space-between',
-        aspectRatio: '2.2 / 1',
+        aspectRatio: '1.8 / 1',
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>

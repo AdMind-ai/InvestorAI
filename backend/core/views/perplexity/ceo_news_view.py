@@ -128,11 +128,11 @@ def generate_perplexity_system():
     formattedDate = today.strftime("%Y-%m-%d")
 
     return f"""
-    Sei un'assistente specializzata nella ricerca di articoli, notizie o pubblicazioni che menzionano aziende e il loro legame con i criteri ESG, pubblicati tra il {formattedTwoDaysAgo} e il {formattedDate}.
+    Sei un'assistente specializzata nella ricerca di articoli, notizie o pubblicazioni che menzionano una persona specifica, pubblicati tra il {formattedTwoDaysAgo} e il {formattedDate}.
 
     Requisiti:
     - Assicurati che la risposta includa il contenuto completo di ogni articolo o pubblicazione e limita i risultati a un massimo di 3 elementi.
-    - Solo fonti autorevoli e importanti nel settore economico e corporativo, nazionali e riconosciute.
+    - Solo fonti autorevoli nazionali e riconosciute.
     - Evita fonti dubbie o non verificabili.
     - Includi il contenuto completo dell'articolo.
     - Assicurati che il JSON sia valido: tratta correttamente i caratteri speciali e usa escaping dove necessario.
@@ -165,7 +165,7 @@ def generate_perplexity_prompt(personality):
     Trova articoli, notizie o pubblicazioni recenti e rilevanti che menzionano '{personality}'.
 
     ### Istruzioni dettagliate:
-    1. Cerca esclusivamente contenuti pubblicati dal {formattedTwoDaysAgo} al {formattedDate}.
+    1. Cerca solo i contenuti pubblicati intorno al {formattedDate}.
     2. Seleziona fonti autorevoli, affidabili e ben conosciute.
     3. Gli URL devono essere link diretti ai contenuti funzionanti (senza paywall o reindirizzamenti).
     4. Fornisci il contenuto completo dell'articolo.

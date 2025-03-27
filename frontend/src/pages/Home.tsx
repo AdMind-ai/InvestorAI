@@ -8,6 +8,7 @@ import ChatIcon from '../assets/icons/chat-icon.svg'
 import CEOIcon from '../assets/icons/ceo-icon.svg'
 import MarketIcon from '../assets/icons/market-icon.svg'
 import EarningsIcon from '../assets/icons/earnings-icon.svg'
+import ESGIcon from '../assets/icons/esg-icon.svg'
 
 const cards = [
   {
@@ -38,6 +39,13 @@ const cards = [
     icon: ChatIcon,
     path: '/chat-assistant',
   },
+  {
+    title: 'ESG Monitoring',
+    description:
+      'Offre una selezione delle notizie più rilevanti in ambito ESG, organizzate in diverse categorie, per garantire aggiornamenti costantei e puntuali.',
+    icon: ESGIcon,
+    path: '/esg',
+  },
 ]
 
 const Home: React.FC = () => {
@@ -54,7 +62,7 @@ const Home: React.FC = () => {
         width: '100%',
       }}
       >
-        <Typography variant="h3" sx={{textAlign: 'center', padding:'0px 0px', paddingTop:'5vh'}}>
+        <Typography variant="h3" sx={{textAlign: 'center', padding:'0px 0px', paddingTop:'4vh'}}>
           Cosa vuoi fare oggi?
         </Typography>
         <Box
@@ -62,16 +70,16 @@ const Home: React.FC = () => {
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: 'center',
-            padding: 'calc(4vh) calc(3vh) calc(4vh) calc(3vh)',
+            padding: 'calc(2.5vh) calc(3vh) calc(4vh) calc(3vh)',
             // overflow: 'auto',
             height: '84%',
-            width: '90%',
+            width: '100%',
             // backgroundColor: 'blue',
-            gap:1,
+            gap:0.5,
           }}
           >
           {cards.map((card, index) => (
-            <Box key={index} sx={{padding:'10px 20px'}}>
+            <Box key={index} sx={{padding:'15px 15px'}}>
               <HomeCard
                 title={card.title}
                 description={card.description}

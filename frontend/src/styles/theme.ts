@@ -110,7 +110,7 @@ const theme: Theme = createTheme({
           boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.29)',
           padding: '16px 22px 18px 22px',
           display: 'flex',
-          height: '200px',
+          height: '220px',
           margin: 0,
         },
       },
