@@ -435,7 +435,7 @@ const Market: React.FC = () => {
                   <Box sx={{flex:1, bgcolor:'#F8F8F8', borderRadius:3, px:2, py:3, display:'flex', flexDirection:'column', boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)"}}>
                     <Box>
                       <Typography variant="body2">Crescita percentuale annua</Typography>
-                      <Typography variant="subtitle1" color='textSecondary' sx={{mt:1, mb:2}}>rispetto agli scorsi 5 anni</Typography>
+                      <Typography variant="subtitle1" color='textSecondary' sx={{mt:1, mb:2}}>rispetto all’anno precedente</Typography>
                     </Box>
                     
                     <Box sx={{display:'flex', justifyContent:'center', mb:1}}>
@@ -722,12 +722,12 @@ const Market: React.FC = () => {
                       "Fusione Tra Due Giganti del Settore Tecnologico",
                       "Regolamentazioni Europee Accolgono Innovazioni Green",
                       "Cybersecurity: Aumenta la Minaccia di Hacker nel 2023",
-                      "Nuovo Chip Promette di Aumentare la Velocità dei Dispositivi del Futuro",
+                      "Nuovo Chip Promette di Aumentare la Velocità dei Dispositivi del Fut...",
                       "Startup AI Riceve Investimenti Record per Sviluppo Avanzato",
                       "Mercato dei Dispositivi Indossabili Cresce del 20% nel 2023",
                       "Partnership Strategica: Azienda Tech Entra nel Settore Sanitario",
                       "Celle a Combustibile: Innovazione Sostenibile nel Settore Elettronico",
-                      "Nuovo Chip Promette di Aumentare la Velocità dei Dispositivi del Futuro"
+                      "Nuovo Chip Promette di Aumentare la Velocità dei Dispositivi del Fut..."
                     ].map((item, idx) => (
                       <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ddd', py: 1 }}>
                         <Typography variant="subtitle2">{item}</Typography>
