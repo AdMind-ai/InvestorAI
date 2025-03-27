@@ -122,15 +122,17 @@ const theme: Theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         '*::-webkit-scrollbar': {
-          width: '5px',
+          width: '0.45vw',
         },
         '*::-webkit-scrollbar-thumb': {
           backgroundColor: '#707070',
-          borderRadius: '2.5px',
+          borderRadius: '10px',
+          cursor: 'pointer',
         },
         '*::-webkit-scrollbar-track': {
           backgroundColor: '#E4E4E4',
-          borderRadius: '2.5px',
+          borderRadius: '10px',
+          cursor: 'pointer',
         },
       },
     },
