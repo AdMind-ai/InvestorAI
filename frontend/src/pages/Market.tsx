@@ -345,7 +345,7 @@ const Market: React.FC = () => {
                       width: '100%',
                     }}>
 
-                    {competitors.map((company, idx) => (
+                    {competitors.map((company) => (
                       <Box key={company.name} sx={{ width: '100%', height:'100%' }}>
                         <Box sx={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign: 'center', width: '100%', height:'100%', mb:3 }}>
                           <Box component="img" src={company.logo} 

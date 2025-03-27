@@ -91,7 +91,7 @@ const ESGPage: React.FC = () => {
         const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
         const minSpacingPx = minSpacingRem * remToPx;
   
-        let maxItems = Math.floor((totalHeight) / (itemHeight + minSpacingPx));
+        const maxItems = Math.floor((totalHeight) / (itemHeight + minSpacingPx));
         // console.log(maxItems)
   
         if (maxItems >= currentData.length) {
