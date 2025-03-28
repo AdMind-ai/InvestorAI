@@ -8,7 +8,7 @@ router.register(r'esg-articles', ESGArticleViewSet)
 router.register(r'ceo-articles', CEOArticleViewSet)
 
 urlpatterns = [
-    path('perplexity/deep-search',
+    path('perplexity/deep-search/',
          PerplexityDeepSearchView.as_view(), name='deep-search'),
     path('perplexity/esg-news/', PerplexityESGNewsView.as_view(),
          name='perplexity-esg-news'),
