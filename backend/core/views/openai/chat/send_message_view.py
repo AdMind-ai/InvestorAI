@@ -84,9 +84,9 @@ class OpenAISendMessageView(APIView):
             # file_url= chat_message.file.url,
             is_user=True
         )
-        file_url = chat_message.file.url if chat_message.file else None
-        chat_message.file_url = file_url
-        chat_message.save()
+        # file_url = chat_message.file.url if chat_message.file else None
+        # chat_message.file_url = file_url
+        # chat_message.save()
 
         def event_stream():
             full_ai_message = ""
