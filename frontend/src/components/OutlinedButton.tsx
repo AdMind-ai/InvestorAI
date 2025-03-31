@@ -9,6 +9,7 @@ interface OutlinedButtonProps {
   color: number
   onClick: () => void
   isSelected?: boolean
+  disabled?: boolean
   toggleSelection?: boolean
 }
 
@@ -20,6 +21,7 @@ const OutlinedButton: React.FC<OutlinedButtonProps> = ({
   color,
   onClick,
   isSelected = false,
+  disabled = false,
   toggleSelection = true
 }) => {
   const theme = useTheme()
@@ -40,13 +42,14 @@ const OutlinedButton: React.FC<OutlinedButtonProps> = ({
   const iconColor = iconColors[colorIndex - 1]
 
   const styledIcon = icon
-    ? React.cloneElement(icon, { sx: { color: selected ? 'white' : iconColor, fontSize: '1.5rem' } }) // Ajusta tamanho do ícone
+    ? React.cloneElement(icon, { sx: { color: selected ? 'white' : disabled? theme.palette.grey[400] : iconColor, fontSize: '1.5rem' } }) 
     : null
 
   return (
     <Button
       variant="outlined"
       startIcon={styledIcon}
+      disabled={disabled}
       sx={{
         color: selected ? 'white' : 'black',
         fontSize: '17px',
@@ -66,6 +69,11 @@ const OutlinedButton: React.FC<OutlinedButtonProps> = ({
         '&:hover': {
           backgroundColor: selected ? '#5066CC' : '#f3f4f6',
           borderColor: selected ? '#5066CC' : '#9ca3af',
+        },
+        '&.Mui-disabled': { 
+          backgroundColor: theme.palette.grey[100],
+          borderColor: theme.palette.grey[200],
+          color: theme.palette.grey[400],
         },
       }}
       onClick={handleButtonClick}

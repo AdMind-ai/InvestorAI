@@ -362,7 +362,7 @@ def response_openai_api(personality):
                     "type": "approximate",
                     "country": "IT"
                 },
-                "search_context_size": "high"
+                "search_context_size": "medium"
             }
         ],
         tool_choice={

@@ -4,12 +4,17 @@ from .example_view import ExampleView
 from .perplexity import PerplexityDeepSearchView
 from .perplexity import PerplexityESGNewsView
 from .perplexity import PerplexityCEONewsView
+
 from .deepl import DeeplTranslateFileView
 from .deepl import DeeplTranslateTextView
+
 from .openai import OpenAiAudioTranscriptView
 from .openai import OpenAIESGNewsView
 from .openai import OpenAICEONewsView
+from .openai import OpenAIConversationViewSet, OpenAISendMessageView
+
 from .elevenlabs import ElevenlabsTextToSpeechView
+
 from .esg_article_view import ESGArticleViewSet
 from .ceo_article_view import CEOArticleViewSet
 
@@ -23,6 +28,8 @@ __all__ = [
     'OpenAiAudioTranscriptView',
     'OpenAIESGNewsView',
     'OpenAICEONewsView',
+    'OpenAIConversationViewSet',
+    'OpenAISendMessageView',
     'ElevenlabsTextToSpeechView',
     'ESGArticleViewSet',
     'CEOArticleViewSet'

@@ -6,6 +6,8 @@ from .views import *
 router = DefaultRouter()
 router.register(r'esg-articles', ESGArticleViewSet)
 router.register(r'ceo-articles', CEOArticleViewSet)
+router.register(r'openai/chat/conversations', OpenAIConversationViewSet,
+                basename='openai-chat-conversation')
 
 urlpatterns = [
     path('perplexity/deep-search/',
@@ -20,6 +22,11 @@ urlpatterns = [
          OpenAiAudioTranscriptView.as_view(), name='audio-transcription'),
     path('openai/esg-news/', OpenAIESGNewsView.as_view(), name='openai-esg-news'),
     path('openai/ceo-news/', OpenAICEONewsView.as_view(), name='openai-ceo-news'),
+    # Chat
+    path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
+         name='openai-chat-send-message'),
+    # path('openai/chat/upload'),
+
     path('elevenlabs/text-to-speech/',
          ElevenlabsTextToSpeechView.as_view(), name='text-to-speech',),
 ]

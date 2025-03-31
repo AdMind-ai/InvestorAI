@@ -1,6 +1,7 @@
 from django.contrib import admin
 from core.models.esg_article_model import ESGArticle
 from core.models.ceo_article_model import CEOArticle
+from core.models.openai_chat_models import ChatConversation, ChatMessage
 # Register your models here.
 
 
@@ -18,3 +19,16 @@ class CEOArticleAdmin(admin.ModelAdmin):
                     "source", "url", "date_published")
     list_filter = ("personality", "source", "date_published")
     search_fields = ("title", "content", "author")
+
+
+@admin.register(ChatConversation)
+class ChatConversationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'created_at')
+    list_filter = ('created_at',)
+
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'conversation', 'content', 'is_user', 'created_at')
+    list_filter = ('created_at', 'is_user')
+    search_fields = ('content',)

@@ -68,6 +68,15 @@ ALLOWED_HOSTS = []
 CORS_ALLOW_ALL_ORIGINS = True
 
 
+# Azure Blob Storage
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+
+AZURE_ACCOUNT_NAME = 'adaptaistorage'
+AZURE_ACCOUNT_KEY = '3aLLk8ktXi8DSTEyYToWFry9PqN/12o7Hc84l5QDTod/6nSldsBLK99aaq/GcUGCMmTXAz476RmQ+AStXqndCA=='
+AZURE_CONTAINER = 'adaptai-storage'
+# AZURE_CONNECTION_STRING = 'DefaultEndpointsProtocol=https;AccountName=adaptaistorage;AccountKey=3aLLk8ktXi8DSTEyYToWFry9PqN/12o7Hc84l5QDTod/6nSldsBLK99aaq/GcUGCMmTXAz476RmQ+AStXqndCA==;EndpointSuffix=core.windows.net'
+
+
 # Application definition
 DEFAULT_APPS = [
     'django.contrib.admin',

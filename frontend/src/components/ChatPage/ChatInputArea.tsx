@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography, IconButton  } from '@mui/material';
 import OutlinedButton from '../OutlinedButton';
+import FilePresentRoundedIcon from '@mui/icons-material/FilePresentRounded';
+import CloseIcon from '@mui/icons-material/DisabledByDefaultRounded';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SearchWebIcon from '@mui/icons-material/TravelExploreOutlined';
 import OverviewIcon from '@mui/icons-material/AnalyticsOutlined';
@@ -28,6 +30,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   const theme = useTheme();
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [isFileAttached, setIsFileAttached] = useState(false);
   const [isWebSearch, setIsWebSearch] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -37,7 +40,11 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFile(e.target.files ? e.target.files[0] : null);
+    const selectedFile = e.target.files ? e.target.files[0] : null;
+    if(selectedFile) {
+      setFile(selectedFile);
+      setIsFileAttached(true);
+    }
   };
 
   const handleFileUploadClick = () => {
@@ -101,6 +108,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   };
 
   const handleSubmit = async () => {
+    setIsFileAttached(false);
     if (!text.trim()) return;
   
     onSend(text, 'user');
@@ -183,9 +191,10 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         border: `1px solid #CBCBCB`,
         display: 'flex',
         flexDirection: 'column',
-        padding: '16px',
+        padding: '16px'
       }}
     >
+      {AttachedFilePreview()}
       <TextField
         inputRef={inputRef}
         variant="standard"
@@ -202,11 +211,11 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           }
         }}
         sx={{
-          mb: '40px',
+          mb: '60px',
           '& .MuiInputBase-root': {
             padding: 0,
             fontSize: '17px',
-            maxHeight: '200px',
+            maxHeight: isFileAttached? '160px':'200px',
             overflowY: 'auto',
             '&:before, &:after, &:hover:not(.Mui-disabled):before': {
               borderBottom: 'none !important'
@@ -217,8 +226,8 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
       <Box sx={{ position:'absolute', bottom:16, left:16, display:'flex', gap:2 }}>
         <input id="file-input" type="file" accept="image/*,application/pdf" hidden onChange={handleFileChange} />
-        <OutlinedButton icon={<AttachFileIcon />} title="Immagine/documento" color={1} onClick={handleFileUploadClick} toggleSelection={false}/>
-        <OutlinedButton icon={<SearchWebIcon />} title="SearchWeb" color={1} onClick={handleWebSearchClick} isSelected={isWebSearch}/>
+        <OutlinedButton icon={<AttachFileIcon />} title="Immagine/documento" color={1} onClick={handleFileUploadClick} disabled={isFileAttached} toggleSelection={false}/>
+        <OutlinedButton icon={<SearchWebIcon />} title="SearchWeb" color={1} onClick={handleWebSearchClick} isSelected={isWebSearch} disabled={isFileAttached}/>
       </Box>
 
       <Button
@@ -233,6 +242,31 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       >
         Invia
       </Button>
+    </Box>
+  );
+
+  const AttachedFilePreview = () => file && (
+    <Box sx={{display:'flex', gap:0.2, alignItems:'end', mb:1.5}}>
+      <FilePresentRoundedIcon color="action" sx={{height:20}}/>
+      <Typography variant="subtitle1" >
+        {file.name.length > 100 ? file.name.substring(0,100)+'...' : file.name}
+      </Typography>
+      <IconButton 
+        size="small" 
+        onClick={()=>{
+          setFile(null);
+          setIsFileAttached(false);
+          setIsWebSearch(false);
+        }}
+        sx={{
+          color: '#FF1744',
+          width: 15,
+          height: 15,
+          ml:3,
+        }}
+      >
+        <CloseIcon sx={{fontSize: '15px', fontWeight:'700'}}/>
+      </IconButton>
     </Box>
   );
 
