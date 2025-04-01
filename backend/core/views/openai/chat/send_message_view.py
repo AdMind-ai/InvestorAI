@@ -23,13 +23,19 @@ class OpenAISendMessageView(APIView):
     def post(self, request):
         user = request.user
         serializer = self.serializer_class(data=request.data)
+        logger.debug(serializer.is_valid())
         serializer.is_valid(raise_exception=True)
+
         conversation_instance = serializer.validated_data.get('conversation')
         conversation_id = request.data.get('conversation_id')
+
         content = serializer.validated_data.get('content', '')
-        file = serializer.validated_data.get('file')
+        file = serializer.validated_data.get('file', None)
         model = request.data.get('model', 'gpt-4o')
         is_user = True
+
+        logger.debug(
+            f"Received data - Content: {content}, Model: {model}, User: {user}, conversation_id: {conversation_id}, file: {file}")
 
         model_config_map = {
             'gpt-4o': ('o200k_base', 128000, 16000),
@@ -56,9 +62,13 @@ class OpenAISendMessageView(APIView):
 
         if not conversation:
             try:
-                conversation, created = ChatConversation.objects.create(
+                conversation = ChatConversation.objects.create(
                     user=user)
+                logger.debug(
+                    f"Created new conversation with ID: {conversation.id} for user: {user.id}")
             except Exception as e:
+                logger.error(
+                    f"Failed to create conversation for user {user.username}: {str(e)}")
                 raise ValidationError(
                     "Unable to create a new conversation at this time.")
 

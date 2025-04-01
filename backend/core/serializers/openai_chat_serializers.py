@@ -3,6 +3,11 @@ from core.models.openai_chat_models import ChatMessage, ChatConversation
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    conversation = serializers.PrimaryKeyRelatedField(
+        queryset=ChatConversation.objects.all(),
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = ChatMessage
@@ -10,6 +15,7 @@ class MessageSerializer(serializers.ModelSerializer):
             'id', 'conversation', 'content',
             'file',
             'created_at',
+            'is_user'
         ]
 
 

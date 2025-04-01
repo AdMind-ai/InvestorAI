@@ -45,8 +45,9 @@ const refreshAccessToken = async (): Promise<boolean> => {
 
 export const fetchWithAuth = async (endpoint: string, options: FetchOptions = {}) => {
   const token = localStorage.getItem("access");
+  const isJsonRequest = !(options.body instanceof FormData);
   const headers = {
-    'Content-Type': 'application/json',
+    ...(isJsonRequest && { 'Content-Type': 'application/json' }),
     ...options.headers,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };

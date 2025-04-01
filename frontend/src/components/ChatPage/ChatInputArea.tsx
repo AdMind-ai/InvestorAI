@@ -11,10 +11,12 @@ import { modelMapping } from './ChatHeader';
 import { useTheme } from '@mui/material/styles';
 import { fetchWithAuth } from '../../api/fetchWithAuth';
 import CircularProgress from '@mui/material/CircularProgress';
+import {api} from '../../api/api';
 
 interface ChatInputAreaProps {
   onSend: (content: string, sender: 'user' | 'ai', isStream?: boolean) => void;
   selectedModel: string;
+  selectedChat: { id: number; name: string } | null;
   searchWebEnabled: boolean;
   setSearchWebEnabled: (enabled: boolean) => void;
   isEmptyMessages: boolean;
@@ -24,6 +26,7 @@ interface ChatInputAreaProps {
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onSend,
   selectedModel,
+  selectedChat,
   searchWebEnabled,
   setSearchWebEnabled,
   isEmptyMessages,
@@ -123,60 +126,52 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     setText('');
     setFile(null);
   
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      
-      reader.onloadend = async () => {
-        const base64data = reader.result as string;
-        
-        try {
-          const stream = await openai.chat.completions.create({
-            model: realModelOpenAI,
-            messages: [{
-              role: 'user',
-              content: [
-                { type: 'text', text: finalPrompt },
-                { type: 'image_url', image_url: { url: base64data } }
-              ]
-            }],
-            stream: true, 
-          });
+    try {
+      const formData = new FormData();
+      formData.append('content', text);
   
-          
-          for await (const chunk of stream) {
-            const delta = chunk.choices[0]?.delta?.content;
-            if (delta) {
-              onSend(delta, 'ai', true);
-            }
-          }
+      const modelToUse = searchWebEnabled ? 'gpt-4o-search-preview' : modelMapping[selectedModel];
+      formData.append('model', modelToUse);
   
-        } catch (error) {
-          onSend('Erro ao gerar resposta da OpenAI.', 'ai');
-          console.error(error);
-        }
-      };
-  
-    } else {
-      try {
-        const stream = await openai.chat.completions.create({
-          model: realModelOpenAI,
-          messages: [{ role: 'user', content: finalPrompt }],
-          stream: true, 
-        });
-  
-        
-        for await (const chunk of stream) {
-          const delta = chunk.choices[0]?.delta?.content;
-          if (delta) {
-            onSend(delta, 'ai', true);
-          }
-        }
-  
-      } catch (error) {
-        onSend('Erro ao gerar resposta da OpenAI.', 'ai');
-        console.error(error);
+      if (file) {
+        formData.append('file', file);
       }
+  
+      if (selectedChat) {
+        console.log(selectedChat.id.toString())
+        formData.append('conversation_id', selectedChat.id.toString());
+      }
+      
+      const response = await fetchWithAuth('/openai/chat/send-message/', {
+        method: 'POST',
+        body: formData
+      });
+
+  
+      if (!response.ok || !response.body) {
+        onSend('Erro ao conectar.', 'ai');
+        return;
+      }
+
+      if (response.ok) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+  
+        let done = false;
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+          const chunkValue = decoder.decode(value, { stream: true });
+          onSend(chunkValue, 'ai', true); 
+        }
+      } else {
+        console.error('Erro ao conectar:', response.statusText);
+        onSend('Erro ao gerar resposta.', 'ai');
+      }
+  
+    } catch (error) {
+      console.error('Error sending message:', error);
+      onSend('Erro ao enviar mensagem.', 'ai');
     }
   };
 

@@ -5,6 +5,8 @@ import ChatHeader from '../components/ChatPage/ChatHeader'
 import ChatMessageList from '../components/ChatPage/ChatMessageList'
 import ChatInputArea from '../components/ChatPage/ChatInputArea'
 
+import {api} from '../api/api'
+
 interface Message {
   sender: 'user' | 'ai'
   content: string
@@ -15,6 +17,27 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [citations, setCitations] = useState<string[]>([])
   const [searchWebEnabled, setSearchWebEnabled] = useState(false)
+  const [selectedChat, setSelectedChat] = useState<{ id: number; name: string } | null>(null);
+
+  const handleChatSelect = async (id: number, name: string) => {
+    console.log(`Selected Chat ID: ${id}, Name: ${name}`);
+    setSelectedChat({ id, name });
+  
+    try {
+      const response = await api.get(`/openai/chat/conversations/${id}`);
+      console.log(response.data); 
+  
+      const messages = response.data.messages.map((message: any) => ({
+        ...message,  
+        sender: message.is_user ? 'user' : 'ai'  
+      }));
+  
+      setMessages(messages);
+  
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+    }
+  };
 
   useEffect(() => {
     if (searchWebEnabled) {
@@ -25,17 +48,13 @@ const Chat: React.FC = () => {
 
   const handleSendMessage = (message: string, sender: 'user'|'ai', isStream: boolean = false) => {
     if (!isStream) {
-      // comportamento normal (não-streaming)
       setMessages(messages => [...messages, { sender, content: message }]);
     } else {
-      // comportamento de streaming 
       setMessages(messages => {
         const lastMessage = messages[messages.length - 1];
         if (sender === 'ai' && lastMessage?.sender === 'ai') {
-          // Atualiza última mensagem quando sender for 'ai'
           return [...messages.slice(0, -1), { sender: 'ai', content: lastMessage.content + message }];
         } else {
-          // Inicia uma nova mensagem de streaming
           return [...messages, { sender, content: message }];
         }
       });
@@ -55,7 +74,7 @@ const Chat: React.FC = () => {
         }}
       >      
         {/* Header */}
-        <ChatHeader selectedModel={selectedModel} setSelectedModel={setSelectedModel} searchWebEnabled={searchWebEnabled} />
+        <ChatHeader selectedModel={selectedModel} setSelectedModel={setSelectedModel} searchWebEnabled={searchWebEnabled} onChatSelect={handleChatSelect} />
         <Divider />
 
         <Box 
@@ -76,6 +95,7 @@ const Chat: React.FC = () => {
               <ChatInputArea 
                 onSend={handleSendMessage} 
                 selectedModel={selectedModel} 
+                selectedChat={selectedChat}
                 searchWebEnabled={searchWebEnabled}
                 setSearchWebEnabled={setSearchWebEnabled}
                 isEmptyMessages={false}
@@ -86,6 +106,7 @@ const Chat: React.FC = () => {
             <ChatInputArea 
               onSend={handleSendMessage} 
               selectedModel={selectedModel} 
+              selectedChat={selectedChat}
               searchWebEnabled={searchWebEnabled}
               setSearchWebEnabled={setSearchWebEnabled}
               isEmptyMessages={true}

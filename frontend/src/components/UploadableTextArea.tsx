@@ -135,7 +135,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
             <>
               <Box onClick={openFileSelector}>
                 <Typography sx={{ fontSize: '16px', color: '#666' }}>
-                  Scrivi qui il tuo testo oppure
+                  Scrivi il tuo testo oppure
                 </Typography>
                 <Typography
                   sx={{

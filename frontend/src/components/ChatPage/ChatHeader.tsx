@@ -1,13 +1,16 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { Box, Typography, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import SimpleDropdown from '../SimpleDropdown'
 import SaveCleanButtons from '../SaveCleanButtons'
 import { useTheme } from '@mui/material/styles'
+import { api } from '../../api/api';
+import { ResponseStream } from 'openai/lib/responses/ResponseStream.mjs'
 
 interface ChatHeaderProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
   searchWebEnabled : boolean;
+  onChatSelect: (id: number, name: string) => void;
 }
 
 export const modelMapping: Record<string, string> = {
@@ -17,9 +20,43 @@ export const modelMapping: Record<string, string> = {
   "o3 mini": "o3-mini"
 };
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel, searchWebEnabled }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel, searchWebEnabled, onChatSelect }) => {
   const theme = useTheme()
   const [isButtonEnabled, setIsButtonEnabled] = useState(true);
+  const [chats, setChats] = useState<{ id: number; name: string; }[]>([]);
+  const [selectedChat, setSelectedChat] = useState<{ id: number; name: string } | null>(null);
+
+  const handleChatSelect = (id: number, name: string) => {
+    console.log(`Selected Chat ID: ${id}, Name: ${name}`);
+    setSelectedChat({ id, name });
+  };
+
+  const handleDropdownSelect = (name: string) => {
+    const chat = chats.find(chat => chat.name === name);
+    if (chat && onChatSelect) {
+      onChatSelect(chat.id, chat.name);
+    }
+  };
+
+  useEffect(() => {
+    const fetchChatConversations = async () => {
+      try {
+        const response = await api.get('/openai/chat/conversations');
+        console.log(response)
+
+        const chatList = response.data.map((conversation: any) => ({
+          id: conversation.id,
+          name: conversation.name
+        }));
+        setChats(chatList);
+
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+      }
+    };
+
+    fetchChatConversations();
+  }, []);
 
   return(
     <Box
@@ -86,7 +123,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         {isButtonEnabled? <SaveCleanButtons /> : null}
-        <SimpleDropdown title="Chat salvate" options={['Test']} />
+        <SimpleDropdown title="Chat salvate" options={chats.map(chat => chat.name)} onSelect={handleDropdownSelect} />
       </Box>
 
     </Box>
