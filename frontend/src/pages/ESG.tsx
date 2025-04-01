@@ -225,22 +225,6 @@ const ESGPage: React.FC = () => {
             ESG News
           </Typography>
 
-
-          <Typography
-            variant="subtitle2"
-            sx={{
-              marginRight: '1vw',
-              color: theme.palette.text.secondary,
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              '&:hover': {
-                color: theme.palette.secondary.light,
-              },
-            }}
-            onClick={() => console.log('Click!')}
-          >
-            Cronologia
-          </Typography>
         </Box>
         <Divider sx={{ marginBottom: 2.5 }} />
         

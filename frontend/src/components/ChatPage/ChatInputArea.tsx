@@ -16,6 +16,7 @@ interface ChatInputAreaProps {
   onSend: (content: string, sender: 'user' | 'ai', isStream?: boolean) => void;
   selectedModel: string;
   searchWebEnabled: boolean;
+  setSearchWebEnabled: (enabled: boolean) => void;
   isEmptyMessages: boolean;
   setCitations?: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -24,6 +25,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onSend,
   selectedModel,
   searchWebEnabled,
+  setSearchWebEnabled,
   isEmptyMessages,
   setCitations
 }) => {
@@ -31,7 +33,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [isFileAttached, setIsFileAttached] = useState(false);
-  const [isWebSearch, setIsWebSearch] = useState(false);
+  // const [searchWebEnabled, setSearchWebEnabled] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +54,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   };
 
   const handleWebSearchClick = () => {
-    setIsWebSearch(prev => !prev);
+    setSearchWebEnabled(!searchWebEnabled);
   };
 
   const handleOverviewClick = async () => {
@@ -114,7 +116,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     onSend(text, 'user');
   
     let finalPrompt = text;
-    if (searchWebEnabled && isWebSearch) {
+    if (searchWebEnabled) {
       finalPrompt += "\n\nCerca sul web informazioni sull'argomento sopra e completa la tua risposta.";
     }
   
@@ -178,7 +180,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     }
   };
 
-  const realModelOpenAI = isWebSearch ? 'gpt-4o-search-preview' : (modelMapping[selectedModel] || 'gpt-4o-mini');
+  const realModelOpenAI = searchWebEnabled ? 'gpt-4o-search-preview' : (modelMapping[selectedModel] || 'gpt-4o-mini');
 
   const ChatTextInputBox = () => (
     <Box
@@ -227,7 +229,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       <Box sx={{ position:'absolute', bottom:16, left:16, display:'flex', gap:2 }}>
         <input id="file-input" type="file" accept="image/*,application/pdf" hidden onChange={handleFileChange} />
         <OutlinedButton icon={<AttachFileIcon />} title="Immagine/documento" color={1} onClick={handleFileUploadClick} disabled={isFileAttached} toggleSelection={false}/>
-        <OutlinedButton icon={<SearchWebIcon />} title="SearchWeb" color={1} onClick={handleWebSearchClick} isSelected={isWebSearch} disabled={isFileAttached}/>
+        <OutlinedButton icon={<SearchWebIcon />} title="SearchWeb" color={1} onClick={handleWebSearchClick} isSelected={searchWebEnabled} disabled={isFileAttached}/>
       </Box>
 
       <Button
@@ -256,7 +258,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         onClick={()=>{
           setFile(null);
           setIsFileAttached(false);
-          setIsWebSearch(false);
+          setSearchWebEnabled(false);
         }}
         sx={{
           color: '#FF1744',
@@ -274,8 +276,8 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     <Box sx={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%' }}>
       {isEmptyMessages ? (
         <>
-          <Typography variant="body2" sx={{ mb:2, color: theme.palette.text.primary, textAlign: 'center' }}>
-            Scrivi ciò di cui hai bisogno nella chat oppure seleziona un’attività che desideri svolgere dall’elenco sottostante.
+          <Typography variant="h1" sx={{ mb:3, color: theme.palette.text.primary, textAlign: 'center' }}>
+            Come posso esserti utile?
           </Typography>
 
           <Box sx={{ width: '100%', maxWidth :'75vw', marginBottom:'3vh', display:'flex', flexDirection: 'column', alignItems:'center' }}>

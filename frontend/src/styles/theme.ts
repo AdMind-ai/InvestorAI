@@ -4,8 +4,8 @@ const theme: Theme = createTheme({
   typography: {
     fontFamily: 'Helvetica, Roboto, Arial, sans-serif',
     h1: {
-      fontSize: '30px',
-      fontWeight: 900, // Bold
+      fontSize: '28px',
+      fontWeight: 700, // Bold
     },
     h2: {
       fontSize: '26px',

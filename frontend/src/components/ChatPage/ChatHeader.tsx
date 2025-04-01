@@ -1,11 +1,13 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Box, Typography, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import SimpleDropdown from '../SimpleDropdown'
+import SaveCleanButtons from '../SaveCleanButtons'
 import { useTheme } from '@mui/material/styles'
 
 interface ChatHeaderProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
+  searchWebEnabled : boolean;
 }
 
 export const modelMapping: Record<string, string> = {
@@ -15,8 +17,9 @@ export const modelMapping: Record<string, string> = {
   "o3 mini": "o3-mini"
 };
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel, searchWebEnabled }) => {
   const theme = useTheme()
+  const [isButtonEnabled, setIsButtonEnabled] = useState(true);
 
   return(
     <Box
@@ -43,7 +46,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel
           <ToggleButtonGroup
             value={selectedModel}
             exclusive
-            onChange={(_, value) => value && setSelectedModel(value)}
+            onChange={(_, value) => {
+              if (!searchWebEnabled && value) setSelectedModel(value); 
+            }}
+            aria-label="model selection"
             sx={{ gap: '4px', maxHeight: '4.1vh' }}
           >
             {Object.keys(modelMapping).map(model => (
@@ -60,6 +66,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel
                   '&.Mui-selected': {
                     backgroundColor: theme.palette.primary.main,
                     color: theme.palette.primary.contrastText,
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                    },
                   },
                   '&:hover': {
                     backgroundColor: theme.palette.primary.main,
@@ -75,23 +85,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        {isButtonEnabled? <SaveCleanButtons /> : null}
         <SimpleDropdown title="Chat salvate" options={['Test']} />
-
-        <Typography
-          variant="subtitle2"
-          sx={{
-            marginRight: '1vw',
-            color: theme.palette.text.secondary,
-            textDecoration: 'underline',
-            cursor: 'pointer',
-            '&:hover': {
-              color: theme.palette.secondary.light,
-            },
-          }}
-          onClick={() => console.log('Click!')}
-        >
-          Cronologia
-        </Typography>
       </Box>
 
     </Box>

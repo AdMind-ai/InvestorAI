@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Divider } from '@mui/material'
 import Layout from '../layouts/Layout'
 import ChatHeader from '../components/ChatPage/ChatHeader'
@@ -14,7 +14,14 @@ const Chat: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
   const [messages, setMessages] = useState<Message[]>([])
   const [citations, setCitations] = useState<string[]>([])
-  const [searchWebEnabled] = useState(false)
+  const [searchWebEnabled, setSearchWebEnabled] = useState(false)
+
+  useEffect(() => {
+    if (searchWebEnabled) {
+      setSelectedModel('GPT-4o');
+      console.log(selectedModel)
+    }
+  }, [searchWebEnabled]);
 
   const handleSendMessage = (message: string, sender: 'user'|'ai', isStream: boolean = false) => {
     if (!isStream) {
@@ -48,7 +55,7 @@ const Chat: React.FC = () => {
         }}
       >      
         {/* Header */}
-        <ChatHeader selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
+        <ChatHeader selectedModel={selectedModel} setSelectedModel={setSelectedModel} searchWebEnabled={searchWebEnabled} />
         <Divider />
 
         <Box 
@@ -70,6 +77,7 @@ const Chat: React.FC = () => {
                 onSend={handleSendMessage} 
                 selectedModel={selectedModel} 
                 searchWebEnabled={searchWebEnabled}
+                setSearchWebEnabled={setSearchWebEnabled}
                 isEmptyMessages={false}
                 setCitations={setCitations}
               />
@@ -79,6 +87,7 @@ const Chat: React.FC = () => {
               onSend={handleSendMessage} 
               selectedModel={selectedModel} 
               searchWebEnabled={searchWebEnabled}
+              setSearchWebEnabled={setSearchWebEnabled}
               isEmptyMessages={true}
               setCitations={setCitations}
             />

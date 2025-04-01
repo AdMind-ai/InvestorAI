@@ -79,22 +79,6 @@ const Earnings: React.FC = () => {
           {/* Save, Clean and Cronologia Buttons */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {isButtonEnabled? <SaveCleanButtons /> : null}
-            <Typography
-              variant="subtitle2"
-              sx={{
-                marginRight: '1vw',
-                marginLeft: '1.2vw',
-                color: theme.palette.text.secondary,
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                '&:hover': {
-                  color: theme.palette.secondary.light,
-                },
-              }}
-              onClick={() => console.log('Click!')}
-            >
-              Cronologia
-            </Typography>
           </Box>
         </Box>
 
