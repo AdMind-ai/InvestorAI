@@ -19,3 +19,8 @@ class OpenAIConversationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return ChatConversation.objects.filter(user=user)
+
+    def perform_destroy(self, instance):
+        print(
+            f"Deleting chat with ID: {instance.id} and Name: {instance.name}")
+        instance.delete()

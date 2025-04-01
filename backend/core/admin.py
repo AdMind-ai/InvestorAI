@@ -23,8 +23,8 @@ class CEOArticleAdmin(admin.ModelAdmin):
 
 @admin.register(ChatConversation)
 class ChatConversationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'created_at')
-    list_filter = ('created_at',)
+    list_display = ('id', 'name', 'user', 'created_at')
+    list_filter = ('created_at', 'name')
 
 
 @admin.register(ChatMessage)

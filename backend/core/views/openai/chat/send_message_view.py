@@ -21,6 +21,8 @@ class OpenAISendMessageView(APIView):
         user = request.user
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+        conversation_instance = serializer.validated_data.get('conversation')
+        conversation_id = request.data.get('conversation_id')
         content = serializer.validated_data.get('content', '')
         file = serializer.validated_data.get('file')
         model = request.data.get('model', 'gpt-4o')
@@ -38,9 +40,19 @@ class OpenAISendMessageView(APIView):
 
         max_input_tokens = context_window - max_output_tokens
 
-        # Get or create a conversation for the user (define antes do uso)
-        conversation, created = ChatConversation.objects.get_or_create(
-            user=user)
+        # Get or create a conversation for the user
+        conversation = None
+        if conversation_instance:
+            conversation = ChatConversation.objects.filter(
+                id=conversation_instance.id, user=user).first()
+
+        elif conversation_id:
+            conversation = ChatConversation.objects.filter(
+                id=conversation_id, user=user).first()
+
+        if not conversation:
+            conversation, created = ChatConversation.objects.create(
+                user=user)
 
         # Gathering messages history
         messages = [{'role': 'user' if msg.is_user else 'assistant',
@@ -80,7 +92,7 @@ class OpenAISendMessageView(APIView):
         chat_message = ChatMessage.objects.create(
             conversation=conversation,
             content=content,
-            file=file if file else None,
+            # file=file if file else None,
             # file_url= chat_message.file.url,
             is_user=True
         )

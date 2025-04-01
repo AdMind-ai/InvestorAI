@@ -3,10 +3,11 @@ from core.models.openai_chat_models import ChatMessage, ChatConversation
 
 
 class MessageSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = ChatMessage
         fields = [
-            'id', 'content', 'is_user',
+            'id', 'conversation', 'content',
             'file',
             'created_at',
         ]
@@ -17,4 +18,9 @@ class ConversationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChatConversation
-        fields = ['id', 'user', 'created_at', 'messages']
+        fields = ['id', 'name', 'user', 'created_at', 'messages']
+
+    def validate_name(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("Chat name cannot be empty.")
+        return value
