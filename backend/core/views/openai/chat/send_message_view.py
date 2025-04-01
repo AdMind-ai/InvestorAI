@@ -1,8 +1,10 @@
 from rest_framework.views import APIView
 from django.http import StreamingHttpResponse
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework import status, permissions
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models.openai_chat_models import ChatConversation, ChatMessage
 from core.serializers.openai_chat_serializers import MessageSerializer
 from core.utils.openai_client import client, logger
@@ -15,6 +17,7 @@ import mimetypes
 class OpenAISendMessageView(APIView):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
 
     def post(self, request):
@@ -51,8 +54,12 @@ class OpenAISendMessageView(APIView):
                 id=conversation_id, user=user).first()
 
         if not conversation:
-            conversation, created = ChatConversation.objects.create(
-                user=user)
+            try:
+                conversation, created = ChatConversation.objects.create(
+                    user=user)
+            except Exception as e:
+                raise ValidationError(
+                    "Unable to create a new conversation at this time.")
 
         # Gathering messages history
         messages = [{'role': 'user' if msg.is_user else 'assistant',
@@ -92,6 +99,7 @@ class OpenAISendMessageView(APIView):
         chat_message = ChatMessage.objects.create(
             conversation=conversation,
             content=content,
+            file=None,
             # file=file if file else None,
             # file_url= chat_message.file.url,
             is_user=True

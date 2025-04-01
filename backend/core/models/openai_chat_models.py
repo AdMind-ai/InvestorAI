@@ -31,7 +31,7 @@ class ChatMessage(models.Model):
     is_user = models.BooleanField(default=True)
 
     # If saving files
-    # file = models.FileField(upload_to="chat/", blank=True, null=True)
+    file = models.FileField(upload_to="chat/", blank=True, null=True)
     # file_url = models.URLField(max_length=200, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
