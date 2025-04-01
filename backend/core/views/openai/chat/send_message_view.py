@@ -32,9 +32,10 @@ class OpenAISendMessageView(APIView):
         is_user = True
 
         model_config_map = {
-            'gpt-4o': ('o200k_base', 128000, 16384),
-            'gpt-4o-mini': ('o200k_base', 128000, 16384),
-            'gpt-4.5-preview': ('o200k_base', 128000, 16384),
+            'gpt-4o': ('o200k_base', 128000, 16000),
+            'gpt-4o-mini': ('o200k_base', 128000, 16000),
+            'gpt-4.5-preview': ('o200k_base', 128000, 16000),
+            'gpt-4o-search-preview': ('o200k_base', 128000, 16000),
             'o3-mini': ('cl100k_base', 200000, 100000),
         }
 

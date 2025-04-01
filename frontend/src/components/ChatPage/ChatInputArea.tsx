@@ -187,13 +187,13 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       sx={{
         position: 'relative',
         width: '100%',
-        minHeight: '50px',
+        minHeight: '60px',
         maxHeight: '300px',
         borderRadius: '12px',
         border: `1px solid #CBCBCB`,
         display: 'flex',
         flexDirection: 'column',
-        padding: '16px'
+        padding: '16px',
       }}
     >
       {AttachedFilePreview()}
@@ -213,7 +213,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           }
         }}
         sx={{
-          mb: '60px',
+          mb: '50px',
           '& .MuiInputBase-root': {
             padding: 0,
             fontSize: '17px',
@@ -265,6 +265,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           width: 15,
           height: 15,
           ml:3,
+          pb: '8px'
         }}
       >
         <CloseIcon sx={{fontSize: '15px', fontWeight:'700'}}/>

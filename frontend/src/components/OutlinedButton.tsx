@@ -64,7 +64,6 @@ const OutlinedButton: React.FC<OutlinedButtonProps> = ({
         gap: 0, 
         whiteSpace: 'nowrap',
         width: 'auto',
-        height: '6vh',
         backgroundColor: selected ? '#5072CC' : 'white',
         '&:hover': {
           backgroundColor: selected ? '#5066CC' : '#f3f4f6',
