@@ -53,6 +53,8 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, selecte
           style: {
             borderRadius: 10,  
             backgroundColor: '#f9f9f9', 
+            maxHeight: 300, 
+            overflowY: 'auto',
           },
         }}
       >
