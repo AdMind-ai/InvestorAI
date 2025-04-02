@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, Menu, MenuItem, Box, Typography, ListItemIcon } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import CheckIcon from '@mui/icons-material/Check';
@@ -6,10 +6,11 @@ import CheckIcon from '@mui/icons-material/Check';
 interface SimpleDropdownProps {
   title: string
   options: string[]
+  selectedValue: string;
   onSelect?: (selectedOption: string) => void
 }
 
-const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, onSelect }) => {
+const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, selectedValue, onSelect }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<null | number>(null);
   const open = Boolean(anchorEl);
@@ -42,7 +43,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, onSelec
           width: 'auto',
         }}
       >
-        {selectedIndex !== null ? options[selectedIndex] : title}
+        {selectedValue || title}
       </Button>
       <Menu
         anchorEl={anchorEl}
@@ -59,7 +60,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, onSelec
           <MenuItem
             key={index}
             onClick={() => handleSelect(index)}
-            selected={index === selectedIndex}
+            selected={option === selectedValue}
             sx={{
               '&:hover': {
                 backgroundColor: 'rgba(0, 0, 0, 0.05)',
@@ -69,7 +70,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, onSelec
               borderRadius: 10,  
             }}
           >
-            {index === selectedIndex && (
+            {option === selectedValue && (
               <ListItemIcon>
                 <CheckIcon fontSize="small" />
               </ListItemIcon>

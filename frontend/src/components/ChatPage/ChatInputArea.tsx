@@ -12,11 +12,13 @@ import { useTheme } from '@mui/material/styles';
 import { fetchWithAuth } from '../../api/fetchWithAuth';
 import CircularProgress from '@mui/material/CircularProgress';
 import {api} from '../../api/api';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ChatInputAreaProps {
   onSend: (content: string, sender: 'user' | 'ai', isStream?: boolean) => void;
   selectedModel: string;
-  selectedChat: { id: number; name: string } | null;
+  selectedChat: { id: number | string; name: string } | null;
+  setSelectedChat: React.Dispatch<React.SetStateAction<{ id: number | string; name: string } | null>>;
   searchWebEnabled: boolean;
   setSearchWebEnabled: (enabled: boolean) => void;
   isEmptyMessages: boolean;
@@ -27,6 +29,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onSend,
   selectedModel,
   selectedChat,
+  setSelectedChat,
   searchWebEnabled,
   setSearchWebEnabled,
   isEmptyMessages,
@@ -140,6 +143,11 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       if (selectedChat) {
         console.log(selectedChat.id.toString())
         formData.append('conversation_id', selectedChat.id.toString());
+      } else {
+        const myUUID = uuidv4();
+        const newChat = {id: myUUID, name:'New Chat'}
+        setSelectedChat(newChat)
+        formData.append('conversation_id', newChat.id.toString());
       }
       
       const response = await fetchWithAuth('/openai/chat/send-message/', {

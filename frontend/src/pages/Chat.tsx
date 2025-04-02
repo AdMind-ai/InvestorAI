@@ -17,26 +17,32 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [citations, setCitations] = useState<string[]>([])
   const [searchWebEnabled, setSearchWebEnabled] = useState(false)
-  const [selectedChat, setSelectedChat] = useState<{ id: number; name: string } | null>(null);
+  const [selectedChat, setSelectedChat] = useState<{ id: number | string ; name: string } | null>(null);
 
-  const handleChatSelect = async (id: number, name: string) => {
+  const handleChatSelect = async (id: number | string | null , name: string | null ) => {
     console.log(`Selected Chat ID: ${id}, Name: ${name}`);
-    setSelectedChat({ id, name });
-  
-    try {
-      const response = await api.get(`/openai/chat/conversations/${id}`);
-      console.log(response.data); 
-  
-      const messages = response.data.messages.map((message: any) => ({
-        ...message,  
-        sender: message.is_user ? 'user' : 'ai'  
-      }));
-  
-      setMessages(messages);
-  
-    } catch (error) {
-      console.error("Error fetching conversations:", error);
+    if (id && name) {
+      setSelectedChat({ id, name });
+      
+      try {
+        const response = await api.get(`/openai/chat/conversations/${id}`);
+        console.log(response.data); 
+    
+        const messages = response.data.messages.map((message: any) => ({
+          ...message,  
+          sender: message.is_user ? 'user' : 'ai'  
+        }));
+    
+        setMessages(messages);
+    
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+      }
+    } else {
+      setSelectedChat(null);
+      setMessages([])
     }
+  
   };
 
   useEffect(() => {
@@ -61,6 +67,10 @@ const Chat: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    console.log(selectedChat)
+  }, [selectedChat]);
+
   return (
     <Layout>
       <Box
@@ -74,7 +84,15 @@ const Chat: React.FC = () => {
         }}
       >      
         {/* Header */}
-        <ChatHeader selectedModel={selectedModel} setSelectedModel={setSelectedModel} searchWebEnabled={searchWebEnabled} onChatSelect={handleChatSelect} />
+        <ChatHeader 
+          selectedModel={selectedModel} 
+          setSelectedModel={setSelectedModel} 
+          searchWebEnabled={searchWebEnabled} 
+          onChatSelect={handleChatSelect} 
+          selectedChat={selectedChat}  
+          setSelectedChat={setSelectedChat}
+          saveCleanEnabled={messages.length > 0}
+        />
         <Divider />
 
         <Box 
@@ -89,13 +107,14 @@ const Chat: React.FC = () => {
           }}
         >
           {/* Messages Container */}
-          {messages.length > 0 ? (
+          { selectedChat ? (
             <>
               <ChatMessageList messages={messages} citations={citations} />
               <ChatInputArea 
                 onSend={handleSendMessage} 
                 selectedModel={selectedModel} 
                 selectedChat={selectedChat}
+                setSelectedChat={setSelectedChat}
                 searchWebEnabled={searchWebEnabled}
                 setSearchWebEnabled={setSearchWebEnabled}
                 isEmptyMessages={false}
@@ -107,11 +126,13 @@ const Chat: React.FC = () => {
               onSend={handleSendMessage} 
               selectedModel={selectedModel} 
               selectedChat={selectedChat}
+              setSelectedChat={setSelectedChat}
               searchWebEnabled={searchWebEnabled}
               setSearchWebEnabled={setSearchWebEnabled}
               isEmptyMessages={true}
               setCitations={setCitations}
             />
+            // messages.length > 0 ||
             // <ChatEmptyState onSendMessage={(msg)=>handleSendMessage(msg,"user")} />
           )}
         </Box>

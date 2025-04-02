@@ -57,8 +57,11 @@ class OpenAISendMessageView(APIView):
                 id=conversation_instance.id, user=user).first()
 
         elif conversation_id:
-            conversation = ChatConversation.objects.filter(
-                id=conversation_id, user=user).first()
+            conversation, _ = ChatConversation.objects.get_or_create(
+                id=conversation_id,
+                user=user,
+                defaults={"name": "New Chat"}
+            )
 
         if not conversation:
             try:

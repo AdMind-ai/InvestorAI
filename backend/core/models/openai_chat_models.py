@@ -4,6 +4,7 @@ import uuid
 
 
 class ChatConversation(models.Model):
+    id = models.CharField(max_length=40, primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     name = models.CharField(max_length=30, unique=True, default=None)

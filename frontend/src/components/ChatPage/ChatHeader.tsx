@@ -1,16 +1,37 @@
 import React, {useState, useEffect} from 'react'
-import { Box, Typography, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import SimpleDropdown from '../SimpleDropdown'
 import SaveCleanButtons from '../SaveCleanButtons'
 import { useTheme } from '@mui/material/styles'
 import { api } from '../../api/api';
-import { ResponseStream } from 'openai/lib/responses/ResponseStream.mjs'
+import { toast } from 'react-toastify'
+import {
+  Box,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+  IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+
+interface Chat {
+  id: number | string; 
+  name: string;
+}
 
 interface ChatHeaderProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
   searchWebEnabled : boolean;
-  onChatSelect: (id: number, name: string) => void;
+  onChatSelect: (id: number | string | null , name: string | null) => void;
+  selectedChat: { id: number | string; name: string } | null;
+  setSelectedChat: React.Dispatch<React.SetStateAction<{ id: number | string; name: string } | null>>;
+  saveCleanEnabled : boolean;
 }
 
 export const modelMapping: Record<string, string> = {
@@ -20,43 +41,127 @@ export const modelMapping: Record<string, string> = {
   "o3 mini": "o3-mini"
 };
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel, searchWebEnabled, onChatSelect }) => {
-  const theme = useTheme()
-  const [isButtonEnabled, setIsButtonEnabled] = useState(true);
-  const [chats, setChats] = useState<{ id: number; name: string; }[]>([]);
-  const [selectedChat, setSelectedChat] = useState<{ id: number; name: string } | null>(null);
+const ChatHeader: React.FC<ChatHeaderProps> = ({ 
+  selectedModel, 
+  setSelectedModel, 
+  searchWebEnabled, 
+  onChatSelect,
+  selectedChat,
+  setSelectedChat, 
+  saveCleanEnabled,
+}) => {
 
-  const handleChatSelect = (id: number, name: string) => {
-    console.log(`Selected Chat ID: ${id}, Name: ${name}`);
-    setSelectedChat({ id, name });
+  const theme = useTheme()
+  const [chats, setChats] = useState<{ id: number | string; name: string; }[]>([]);
+  // const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  const [openSaveModal, setOpenSaveModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [newChatName, setNewChatName] = useState('');
+  
+  const handleSaveClick = () => {
+    setOpenSaveModal(true);
+  };
+
+  const handleDeleteClick = (chat: any) => {
+    setSelectedChat(chat);
+    setOpenDeleteModal(true);
+  };
+
+  const handleSaveChat = async () => {
+    if (!newChatName.trim() || chats.some(chat => chat.name === newChatName)) {
+      alert("Nome inválido ou já existe. Escolha outro.");
+      return;
+    }
+  
+    if (selectedChat) {
+      const oldChat = selectedChat
+      const newChat = { id: selectedChat.id, name: newChatName };
+      
+      try {
+        await api.put(`/openai/chat/conversations/${selectedChat.id}/`, {
+          name: newChatName,
+        });
+        
+        setChats(chats.map(chat => 
+          chat.id === selectedChat.id ? newChat : chat
+        ));
+        setSelectedChat(newChat); 
+        onChatSelect(newChat.id, newChat.name);
+        toast.success(`Chat ${oldChat.name} aggiornato al nome "${newChat.name}"`);
+      } catch (error) {
+        console.error('Erro ao salvar o chat:', error);
+      }
+    }
+  
+    setOpenSaveModal(false);
+    setNewChatName('');
+  };
+
+  const handleDeleteChat = async () => {
+    if (selectedChat) {
+      try {
+        await api.delete(`/openai/chat/conversations/${selectedChat.id}/`);
+        toast.success(`Chat "${selectedChat.name}" eliminato con successo.`);
+        setChats(chats.filter(chat => chat.id !== selectedChat.id));
+        setOpenDeleteModal(false);
+        setSelectedChat(null);
+        onChatSelect(null, null);
+      } catch (error) {
+        console.error('Erro ao deletar o chat:', error);
+      }
+    } else {
+      console.warn('Nenhum chat selecionado para excluir.');
+    }
   };
 
   const handleDropdownSelect = (name: string) => {
     const chat = chats.find(chat => chat.name === name);
     if (chat && onChatSelect) {
       onChatSelect(chat.id, chat.name);
+      setSelectedChat({ id: chat.id, name: chat.name });
     }
   };
 
   useEffect(() => {
     const fetchChatConversations = async () => {
       try {
-        const response = await api.get('/openai/chat/conversations');
-        console.log(response)
-
-        const chatList = response.data.map((conversation: any) => ({
+        const response = await api.get('/openai/chat/conversations/');
+        const chatList: Chat[] = response.data.map((conversation: any) => ({
           id: conversation.id,
-          name: conversation.name
+          name: conversation.name,
         }));
+
         setChats(chatList);
 
+        // Filtrar chats com o nome 'New Chat'
+        const chatsToRemove = chatList.filter((chat) => chat.name === 'New Chat');
+
+        // Remover esses chats do backend
+        for (const chat of chatsToRemove) {
+          await removeChat(chat.id);
+        }
+
       } catch (error) {
-        console.error("Error fetching conversations:", error);
+        console.error('Error fetching conversations:', error);
       }
     };
 
+    const removeChat = async (chatId: string | number) => {
+      const response = await api.delete(`/openai/chat/conversations/${chatId}/`);
+
+      if (response.status === 204 || response.status === 200) {
+        console.log(`Chat ${chatId} excluído.`);
+        setChats(prevChats => prevChats.filter(chat => chat.id !== chatId));
+        setSelectedChat(null);
+        onChatSelect(null, null);
+      } else {
+        console.error(`Erro ao excluir chat ${chatId}:`, response.statusText);
+      }
+        
+    };
+
     fetchChatConversations();
-  }, []);
+  }, []); 
 
   return(
     <Box
@@ -122,9 +227,81 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ selectedModel, setSelectedModel
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        {isButtonEnabled? <SaveCleanButtons /> : null}
-        <SimpleDropdown title="Chat salvate" options={chats.map(chat => chat.name)} onSelect={handleDropdownSelect} />
+        {saveCleanEnabled? <SaveCleanButtons onSave={handleSaveClick} onClean={() => handleDeleteClick(selectedChat)} /> : null}
+        <SimpleDropdown 
+          title="Chat salvate" 
+          options={chats.map(chat => chat.name)} 
+          onSelect={handleDropdownSelect} 
+          selectedValue={selectedChat ? selectedChat.name : ''}
+        />
       </Box>
+
+      {/* Modal para salvar chat */}
+      <Dialog open={openSaveModal} onClose={() => setOpenSaveModal(false)}>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', justifyContent: 'center', mt:2, fontSize:'26px', borderRadius: '16px' }}>
+          <Box sx={{display: 'flex', alignItems: 'center'}}>
+            Salva Chat
+          </Box>
+          <IconButton
+            onClick={() => setOpenSaveModal(false)}
+            sx={{ position: 'absolute', top:10, right:10 }}
+          >
+            <CloseIcon sx={{color:'#000'}} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ borderRadius: '16px' }}>
+          <DialogContentText sx={{ color: 'black', textAlign: 'center', fontSize:'20px', my:0.5, mx:1 }}>
+            Scegli un nome per il chat:
+          </DialogContentText>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <input 
+              type="text" 
+              value={newChatName} 
+              onChange={(e) => setNewChatName(e.target.value)} 
+              style={{ width: '80%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{justifyContent: 'center', pb:2.5, mb:2, borderRadius: '16px'}}>
+          <Button 
+            variant="contained" 
+            onClick={handleSaveChat} 
+            sx={{ py:2.6, borderRadius: '10px' }}
+          >
+            Salva
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal para deletar chat */}
+      <Dialog open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', justifyContent: 'center', mt:2, fontSize:'26px', borderRadius: '16px' }}>
+          <Box sx={{display: 'flex', alignItems: 'center'}}>
+            Conferma Eliminazione
+          </Box>
+          <IconButton
+            onClick={() => setOpenDeleteModal(false)}
+            sx={{ position: 'absolute', top:10, right:10 }}
+          >
+            <CloseIcon sx={{color:'#000'}} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ borderRadius: '16px' }}>
+          <DialogContentText sx={{ color: 'black', textAlign: 'center', fontSize:'20px', my:0.5, mx:1 }}>
+            Vuoi davvero eliminare il chat {selectedChat?.name}?<br />
+            Una volta eliminato, non sarà possibile recuperarlo.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{justifyContent: 'center', pb:2.5, mb:2, borderRadius: '16px'}}>
+          <Button 
+            variant="contained" 
+            onClick={handleDeleteChat} 
+            sx={{ bgcolor: '#d32f2f', color: '#fff', py:2.6, borderRadius: '10px', '&:hover': {bgcolor: '#c62828'} }}
+          >
+            Elimina
+          </Button>
+        </DialogActions>
+      </Dialog>
 
     </Box>
   )

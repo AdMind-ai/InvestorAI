@@ -24,9 +24,15 @@ class ConversationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChatConversation
-        fields = ['id', 'name', 'user', 'created_at', 'messages']
+        fields = ['id', 'name', 'created_at', 'messages']
+        read_only_fields = ['id', 'user', 'created_at', 'messages']
 
     def validate_name(self, value):
         if not value.strip():
             raise serializers.ValidationError("Chat name cannot be empty.")
         return value
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        return instance
