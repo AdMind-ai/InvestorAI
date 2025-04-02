@@ -4,8 +4,8 @@ import Stack from '@mui/material/Stack';
 import CleaningServicesOutlinedIcon from '@mui/icons-material/CleaningServicesOutlined';
 
 interface SaveCleanButtonsProps {
-  onSave: () => void;
-  onClean: () => void;
+  onSave?: () => void;
+  onClean?: () => void;
 }
 
 const SaveCleanButtons: React.FC<SaveCleanButtonsProps> = ({ onSave, onClean }) => {
