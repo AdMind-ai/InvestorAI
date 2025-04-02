@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout'
 import ChatHeader from '../components/ChatPage/ChatHeader'
 import ChatMessageList from '../components/ChatPage/ChatMessageList'
 import ChatInputArea from '../components/ChatPage/ChatInputArea'
+import { DotTyping } from '../components/DotTyping';
 
 import {api} from '../api/api'
 
@@ -15,6 +16,7 @@ interface Message {
 const Chat: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
   const [messages, setMessages] = useState<Message[]>([])
+  const [isTyping, setIsTyping] = useState(false);
   const [citations, setCitations] = useState<string[]>([])
   const [searchWebEnabled, setSearchWebEnabled] = useState(false)
   const [selectedChat, setSelectedChat] = useState<{ id: number | string ; name: string } | null>(null);
@@ -55,6 +57,8 @@ const Chat: React.FC = () => {
   const handleSendMessage = (message: string, sender: 'user'|'ai', isStream: boolean = false) => {
     if (!isStream) {
       setMessages(messages => [...messages, { sender, content: message }]);
+      if (sender === 'user') setIsTyping(true);
+      console.log('entra')
     } else {
       setMessages(messages => {
         const lastMessage = messages[messages.length - 1];
@@ -64,6 +68,10 @@ const Chat: React.FC = () => {
           return [...messages, { sender, content: message }];
         }
       });
+    }
+    if (sender === 'ai') {
+      console.log('sai')
+      setIsTyping(false);
     }
   };
 
@@ -109,7 +117,7 @@ const Chat: React.FC = () => {
           {/* Messages Container */}
           { selectedChat ? (
             <>
-              <ChatMessageList messages={messages} citations={citations} />
+              <ChatMessageList messages={messages} citations={citations} isTyping={isTyping} />
               <ChatInputArea 
                 onSend={handleSendMessage} 
                 selectedModel={selectedModel} 

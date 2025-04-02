@@ -14,15 +14,16 @@ interface Message {
 interface ChatMessageListProps {
   messages: Message[]
   citations?: string[];
+  isTyping: boolean
 }
 
 
-const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations = [] }) => {
+const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations = [], isTyping }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, isTyping])
 
   // const parseThinkTag = (content: string) => {
   //   const regexThink = /<think>([\s\S]*?)<\/think>/i
@@ -268,6 +269,28 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
           </Box>
         )
       })}
+
+      {isTyping && (
+        <Box display="flex" justifyContent="flex-start" mb={0.5}>
+          <Paper
+            sx={{
+              maxWidth: '95%',
+              px: '1.5rem',
+              py: '1rem',
+              backgroundColor: '#F8F8FA',
+              borderRadius: '8px',
+              boxShadow: 'none',
+              mb: '1vw',
+            }}
+          >
+            <Typography variant="subtitle1" sx={{ fontSize: '14px', fontWeight: 'bold', mb: 1 }}>
+              AI
+            </Typography>
+            <DotTyping />
+          </Paper>
+        </Box>
+      )} 
+
       <div ref={messagesEndRef}></div>
     </Box>
   )

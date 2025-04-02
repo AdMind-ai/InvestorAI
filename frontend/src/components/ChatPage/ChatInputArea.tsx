@@ -141,7 +141,6 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       }
   
       if (selectedChat) {
-        console.log(selectedChat.id.toString())
         formData.append('conversation_id', selectedChat.id.toString());
       } else {
         const myUUID = uuidv4();
@@ -183,7 +182,6 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     }
   };
 
-  const realModelOpenAI = searchWebEnabled ? 'gpt-4o-search-preview' : (modelMapping[selectedModel] || 'gpt-4o-mini');
 
   const ChatTextInputBox = () => (
     <Box
