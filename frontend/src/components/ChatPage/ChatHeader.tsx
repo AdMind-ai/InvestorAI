@@ -24,6 +24,24 @@ interface Chat {
   name: string;
 }
 
+interface ApiMessage {
+  id: number;
+  conversation: string;
+  content: string;
+  file: string | null;
+  created_at: string;
+  is_user: boolean;
+}
+
+interface ApiChatResponse {
+  id: string;
+  name: string;
+  user: number;
+  created_at: string;
+  messages: ApiMessage[];
+}
+
+
 interface ChatHeaderProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
@@ -62,7 +80,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     setOpenSaveModal(true);
   };
 
-  const handleDeleteClick = (chat: any) => {
+  const handleDeleteClick = (chat: { id: string | number; name: string; } | null) => {
     setSelectedChat(chat);
     setOpenDeleteModal(true);
   };
@@ -126,7 +144,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     const fetchChatConversations = async () => {
       try {
         const response = await api.get('/openai/chat/conversations/');
-        const chatList: Chat[] = response.data.map((conversation: any) => ({
+        const chatList: Chat[] = response.data.map((conversation: ApiChatResponse) => ({
           id: conversation.id,
           name: conversation.name,
         }));

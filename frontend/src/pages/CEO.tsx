@@ -48,7 +48,7 @@ const CEOPage: React.FC = () => {
   const [selectedPerson, setSelectedPerson] = useState<string>('Mario Rossi');
   const [loadingGenerateArticles, setLoadingGenerateArticles] = useState<boolean>(false);
   const [loadingArticlesList, setLoadingArticlesList] = useState<boolean>(false);
-  const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('perplexity');
+  const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('openai');
   const [data, setData] = useState<Record<string, NewsItem[]>>({
       'Mario Rossi': [],
       'News reati informativi': [],
@@ -170,6 +170,7 @@ const CEOPage: React.FC = () => {
 
   // Load Articles 
   const loadData = async () => {
+    setSelectedProvider('openai');
     try {
       setLoadingArticlesList(true)
       const res = await api.get<NewsItem[]>("/ceo-articles/");
@@ -204,8 +205,8 @@ const CEOPage: React.FC = () => {
         <Box sx={{display:'flex', justifyContent: 'space-between', mr:2}}>
           <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw'}}>CEO Perception</Typography>
           {/* Test Component */}
-          <Box sx={{height: 'calc(4.5vh)', ml:40}}>
-            <ToggleButtonGroup
+          <Box sx={{height: 'calc(4.5vh)', ml:40, position: 'relative'}}>
+            {/* <ToggleButtonGroup
               value={selectedProvider}
               exclusive
               onChange={(_, newProvider) => {
@@ -215,8 +216,8 @@ const CEOPage: React.FC = () => {
             >
               <ToggleButton value="perplexity">Perplexity</ToggleButton>
               <ToggleButton value="openai">OpenAI</ToggleButton>
-            </ToggleButtonGroup>
-            <Button variant='contained' onClick={handleFetchArticles} sx={{height: 'calc(4vh)'}}>
+            </ToggleButtonGroup> */}
+            <Button variant='contained' onClick={handleFetchArticles} sx={{height: 'calc(4vh)', position:'absolute', right:0, bottom:10}}>
               {loadingGenerateArticles ? <CircularProgress size={24} color="inherit" /> : 'Generate articles'}
             </Button>
           </Box>

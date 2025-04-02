@@ -40,8 +40,8 @@ const Traduttore = () => {
   const [documentsTranslated, setDocumentsTranslated] = useState<Document[]>([]);
   
   // Languages
-  const [selectedLanguageOriginal, setSelectedLanguageOriginal] = useState<null | string>(null);
-  const [selectedLanguageTarget, setSelectedLanguageTarget] = useState<null | string>(null);
+  const [selectedLanguageOriginal, setSelectedLanguageOriginal] = useState<string>('');
+  const [selectedLanguageTarget, setSelectedLanguageTarget] = useState<string>('');
   const [filteredOriginalLanguages, setFilteredOriginalLanguages] = useState<string[]>([]);
   const [filteredTargetLanguages, setFilteredTargetLanguages] = useState<string[]>([]);
   const languages = ['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco'];
@@ -166,7 +166,7 @@ const Traduttore = () => {
           }}
         >
           {/* Dropdown Lingua originale */}
-          <SimpleDropdown title="Lingua originale" options={filteredOriginalLanguages} onSelect={setSelectedLanguageOriginal} />
+          <SimpleDropdown title="Lingua originale" options={filteredOriginalLanguages} onSelect={setSelectedLanguageOriginal} selectedValue={selectedLanguageOriginal}/>
           {/* Upload Area */}
           <UploadableTextArea text={text} setText={setText} onFileUpload={handleFileUpload} />
         </Box>
@@ -178,7 +178,7 @@ const Traduttore = () => {
           }}
         >
           {/* Dropdown Lingua target */}
-          <SimpleDropdown title="Lingua target" options={filteredTargetLanguages} onSelect={setSelectedLanguageTarget} />
+          <SimpleDropdown title="Lingua target" options={filteredTargetLanguages} onSelect={setSelectedLanguageTarget} selectedValue={selectedLanguageTarget}/>
           {/* TextArea */}
           {
             isFileTranslated ? (

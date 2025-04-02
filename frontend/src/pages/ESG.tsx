@@ -55,6 +55,7 @@ const ESGPage: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('openai');
   const [selectedCategory, setSelectedCategory] = useState(topics[0]);
   const [selectedArticle, setSelectedArticle] = useState<NewsItem | null>();
+  const [viewedArticles, setViewedArticles] = useState<Set<number>>(new Set());
   const [data, setData] = useState<Record<string, NewsItem[]>>({
     'Evoluzione del contesto normativo': [],
     'News reati informativi': [],
@@ -80,6 +81,7 @@ const ESGPage: React.FC = () => {
   
   // Controls how many articles on page based on height
   useEffect(() => {
+    setSelectedProvider('openai');
     const observer = new ResizeObserver(() => {
       const container = containerRef.current;
       if (container) {
@@ -111,6 +113,7 @@ const ESGPage: React.FC = () => {
 
   const handleArticleClick = (article: NewsItem) => {
     setSelectedArticle(article);
+    setViewedArticles(prev => new Set([...prev, article.id]));
   };
 
   const handleRemoveNews = async (articleId: number) => {
@@ -130,6 +133,8 @@ const ESGPage: React.FC = () => {
       if (selectedArticle && selectedArticle.id === articleId) {
         setSelectedArticle(null);
       }
+
+      toast.info(`Articolo "${articleId}" eliminato con successo.`);
   
     } catch (error) {
       console.error("Erro ao deletar artigo:", error);
@@ -139,8 +144,9 @@ const ESGPage: React.FC = () => {
   // Handle "Confirm Delete" action in modal
   const confirmDelete = () => {
     if (articleToDeleteIndex !== null) {
-      const article = currentData[articleToDeleteIndex];
-      handleRemoveNews(article.id);
+      // const article = currentData[articleToDeleteIndex];
+      // handleRemoveNews(article.id);
+      handleRemoveNews(articleToDeleteIndex);
       setArticleToDeleteIndex(null);
     }
     setIsModalOpen(false);
@@ -172,7 +178,7 @@ const ESGPage: React.FC = () => {
     } catch (error) {
       setLoadingGenerateArticles(false);
       console.error("Error fetching ESG articles:", error);
-      toast.error(`Error fetching ESG articles`);
+      // toast.error(`Error fetching ESG articles`);
     }
   };
 
@@ -277,7 +283,7 @@ const ESGPage: React.FC = () => {
                   {displayedNews.map((news, idx) => {
                     const isLastItem = idx === displayedNews.length - 1;
                     const marginBottom = (rowsPerPage < currentData.length && !isLastPage) ? 0 : (isLastItem ? 0 : '0.9rem');
-                    const isNew = dayjs(news.created_at).isSame(dayjs(), 'day');
+                    const isNew = dayjs(news.created_at).isSame(dayjs(), 'day') && !viewedArticles.has(news.id);
 
                     return(
                       <Box
@@ -327,7 +333,7 @@ const ESGPage: React.FC = () => {
                           <IconButton
                             onClick={(e) => {
                               e.stopPropagation();
-                              setArticleToDeleteIndex((page - 1) * rowsPerPage + idx);
+                              setArticleToDeleteIndex(news.id); 
                               setIsModalOpen(true);
                             }}
                             sx={{
@@ -415,7 +421,7 @@ const ESGPage: React.FC = () => {
         </Box>
 
         {/* Pagination igual ao que tinha */}
-        <Box sx={{display:'flex', justifyContent:'center', mt:2.5}}>
+        <Box sx={{display:'flex', justifyContent:'space-around', mt:2.5, px:5}}>
           <Pagination
             count={Math.ceil(currentData.length / rowsPerPage)}
             page={page}
@@ -456,8 +462,8 @@ const ESGPage: React.FC = () => {
 
 
           {/* Test Component */}
-          <Box sx={{height: 'calc(4.5vh)', ml:40}}>
-            <ToggleButtonGroup
+          <Box sx={{height: 'calc(4.5vh)', ml:40, position:'relative'}}>
+            {/* <ToggleButtonGroup
               value={selectedProvider}
               exclusive
               onChange={(_, newProvider) => {
@@ -467,8 +473,8 @@ const ESGPage: React.FC = () => {
             >
               <ToggleButton value="perplexity">Perplexity</ToggleButton>
               <ToggleButton value="openai">OpenAI</ToggleButton>
-            </ToggleButtonGroup>
-            <Button variant='contained' onClick={handleFetchArticles} sx={{height: 'calc(4vh)'}}>
+            </ToggleButtonGroup> */}
+            <Button variant='contained' onClick={handleFetchArticles} sx={{height: '30px', position:'absolute', right:30}}>
               {loadingGenerateArticles ? <CircularProgress size={24} color="inherit" /> : 'Generate articles'}
             </Button>
           </Box>

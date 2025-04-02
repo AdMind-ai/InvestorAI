@@ -6,12 +6,10 @@ import CloseIcon from '@mui/icons-material/DisabledByDefaultRounded';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SearchWebIcon from '@mui/icons-material/TravelExploreOutlined';
 import OverviewIcon from '@mui/icons-material/AnalyticsOutlined';
-import openai from '../../utils/openaiClient';
 import { modelMapping } from './ChatHeader';
 import { useTheme } from '@mui/material/styles';
 import { fetchWithAuth } from '../../api/fetchWithAuth';
 import CircularProgress from '@mui/material/CircularProgress';
-import {api} from '../../api/api';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ChatInputAreaProps {
@@ -120,11 +118,6 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     if (!text.trim()) return;
   
     onSend(text, 'user');
-  
-    let finalPrompt = text;
-    if (searchWebEnabled) {
-      finalPrompt += "\n\nCerca sul web informazioni sull'argomento sopra e completa la tua risposta.";
-    }
   
     setText('');
     setFile(null);

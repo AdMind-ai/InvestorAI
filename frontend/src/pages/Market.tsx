@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Typography, Divider, Link, Button, LinearProgress, Chip } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
+// import { useTheme } from '@mui/material/styles'
 import Layout from '../layouts/Layout'
 
 // Icon Imports
@@ -26,7 +26,7 @@ const competitors = [
 ];
 
 const Market: React.FC = () => {
-  const theme = useTheme()
+  // const theme = useTheme()
 
   return (
     <Layout>

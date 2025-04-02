@@ -110,10 +110,10 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, onDelete, isTran
                 onClick={() => handleOpenProtectedDoc(document)} 
                 sx={{
                   fontSize: '12px',
-                  color: theme.palette.primary.main,
+                  color: theme.palette.secondary.main,
                   textDecoration: 'underline',
                   cursor: 'pointer',
-                  '&:hover': { color: theme.palette.primary.light },
+                  '&:hover': { color: theme.palette.secondary.dark },
                 }}
               >
                 Vai al documento tradotto

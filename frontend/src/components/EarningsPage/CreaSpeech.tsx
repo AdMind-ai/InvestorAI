@@ -31,8 +31,8 @@ const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
   // const theme = useTheme()
   // const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<null | string>(null);
-  const [selectedVoice, setSelectedVoice] = useState<null | string>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [selectedVoice, setSelectedVoice] = useState<string>('');
   const [text, setText] = useState<string>('');
   const [isGenerated, setIsGenerated] = useState<boolean>(false);
   const [audioSrc, setAudioSrc] = useState<string>('');
@@ -74,10 +74,10 @@ const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
     <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '2vw', alignItems: 'center' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', width: '98%' }}>
         {/* Dropdown Lingua */}
-        <SimpleDropdown title="Lingua" options={['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco']} onSelect={setSelectedLanguage} />
+        <SimpleDropdown title="Lingua" options={['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco']} onSelect={setSelectedLanguage} selectedValue={selectedLanguage}/>
 
         {/* Dropdown Voce */}
-        <SimpleDropdown title="Voce speaker" options={['Voce sintetica 1_Christopher', 'Voce sintetica 2_Hanna']} onSelect={setSelectedVoice} />
+        <SimpleDropdown title="Voce speaker" options={['Voce sintetica 1_Christopher', 'Voce sintetica 2_Hanna']} onSelect={setSelectedVoice} selectedValue={selectedVoice}/>
       </Box>
 
       {/* Text Area */}

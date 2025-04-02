@@ -4,7 +4,6 @@ import Layout from '../layouts/Layout'
 import ChatHeader from '../components/ChatPage/ChatHeader'
 import ChatMessageList from '../components/ChatPage/ChatMessageList'
 import ChatInputArea from '../components/ChatPage/ChatInputArea'
-import { DotTyping } from '../components/DotTyping';
 
 import {api} from '../api/api'
 
@@ -12,6 +11,23 @@ interface Message {
   sender: 'user' | 'ai'
   content: string
 }
+
+interface ApiMessage {
+  id: number;
+  conversation: string;
+  content: string;
+  file: string | null;
+  created_at: string;
+  is_user: boolean;
+}
+
+// interface ApiChatResponse {
+//   id: string;
+//   name: string;
+//   user: number;
+//   created_at: string;
+//   messages: ApiMessage[];
+// }
 
 const Chat: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
@@ -30,7 +46,7 @@ const Chat: React.FC = () => {
         const response = await api.get(`/openai/chat/conversations/${id}`);
         console.log(response.data); 
     
-        const messages = response.data.messages.map((message: any) => ({
+        const messages = response.data.messages.map((message: ApiMessage) => ({
           ...message,  
           sender: message.is_user ? 'user' : 'ai'  
         }));
