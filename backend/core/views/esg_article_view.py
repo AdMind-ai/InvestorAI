@@ -3,6 +3,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import viewsets, serializers
 from core.models.esg_article_model import ESGArticle
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class ESGArticleSerializer(serializers.ModelSerializer):
@@ -16,3 +19,13 @@ class ESGArticleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = ESGArticle.objects.all()
     serializer_class = ESGArticleSerializer
+
+    @action(detail=True, methods=['put'])
+    def mark_viewed(self, request, pk=None):
+        try:
+            article = self.get_object()
+            article.viewed = True
+            article.save()
+            return Response({'status': 'Article marked as viewed'}, status=status.HTTP_200_OK)
+        except ESGArticle.DoesNotExist:
+            return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)

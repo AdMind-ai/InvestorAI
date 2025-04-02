@@ -38,6 +38,7 @@ interface NewsItem {
   date_published: string;
   topic: string;
   created_at: string;
+  viewed: boolean;
 }
 
 
@@ -111,9 +112,15 @@ const ESGPage: React.FC = () => {
     return () => observer.disconnect();
   }, [currentData.length]);
 
-  const handleArticleClick = (article: NewsItem) => {
+  const handleArticleClick = async (article: NewsItem) => {
     setSelectedArticle(article);
     setViewedArticles(prev => new Set([...prev, article.id]));
+
+    try {
+      await api.put(`/esg-articles/${article.id}/mark_viewed/`);
+    } catch (error) {
+      console.error("Erro ao marcar artigo como visualizado:", error);
+    }
   };
 
   const handleRemoveNews = async (articleId: number) => {
@@ -283,7 +290,7 @@ const ESGPage: React.FC = () => {
                   {displayedNews.map((news, idx) => {
                     const isLastItem = idx === displayedNews.length - 1;
                     const marginBottom = (rowsPerPage < currentData.length && !isLastPage) ? 0 : (isLastItem ? 0 : '0.9rem');
-                    const isNew = dayjs(news.created_at).isSame(dayjs(), 'day') && !viewedArticles.has(news.id);
+                    const isNew = !news.viewed && !viewedArticles.has(news.id);
 
                     return(
                       <Box
