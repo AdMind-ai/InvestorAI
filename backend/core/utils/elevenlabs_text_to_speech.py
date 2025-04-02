@@ -44,7 +44,7 @@ class ElevenlabsTextToSpeech:
                 voice_id=text_to_speech_id_voice,
                 output_format='mp3_22050_32',
                 text=send,
-                model_id='eleven_turbo_v2_5',
+                model_id='eleven_multilingual_v2',
                 voice_settings=VoiceSettings(
                     stability=stability,
                     similarity_boost=similarity_boost,

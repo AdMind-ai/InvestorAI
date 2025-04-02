@@ -11,6 +11,8 @@ interface CustomTextAreaProps {
 }
 
 const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeholder = "Text here.", height = '30vh', isDisabled=false, showTyping=false }) => {
+  const maxLength = 10000;
+
   return (
     <Box sx={{ position: 'relative', width: '100%', height, marginTop: '12px' }}>
       <TextField
@@ -21,6 +23,13 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeh
         minRows={1}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        slotProps={{
+          htmlInput: { maxLength },
+          formHelperText: {
+            sx: { position: 'absolute', right:0, bottom:5 } 
+          }
+        }}
+        helperText={`${value.length}/${maxLength} caratteri`}
         placeholder={placeholder}
         sx={{
           flex: 1,
