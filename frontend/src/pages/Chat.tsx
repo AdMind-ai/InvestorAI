@@ -147,7 +147,6 @@ const Chat: React.FC = () => {
                 setSearchWebEnabled={setSearchWebEnabled}
                 isEmptyMessages={false}
                 setCitations={setCitations}
-                isOverview={isOverview}
                 setIsOverview={setIsOverview}
                 setIsTyping={setIsTyping}
               />
@@ -162,7 +161,6 @@ const Chat: React.FC = () => {
               setSearchWebEnabled={setSearchWebEnabled}
               isEmptyMessages={true}
               setCitations={setCitations}
-              isOverview={isOverview}
               setIsOverview={setIsOverview}
               setIsTyping={setIsTyping}
             />
