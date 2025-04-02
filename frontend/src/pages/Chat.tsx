@@ -58,7 +58,6 @@ const Chat: React.FC = () => {
     if (!isStream) {
       setMessages(messages => [...messages, { sender, content: message }]);
       if (sender === 'user') setIsTyping(true);
-      console.log('entra')
     } else {
       setMessages(messages => {
         const lastMessage = messages[messages.length - 1];
@@ -70,7 +69,6 @@ const Chat: React.FC = () => {
       });
     }
     if (sender === 'ai') {
-      console.log('sai')
       setIsTyping(false);
     }
   };
