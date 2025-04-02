@@ -4,7 +4,7 @@ import uuid
 
 
 class ChatConversation(models.Model):
-    id = models.CharField(max_length=40, primary_key=True)
+    id = models.CharField(max_length=40, primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     name = models.CharField(max_length=30, unique=True, default=None)
@@ -22,7 +22,7 @@ class ChatConversation(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Conversation {self.id} - {self.user.username}"
+        return f"Conversation {self.name} - {self.user.username}"
 
 
 class ChatMessage(models.Model):

@@ -9,6 +9,36 @@ const baseURL = isDevelopment
     ? import.meta.env.VITE_API_BASE_URL_LOCAL 
     : import.meta.env.VITE_API_BASE_URL_PROD;
 
+export const fetchWithAuth = async (endpoint: string, options: FetchOptions = {}) => {
+  const token = localStorage.getItem("access");
+  const isJsonRequest = !(options.body instanceof FormData);
+  const headers = {
+    ...(isJsonRequest && { 'Content-Type': 'application/json' }),
+    ...options.headers,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
+  const res = await fetch(`${baseURL}${endpoint}`, { ...options, headers });
+
+  if (res.status === 401) {
+    const refreshSuccess = await refreshAccessToken();
+
+    if (refreshSuccess) {
+      const newAccess = localStorage.getItem("access");
+      const retryHeaders = {
+        ...headers,
+        Authorization: `Bearer ${newAccess}`,
+      };
+      return fetch(`${baseURL}${endpoint}`, { ...options, headers: retryHeaders });
+    } else {
+      window.location.href = "/login"; 
+    }
+  }
+
+  return res;
+};
+
+
 const refreshAccessToken = async (): Promise<boolean> => {
   const refresh = localStorage.getItem("refresh");
   if (!refresh) {
@@ -43,31 +73,3 @@ const refreshAccessToken = async (): Promise<boolean> => {
   }
 };
 
-export const fetchWithAuth = async (endpoint: string, options: FetchOptions = {}) => {
-  const token = localStorage.getItem("access");
-  const isJsonRequest = !(options.body instanceof FormData);
-  const headers = {
-    ...(isJsonRequest && { 'Content-Type': 'application/json' }),
-    ...options.headers,
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-
-  const res = await fetch(`${baseURL}${endpoint}`, { ...options, headers });
-
-  if (res.status === 401) {
-    const refreshSuccess = await refreshAccessToken();
-
-    if (refreshSuccess) {
-      const newAccess = localStorage.getItem("access");
-      const retryHeaders = {
-        ...headers,
-        Authorization: `Bearer ${newAccess}`,
-      };
-      return fetch(`${baseURL}${endpoint}`, { ...options, headers: retryHeaders });
-    } else {
-      window.location.href = "/login"; 
-    }
-  }
-
-  return res;
-};

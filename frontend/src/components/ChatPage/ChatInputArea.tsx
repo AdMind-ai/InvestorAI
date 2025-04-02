@@ -21,6 +21,8 @@ interface ChatInputAreaProps {
   setSearchWebEnabled: (enabled: boolean) => void;
   isEmptyMessages: boolean;
   setCitations?: React.Dispatch<React.SetStateAction<string[]>>;
+  setIsOverview: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsTyping:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -31,7 +33,9 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   searchWebEnabled,
   setSearchWebEnabled,
   isEmptyMessages,
-  setCitations
+  setCitations,
+  setIsOverview,
+  setIsTyping
 }) => {
   const theme = useTheme();
   const [text, setText] = useState('');
@@ -62,6 +66,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   };
 
   const handleOverviewClick = async () => {
+    setIsOverview(true);
     setLoading(true);
     
     try {
@@ -100,8 +105,10 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   
           const cleanedChunk = chunk.substring(chunk.indexOf('_CITATIONS_END_') + '_CITATIONS_END_'.length);
           onSend(cleanedChunk, 'ai', true);
+          // console.log(cleanedChunk)
         } else {
           onSend(chunk, 'ai', true); 
+          // console.log(chunk)
         }
       }
   
@@ -109,11 +116,15 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       console.error('Erro ao conectar:', error);
       onSend('Erro ao conectar.', 'ai');
     } finally {
+      console.log('ACABOU')
       setLoading(false);
+      setIsOverview(false);
     }
   };
 
   const handleSubmit = async () => {
+    setIsOverview(false);
+    setIsTyping(true);
     setIsFileAttached(false);
     if (!text.trim()) return;
   
@@ -146,7 +157,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         method: 'POST',
         body: formData
       });
-
+      setIsTyping(false);
   
       if (!response.ok || !response.body) {
         onSend('Erro ao conectar.', 'ai');
@@ -171,6 +182,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   
     } catch (error) {
       console.error('Error sending message:', error);
+      setIsTyping(false);
       onSend('Erro ao enviar mensagem.', 'ai');
     }
   };

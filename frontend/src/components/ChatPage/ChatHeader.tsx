@@ -19,6 +19,11 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
+interface Message {
+  sender: 'user' | 'ai'
+  content: string
+}
+
 interface Chat {
   id: number | string; 
   name: string;
@@ -32,6 +37,11 @@ interface ApiMessage {
   created_at: string;
   is_user: boolean;
 }
+// interface ApiMessage {
+//   content: string;
+//   is_user: boolean;
+// }
+
 
 interface ApiChatResponse {
   id: string;
@@ -50,6 +60,7 @@ interface ChatHeaderProps {
   selectedChat: { id: number | string; name: string } | null;
   setSelectedChat: React.Dispatch<React.SetStateAction<{ id: number | string; name: string } | null>>;
   saveCleanEnabled : boolean;
+  messages: Message[];
 }
 
 export const modelMapping: Record<string, string> = {
@@ -67,6 +78,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   selectedChat,
   setSelectedChat, 
   saveCleanEnabled,
+  messages
 }) => {
 
   const theme = useTheme()
@@ -92,6 +104,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     }
   
     if (selectedChat) {
+      console.log("=====>",selectedChat)
       const oldChat = selectedChat
       const newChat = { id: selectedChat.id, name: newChatName };
       
@@ -108,6 +121,34 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         toast.success(`Chat ${oldChat.name} aggiornato al nome "${newChat.name}"`);
       } catch (error) {
         console.error('Erro ao salvar o chat:', error);
+      }
+    } else {
+      try {
+        const messages_test=messages
+        console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXX",messages_test[0],"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+  
+        // Criar a nova conversa
+        const response = await api.post('/openai/chat/conversations/', {
+          name: newChatName,
+          messages: messages.map((msg) => ({
+            content: msg.content,
+            is_user: msg.sender === 'user',
+            file: null,  
+          })),
+        });
+        console.log(response)
+  
+        const newChat: Chat = { id: response.data.id, name: response.data.name };
+  
+        setChats([...chats, newChat]);
+  
+        setSelectedChat(newChat);
+        onChatSelect(newChat.id, newChat.name);
+        
+        toast.success(`Nuova chat "${newChatName}" creata con successo.`);
+      } catch (error) {
+        console.error('Erro ao criar nova chat:', error);
       }
     }
   

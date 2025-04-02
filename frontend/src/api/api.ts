@@ -6,34 +6,13 @@ const baseURL = isDevelopment ?
     import.meta.env.VITE_API_BASE_URL_LOCAL : 
     import.meta.env.VITE_API_BASE_URL_PROD;
 
+
 export const api = axios.create({
   baseURL,
   headers: {
     "Content-Type": "application/json",
   },
 });
-
-const refreshAccessToken = async () => {
-  const refresh = localStorage.getItem("refresh");
-  if (!refresh) {
-    console.warn("Refresh token não encontrado.");
-    return false;  
-  }
-
-  try {
-    const res = await axios.post(`${baseURL}/auth/refresh/`, { refresh });
-    const newAccess = res.data.access;
-    localStorage.setItem("access", newAccess);
-    console.log("Token renovado automaticamente.");
-    return true;
-  } catch (error) {
-    console.warn("Falha no refresh do token:", error);
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    window.location.href = "/login"; 
-    return false;
-  }
-};
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access");
@@ -59,7 +38,6 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccess}`;
         return api(originalRequest);
       } else {
-        // Envia evento de logout global que será escutado pelo React AuthContext
         window.dispatchEvent(new Event("logout"));
       }
     }
@@ -67,3 +45,26 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+const refreshAccessToken = async () => {
+  const refresh = localStorage.getItem("refresh");
+  if (!refresh) {
+    console.warn("Refresh token não encontrado.");
+    return false;  
+  }
+
+  try {
+    const res = await axios.post(`${baseURL}/auth/refresh/`, { refresh });
+    const newAccess = res.data.access;
+    localStorage.setItem("access", newAccess);
+    console.log("Token renovado automaticamente.");
+    return true;
+  } catch (error) {
+    console.warn("Falha no refresh do token:", error);
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    window.location.href = "/login"; 
+    return false;
+  }
+};
+

@@ -33,13 +33,14 @@ const Chat: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false);
+  const [isOverview, setIsOverview] = useState(false);
   const [citations, setCitations] = useState<string[]>([])
   const [searchWebEnabled, setSearchWebEnabled] = useState(false)
   const [selectedChat, setSelectedChat] = useState<{ id: number | string ; name: string } | null>(null);
 
   const handleChatSelect = async (id: number | string | null , name: string | null ) => {
-    console.log(`Selected Chat ID: ${id}, Name: ${name}`);
     if (id && name) {
+      console.log(`Selected Chat ID: ${id}, Name: ${name}`);
       setSelectedChat({ id, name });
       
       try {
@@ -66,15 +67,18 @@ const Chat: React.FC = () => {
   useEffect(() => {
     if (searchWebEnabled) {
       setSelectedModel('GPT-4o');
-      console.log(selectedModel)
     }
   }, [searchWebEnabled]);
 
   const handleSendMessage = (message: string, sender: 'user'|'ai', isStream: boolean = false) => {
+    console.log('----------------------------')
+    console.log('onsend:', message, '\n', sender, ' - ', isStream);
     if (!isStream) {
-      setMessages(messages => [...messages, { sender, content: message }]);
-      if (sender === 'user') setIsTyping(true);
+      setIsOverview(false);
+      if (sender === 'user') 
+        setMessages(messages => [...messages, { sender, content: message }]);
     } else {
+      console.log('isOverview: ',isOverview, 'isTyping: ', isTyping)
       setMessages(messages => {
         const lastMessage = messages[messages.length - 1];
         if (sender === 'ai' && lastMessage?.sender === 'ai') {
@@ -84,14 +88,9 @@ const Chat: React.FC = () => {
         }
       });
     }
-    if (sender === 'ai') {
-      setIsTyping(false);
-    }
+    console.log('----------------------------')
   };
 
-  useEffect(() => {
-    console.log(selectedChat)
-  }, [selectedChat]);
 
   return (
     <Layout>
@@ -114,7 +113,9 @@ const Chat: React.FC = () => {
           selectedChat={selectedChat}  
           setSelectedChat={setSelectedChat}
           saveCleanEnabled={messages.length > 0}
+          messages={messages}
         />
+        
         <Divider />
 
         <Box 
@@ -128,10 +129,15 @@ const Chat: React.FC = () => {
             height: '100%',
           }}
         >
+          <ChatMessageList 
+            messages={messages} 
+            citations={citations} 
+            isTyping={isTyping} 
+            isOverview={isOverview}
+          />
           {/* Messages Container */}
-          { selectedChat ? (
+          { selectedChat || messages.length != 0 ? (
             <>
-              <ChatMessageList messages={messages} citations={citations} isTyping={isTyping} />
               <ChatInputArea 
                 onSend={handleSendMessage} 
                 selectedModel={selectedModel} 
@@ -141,6 +147,9 @@ const Chat: React.FC = () => {
                 setSearchWebEnabled={setSearchWebEnabled}
                 isEmptyMessages={false}
                 setCitations={setCitations}
+                isOverview={isOverview}
+                setIsOverview={setIsOverview}
+                setIsTyping={setIsTyping}
               />
             </>
           ) : (
@@ -153,6 +162,9 @@ const Chat: React.FC = () => {
               setSearchWebEnabled={setSearchWebEnabled}
               isEmptyMessages={true}
               setCitations={setCitations}
+              isOverview={isOverview}
+              setIsOverview={setIsOverview}
+              setIsTyping={setIsTyping}
             />
             // messages.length > 0 ||
             // <ChatEmptyState onSendMessage={(msg)=>handleSendMessage(msg,"user")} />
