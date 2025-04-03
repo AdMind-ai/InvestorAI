@@ -19,6 +19,7 @@ class CEOArticle(models.Model):
     sentiment = models.CharField(max_length=5, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    viewed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.personality} - {self.title}"

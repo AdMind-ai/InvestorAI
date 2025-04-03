@@ -37,6 +37,7 @@ interface NewsItem {
   personality: string;
   created_at: string;
   sentiment: string;
+  viewed: boolean;
 }
 
 const personalities = ['Mario Rossi', 'Elvira Giacomelli', 'Luigi Farris']
@@ -49,6 +50,7 @@ const CEOPage: React.FC = () => {
   const [loadingGenerateArticles, setLoadingGenerateArticles] = useState<boolean>(false);
   const [loadingArticlesList, setLoadingArticlesList] = useState<boolean>(false);
   const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('openai');
+  const [viewedArticles, setViewedArticles] = useState<Set<number>>(new Set());
   const [data, setData] = useState<Record<string, NewsItem[]>>({
       'Mario Rossi': [],
       'News reati informativi': [],
@@ -196,7 +198,17 @@ const CEOPage: React.FC = () => {
     }
   };
 
-
+  const handleNewsOpen = async (article: NewsItem) => {
+      setModalContent(article);
+      setModalOpen(true);
+      setViewedArticles(prev => new Set([...prev, article.id]));
+  
+      try {
+        await api.put(`/ceo-articles/${article.id}/mark_viewed/`);
+      } catch (error) {
+        console.error("Erro ao marcar artigo como visualizado:", error);
+      }
+    };
 
 
   return (
@@ -334,7 +346,7 @@ const CEOPage: React.FC = () => {
                   borderBottom: '1px solid #f0f0f0',
                 }}
               >
-                <Typography variant='h4' sx={{ width: '60%', paddingX: '10px' }}>
+                <Typography variant='h4' sx={{ width: '70%', paddingX: '10px' }}>
                   Anteprima
                 </Typography>
                 <Typography variant='h4' sx={{ paddingLeft: '40px' }}>
@@ -347,66 +359,96 @@ const CEOPage: React.FC = () => {
 
               {/* News */}
               <Box sx={{ overflowY: 'auto', flex: 1, mb: 2 }}>
-              {displayedNews.map((news, idx) => (
-                <Box
-                  key={idx}
-                  data-news-item
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingY: 0.5,
-                    borderBottom: '1px solid #f0f0f0',
-                  }}
-                >
-                  {/* News content */}
-                  <Typography
-                    variant="subtitle2"
+              {displayedNews.map((news, idx) => {
+                const isNew = !news.viewed && !viewedArticles.has(news.id);
+                
+                return (
+                  <Box
+                    key={idx}
+                    data-news-item
                     sx={{
-                      width: '60%',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
-                      padding: '0px 10px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      paddingY: 0.5,
+                      borderBottom: '1px solid #f0f0f0',
                     }}
                   >
-                    {getPreviewText(news.content)}
-                  </Typography>
+                    {/* News content */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        width: '70%',
+                        padding: '0px 0px 0px 10px',
+                        // bgcolor:'red'
+                      }}
+                    >  
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          width: '88%',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis',
+                          padding: '0px 10px',
+                        }}
+                      >
+                        {getPreviewText(news.content)}
+                      </Typography>
 
-                  {/* News Link */}
-                  <Link
-                    fontSize='16px'
-                    component="button"
-                    onClick={() => {
-                      setModalContent(news);
-                      setModalOpen(true);
-                    }}
-                    sx={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: theme.palette.secondary.main,
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    Vai all'articolo
-                  </Link>
+                      {isNew && (
+                        <Box
+                          sx={{
+                            bgcolor: theme.palette.secondary.main,
+                            color: '#fff',
+                            padding: '2px 6px',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            lineHeight: '1',
+                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          New
+                        </Box>
+                      )}
+                    </Box>
 
-                  {/* News Sentiment */}
-                  <Typography
-                    variant='h6'
-                    sx={{
-                      color: news.sentiment !== null && news.sentiment !== undefined
-                        ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
-                        : 'grey',
-                      fontWeight: 'bold', 
-                      paddingRight: '30px'
-                    }}
-                  >
-                    {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
-                  </Typography>
-                </Box>
-              ))}
+                    {/* News Link */}
+                    <Link
+                      fontSize='16px'
+                      component="button"
+                      onClick={() => handleNewsOpen(news)}
+                      sx={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: theme.palette.secondary.main,
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      Vai all'articolo
+                    </Link>
+
+                    {/* News Sentiment */}
+                    <Typography
+                      variant='h6'
+                      sx={{
+                        color: news.sentiment !== null && news.sentiment !== undefined
+                          ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
+                          : 'grey',
+                        fontWeight: 'bold', 
+                        paddingRight: '30px'
+                      }}
+                    >
+                      {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
+                    </Typography>
+                  </Box>
+                )
+              })}
               </Box>
 
               {/* Pagination */}
