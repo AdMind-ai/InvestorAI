@@ -1,7 +1,10 @@
-import React from 'react'
-import { Box, Typography, Divider, Link, Button } from '@mui/material'
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Divider, Link, Button, Pagination } from '@mui/material'
+import ReactMarkdown from 'react-markdown';
 // import { useTheme } from '@mui/material/styles'
+import '../styles/markdown.css';
 import Layout from '../layouts/Layout'
+import { api } from '../api/api'
 
 // Icon Imports
 import CardEuroIcon from '../assets/dashboard_icons/card_euro_icon.svg'
@@ -10,23 +13,123 @@ import CardCurveArrowIcon from '../assets/dashboard_icons/card_curvearrow_icon.s
 
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
-const competitors = [
-  { name: "Apple Inc.", logo: "https://logo.clearbit.com/apple.com" },
-  { name: "Microsoft Corporation", logo: "https://logo.clearbit.com/microsoft.com" },
-  { name: "Google LLC (Alphabet Inc.)", logo: "https://logo.clearbit.com/google.com" },
-  { name: "Amazon.com Inc.", logo: "https://logo.clearbit.com/amazon.com" },
-  { name: "Samsung Electronics", logo: "https://logo.clearbit.com/samsung.com" },
-  { name: "Meta Platforms Inc.", logo: "https://logo.clearbit.com/meta.com" },
-  { name: "Intel Corporation", logo: "https://logo.clearbit.com/intel.com" },
-  { name: "Tesla Inc.", logo: "https://logo.clearbit.com/tesla.com" },
-  { name: "IBM Corporation", logo: "https://logo.clearbit.com/ibm.com" },
-  { name: "Dell Technologies", logo: "https://logo.clearbit.com/dell.com" },
-  { name: "NVIDIA Corporation", logo: "https://logo.clearbit.com/nvidia.com" },
-  { name: "ORACLE Corporation", logo: "https://logo.clearbit.com/oracle.com" },
-];
+interface Competitor {
+  competitor: string;
+  logo: string;
+  sectors: string[];
+  description: string;
+  website: string;
+}
+
+interface Article {
+  company: string;
+  type: 'competitors' | 'sector';
+  title: string;
+  url: string;
+  date_published: string;
+  created_at: string;
+}
 
 const Market: React.FC = () => {
   // const theme = useTheme()
+  // Competitors data
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
+  const [visibleCompetitorsCount, setVisibleCompetitorsCount] = useState(12);
+  const [hoverIndex, setHoverIndex] = useState<null | number>(null);
+  const handleCompetitorsExpand = () => {
+    setVisibleCompetitorsCount(visibleCompetitorsCount === 12 ? competitors.length : 12);
+  };
+
+  // Articles data
+  const [competitorNews, setCompetitorNews] = useState<Article[]>([]);
+  const [sectorNews, setSectorNews] = useState<Article[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [competitorsPerPage, setCompetitorsPerPage] = useState(10);
+  const [sectorPage, setSectorPage] = useState(1);
+  const sectorNewsPerPage = 15;
+
+  // Overview report data
+  const [overviewReport, setOverviewReport] = useState('');
+
+  useEffect(() => {
+    const fetchCompetitors = async () => {
+      try {
+        const response = await api.get("/openai/competitors-search/?recent=true&company=apple inc");
+        if (response.data && response.data.length > 0) {
+          setCompetitors(response.data[0].competitors);
+          console.log(response.data[0].competitors);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar competidores", error);
+      }
+    };
+
+    const fetchArticles = async () => {
+      try {
+        const response = await api.get("/openai/market-news/?company=apple inc");
+        
+        if (response.data && response.data.articles) {
+          const articles = response.data.articles as Article[];
+          
+          setCompetitorNews(articles.filter(article => article.type === 'competitors'));
+          setSectorNews(articles.filter(article => article.type === 'sector'));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar notícias", error);
+      }
+    };
+
+    const fetchOverviewReport = async () => {
+      try {
+        const response = await api.get("/perplexity/market-report/", {
+          params: {
+            recent: true,
+            company: 'apple inc'
+          }
+        });
+
+        if (response.data && response.data.report) {
+          let reportContent = response.data.report;
+
+          // Remove conteúdo entre <think>...</think>
+          const thinkTagMatch = /<think>[\s\S]*?<\/think>/g;
+          reportContent = reportContent.replace(thinkTagMatch, '');
+
+          setOverviewReport(reportContent);
+        }
+      } catch (error) {
+        console.error("Error fetching the overview report: ", error);
+      }
+    };
+
+    fetchCompetitors();
+    fetchArticles();
+    fetchOverviewReport();
+  }, []);
+
+  // Pagination logic for competitors
+  const paginateCompetitors = () => {
+    const start = (currentPage - 1) * competitorsPerPage;
+    const end = start + competitorsPerPage;
+    return competitorNews.slice(start, end);
+  };
+
+  const handleCompetitorsNewsExpand = () => {
+    if (competitorsPerPage === 10) {
+      setCompetitorsPerPage(20);
+    } else {
+      setCompetitorsPerPage(10);
+    }
+  };
+
+  const paginatedSectorNews = () => {
+    const start = (sectorPage - 1) * sectorNewsPerPage;
+    return sectorNews.slice(start, start + sectorNewsPerPage);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   return (
     <Layout>
@@ -199,7 +302,7 @@ const Market: React.FC = () => {
 
                   </Box>
                   
-                  <Typography sx={{mt:3, cursor:'pointer', textDecoration:'underline', fontSize:'1rem', textAlign:'center', color:"#888"}}>Espandi</Typography>
+                  {/* <Typography sx={{mt:3, cursor:'pointer', textDecoration:'underline', fontSize:'1rem', textAlign:'center', color:"#888"}}>Espandi</Typography> */}
                 </Box>
 
                 {/* Insight Report */}
@@ -271,26 +374,37 @@ const Market: React.FC = () => {
                   <Typography variant="h4" fontWeight="bold" color="#ED6008">
                     Notizie dei competitors
                   </Typography>
-                  <Box sx={{ my: 2, mb:8 }}>
-                    {[
-                      'Luigi Farris Nominato CEO dell’Anno: Innovazione e...',
-                      'Investimenti Record per Luigi Farris: 10 Miliardi per...',
-                      'Green Revolution: Luigi Farris Lancia un Progetto...',
-                      'Luigi Farris Nominato CEO dell’Anno: Innovazione e...',
-                      'Investimenti Record per Luigi Farris: 10 Miliardi per...',
-                      'Green Revolution: Luigi Farris Lancia un Progetto...',
-                      'Investimenti Record per Luigi Farris: 10 Miliardi per...',
-                      'Green Revolution: Luigi Farris Lancia un Progetto...'
-                    ].map((item, idx) => (
+                  <Box sx={{ my: 2, mb: 4 }}>
+                    {paginateCompetitors().map((article, idx) => (
                       <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ddd', py: 1 }}>
-                        <Typography variant="subtitle2">{item}</Typography>
-                        <Link color="secondary" sx={{ cursor: 'pointer', fontSize:14 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            width: '400px',  
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {article.title}
+                        </Typography>
+                        <Link
+                          href={article.url}
+                          target="_blank"
+                          color="secondary"
+                          sx={{
+                            cursor: 'pointer',
+                            fontSize: 14,
+                            ':hover': { color: 'secondary.dark' }
+                          }}
+                        >
                           Vai all’articolo
                         </Link>
                       </Box>
                     ))}
                   </Box>
                   <Typography
+                    onClick={handleCompetitorsNewsExpand}
                     sx={{
                       position: 'absolute',
                       bottom: 15,
@@ -300,9 +414,10 @@ const Market: React.FC = () => {
                       fontSize: '1rem',
                       color: "#888",
                       textDecoration: 'underline',
+                      ':hover': { color: 'primary.dark' }
                     }}
                   >
-                    Espandi
+                    {competitorsPerPage === 10 ? "Espandi" : "Retract"}
                   </Typography>
                 </Box>
 
@@ -320,20 +435,33 @@ const Market: React.FC = () => {
                     Aziende competitors
                   </Typography>
 
-                  {/* Grid das logos */}
                   <Box sx={{ 
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(4, 1fr)',
-                      gap: 2,
+                      gridTemplateColumns: 'repeat(4, 12fr)',
+                      gap: 1,
                       my: 3,
                       alignItems: 'center',
                       justifyItems: 'center',
                       width: '100%',
                     }}>
-
-                    {competitors.map((company) => (
-                      <Box key={company.name} sx={{ width: '100%', height:'100%' }}>
-                        <Box sx={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign: 'center', width: '100%', height:'100%', mb:3 }}>
+                    {competitors.slice(0, visibleCompetitorsCount).map((company: Competitor, index: number) => (
+                      <Box 
+                        key={index} 
+                        sx={{ 
+                          width: '120px', 
+                          height:'120px',
+                          position: 'relative',
+                          cursor: 'pointer',
+                          ':hover': {
+                            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.2)',
+                            borderRadius: 2,
+                          }
+                        }}
+                        onMouseEnter={() => setHoverIndex(index)}
+                        onMouseLeave={() => setHoverIndex(null)}
+                        onClick={() => window.open(company.website, '_blank')}
+                      >
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', width: '100%', height:'100%', mb:2 }}>
                           <Box component="img" src={company.logo} 
                               sx={{ 
                                   width: '50px', 
@@ -342,31 +470,34 @@ const Market: React.FC = () => {
                                   marginBottom: '10px', 
                               }} 
                           />
-                          <Typography variant="caption" sx={{fontSize:'0.8rem', lineHeight:1.2}}>{company.name}</Typography>
+                          <Typography variant="caption" sx={{fontSize:'0.8rem', lineHeight:1.2}}>{company.competitor}</Typography>
                         </Box>
+
+                        {hoverIndex === index && (
+                          <Box sx={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '200px',
+                            bgcolor: 'white',
+                            border: '1px solid #ccc',
+                            borderRadius: 2,
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                            p: 1,
+                            zIndex: 10,
+                          }}>
+                            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                              {company.description}
+                            </Typography>
+                          </Box>
+                        )}
                       </Box>
                     ))}
                   </Box>
 
-                  {/* linhas pontilhadas horizontais */}
-                  <Box sx={{ 
-                        position:'absolute', 
-                        top:'37%', 
-                        left: '5%', 
-                        width:'90%',
-                        borderTop:'1px dotted #ccc'
-                      }} 
-                  />
-                  <Box sx={{ 
-                        position:'absolute', 
-                        top:'62%', 
-                        left: '5%',
-                        width:'90%',
-                        borderTop:'1px dotted #ccc'
-                      }} 
-                  />
-
                   <Typography
+                    onClick={handleCompetitorsExpand}
                     sx={{
                       position: 'absolute',
                       bottom: 15,
@@ -378,7 +509,7 @@ const Market: React.FC = () => {
                       textDecoration: 'underline',
                     }}
                   >
-                    Espandi
+                    {visibleCompetitorsCount === 12 ? "Espandi" : "Retract"}
                   </Typography>
                 </Box>
 
@@ -404,51 +535,54 @@ const Market: React.FC = () => {
 
 
               <Box sx={{ flex:1, display:'flex', flexDirection:'column', gap:3, width:'100%'}}>
-                {/* Notizie Rilevanti */}
+                {/* Notizie rilevanti del settore */}
                 <Box sx={{ position: 'relative', border: '1px solid #ddd', borderRadius: 3, padding: 3, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)' }}>
                   <Typography variant="h4" fontWeight="bold" color='#5072CC'>
                     Notizie rilevanti del settore
                   </Typography>
-                  <Box sx={{ my: 2, mb:8 }}>
-                    {[
-                      "Software Cloud di MegaTech Rivoluziona l’Industria",
-                      "Intelligenza Artificiale: Nuovi Orizzonti per le Startup",
-                      "Fusione Tra Due Giganti del Settore Tecnologico",
-                      "Regolamentazioni Europee Accolgono Innovazioni Green",
-                      "Cybersecurity: Aumenta la Minaccia di Hacker nel 2023",
-                      "Nuovo Chip Promette di Aumentare la Velocità dei Dispositivi del Fut...",
-                      "Startup AI Riceve Investimenti Record per Sviluppo Avanzato",
-                      "Mercato dei Dispositivi Indossabili Cresce del 20% nel 2023",
-                      "Partnership Strategica: Azienda Tech Entra nel Settore Sanitario",
-                      "Celle a Combustibile: Innovazione Sostenibile nel Settore Elettronico",
-                      "Nuovo Chip Promette di Aumentare la Velocità dei Dispositivi del Fut..."
-                    ].map((item, idx) => (
+                  <Box sx={{ my: 2, mb: 3 }}>
+                    {paginatedSectorNews().map((article, idx) => (
                       <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ddd', py: 1 }}>
-                        <Typography variant="subtitle2">{item}</Typography>
-                        <Link color="secondary" sx={{ cursor: 'pointer', fontSize:14 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            width: '90%',  
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {article.title}
+                        </Typography>
+                        <Link
+                          href={article.url}
+                          target="_blank"
+                          color="secondary"
+                          sx={{
+                            cursor: 'pointer',
+                            fontSize: 14,
+                            ':hover': { color: 'secondary.dark' }
+                          }}
+                        >
                           Vai all’articolo
                         </Link>
                       </Box>
                     ))}
                   </Box>
-                  <Typography
-                    sx={{
-                      position: 'absolute',
-                      bottom: 15,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      color: "#888",
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    Espandi
-                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0 }}>
+                    <Pagination
+                      count={Math.ceil(sectorNews.length / sectorNewsPerPage)}
+                      page={sectorPage}
+                      onChange={(_, newPage) => setSectorPage(newPage)}
+                      color="primary"
+                      siblingCount={1}
+                      boundaryCount={2} 
+                    />
+                  </Box>
                 </Box>
 
-                {/* Notizie rilevanti del settore */}
-                <Box sx={{ flex:1, position:'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, py: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)' }}>
+                {/* Market Overview Report */}
+                <Box sx={{ flex: 1, position: 'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, py: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" fontWeight="bold" color='#A700FF'>
                       Overview
@@ -468,53 +602,19 @@ const Market: React.FC = () => {
                         fontWeight: '400',
                         '&:hover': {
                           borderColor: '#bbb',
-                          backgroundColor:'transparent'
+                          backgroundColor: 'transparent'
                         }
                       }}
                     >
                       Esporta
                     </Button>
                   </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle2" sx={{mb:1, lineHeight:1.3}}>
-                      Guardando al futuro, TechCorp Inc. è ben posizionata per capitalizzare su diverse opportunità emergenti. Si prevede che il mercato dell’intelligenza artificiale continui la sua crescita robusta, offrendo nuove strade per l’innovazione e l’automazione dei processi aziendali.
-                    </Typography>
-
-                    <Typography variant="subtitle2" sx={{mb:1, lineHeight:1.3}}>
-                      Per massimizzare il potenziale di crescita, si consiglia di:
-                    </Typography>
-
-                    <Typography variant="subtitle2" sx={{mb:0.5, ml:1, lineHeight:1.3}}>
-                      <b>- Espandere l’Offerta Cloud:</b> Approfondire l’integrazione dei servizi di cloud computing per rispondere alla crescente domanda di soluzioni SaaS.
-                    </Typography>
-
-                    <Typography variant="subtitle2" sx={{mb:0.5, ml:1, lineHeight:1.3}}>
-                      <b>- Investire in Cybersecurity:</b> Potenziare le difese informatiche per proteggere da minacce crescenti e rafforzare la fiducia dei clienti.
-                    </Typography>
-
-                    <Typography variant="subtitle2" sx={{mb:1.5, ml:1, lineHeight:1.3}}>
-                      <b>- Esplorare Mercati Emergenti:</b> L’espansione in regioni come l’Asia e l’America Latina potrebbe offrire nuovi segmenti di clientela.
-                    </Typography>
-
-                    <Typography variant="subtitle2" sx={{lineHeight:1.3, mb:6}}>
-                      Continua a monitorare i trend di sostenibilità, poiché la domanda di soluzioni ecologiche può rappresentare una significativa fonte di vantaggio competitivo...
-                    </Typography>
+                  <Box sx={{ mt: 1, overflow: 'auto' }}>
+                    <div className="markdown-body">
+                      <ReactMarkdown children={overviewReport} />
+                    </div>
                   </Box>
 
-                  <Typography
-                    sx={{
-                      position: 'absolute',
-                      bottom: 15,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      color: "#888",
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    Espandi
-                  </Typography>
                 </Box>
 
               </Box>

@@ -175,7 +175,7 @@ const CEOPage: React.FC = () => {
     setSelectedProvider('openai');
     try {
       setLoadingArticlesList(true)
-      const res = await api.get<NewsItem[]>("/ceo-articles/");
+      const res = await api.get<NewsItem[]>("/articles/ceo/");
 
       const groupedData: Record<string, NewsItem[]> = {
         'Mario Rossi': [],
@@ -204,7 +204,7 @@ const CEOPage: React.FC = () => {
       setViewedArticles(prev => new Set([...prev, article.id]));
   
       try {
-        await api.put(`/ceo-articles/${article.id}/mark_viewed/`);
+        await api.put(`/articles/ceo/${article.id}/mark_viewed/`);
       } catch (error) {
         console.error("Erro ao marcar artigo como visualizado:", error);
       }

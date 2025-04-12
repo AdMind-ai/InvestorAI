@@ -4,9 +4,10 @@ from rest_framework.routers import DefaultRouter
 from .views import *
 
 router = DefaultRouter()
-router.register(r'esg-articles', ESGArticleViewSet)
-router.register(r'ceo-articles', CEOArticleViewSet)
-router.register(r'openai/chat/conversations', OpenAIConversationViewSet,
+router.register(r'articles', CombinedArticleViewSet, basename='articles')
+router.register(r'articles/esg', ESGArticleViewSet, basename='esgarticle')
+router.register(r'articles/ceo', CEOArticleViewSet, basename='ceoarticle')
+router.register(r'openai/chat', OpenAIConversationViewSet,
                 basename='openai-chat-conversation')
 
 urlpatterns = [
@@ -16,19 +17,27 @@ urlpatterns = [
          name='perplexity-esg-news'),
     path('perplexity/ceo-news/', PerplexityCEONewsView.as_view(),
          name='perplexity-ceo-news'),
+     path('perplexity/market-report/', MonthlyMarketReportView.as_view(),
+          name='monthly-market-report'),
     path('deepl/file/', DeeplTranslateFileView.as_view(), name='translate-file'),
     path('deepl/text/', DeeplTranslateTextView.as_view(), name='translate-text'),
     path('openai/audio-transcription/',
          OpenAiAudioTranscriptView.as_view(), name='audio-transcription'),
     path('openai/esg-news/', OpenAIESGNewsView.as_view(), name='openai-esg-news'),
     path('openai/ceo-news/', OpenAICEONewsView.as_view(), name='openai-ceo-news'),
+    path('openai/market-news/', OpenAIMarketNewsView.as_view(),
+         name='openai-market-news'),
+    path('openai/competitors-search/', OpenAICompetitorSearchView.as_view(),
+         name='openai-competitors-search'),
     # Chat
     path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
          name='openai-chat-send-message'),
-    # path('openai/chat/upload'),
 
     path('elevenlabs/text-to-speech/',
          ElevenlabsTextToSpeechView.as_view(), name='text-to-speech',),
+
+    path('investing-scraper/', OpenAIInvestingDataScraper.as_view(),
+         name='get_investing_data'),
 ]
 
 urlpatterns += router.urls

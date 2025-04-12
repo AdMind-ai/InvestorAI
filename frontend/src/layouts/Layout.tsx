@@ -63,7 +63,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             gap: "calc(1.3vh)",
           }}
         >
-          <ArchiveButton label={"Archivio"} />
+          {/* <ArchiveButton label={"Archivio"} /> */}
 
           {/* User Dropdown */}
           <Box
