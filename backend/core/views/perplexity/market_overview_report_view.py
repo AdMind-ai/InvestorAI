@@ -36,6 +36,16 @@ class MonthlyMarketReportSerializer(serializers.Serializer):
     company = serializers.CharField(max_length=255)
 
 
+def safe_eval_list_string(list_string):
+    try:
+        citations_list = eval(list_string)
+        if isinstance(citations_list, list):
+            return citations_list
+    except Exception as e:
+        print(f"Error evaluating list string: {e}")
+    return []
+
+
 class MonthlyMarketReportView(APIView):
     # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -100,10 +110,12 @@ class MonthlyMarketReportView(APIView):
             )
             response.raise_for_status()
             data = response.json()
+            print(data)
 
             # Obter o relatório da resposta da API Perplexity
             report_content = data.get("choices", [{}])[0].get(
                 "message", {}).get("content", "")
+            citations = data.get("citations", [])
 
             print("\n\nRelatóriuo Mensal:\n", report_content)
 
@@ -111,9 +123,10 @@ class MonthlyMarketReportView(APIView):
             if report_content:
                 CompanyMarketReport.objects.create(
                     company=company,
-                    report=report_content
+                    report=report_content,
+                    citations=citations
                 )
-                return Response(report_content, status=201)
+                return Response({"report": report_content, "citations": citations}, status=201)
 
             return Response({"error": "Failed to generate report."}, status=500)
 
@@ -146,19 +159,30 @@ class MonthlyMarketReportView(APIView):
             # Se não encontrar, retorna erro
             if not report_query:
                 return Response({"error": "No report found for this company."}, status=404)
+
+            print(type(report_query.citations), report_query.citations)
+            citations_list = safe_eval_list_string(report_query.citations)
+
+            print(type(citations_list), citations_list)
             report_data = {
                 "company": report_query.company,
                 "created_at": report_query.created_at,
-                "report": report_query.report
+                "report": report_query.report,
+                "citations": citations_list,
             }
             return Response(report_data, status=200)
 
         # Se não formos buscar um específico (não tem recent ou company), retorna todos
         reports = report_query.order_by('-created_at')
-        report_list = [{
-            "company": report.company,
-            "created_at": report.created_at,
-            "report": report.report
-        } for report in reports]
+        report_list = []
+        for report in reports:
+            citations_list = safe_eval_list_string(report_query.citations)
+
+            report_list.append({
+                "company": report.company,
+                "created_at": report.created_at,
+                "report": report.report,
+                "citations": citations_list,
+            })
 
         return Response(report_list, status=200)

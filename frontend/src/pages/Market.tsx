@@ -30,6 +30,13 @@ interface Article {
   created_at: string;
 }
 
+interface MarketReportResponse {
+  report: string;
+  citations: string[];
+}
+
+
+
 const Market: React.FC = () => {
   // const theme = useTheme()
   // Competitors data
@@ -50,6 +57,7 @@ const Market: React.FC = () => {
 
   // Overview report data
   const [overviewReport, setOverviewReport] = useState('');
+  const [citations, setCitations] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchCompetitors = async () => {
@@ -81,7 +89,7 @@ const Market: React.FC = () => {
 
     const fetchOverviewReport = async () => {
       try {
-        const response = await api.get("/perplexity/market-report/", {
+        const response = await api.get<MarketReportResponse>("/perplexity/market-report/", {
           params: {
             recent: true,
             company: 'apple inc'
@@ -94,8 +102,11 @@ const Market: React.FC = () => {
           // Remove conteúdo entre <think>...</think>
           const thinkTagMatch = /<think>[\s\S]*?<\/think>/g;
           reportContent = reportContent.replace(thinkTagMatch, '');
+    
+          reportContent = citeLinks(reportContent, response.data.citations);
 
           setOverviewReport(reportContent);
+          setCitations(citations);
         }
       } catch (error) {
         console.error("Error fetching the overview report: ", error);
@@ -130,6 +141,19 @@ const Market: React.FC = () => {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
+
+  const citeLinks = (text: string, citations: string[]) => {
+    return text.replace(/\[(\d+)\]/g, (match: string, num: string) => {
+      const citationIndex = parseInt(num, 10) - 1; 
+      // console.log(citationIndex, citations[citationIndex])
+      if (citationIndex >= 0 && citationIndex < citations.length) {
+        const citationLink = citations[citationIndex];
+        return ` [[${num}]](${citationLink})`;
+      }
+      return match; 
+    });
+  };
+
 
   return (
     <Layout>
@@ -585,7 +609,7 @@ const Market: React.FC = () => {
                 <Box sx={{ flex: 1, position: 'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, py: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" fontWeight="bold" color='#A700FF'>
-                      Overview
+                      Overview Report
                     </Typography>
                     <Button
                       variant="outlined"
@@ -610,9 +634,9 @@ const Market: React.FC = () => {
                     </Button>
                   </Box>
                   <Box sx={{ mt: 1, overflow: 'auto' }}>
-                    <div className="markdown-body">
-                      <ReactMarkdown children={overviewReport} />
-                    </div>
+                  <div className="markdown-body">
+                    <ReactMarkdown>{overviewReport}</ReactMarkdown>
+                  </div>
                   </Box>
 
                 </Box>
