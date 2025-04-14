@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Divider, Link, Button, Pagination } from '@mui/material'
 import ReactMarkdown from 'react-markdown';
 // import { useTheme } from '@mui/material/styles'
@@ -81,8 +81,8 @@ interface StockData {
 const Market: React.FC = () => {
   // const theme = useTheme()
   // Overview 
-  const riskFactorsRef = useRef<HTMLDivElement>(null);
-  const [linePosition, setLinePosition] = useState<number>(0);
+  // const riskFactorsRef = useRef<HTMLDivElement>(null);
+  // const [linePosition, setLinePosition] = useState<number>(0);
   const [hoveredElement, setHoveredElement] = useState<string | null>(null);
   const ellipsisStyles = {
     overflow: 'hidden',
@@ -362,20 +362,20 @@ const Market: React.FC = () => {
     return `${symbol}${roundedVariation}%`;
   };
   
-  useEffect(() => {
-    const measureHeight = () => {
-        if(riskFactorsRef.current) {
-            const height = riskFactorsRef.current.offsetTop + riskFactorsRef.current.offsetHeight;
-            setLinePosition(height+3);
-        }
-    };
+//   useEffect(() => {
+//     const measureHeight = () => {
+//         if(riskFactorsRef.current) {
+//             const height = riskFactorsRef.current.offsetTop + riskFactorsRef.current.offsetHeight;
+//             setLinePosition(height+3);
+//         }
+//     };
 
-    measureHeight();
+//     measureHeight();
 
-    window.addEventListener('resize', measureHeight); 
+//     window.addEventListener('resize', measureHeight); 
 
-    return () => window.removeEventListener('resize', measureHeight);
-}, [stockData?.possible_risk_factors]);
+//     return () => window.removeEventListener('resize', measureHeight);
+// }, [stockData?.possible_risk_factors]);
 
 
   return (
