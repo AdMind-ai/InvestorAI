@@ -114,6 +114,7 @@ const Chat: React.FC = () => {
           setSelectedChat={setSelectedChat}
           saveCleanEnabled={messages.length > 0}
           messages={messages}
+          setMessages={setMessages}
         />
         
         <Divider />

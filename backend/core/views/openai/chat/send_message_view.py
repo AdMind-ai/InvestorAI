@@ -23,7 +23,6 @@ class OpenAISendMessageView(APIView):
     def post(self, request):
         user = request.user
         serializer = self.serializer_class(data=request.data)
-        logger.debug(serializer.is_valid())
         serializer.is_valid(raise_exception=True)
 
         conversation_instance = serializer.validated_data.get('conversation')
@@ -65,15 +64,26 @@ class OpenAISendMessageView(APIView):
 
         if not conversation:
             try:
+                newchat_old = ChatConversation.objects.filter(
+                    user=user, name="New Chat").first()
+                if newchat_old:
+                    newchat_old.delete()
+                    logger.debug(
+                        f'Removed old "New Chat" for user {user.id} before creating new one.'
+                    )
+
                 conversation = ChatConversation.objects.create(
-                    user=user)
+                    user=user, name="New Chat"
+                )
                 logger.debug(
-                    f"Created new conversation with ID: {conversation.id} for user: {user.id}")
+                    f"Created new conversation with ID: {conversation.id} ({conversation.name}) for user: {user.id}")
             except Exception as e:
                 logger.error(
-                    f"Failed to create conversation for user {user.username}: {str(e)}")
+                    f"Failed to create conversation for user {user.username}: {str(e)}"
+                )
                 raise ValidationError(
-                    "Unable to create a new conversation at this time.")
+                    "Unable to create a new conversation at this time."
+                )
 
         # Gathering messages history
         messages = [{'role': 'user' if msg.is_user else 'assistant',
