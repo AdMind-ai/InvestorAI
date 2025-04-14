@@ -21,7 +21,7 @@ class CompanyQuarterlyReportSerializer(serializers.Serializer):
 
 
 class OpenAICompanyQuarterlyReportView(APIView):
-    # authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = CompanyQuarterlyReportSerializer
