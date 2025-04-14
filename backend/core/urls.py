@@ -17,8 +17,8 @@ urlpatterns = [
          name='perplexity-esg-news'),
     path('perplexity/ceo-news/', PerplexityCEONewsView.as_view(),
          name='perplexity-ceo-news'),
-     path('perplexity/market-report/', MonthlyMarketReportView.as_view(),
-          name='monthly-market-report'),
+    path('perplexity/market-report/', MonthlyMarketReportView.as_view(),
+         name='monthly-market-report'),
     path('deepl/file/', DeeplTranslateFileView.as_view(), name='translate-file'),
     path('deepl/text/', DeeplTranslateTextView.as_view(), name='translate-text'),
     path('openai/audio-transcription/',
@@ -29,6 +29,8 @@ urlpatterns = [
          name='openai-market-news'),
     path('openai/competitors-search/', OpenAICompetitorSearchView.as_view(),
          name='openai-competitors-search'),
+    path('openai/quarterly-report/', OpenAICompanyQuarterlyReportView.as_view(),
+         name='openai-quarterly-report'),
     # Chat
     path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
          name='openai-chat-send-message'),
@@ -36,7 +38,7 @@ urlpatterns = [
     path('elevenlabs/text-to-speech/',
          ElevenlabsTextToSpeechView.as_view(), name='text-to-speech',),
 
-    path('investing-scraper/', OpenAIInvestingDataScraper.as_view(),
+    path('openai/investing-scraper/', OpenAIInvestingDataScraper.as_view(),
          name='get_investing_data'),
 ]
 

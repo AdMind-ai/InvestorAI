@@ -5,6 +5,8 @@ from core.models.openai_chat_models import ChatConversation, ChatMessage
 from core.models.competitor_model import CompetitorSearch, Competitor
 from core.models.market_article_model import MarketNewsArticle
 from core.models.market_company_report import CompanyMarketReport
+from core.models.company_stock_data_model import CompanyStockData
+from core.models.company_quarterly_report import CompanyQuarterlyReport
 # Register your models here.
 
 
@@ -75,3 +77,31 @@ class CompanyMarketReportAdmin(admin.ModelAdmin):
     list_display = ('company', 'report', 'created_at')
     search_fields = ('company',)
     ordering = ('-created_at',)
+
+
+@admin.register(CompanyStockData)
+class CompanyStockDataAdmin(admin.ModelAdmin):
+    list_display = (
+        'date',
+        'company',
+        'stock_symbol',
+        'stock_exchange',
+        'stock_price_today_usd',
+        'market_cap_usd',
+        'pe_ratio',
+    )
+    search_fields = ('company', 'stock_symbol', 'stock_exchange', 'date')
+    list_filter = ('company', 'stock_exchange', 'date')
+
+
+@admin.register(CompanyQuarterlyReport)
+class CompanyQuarterlyReportAdmin(admin.ModelAdmin):
+    list_display = ('company', 'quarter', 'year',
+                    'created_at', 'has_insight_report')
+    list_filter = ('company', 'quarter', 'year', 'created_at')
+    search_fields = ('company', 'year', 'quarter')
+    ordering = ('-year', '-quarter')
+
+    @admin.display(boolean=True, description='Has Insight Report')
+    def has_insight_report(self, obj):
+        return bool(obj.insight_report)

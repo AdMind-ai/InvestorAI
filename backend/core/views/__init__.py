@@ -16,6 +16,7 @@ from .openai import OpenAIConversationViewSet, OpenAISendMessageView
 from .openai import OpenAICompetitorSearchView
 from .openai import OpenAIInvestingDataScraper
 from .openai import OpenAIMarketNewsView
+from .openai import OpenAICompanyQuarterlyReportView
 
 from .elevenlabs import ElevenlabsTextToSpeechView
 
@@ -39,6 +40,7 @@ __all__ = [
     'OpenAIInvestingDataScraper',
     'OpenAICompetitorSearchView',
     'OpenAIMarketNewsView',
+    'OpenAICompanyQuarterlyReportView',
     'ElevenlabsTextToSpeechView',
     'CombinedArticleViewSet',
     'ESGArticleViewSet',

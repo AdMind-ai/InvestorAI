@@ -229,7 +229,7 @@ const CEOPage: React.FC = () => {
               <ToggleButton value="perplexity">Perplexity</ToggleButton>
               <ToggleButton value="openai">OpenAI</ToggleButton>
             </ToggleButtonGroup> */}
-            <Button variant='contained' onClick={handleFetchArticles} sx={{height: 'calc(4vh)', position:'absolute', right:0, bottom:10}}>
+            <Button variant='contained' onClick={handleFetchArticles} sx={{display: 'none', height: 'calc(4vh)', position:'absolute', right:0, bottom:10}}>
               {loadingGenerateArticles ? <CircularProgress size={24} color="inherit" /> : 'Generate articles'}
             </Button>
           </Box>

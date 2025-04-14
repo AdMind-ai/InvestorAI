@@ -47,7 +47,7 @@ def safe_eval_list_string(list_string):
 
 
 class MonthlyMarketReportView(APIView):
-    # authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
     serializer_class = MonthlyMarketReportSerializer

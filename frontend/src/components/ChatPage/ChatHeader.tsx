@@ -109,7 +109,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       const newChat = { id: selectedChat.id, name: newChatName };
       
       try {
-        await api.put(`/openai/chat/conversations/${selectedChat.id}/`, {
+        await api.put(`/openai/chat/${selectedChat.id}/`, {
           name: newChatName,
         });
         
@@ -129,7 +129,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXX",messages_test[0],"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
   
         // Criar a nova conversa
-        const response = await api.post('/openai/chat/conversations/', {
+        const response = await api.post('/openai/chat/', {
           name: newChatName,
           messages: messages.map((msg) => ({
             content: msg.content,
@@ -159,7 +159,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const handleDeleteChat = async () => {
     if (selectedChat) {
       try {
-        await api.delete(`/openai/chat/conversations/${selectedChat.id}/`);
+        await api.delete(`/openai/chat/${selectedChat.id}/`);
         toast.success(`Chat "${selectedChat.name}" eliminato con successo.`);
         setChats(chats.filter(chat => chat.id !== selectedChat.id));
         setOpenDeleteModal(false);
@@ -184,7 +184,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   useEffect(() => {
     const fetchChatConversations = async () => {
       try {
-        const response = await api.get('/openai/chat/conversations/');
+        const response = await api.get('/openai/chat/');
         const chatList: Chat[] = response.data.map((conversation: ApiChatResponse) => ({
           id: conversation.id,
           name: conversation.name,
@@ -206,7 +206,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     };
 
     const removeChat = async (chatId: string | number) => {
-      const response = await api.delete(`/openai/chat/conversations/${chatId}/`);
+      const response = await api.delete(`/openai/chat/${chatId}/`);
 
       if (response.status === 204 || response.status === 200) {
         console.log(`Chat ${chatId} excluído.`);

@@ -47,6 +47,7 @@ class APIRootView(APIView):
                     "market-news": request.build_absolute_uri(reverse("openai-market-news")),
                     "competitors-search": request.build_absolute_uri(reverse("openai-competitors-search")),
                     "investing-scraper": request.build_absolute_uri(reverse("get_investing_data")),
+                    "quarterly-report": request.build_absolute_uri(reverse("openai-quarterly-report")),
                     "chat-conversation": request.build_absolute_uri(reverse("openai-chat-conversation-list")),
                     "chat-send-message": request.build_absolute_uri(reverse("openai-chat-send-message")),
                 },

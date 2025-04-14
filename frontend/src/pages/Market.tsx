@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Divider, Link, Button, Pagination } from '@mui/material'
 import ReactMarkdown from 'react-markdown';
 // import { useTheme } from '@mui/material/styles'
@@ -10,6 +10,28 @@ import { api } from '../api/api'
 import CardEuroIcon from '../assets/dashboard_icons/card_euro_icon.svg'
 import CardArrowsIcon from '../assets/dashboard_icons/card_arrows_icon.svg'
 import CardCurveArrowIcon from '../assets/dashboard_icons/card_curvearrow_icon.svg'
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale, 
+  LinearScale,   
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
 
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
@@ -35,10 +57,47 @@ interface MarketReportResponse {
   citations: string[];
 }
 
+interface StockData {
+  id: number;
+  created_at: string[];
+  date: string;
+  company: string;
+  stock_symbol: string;
+  stock_exchange: string;
+  stock_price_today_usd: number[];
+  stock_price_today_eur: number[];
+  market_cap_usd: string;
+  market_cap_eur: string;
+  pe_ratio: number;
+  sector: string;
+  stock_volatility_level: string;
+  short_term_forecast: string;
+  possible_risk_factors: string;
+  latest_news: string;
+  analyst_recommendation: string;
+}
 
 
 const Market: React.FC = () => {
   // const theme = useTheme()
+  // Overview 
+  const riskFactorsRef = useRef<HTMLDivElement>(null);
+  const [linePosition, setLinePosition] = useState<number>(0);
+  const [hoveredElement, setHoveredElement] = useState<string | null>(null);
+  const ellipsisStyles = {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: '5', 
+    cursor: 'zoom-in',
+    position: 'relative',
+  };
+
+  // Chart data
+  const [stockData, setStockData] = useState<StockData | null>(null);
+  // const [selectedCompany, setSelectedCompany] = useState<StockData | null>(null);
+
   // Competitors data
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [visibleCompetitorsCount, setVisibleCompetitorsCount] = useState(12);
@@ -59,7 +118,44 @@ const Market: React.FC = () => {
   const [overviewReport, setOverviewReport] = useState('');
   const [citations, setCitations] = useState<string[]>([]);
 
+  // Insight Report data
+  const [insightReport, setInsightReport] = useState('');
+  const [selectedQuarter, setSelectedQuarter] = useState('Q1 2025');
+  const [expanded, setExpanded] = useState(false);
+
   useEffect(() => {
+    setCurrentPage(1)
+    const fetchStockData = async () => {
+      try {
+        const response = await api.get<StockData>("/openai/investing-scraper/", {
+          params: { company: 'Apple' }
+        });
+
+        if (response.data) {
+          console.log(response.data)
+          setStockData(response.data); 
+        }
+      } catch (error) {
+        console.error("Error fetching stock data:", error);
+      }
+    };
+
+    const fetchReport = async () => {
+      try {
+        const response = await api.get('/openai/quarterly-report/', {
+          params: {
+            company: 'Apple',
+            quarter: selectedQuarter.split(' ')[0],
+            year: selectedQuarter.split(' ')[1],
+          },
+        });
+
+        setInsightReport(response.data.insight_report);
+      } catch (error) {
+        console.error('Erro ao buscar o relatório:', error);
+      }
+    };
+
     const fetchCompetitors = async () => {
       try {
         const response = await api.get("/openai/competitors-search/?recent=true&company=apple inc");
@@ -113,10 +209,12 @@ const Market: React.FC = () => {
       }
     };
 
+    fetchStockData();
+    fetchReport();
     fetchCompetitors();
     fetchArticles();
     fetchOverviewReport();
-  }, []);
+  }, [selectedQuarter]);
 
   // Pagination logic for competitors
   const paginateCompetitors = () => {
@@ -127,7 +225,7 @@ const Market: React.FC = () => {
 
   const handleCompetitorsNewsExpand = () => {
     if (competitorsPerPage === 10) {
-      setCompetitorsPerPage(20);
+      setCompetitorsPerPage(30);
     } else {
       setCompetitorsPerPage(10);
     }
@@ -138,9 +236,9 @@ const Market: React.FC = () => {
     return sectorNews.slice(start, start + sectorNewsPerPage);
   };
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
+  // const handlePageChange = (newPage: number) => {
+  //   setCurrentPage(newPage);
+  // };
 
   const citeLinks = (text: string, citations: string[]) => {
     return text.replace(/\[(\d+)\]/g, (match: string, num: string) => {
@@ -153,6 +251,131 @@ const Market: React.FC = () => {
       return match; 
     });
   };
+
+
+  const chartData = {
+    labels: stockData ? stockData.created_at.map(date => new Date(date).toLocaleDateString()) : [],
+    datasets: [
+      {
+        label: 'Prezzo del titolo (€)',
+        data: stockData ? stockData.stock_price_today_eur : [],
+        borderColor: 'orange',
+        backgroundColor: 'rgba(255,165,0,0.4)', // preenchimento abaixo da linha colorido com transparência
+        fill: true, // preenche a área abaixo da linha
+        tension: 0.3, // curva suave (0 é reto, 0.5 mais suavizado)
+        pointBackgroundColor: 'orange',
+        pointRadius: 4,
+        pointHoverRadius: 7,
+      },
+      {
+        label: 'Prezzo del titolo (USD)',
+        data: stockData ? stockData.stock_price_today_usd : [],
+        borderColor: 'blue',
+        backgroundColor: 'rgba(0,0,255,0.3)',
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: 'blue',
+        pointRadius: 4,
+        pointHoverRadius: 7,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true, 
+    maintainAspectRatio: false, 
+    animation: {
+      duration: 1500,
+      easing: 'easeOutQuart', 
+    },
+    layout: {
+      padding: {
+        left: 20,   // padding esquerdo (em pixels)
+        right: 50,  // padding direito (em pixels)
+        top: 30,    // padding superior (em pixels)
+        bottom: 10  // padding inferior (em pixels)
+      }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom', // posição da legenda: top, bottom, left, right
+        labels: {
+          color: '#333', // cor da legenda
+          padding: 15,
+          font: {
+            family: 'Roboto',
+            size: 12,
+            weight: 'bold',
+          },
+          usePointStyle: true,
+        },
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        titleFont: {
+          size: 14,
+          weight: 'bold',
+        },
+        bodyFont: {
+          size: 13,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: true,
+          color: '#eee', 
+        },
+        ticks: {
+          color: '#555',
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        grid: {
+          color: '#eee', 
+        },
+        ticks: {
+          color: '#555',
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
+  } as const;
+
+  const calculateDailyVariation = (prices: number[] | undefined): string => {
+    if (!prices || prices.length < 2) return "--";
+  
+    const today = prices[0];
+    const yesterday = prices[1];
+  
+    const variation = ((today - yesterday) / yesterday) * 100;
+    const roundedVariation = variation.toFixed(2);
+  
+    const symbol = variation > 0 ? "+" : variation < 0 ? "-" : "";
+    return `${symbol}${roundedVariation}%`;
+  };
+  
+  useEffect(() => {
+    const measureHeight = () => {
+        if(riskFactorsRef.current) {
+            const height = riskFactorsRef.current.offsetTop + riskFactorsRef.current.offsetHeight;
+            setLinePosition(height+3);
+        }
+    };
+
+    measureHeight();
+
+    window.addEventListener('resize', measureHeight); 
+
+    return () => window.removeEventListener('resize', measureHeight);
+}, [stockData?.possible_risk_factors]);
 
 
   return (
@@ -215,12 +438,15 @@ const Market: React.FC = () => {
 
                   <Box sx={{ display: 'flex', gap: 2 }}>
                     {/* Graph */}
-                    <Box sx={{ flex:1, height: 250, bgcolor: '#f7f7f7', borderRadius: 3, mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {/* <Box sx={{ flex:1, height: 250, bgcolor: '#f7f7f7', borderRadius: 3, mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <img 
                         src="/image/mock_graph_1.png"
                         alt="Mock Graph 1"
                         style={{ width: '100%', height:'100%' }}
                       />
+                    </Box> */}
+                    <Box sx={{ flex: 1, height: 250, bgcolor: '#f7f7f7', borderRadius: 3, mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Line data={chartData} options={chartOptions} />
                     </Box>
 
                     {/* Cards */}
@@ -237,7 +463,7 @@ const Market: React.FC = () => {
                           }}
                         />
                         <Box sx={{ display: 'flex', flexDirection:'column'}}>
-                          <Typography variant="subtitle2"><b>19.455€</b></Typography>
+                          <Typography variant="subtitle2"><b>{stockData? stockData.stock_price_today_eur[0]: ''} €</b></Typography>
                           <Typography variant="caption">Prezzo attuale</Typography>
                         </Box>
                       </Box>
@@ -253,7 +479,9 @@ const Market: React.FC = () => {
                           }}
                         />
                         <Box sx={{ display: 'flex', flexDirection:'column'}}>
-                          <Typography variant="subtitle2"><b>+1.5%</b></Typography>
+                          <Typography variant="subtitle2">
+                            <b>{calculateDailyVariation(stockData?.stock_price_today_eur)}</b>
+                          </Typography>
                           <Typography variant="caption">Var. giornaliera</Typography>
                         </Box>
                       </Box>
@@ -269,7 +497,7 @@ const Market: React.FC = () => {
                           }}
                         />
                         <Box sx={{ display: 'flex', flexDirection:'column'}}>
-                          <Typography variant="subtitle2"><b>Moderata</b></Typography>
+                          <Typography variant="subtitle2"><b>{stockData? stockData.stock_volatility_level: ''}</b></Typography>
                           <Typography variant="caption">Volatilità</Typography>
                         </Box>
                       </Box>
@@ -283,6 +511,7 @@ const Market: React.FC = () => {
                     display: 'flex', 
                     flexWrap: 'wrap', 
                     position: 'relative', 
+                    pb:1,
                   }}>
 
                     {/* Linha pontilhada vertical */}
@@ -295,33 +524,123 @@ const Market: React.FC = () => {
                     }}/>
 
                     {/* Linha pontilhada horizontal */}
-                    <Box sx={{ 
+                    {/* <Box sx={{ 
                       position: 'absolute', 
                       width: '100%', 
                       left: 0, 
-                      top: '53%', 
+                      top: `${linePosition}px`, 
+                      borderTop: '1px dotted #ccc', 
+                    }}/> */}
+
+                    <Box sx={{ flex: '1 1 50%', pb: 1, pl:2, mt:1 }}>
+                      <Typography variant="subtitle1">Settore: <b>{stockData? stockData.sector: ''}</b></Typography>
+                      <Typography variant="subtitle1">Capitalizzazione mercato: <b>U$ {stockData? stockData.market_cap_usd: ''}</b></Typography>
+                      <Typography variant="subtitle1">Indice PE: <b>{stockData? stockData.pe_ratio: ''}</b></Typography>
+                      <Typography variant="subtitle1">Raccomandazione: <b>{stockData? stockData.analyst_recommendation: ''}</b></Typography>
+                    </Box>
+
+                    <Box 
+                      sx={{ flex: '1 1 50%', pb: 1, pl:2, mt:1, maxWidth: '50%' }}
+                      onMouseEnter={() => setHoveredElement('risk_factors')}
+                      onMouseLeave={() => setHoveredElement(null)}
+                    >
+                      <Typography variant="subtitle1">Eventuali Fattori di Rischio:</Typography>
+                      <Typography variant="subtitle1" fontWeight="bold" sx={ellipsisStyles}>
+                        {stockData?.possible_risk_factors || ''}
+                      </Typography>
+
+                      {hoveredElement === 'risk_factors' && (
+                        <Box sx={{
+                          position: 'absolute',
+                          zIndex: 20,
+                          bgcolor: 'white',
+                          border: '1px solid #ccc',
+                          borderRadius: 2,
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                          px: 2,
+                          py: 1.5,
+                          width: '80%',
+                          maxWidth: 800,
+                        }}>
+                          {/* <Typography variant="subtitle2" sx={{fontSize:'0.8rem'}}>
+                            {stockData?.possible_risk_factors || ''}
+                          </Typography> */}
+                          <div className="markdown-body">
+                            <ReactMarkdown>{stockData?.possible_risk_factors || ''}</ReactMarkdown>
+                          </div>
+                        </Box>
+                      )}
+                    </Box>
+
+                    <Box sx={{ 
+                      width: '100%',                     
                       borderTop: '1px dotted #ccc', 
                     }}/>
 
-                    <Box sx={{ flex: '1 1 50%', pb: 1, pl:2, mt:1 }}>
-                      <Typography variant="subtitle1">Settore: <b>Tecnologia</b></Typography>
-                      <Typography variant="subtitle1">Capitalizzazione mercato: <b>$150 miliardi</b></Typography>
-                      <Typography variant="subtitle1">Indice PE: <b>25.5</b></Typography>
+                    <Box 
+                      sx={{ flex: '1 1 50%', pt: 1, px:2, mt:1 }}
+                      onMouseEnter={() => setHoveredElement('latest_news')}
+                      onMouseLeave={() => setHoveredElement(null)}
+                    >
+                      <Typography variant="subtitle1">Ultima Notizia Rilevante:</Typography>
+                      <Typography variant="subtitle1" fontWeight="bold" sx={ellipsisStyles}>
+                        {stockData?.latest_news || ''}
+                      </Typography>
+
+                      {hoveredElement === 'latest_news' && (
+                        <Box sx={{
+                          position: 'absolute',
+                          zIndex: 20,
+                          bgcolor: 'white',
+                          border: '1px solid #ccc',
+                          borderRadius: 2,
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                          px: 2,
+                          py: 1.5,
+                          width: '80%',
+                          maxWidth: 800,
+                        }}>
+                          {/* <Typography variant="subtitle2" sx={{fontSize:'0.8rem'}}>
+                            {stockData?.latest_news || ''}
+                          </Typography> */}
+                          <div className="markdown-body">
+                            <ReactMarkdown>{stockData?.latest_news || ''}</ReactMarkdown>
+                          </div>
+                        </Box>
+                      )}
                     </Box>
 
-                    <Box sx={{ flex: '1 1 50%', pb: 1, pl:2, mt:1 }}>
-                      <Typography variant="subtitle1">Eventuali Fattori di Rischio:</Typography>
-                      <Typography variant="subtitle1" fontWeight="bold">Potenziale rallentamento delle vendite nel mercato europeo.</Typography>
-                    </Box>
+                    <Box 
+                      sx={{ flex: '1 1 50%', pt: 1, px:2, mt:1 }}
+                      onMouseEnter={() => setHoveredElement('short_forecast')}
+                      onMouseLeave={() => setHoveredElement(null)}
+                    >
+                      <Typography variant="subtitle1">Previsione a Breve Termine:</Typography>
+                      <Typography variant="subtitle1" fontWeight="bold" sx={ellipsisStyles}>
+                        {stockData?.short_term_forecast || ''}
+                      </Typography>
 
-                    <Box sx={{ flex: '1 1 50%', pt: 1, pl:2, mt:1 }}>
-                      <Typography variant="subtitle1">Ultima Notizia Rilevante</Typography>
-                      <Typography variant="subtitle1" fontWeight="bold">TechCorp ha lanciato un nuovo smartphone che ha ricevuto recensioni positive.</Typography>
-                    </Box>
-
-                    <Box sx={{ flex: '1 1 50%', pt: 1, pl:2, pr:2, mt:1 }}>
-                      <Typography variant="subtitle1" sx={{ }}>Previsione a Breve Termine</Typography>
-                      <Typography variant="subtitle1" fontWeight="bold">Il titolo è previsto continuare una crescita moderata grazie al successo del nuovo prodotto.</Typography>
+                      {hoveredElement === 'short_forecast' && (
+                        <Box sx={{
+                          position: 'absolute',
+                          zIndex: 20,
+                          bgcolor: 'white',
+                          border: '1px solid #ccc',
+                          borderRadius: 2,
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                          px: 2,
+                          py: 1.5,
+                          width: '80%',
+                          maxWidth: 800,
+                        }}>
+                          {/* <Typography variant="subtitle2" sx={{fontSize:'0.8rem'}}>
+                            {stockData?.short_term_forecast || ''}
+                          </Typography> */}
+                          <div className="markdown-body">
+                            <ReactMarkdown>{stockData?.short_term_forecast || ''}</ReactMarkdown>
+                          </div>
+                        </Box>
+                      )}
                     </Box>
 
                   </Box>
@@ -330,48 +649,44 @@ const Market: React.FC = () => {
                 </Box>
 
                 {/* Insight Report */}
-                <Box sx={{ position:'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, py: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)' }}>
+                <Box sx={{ position: 'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, pt: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)', maxHeight: expanded ? 'none' : '382px', overflow: 'hidden' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" fontWeight="bold" color="#5072CC">
                       Insight Report - Performance Aziendale
                     </Typography>
-                    <Box component="select" sx={{ borderRadius: 3, py: 1, px:3, borderColor: '#ccc', color:'grey' }}>
-                      <option>Q3 2024</option>
+                    <Box
+                      component="select"
+                      value={selectedQuarter}
+                      onChange={(e) => setSelectedQuarter(e.target.value)}
+                      sx={{ borderRadius: 3, py: 1, px: 3, borderColor: '#ccc', color: 'grey' }}
+                    >
+                      <option>Q1 2025</option>
+                      <option>Q2 2025</option>
+                      <option>Q3 2025</option>
+                      <option>Q4 2025</option>
                     </Box>
                   </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="h4" fontWeight="bold" sx={{mt:1.5, mb:0.5}}>
-                      Highlights Finanziari
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{mb:0.4, ml: 1, lineHeight:1.2}}>
-                      • Ricavi Totali: €2,1 miliardi (+12% YoY).
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{mb:0.4, ml: 1, lineHeight:1.2}}>
-                      • Crescita del Margine Operativo: EBIT al 19,5% (+2,3 pp rispetto al trimestre precedente).
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{mb:0.4, ml: 1, lineHeight:1.2}}>
-                      • Profitto Netto: €310 milioni (+18% YoY), grazie a un forte focus su efficienza operativa e nuova espansione geografica.
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{mb:0.4, ml: 1, lineHeight:1.2}}>
-                      • Portafoglio Ordini: Raggiunto un livello record di €4,5 miliardi (+26% YoY).
-                    </Typography>
-
-                    <Typography variant="h4" fontWeight="bold" sx={{mt:1.5, mb:0.5}}>
-                      Innovazione e Strategia
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{mb:0.4, ml: 1, lineHeight:1.2}}>
-                      • Investimento in R&D: €120 milioni nel Q3 (+15% YoY), consolidando la leadership in soluzioni tecnologiche innovative.
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{mb:0.4, ml: 1, lineHeight:1.2}}>
-                      • Lanciati 3 nuovi prodotti nel settore AI e IoT (Internet of Things), con particolare attenzione all’automazione industriale.
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{mb:6, ml: 1, lineHeight:1.2}}>
-                      • Espansione del team di ricerca con l’assunzione di 150 nuovi talenti specializzati in intelligenza artificiale e machine learning.
-                    </Typography>
-
+                  <Box sx={{ mb: 8, overflow: 'auto' }}>
+                    <div className="markdown-body">
+                      <ReactMarkdown>{insightReport}</ReactMarkdown>
+                    </div>
                   </Box>
+                  
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: '80px',
+                      background: 'linear-gradient(to top, white 60%, transparent)',
+                      pointerEvents: 'none',
+                      zIndex: 1, 
+                    }}
+                  />
 
                   <Typography
+                    onClick={() => setExpanded(!expanded)}
                     sx={{
                       position: 'absolute',
                       bottom: 15,
@@ -379,14 +694,15 @@ const Market: React.FC = () => {
                       transform: 'translateX(-50%)',
                       cursor: 'pointer',
                       fontSize: '1rem',
-                      color: "#888",
+                      color: '#888',
                       textDecoration: 'underline',
+                      zIndex: 2,
                     }}
                   >
-                    Espandi
+                    {expanded ? 'Retract' : 'Espandi'}
                   </Typography>
-                </Box>
 
+                </Box>
 
               </Box>
 
@@ -449,7 +765,8 @@ const Market: React.FC = () => {
                 {/* Aziende competitors */}
                 <Box sx={{ 
                   position: 'relative', 
-                  flex: 1, 
+                  // flex: 1, 
+                  maxHeight: '760px',
                   border: '1px solid #ddd', 
                   borderRadius: 3, 
                   padding: 3, 
