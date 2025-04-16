@@ -90,7 +90,7 @@ const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
 
       {/* Text Area */}
       <Box sx={{ width: '98%', maxHeight: '45vh' }}>
-        <CustomTextArea value={text} onChange={setText} placeholder="Inserisci il testo qui." height='35vh' />
+        <CustomTextArea value={text} onChange={setText} placeholder="Inserisci il testo qui." height='35vh' hasLimit maxLength={10000} />
       </Box>
 
       {/* Audio Player */}

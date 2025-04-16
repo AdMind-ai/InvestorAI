@@ -8,10 +8,20 @@ interface CustomTextAreaProps {
   height?: string;
   isDisabled?: boolean;
   showTyping?: boolean;
+  hasLimit?: boolean;
+  maxLength?: number;
 }
 
-const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeholder = "Text here.", height = '30vh', isDisabled=false, showTyping=false }) => {
-  const maxLength = 10000;
+const CustomTextArea: React.FC<CustomTextAreaProps> = ({ 
+  value, 
+  onChange, 
+  placeholder = "Text here.", 
+  height = '30vh', 
+  isDisabled=false, 
+  showTyping=false,
+  hasLimit=false,
+  maxLength=1000000 
+}) => {
 
   return (
     <Box sx={{ position: 'relative', width: '100%', height, marginTop: '12px' }}>
@@ -29,7 +39,7 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ value, onChange, placeh
             sx: { position: 'absolute', right:0, bottom:5 } 
           }
         }}
-        helperText={`${value.length}/${maxLength} caratteri`}
+        helperText={hasLimit? `${value.length}/${maxLength} caratteri`: ""}
         placeholder={placeholder}
         sx={{
           flex: 1,
