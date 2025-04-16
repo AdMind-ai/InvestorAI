@@ -17,7 +17,9 @@ import EarningsIconActive from '../assets/icons-sidebar/earnings-icon-active.svg
 import ESGIcon from '../assets/icons-sidebar/esg-icon.svg'
 import ESGIconActive from '../assets/icons-sidebar/esg-icon-active.svg'
 import FinanceIcon from '../assets/icons-sidebar/usage-icon.svg'
+import FinanceIconActive from '../assets/icons-sidebar/usage-icon-active.svg'
 import SecurityIcon from '../assets/icons-sidebar/access-icon.svg'
+import SecurityIconActive from '../assets/icons-sidebar/access-icon-active.svg'
 
 // Logos
 import InvestorLogo from '../assets/logos/svg/NOPAYOFF_LEFT_POSITIVE.svg'
@@ -58,8 +60,8 @@ const menuItems = [
 ]
 
 const admItems = [
-  { title: 'Finance', path: '/', icon: FinanceIcon, activeIcon: FinanceIcon },
-  { title: 'Adm', path: '/', icon: SecurityIcon, activeIcon: SecurityIcon },
+  { title: 'Finance', path: '/usage', icon: FinanceIcon, activeIcon: FinanceIconActive },
+  { title: 'Adm', path: '/access', icon: SecurityIcon, activeIcon: SecurityIconActive },
 ]
 
 const Sidebar: React.FC = () => {
@@ -204,7 +206,7 @@ const Sidebar: React.FC = () => {
           }}
         >
           {admItems.map((item) => {
-            const isActive = false
+            const isActive = activePath === item.path
             return (
               <ListItem
                 key={item.title}
