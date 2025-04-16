@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Grow
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -38,11 +39,6 @@ interface ApiMessage {
   created_at: string;
   is_user: boolean;
 }
-// interface ApiMessage {
-//   content: string;
-//   is_user: boolean;
-// }
-
 
 interface ApiChatResponse {
   id: string;
@@ -51,7 +47,6 @@ interface ApiChatResponse {
   created_at: string;
   messages: ApiMessage[];
 }
-
 
 interface ChatHeaderProps {
   selectedModel: string;
@@ -63,6 +58,22 @@ interface ChatHeaderProps {
   saveCleanEnabled : boolean;
   messages: Message[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+}
+
+const modelDescriptions: Record<string, { name: string, desc: string }> = { 
+  "GPT-4.1": { 
+    name: "GPT-4.1",
+    desc: "Il modello più avanzato, ottimo per affrontare compiti complessi e ottenere risposte dettagliate e affidabili sulle richieste più difficili."
+  }, 
+  "GPT o3 mini": { 
+    name: "OpenAI o3-mini",
+    desc: "Assistente ideale per risolvere problemi, fare calcoli e rispondere a domande di scienza. Perfetto per lavorare con testi molto lunghi in modo semplice e chiaro."
+  }, 
+  "GPT-4.1 mini": {
+    name: "GPT-4.1 mini",
+    desc: "Un modello che unisce velocità e precisione, perfetto per risposte veloci su attività quotidiane o domande non troppo complesse."
+  }  
+  // ...new models
 }
 
 export const modelMapping: Record<string, string> = {
@@ -89,6 +100,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const [openSaveModal, setOpenSaveModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [newChatName, setNewChatName] = useState('');
+  const [hoverModel, setHoverModel] = useState<string | null>(null);
   
   const handleSaveClick = () => {
     setOpenSaveModal(true);
@@ -256,32 +268,64 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             sx={{ gap: '4px', maxHeight: '4.1vh' }}
           >
             {Object.keys(modelMapping).map(model => (
-              <ToggleButton key={model} value={model}
-                sx={{
-                  textTransform: 'none',
-                  fontSize:'14px',
-                  fontWeight: 'regular',
-                  color: theme.palette.text.primary,
-                  backgroundColor: 'transparent',
-                  borderRadius: '8px !important',
-                  borderColor: 'transparent !important',
-                  padding: '6px 12px',
-                  '&.Mui-selected': {
-                    backgroundColor: theme.palette.primary.main,
-                    color: theme.palette.primary.contrastText,
+              <Box key={model} sx={{ position: 'relative', display: 'inline-block' }}>
+                <ToggleButton 
+                  key={model} 
+                  value={model}
+                  onMouseEnter={() => setHoverModel(model)}
+                  onMouseLeave={() => setHoverModel(null)}
+                  sx={{
+                    mb:1,
+                    textTransform: 'none',
+                    fontSize:'14px',
+                    maxHeight: '4.1vh',
+                    fontWeight: 'regular',
+                    color: theme.palette.text.primary,
+                    backgroundColor: 'transparent',
+                    borderRadius: '8px !important',
+                    borderColor: 'transparent !important',
+                    padding: '6px 12px',
+                    '&.Mui-selected': {
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      '&:hover': {
+                        backgroundColor: theme.palette.primary.main,
+                        color: theme.palette.primary.contrastText,
+                      },
+                    },
                     '&:hover': {
                       backgroundColor: theme.palette.primary.main,
                       color: theme.palette.primary.contrastText,
                     },
-                  },
-                  '&:hover': {
-                    backgroundColor: theme.palette.primary.main,
-                    color: theme.palette.primary.contrastText,
-                  },
-                }}
-              >
-                {model}
-              </ToggleButton>
+                  }}
+                >
+                  {model}
+                </ToggleButton>
+
+                <Grow in={hoverModel === model} timeout={'auto'} unmountOnExit >
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '65%',
+                      left: '95%',
+                      width: '300px',
+                      bgcolor: 'white',
+                      border: '1px solid #ccc',
+                      borderRadius: 2,
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.12)',
+                      p: 1,
+                      zIndex: 10,
+                      mt: 1,
+                      pointerEvents: 'none',
+                      transformOrigin: 'left top'
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ fontSize: '0.8rem', color: '#333', lineHeight: '1.3' }}>
+                      <b>{modelDescriptions[model].name}</b> {modelDescriptions[model].desc}
+                    </Typography>
+                  </Box>
+                </Grow>
+              </Box>
             ))}
           </ToggleButtonGroup>
         </Box>

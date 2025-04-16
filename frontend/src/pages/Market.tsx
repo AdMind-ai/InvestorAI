@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Divider, Link, Button, Pagination } from '@mui/material'
+import { Box, Typography, Divider, Link, Button, Pagination, Grow } from '@mui/material'
 import ReactMarkdown from 'react-markdown';
 // import { useTheme } from '@mui/material/styles'
 import '../styles/markdown.css';
@@ -549,7 +549,7 @@ const Market: React.FC = () => {
                         {stockData?.possible_risk_factors || ''}
                       </Typography>
 
-                      {hoveredElement === 'risk_factors' && (
+                      <Grow in={hoveredElement === 'risk_factors'} timeout={'auto'} unmountOnExit >
                         <Box sx={{
                           position: 'absolute',
                           zIndex: 20,
@@ -569,7 +569,8 @@ const Market: React.FC = () => {
                             <ReactMarkdown>{stockData?.possible_risk_factors || ''}</ReactMarkdown>
                           </div>
                         </Box>
-                      )}
+                      </Grow>
+                        
                     </Box>
 
                     <Box sx={{ 
@@ -587,7 +588,7 @@ const Market: React.FC = () => {
                         {stockData?.latest_news || ''}
                       </Typography>
 
-                      {hoveredElement === 'latest_news' && (
+                      <Grow in={hoveredElement === 'latest_news'} timeout={'auto'} unmountOnExit >
                         <Box sx={{
                           position: 'absolute',
                           zIndex: 20,
@@ -607,7 +608,7 @@ const Market: React.FC = () => {
                             <ReactMarkdown>{stockData?.latest_news || ''}</ReactMarkdown>
                           </div>
                         </Box>
-                      )}
+                      </Grow>
                     </Box>
 
                     <Box 
@@ -620,7 +621,8 @@ const Market: React.FC = () => {
                         {stockData?.short_term_forecast || ''}
                       </Typography>
 
-                      {hoveredElement === 'short_forecast' && (
+
+                      <Grow in={hoveredElement === 'short_forecast'} timeout={'auto'} unmountOnExit >
                         <Box sx={{
                           position: 'absolute',
                           zIndex: 20,
@@ -640,7 +642,7 @@ const Market: React.FC = () => {
                             <ReactMarkdown>{stockData?.short_term_forecast || ''}</ReactMarkdown>
                           </div>
                         </Box>
-                      )}
+                      </Grow>
                     </Box>
 
                   </Box>
@@ -814,12 +816,11 @@ const Market: React.FC = () => {
                           <Typography variant="caption" sx={{fontSize:'0.8rem', lineHeight:1.2}}>{company.competitor}</Typography>
                         </Box>
 
-                        {hoverIndex === index && (
+                        <Grow in={hoverIndex === index} timeout={'auto'} unmountOnExit >
                           <Box sx={{
                             position: 'absolute',
                             top: '100%',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
+                            left: '-35%',
                             width: '200px',
                             bgcolor: 'white',
                             border: '1px solid #ccc',
@@ -832,7 +833,8 @@ const Market: React.FC = () => {
                               {company.description}
                             </Typography>
                           </Box>
-                        )}
+                        </Grow>
+
                       </Box>
                     ))}
                   </Box>
