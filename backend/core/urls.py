@@ -34,10 +34,10 @@ urlpatterns = [
     # Chat
     path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
          name='openai-chat-send-message'),
-
+     path('openai/assistant/send-message/', OpenAISendAssistantMessageView.as_view(),
+         name='openai-assistant-send-message'),
     path('elevenlabs/text-to-speech/',
          ElevenlabsTextToSpeechView.as_view(), name='text-to-speech',),
-
     path('openai/investing-scraper/', OpenAIInvestingDataScraper.as_view(),
          name='get_investing_data'),
 ]

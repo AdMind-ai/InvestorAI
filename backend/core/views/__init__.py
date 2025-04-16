@@ -13,6 +13,7 @@ from .openai import OpenAiAudioTranscriptView
 from .openai import OpenAIESGNewsView
 from .openai import OpenAICEONewsView
 from .openai import OpenAIConversationViewSet, OpenAISendMessageView
+from .openai import OpenAISendAssistantMessageView
 from .openai import OpenAICompetitorSearchView
 from .openai import OpenAIInvestingDataScraper
 from .openai import OpenAIMarketNewsView
@@ -45,4 +46,5 @@ __all__ = [
     'CombinedArticleViewSet',
     'ESGArticleViewSet',
     'CEOArticleViewSet',
+    'OpenAISendAssistantMessageView',
 ]

@@ -1,13 +1,42 @@
-import { Box, Button, Paper, Typography, Divider } from '@mui/material'
-import linkedinBackground from '../../assets/backgrounds/linkedin-background.svg'
-import LinkedinLogo from '../../assets/icons/linkedin-logo.png'
+import { Box, Button, Paper, Typography, Divider, CircularProgress } from '@mui/material'
+import linkedinBackground from '../../../assets/backgrounds/linkedin-background.svg'
+import LinkedinLogo from '../../../assets/icons/linkedin-logo.png'
+import AyrshareInterface from '../../../interfaces/ayrshareInterface'
+import { useEffect, useState } from 'react'
 
-const LinkedinPost = () => {
+const Profile =  ({states}: {states: AyrshareInterface}) => {
+
+  let [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (states.profile.value === null) {
+        states.profile.set();
+    }
+  }, []);
 
   const handleConnectClick = () => {
-    // lógica para conectar seu LinkedIn aqui
-    console.log("Conectando ao LinkedIn...");
+    window.open(states.profileUrl.value, '_blank')
   }
+  useEffect(() => {
+    if (states.social.value?.filter(item=>item==='linkedin').length<=0 && attempt === 0) {
+        setTimeout(()=>{setAttempt(attempt+1)}, 5000)
+    }
+  }, [states.social.value]);
+
+  useEffect(()=>{
+    if (attempt > 0){
+        checkSocials()
+    }
+},[attempt])
+
+const checkSocials = () => {
+  if (states.social.value?.filter(item=>item==='linkedin').length<=0) {
+      states.profileUrl.set()
+      setTimeout(()=>{setAttempt(attempt+1)}, 2500)
+  }
+  else {
+      setAttempt(0)
+  }
+}
 
   return (
     <Box 
@@ -76,18 +105,25 @@ const LinkedinPost = () => {
             alt="Linkedin"
             sx={{ width: '75px', height: 'auto'}}
           />
-
-          <Button 
-            variant="contained"
-            disabled
-            onClick={handleConnectClick}
-            sx={{
-              width: '100px',
-              backgroundColor: '#1AD598',
-            }}
-            >
-            Connetti
-          </Button>
+          {
+            states.profile.value === null ?
+            <CircularProgress /> : <></>
+          }
+          {
+            !states.submit.value && states.profile.value !== null ?
+            <Button 
+              variant="contained"
+              disabled={states.social.value?.filter(item=>item==='linkedin').length>0}
+              onClick={handleConnectClick}
+              sx={{
+                width: '100px',
+                backgroundColor: states.social.value?.filter(item=>item==='linkedin').length>0?'#1AD598': '#0274b3',
+              }}
+              >
+              {states.social.value?.filter(item=>item==='linkedin').length>0?'Collegato':'Connetti'}
+            </Button>
+            :<></>
+          }
         </Paper>
 
         <Divider sx={{ width: '105%' }} />
@@ -109,4 +145,4 @@ const LinkedinPost = () => {
   )
 }
 
-export default LinkedinPost
+export default Profile
