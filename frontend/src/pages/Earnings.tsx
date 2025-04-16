@@ -10,17 +10,22 @@ import Layout from '../layouts/Layout'
 import { useTheme } from '@mui/material/styles'
 import SaveCleanButtons from '../components/SaveCleanButtons'
 
-import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Traduttore from '../components/EarningsPage/Traduttore'
+import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
 import SocialMedia from '../components/EarningsPage/socialMedia/SocialMedia'
 
 const Earnings: React.FC = () => {
   const theme = useTheme();
-  const [selectedOption, setSelectedOption] = useState<string>('Crea speech');
+  const [selectedOption, setSelectedOption] = useState<string>('Traduttore');
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
   const Options = [
+    {
+      title: 'Traduttore',
+      content:
+        'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
+    },
     {
       title: 'Crea speech',
       content: [
@@ -34,11 +39,6 @@ const Earnings: React.FC = () => {
         'Thank you all for your attention.',
         'This presentation’s speech was created with the help of artificial intelligence, reproducing my voice in multiple languages."',
       ],
-    },
-    {
-      title: 'Traduttore',
-      content:
-        'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
     },
     {
       title: 'Trascrizione audio',
@@ -119,8 +119,8 @@ const Earnings: React.FC = () => {
           </Box>
           
           {/* Content */}
-          {selectedOption === 'Crea speech' && <CreaSpeech onChange={setIsButtonEnabled}/>}
           {selectedOption === 'Traduttore' && <Traduttore />}
+          {selectedOption === 'Crea speech' && <CreaSpeech onChange={setIsButtonEnabled}/>}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
           {selectedOption === 'LinkedIn post' && <SocialMedia />}
           

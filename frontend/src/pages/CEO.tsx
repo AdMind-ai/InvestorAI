@@ -175,7 +175,7 @@ const CEOPage: React.FC = () => {
     setSelectedProvider('openai');
     try {
       setLoadingArticlesList(true)
-      const res = await api.get<NewsItem[]>("/ceo-articles/");
+      const res = await api.get<NewsItem[]>("/articles/ceo/");
 
       const groupedData: Record<string, NewsItem[]> = {
         'Mario Rossi': [],
@@ -204,7 +204,7 @@ const CEOPage: React.FC = () => {
       setViewedArticles(prev => new Set([...prev, article.id]));
   
       try {
-        await api.put(`/ceo-articles/${article.id}/mark_viewed/`);
+        await api.put(`/articles/ceo/${article.id}/mark_viewed/`);
       } catch (error) {
         console.error("Erro ao marcar artigo como visualizado:", error);
       }
@@ -229,7 +229,7 @@ const CEOPage: React.FC = () => {
               <ToggleButton value="perplexity">Perplexity</ToggleButton>
               <ToggleButton value="openai">OpenAI</ToggleButton>
             </ToggleButtonGroup> */}
-            <Button variant='contained' onClick={handleFetchArticles} sx={{height: 'calc(4vh)', position:'absolute', right:0, bottom:10}}>
+            <Button variant='contained' onClick={handleFetchArticles} sx={{display: 'none', height: 'calc(4vh)', position:'absolute', right:0, bottom:10}}>
               {loadingGenerateArticles ? <CircularProgress size={24} color="inherit" /> : 'Generate articles'}
             </Button>
           </Box>

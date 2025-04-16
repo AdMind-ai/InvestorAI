@@ -34,6 +34,7 @@ class APIRootView(APIView):
                     "deep-search": request.build_absolute_uri(reverse("deep-search")),
                     "esg-news": request.build_absolute_uri(reverse("perplexity-esg-news")),
                     "ceo-news": request.build_absolute_uri(reverse("perplexity-ceo-news")),
+                    "market-report": request.build_absolute_uri(reverse("monthly-market-report")),
                 },
                 "deepl": {
                     "file": request.build_absolute_uri(reverse("translate-file")),
@@ -43,13 +44,20 @@ class APIRootView(APIView):
                     "audio-transcription": request.build_absolute_uri(reverse("audio-transcription")),
                     "esg-news": request.build_absolute_uri(reverse("openai-esg-news")),
                     "ceo-news": request.build_absolute_uri(reverse("openai-ceo-news")),
+                    "market-news": request.build_absolute_uri(reverse("openai-market-news")),
+                    "competitors-search": request.build_absolute_uri(reverse("openai-competitors-search")),
+                    "investing-scraper": request.build_absolute_uri(reverse("get_investing_data")),
+                    "quarterly-report": request.build_absolute_uri(reverse("openai-quarterly-report")),
                     "chat-conversation": request.build_absolute_uri(reverse("openai-chat-conversation-list")),
-                    "chat-message": request.build_absolute_uri(reverse("openai-chat-send-message")),
+                    "chat-send-message": request.build_absolute_uri(reverse("openai-chat-send-message")),
                 },
                 "elevenlabs": {
                     "text-to-speech": request.build_absolute_uri(reverse("text-to-speech")),
                 },
-                "esg-articles": request.build_absolute_uri(reverse("esgarticle-list")),
-                "ceo-articles": request.build_absolute_uri(reverse("ceoarticle-list")),
+                "articles": {
+                    "articles": request.build_absolute_uri(reverse("articles-list")),
+                    "esg-articles": request.build_absolute_uri(reverse("esgarticle-list")),
+                    "ceo-articles": request.build_absolute_uri(reverse("ceoarticle-list")),
+                },
             }
         })

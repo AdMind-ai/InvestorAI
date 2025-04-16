@@ -2,17 +2,21 @@ import React, { useState } from 'react'
 import { Button, Menu, MenuItem, Box, Typography, ListItemIcon } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon  from '@mui/icons-material/CloseRounded';
+import IconButton from '@mui/material/IconButton';
 
 interface SimpleDropdownProps {
   title: string
   options: string[]
   selectedValue: string;
   onSelect?: (selectedOption: string) => void
+  isDeleteItems?: boolean 
+  onDeleteItem?: (itemName: string) => void 
 }
 
-const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, selectedValue, onSelect }) => {
+const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, selectedValue, onSelect, isDeleteItems = false, onDeleteItem  }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedIndex, setSelectedIndex] = useState<null | number>(null);
+  // const [selectedIndex, setSelectedIndex] = useState<null | number>(null);
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -24,7 +28,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, selecte
   }
 
   const handleSelect = (index: number) => {
-    setSelectedIndex(index);
+    // setSelectedIndex(index);
     onSelect?.(options[index])
     handleClose();
   };
@@ -67,7 +71,9 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, selecte
               '&:hover': {
                 backgroundColor: 'rgba(0, 0, 0, 0.05)',
               },
-              fontWeight: index === selectedIndex ? 'bold' : 'normal',
+              display:'flex',
+              justifyContent: 'space-between',
+              fontWeight: option === selectedValue ? 'bold' : 'normal',
               fontSize: '14px', 
               borderRadius: 10,  
             }}
@@ -78,6 +84,20 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({ title, options, selecte
               </ListItemIcon>
             )}
             <Typography variant="inherit">{option}</Typography>
+            {isDeleteItems && (
+              <IconButton
+                size="small"
+                edge="end"
+                onClick={e => {
+                  e.stopPropagation(); 
+                  onDeleteItem?.(option);
+                  handleClose(); 
+                }}
+                sx={{ml:2}}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )}
           </MenuItem>
         ))}
       </Menu>

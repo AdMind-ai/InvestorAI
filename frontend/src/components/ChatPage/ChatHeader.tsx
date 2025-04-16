@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import { useNavigate } from 'react-router-dom';
 import SimpleDropdown from '../SimpleDropdown'
 import SaveCleanButtons from '../SaveCleanButtons'
 import { useTheme } from '@mui/material/styles'
@@ -61,6 +62,7 @@ interface ChatHeaderProps {
   setSelectedChat: React.Dispatch<React.SetStateAction<{ id: number | string; name: string } | null>>;
   saveCleanEnabled : boolean;
   messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
 export const modelMapping: Record<string, string> = {
@@ -78,9 +80,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   selectedChat,
   setSelectedChat, 
   saveCleanEnabled,
-  messages
+  messages,
+  setMessages,
 }) => {
-
+  const navigate = useNavigate();
   const theme = useTheme()
   const [chats, setChats] = useState<{ id: number | string; name: string; }[]>([]);
   // const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
@@ -109,7 +112,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       const newChat = { id: selectedChat.id, name: newChatName };
       
       try {
-        await api.put(`/openai/chat/conversations/${selectedChat.id}/`, {
+        await api.put(`/openai/chat/${selectedChat.id}/`, {
           name: newChatName,
         });
         
@@ -124,12 +127,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       }
     } else {
       try {
-        const messages_test=messages
-        console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-        console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXX",messages_test[0],"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        // const messages_test=messages
+        // console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        // console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXX",messages_test[0],"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
   
         // Criar a nova conversa
-        const response = await api.post('/openai/chat/conversations/', {
+        const response = await api.post('/openai/chat/', {
           name: newChatName,
           messages: messages.map((msg) => ({
             content: msg.content,
@@ -159,7 +162,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const handleDeleteChat = async () => {
     if (selectedChat) {
       try {
-        await api.delete(`/openai/chat/conversations/${selectedChat.id}/`);
+        await api.delete(`/openai/chat/${selectedChat.id}/`);
         toast.success(`Chat "${selectedChat.name}" eliminato con successo.`);
         setChats(chats.filter(chat => chat.id !== selectedChat.id));
         setOpenDeleteModal(false);
@@ -184,7 +187,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   useEffect(() => {
     const fetchChatConversations = async () => {
       try {
-        const response = await api.get('/openai/chat/conversations/');
+        const response = await api.get('/openai/chat/');
         const chatList: Chat[] = response.data.map((conversation: ApiChatResponse) => ({
           id: conversation.id,
           name: conversation.name,
@@ -206,7 +209,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     };
 
     const removeChat = async (chatId: string | number) => {
-      const response = await api.delete(`/openai/chat/conversations/${chatId}/`);
+      const response = await api.delete(`/openai/chat/${chatId}/`);
 
       if (response.status === 204 || response.status === 200) {
         console.log(`Chat ${chatId} excluído.`);
@@ -286,12 +289,28 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        {saveCleanEnabled? <SaveCleanButtons onSave={handleSaveClick} onClean={() => handleDeleteClick(selectedChat)} /> : null}
+      {saveCleanEnabled ? (
+        <SaveCleanButtons
+          onSave={handleSaveClick}
+          onClean={() => {
+            setSelectedChat(null);
+            onChatSelect(null, null);
+            setMessages([]);
+            navigate('/chat-assistant');
+          }}
+        />
+      ) : null}
         <SimpleDropdown 
+          // onClick={() => handleDeleteClick(selectedChat)}
           title="Chat salvate" 
           options={chats.map(chat => chat.name)} 
           onSelect={handleDropdownSelect} 
           selectedValue={selectedChat ? selectedChat.name : ''}
+          isDeleteItems
+          onDeleteItem={(name) => {
+              const chat = chats.find(c => c.name === name);
+              if (chat) handleDeleteClick(chat);
+          }}
         />
       </Box>
 

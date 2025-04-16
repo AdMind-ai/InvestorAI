@@ -44,7 +44,7 @@ const Chat: React.FC = () => {
       setSelectedChat({ id, name });
       
       try {
-        const response = await api.get(`/openai/chat/conversations/${id}`);
+        const response = await api.get(`/openai/chat/${id}`);
         console.log(response.data); 
     
         const messages = response.data.messages.map((message: ApiMessage) => ({
@@ -114,6 +114,7 @@ const Chat: React.FC = () => {
           setSelectedChat={setSelectedChat}
           saveCleanEnabled={messages.length > 0}
           messages={messages}
+          setMessages={setMessages}
         />
         
         <Divider />

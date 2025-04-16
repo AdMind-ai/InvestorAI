@@ -21,7 +21,7 @@ class DeeplTranslateFileView(APIView):
 
     def get(self, request, format=None):
         document = self.request.query_params.get('document', '')
-        aisolutions_path = os.path.join(settings.MEDIA_ROOT, 'files')
+        file_path = os.path.join(settings.MEDIA_ROOT, 'files')
 
         if not document:
             return Response(
@@ -29,7 +29,7 @@ class DeeplTranslateFileView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        file_path = os.path.join(aisolutions_path, document)
+        file_path = os.path.join(file_path, document)
 
         if os.path.isfile(file_path):
             return FileResponse(

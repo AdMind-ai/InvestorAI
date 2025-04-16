@@ -59,11 +59,11 @@ class DeeplTranslation:
         file_b = file.read()
         translator = deepl.Translator(self.key)
         filename_without_extension, extension = os.path.splitext(file.name)
-        aisolutions_path = os.path.join(settings.MEDIA_ROOT, 'files')
-        os.makedirs(aisolutions_path, exist_ok=True)
+        file_path = os.path.join(settings.MEDIA_ROOT, 'files')
+        os.makedirs(file_path, exist_ok=True)
 
         temp_file = tempfile.NamedTemporaryFile(
-            delete=False, suffix=extension, dir=aisolutions_path
+            delete=False, suffix=extension, dir=file_path
         )
 
         target_lang = self.TARGET.get(target)
@@ -98,7 +98,7 @@ class DeeplTranslation:
                 "_tradotto", "")
             new_filename = f"{clean_filename}_{formatted_date}_tradotto{extension}"
 
-            final_path = os.path.join(aisolutions_path, new_filename)
+            final_path = os.path.join(file_path, new_filename)
             if os.path.exists(final_path):
                 os.remove(final_path)
 

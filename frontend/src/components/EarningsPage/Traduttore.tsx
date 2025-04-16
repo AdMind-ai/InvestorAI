@@ -80,7 +80,6 @@ const Traduttore = () => {
   // Translation
   const handleTranslation = async () => {
     if (!selectedLanguageOriginal || !selectedLanguageTarget) {
-      alert("Por favor selecione os idiomas corretamente.");
       return;
     }
 
