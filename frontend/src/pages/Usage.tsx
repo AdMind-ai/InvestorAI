@@ -1,15 +1,16 @@
 import React from 'react';
+// import React, { useState, useEffect } from 'react';
 import { Box, Typography, Divider, LinearProgress } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
+// import { useTheme } from '@mui/material/styles'
 import Layout from '../layouts/Layout'
 // import { api } from '../api/api'
 
-const cardsTitle = [
+const cardsTitle: CardGroup[] = [
   { key: 'earnings', label: 'Earnings Call' },
   { key: 'chat', label: 'Chat Assistant' },
 ];
 
-const cardsMock = {
+const cardsMock: Record<string, CardData[]> = {
   earnings: [
     { title: 'Crea speech', usage: '98%' },
     { title: 'Traduttore di testo', usage: '1%' },
@@ -28,7 +29,7 @@ const cardsMock = {
   ],
 };
 
-function getUsageValue(usage) {
+function getUsageValue(usage: string) {
   if (usage.endsWith('%')) {
     const percent = parseFloat(usage.replace('%', ''));
     return { value: percent, isPercent: true, label: usage };
@@ -40,7 +41,22 @@ function getUsageValue(usage) {
   return { value: 0, isPercent: false, label: usage };
 }
 
-const Card = ({ title, usage }) => {
+interface CardData {
+  title: string;
+  usage: string;
+}
+
+interface CardGroup {
+  key: string;
+  label: string;
+}
+
+// interface ApiResponse {
+//   [groupKey: string]: CardData[];
+// }
+
+
+const Card: React.FC<CardData> = ({ title, usage }) => {
   const { value, label } = getUsageValue(usage);
   return (
     <Box
@@ -85,11 +101,27 @@ const Card = ({ title, usage }) => {
   );
 };
 
-const Usage: React.FC = () => {
-  const theme = useTheme()
 
+const Usage: React.FC = () => {
+  // const theme = useTheme()
+
+  // const [cardsData, setCardsData] = useState<ApiResponse>({});
+  // const [loading, setLoading] = useState<boolean>(true);
+  // const [error, setError] = useState<string | null>(null);
+
+  // useEffect(() => {
+  //   api.get('/usage/') 
+  //     .then((response) => {
+  //       setCardsData(response.data);
+  //     })
+  //     .catch((err) => {
+  //       setError(err?.message || 'Erro ao carregar dados');
+  //     })
+  //     .finally(() => setLoading(false));
+  // }, []);
 
   return (
+
     <Layout>
       <Box
         sx={{
@@ -127,9 +159,8 @@ const Usage: React.FC = () => {
           }}
         >
 
-          {/* Main Content*/}
+          {/* Cards Group */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6vh' }}>
-            {/* Loop nos grupos */}
             {cardsTitle.map((group) => (
               <Box key={group.key}>
                 <Typography variant="h4" fontWeight="bold" marginLeft={1} marginBottom={1.5}>
