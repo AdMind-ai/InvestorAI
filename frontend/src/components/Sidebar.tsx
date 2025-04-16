@@ -154,7 +154,7 @@ const Sidebar: React.FC = () => {
                     : 'transparent',
                   borderRadius: 'calc(0.5vw)',
                   '&:hover': {
-                    backgroundColor: isActive ? theme.palette.primary.light : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: isActive ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.1)',
                     borderRadius: 'calc(0.5vw)',
                   },
                 }}
