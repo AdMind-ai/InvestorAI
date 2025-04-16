@@ -30,7 +30,7 @@ interface ApiMessage {
 // }
 
 const Chat: React.FC = () => {
-  const [selectedModel, setSelectedModel] = useState('GPT-4o mini')
+  const [selectedModel, setSelectedModel] = useState('GPT-4.1 mini')
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false);
   const [isOverview, setIsOverview] = useState(false);
