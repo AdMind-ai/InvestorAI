@@ -4,20 +4,20 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@mui/material/styles'
 
 // Importação dos ícones
-import HomeIcon from '../assets/icons/home-icon.svg'
-import HomeIconActive from '../assets/icons/home-icon-active.svg'
-import ChatIcon from '../assets/icons/chat-icon.svg'
-import ChatIconActive from '../assets/icons/chat-icon-active.svg'
-import CEOIcon from '../assets/icons/ceo-icon.svg'
-import CEOIconActive from '../assets/icons/ceo-icon-active.svg'
-import MarketIcon from '../assets/icons/market-icon.svg'
-import MarketIconActive from '../assets/icons/market-icon-active.svg'
-import EarningsIcon from '../assets/icons/earnings-icon.svg'
-import EarningsIconActive from '../assets/icons/earnings-icon-active.svg'
-import ESGIcon from '../assets/icons/esg-icon.svg'
-import ESGIconActive from '../assets/icons/esg-icon-active.svg'
-import FinanceIcon from '../assets/icons/finance-icon.svg'
-import SecurityIcon from '../assets/icons/security-icon.svg'
+import HomeIcon from '../assets/icons-sidebar/home-icon.svg'
+import HomeIconActive from '../assets/icons-sidebar/home-icon-active.svg'
+import ChatIcon from '../assets/icons-sidebar/chat-icon.svg'
+import ChatIconActive from '../assets/icons-sidebar/chat-icon-active.svg'
+import CEOIcon from '../assets/icons-sidebar/ceo-icon.svg'
+import CEOIconActive from '../assets/icons-sidebar/ceo-icon-active.svg'
+import MarketIcon from '../assets/icons-sidebar/market-icon.svg'
+import MarketIconActive from '../assets/icons-sidebar/market-icon-active.svg'
+import EarningsIcon from '../assets/icons-sidebar/earnings-icon.svg'
+import EarningsIconActive from '../assets/icons-sidebar/earnings-icon-active.svg'
+import ESGIcon from '../assets/icons-sidebar/esg-icon.svg'
+import ESGIconActive from '../assets/icons-sidebar/esg-icon-active.svg'
+import FinanceIcon from '../assets/icons-sidebar/usage-icon.svg'
+import SecurityIcon from '../assets/icons-sidebar/access-icon.svg'
 
 // Logos
 import InvestorLogo from '../assets/logos/svg/NOPAYOFF_LEFT_POSITIVE.svg'
@@ -111,7 +111,7 @@ const Sidebar: React.FC = () => {
           sx={{
             width: "27vh",
             height: "27vh",
-            marginLeft: 'calc(11.5vw)',
+            marginLeft: 'calc(12vw)',
             marginTop: 'calc(2.5vh)',
           }}
         />
@@ -132,7 +132,7 @@ const Sidebar: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 'calc(0.7vw)',
+            gap: 'calc(0.5vw)',
           }}
         >
           {menuItems.map((item) => {
@@ -145,8 +145,8 @@ const Sidebar: React.FC = () => {
                   padding: 0,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  width: 'calc(3vw)',
-                  height: 'calc(3vw)',
+                  width: 'calc(4vw)',
+                  height: 'calc(3.6vw)',
                   cursor: 'pointer',
                   backgroundColor: isActive
                     ? theme.palette.primary.main
@@ -172,8 +172,8 @@ const Sidebar: React.FC = () => {
                     src={isActive ? item.activeIcon : item.icon}
                     alt={`${item.title} Icon`}
                     style={{
-                      width: 'calc(1.5vw)',
-                      height: 'calc(1.5vw)',
+                      width: 'calc(1.7vw)',
+                      height: 'calc(1.7vw)',
                     }}
                   />
                 </ListItemIcon>
@@ -186,7 +186,7 @@ const Sidebar: React.FC = () => {
       {/* Adm */}
       <Box
         sx={{
-          marginBottom: 'calc(5vh)',
+          marginBottom: 'calc(4vh)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -213,15 +213,15 @@ const Sidebar: React.FC = () => {
                   padding: 0,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  width: 'calc(3vw)',
-                  height: 'calc(3vw)',
+                  width: 'calc(4vw)',
+                  height: 'calc(3.6vw)',
                   cursor: 'pointer',
                   backgroundColor: isActive
                     ? theme.palette.primary.main
                     : 'transparent',
                   borderRadius: 'calc(0.5vw)',
                   '&:hover': {
-                    backgroundColor: isActive ? theme.palette.primary.light : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: isActive ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.1)',
                     borderRadius: 'calc(0.5vw)',
                   },
                 }}
@@ -240,8 +240,8 @@ const Sidebar: React.FC = () => {
                     src={isActive ? item.activeIcon : item.icon}
                     alt={`${item.title} Icon`}
                     style={{
-                      width: 'calc(1.5vw)',
-                      height: 'calc(1.5vw)',
+                      width: 'calc(1.7vw)',
+                      height: 'calc(1.7vw)',
                     }}
                   />
                 </ListItemIcon>
