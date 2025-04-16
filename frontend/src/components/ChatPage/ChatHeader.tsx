@@ -66,9 +66,9 @@ interface ChatHeaderProps {
 }
 
 export const modelMapping: Record<string, string> = {
-  "GPT-4.1 mini": "gpt-4.1-mini",
   "GPT-4.1": "gpt-4.1",
-  "o3 mini": "o3-mini"
+  "GPT o3 mini": "o3-mini",
+  "GPT-4.1 mini": "gpt-4.1-mini",
 };
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ 
