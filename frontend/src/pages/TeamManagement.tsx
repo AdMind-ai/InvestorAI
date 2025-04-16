@@ -108,7 +108,7 @@ const columns: {
   }
 ];
 
-const Access: React.FC = () => {
+const TeamManagement: React.FC = () => {
   // Data
   const [members, setMembers] = useState<Member[]>([]);
   const rolesArray = ['Admin', 'Editor', 'Viewer'];
@@ -562,4 +562,4 @@ const Access: React.FC = () => {
   );
 };
 
-export default Access;
+export default TeamManagement;

@@ -8,7 +8,7 @@ import CEO from './pages/CEO'
 import ESG from './pages/ESG'
 import Earnings from './pages/Earnings'
 import Usage from './pages/Usage'
-import Access from './pages/Access'
+import TeamManagement from './pages/TeamManagement'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 
@@ -30,7 +30,7 @@ const AppRoutes = () => {
             <Route path="/earnings" element={<Earnings />} />
             <Route path="/esg" element={<ESG />} />
             <Route path="/usage" element={<Usage />} />
-            <Route path="/access" element={<Access />} />
+            <Route path="/access" element={<TeamManagement />} />
             <Route path="*" element={<Home />} />
           </Route>
         </Routes>
