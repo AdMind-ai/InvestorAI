@@ -12,6 +12,7 @@ from .openai import OpenAiAudioTranscriptView
 from .openai import OpenAIESGNewsView
 from .openai import OpenAICEONewsView
 from .openai import OpenAIConversationViewSet, OpenAISendMessageView
+from .openai import OpenAISendAssistantMessageView
 
 from .elevenlabs import ElevenlabsTextToSpeechView
 
@@ -32,5 +33,6 @@ __all__ = [
     'OpenAISendMessageView',
     'ElevenlabsTextToSpeechView',
     'ESGArticleViewSet',
-    'CEOArticleViewSet'
+    'CEOArticleViewSet',
+    'OpenAISendAssistantMessageView'
 ]

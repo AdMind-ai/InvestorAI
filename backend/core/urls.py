@@ -25,6 +25,8 @@ urlpatterns = [
     # Chat
     path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
          name='openai-chat-send-message'),
+     path('openai/assistant/send-message/', OpenAISendAssistantMessageView.as_view(),
+         name='openai-assistant-send-message'),
     # path('openai/chat/upload'),
 
     path('elevenlabs/text-to-speech/',
