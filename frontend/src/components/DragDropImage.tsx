@@ -1,56 +1,45 @@
+
 import React, { useState } from 'react';
-import { Box, TextField, Typography, Button } from '@mui/material';
-import DocumentList from './DocumentList';
+import { Box, Typography, Button } from '@mui/material';
 
-interface UploadableTextAreaProps {
-  text: string;
-  setText: (value: string) => void;
-  onFileUpload: (file: File | File[]) => void;
-}
 
-interface Document {
-  id: number;
-  name: string;
-  type: string;
-}
+
+
 
 const ACCEPTED_FILE_EXTENSIONS = [
-  '.txt', '.pdf', '.doc', '.docx', '.odt', '.rtf', '.html', '.md', '.xls', '.xlsx'
+  '.jpg', '.png', '.jpeg'
 ];
 
-const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder='Inserisci il testo qui', documentPlaceHolder='Carica un file o trascinalo qui' }) => {
-  const [documents, setDocuments] = useState<Document[]>([]);
+interface DragDropImageProps {
+    onFileUpload: (file: File | File[]) => void;
+    image: File;
+   }
+ 
+
+const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, image}) => {
   const [dragOver, setDragOver] = useState<boolean>(false);
+  const [url, setUrl] =  useState<string>('');
 
   const handleFileUpload = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
-      const fileContent = e.target?.result as string;
-      console.log('Conteúdo do arquivo:', fileContent);
-  
-      const newDocument: Document = {
-        id: Date.now() + Math.random(),
-        name: file.name,
-        type: file.name.split('.').pop() || 'unknown',
-      };
-      setDocuments((prevDocs) => [...prevDocs, newDocument]);
+
       onFileUpload(file);
     };
     reader.readAsText(file);
   };
   
-  const handleMultipleFilesUpload = (files: FileList) => {
-    const filesArr = Array.from(files);
-  
-    filesArr.forEach((file) => {
-      const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
-        
-      if (ACCEPTED_FILE_EXTENSIONS.includes(fileExtension)) {
-        handleFileUpload(file);
-      } else {
-        alert(`Tipo di file non supportato (${fileExtension}): ${file.name}`);
-      }
-    });
+  const handleFilesUpload = (file: File) => {
+
+    const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
+      
+    if (ACCEPTED_FILE_EXTENSIONS.includes(fileExtension)) {
+      setUrl(URL.createObjectURL(file));
+      handleFileUpload(file);
+    } else {
+      alert(`Tipo di file non supportato (${fileExtension}): ${file.name}`);
+    }
+    
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -60,13 +49,10 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
   
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      handleMultipleFilesUpload(files);
+      handleFilesUpload(files[0]);
     }
   };
 
-  const handleDeleteDocument = (id: number) => {
-    setDocuments((prevDocs) => prevDocs.filter((doc) => doc.id !== id));
-  };
 
   const openFileSelector = () => {
     const fileInput = document.createElement('input');
@@ -79,7 +65,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
       const target = event.target as HTMLInputElement;
       const files = target.files;
       if (files && files.length > 0) {
-        handleMultipleFilesUpload(files);
+        handleFilesUpload(files[0]);
       }
     };
   
@@ -97,10 +83,10 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
         marginTop: '12px',
         padding: '14px',
         textAlign: 'center',
-        border: dragOver ? '2px dashed #0072E5' : '2px dashed #ccc',
+        border: dragOver ? '2px dashed #0072E5' : '2px solid #dadada',
         borderRadius: '2vh',
-        backgroundColor: dragOver ? '#f0faff' : 'inherit',
-        cursor: documents.length === 0 ? 'pointer' : 'default',
+        backgroundColor: dragOver ? '#f0faff' : '#dadada',
+        cursor: !image ? 'pointer' : 'default',
         transition: 'background-color 0.3s, border 0.3s',
         overflow: 'auto',
       }}
@@ -131,11 +117,11 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
         </Box>
       ) : (
         <>
-          {documents.length === 0 && (
+          {image ===null && (
             <>
               <Box onClick={openFileSelector}>
                 <Typography sx={{ fontSize: '16px', color: '#666' }}>
-                  
+                  Vuoi aggiungere um´immagine?
                 </Typography>
                 <Typography
                   sx={{
@@ -146,42 +132,15 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
                     cursor: 'pointer',
                   }}
                 >
-                  {documentPlaceHolder}
+                  Caricalao trabscinala direttamente qui
                 </Typography>
               </Box>
-              <TextField
-                variant="outlined"
-                fullWidth
-                multiline
-                minRows={2}
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder={placeholder}
-                sx={{
-                  fontSize: '10px',
-                  marginTop: '12px',
-                  backgroundColor: '#fff',
-                  borderRadius: '2vh',
-                  overflowY: 'auto',
-                  '& .MuiOutlinedInput-root': {
-                    display: 'flex',
-                    flexDirection: 'column',
-                    fontSize: '14px',
-                    height: '29vh',
-                    overflowY: 'auto',
-                    borderRadius: '2vh',
-                  },
-                  '& .MuiOutlinedInput-input': {
-                    overflowY: 'auto',
-                  },
-                }}
-              />
             </>
           )}
 
-          {documents.length > 0 && (
+          {url && (
             <Box sx={{ height:'98%', marginTop: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between'}}>
-              <DocumentList documents={documents} onDelete={handleDeleteDocument}/>
+              <Box sx={{width: '100%', objectFit: 'cover'}}component="img" alt={'selected image'} src={url}/>
               <Button
                 variant="contained"
                 color="secondary"
@@ -202,4 +161,6 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
   );
 };
 
-export default UploadableTextArea;
+
+
+export default DragDropImage;

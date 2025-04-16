@@ -13,7 +13,7 @@ import SaveCleanButtons from '../components/SaveCleanButtons'
 import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Traduttore from '../components/EarningsPage/Traduttore'
 import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
-import LinkedinPost from '../components/EarningsPage/LinkedinPost'
+import SocialMedia from '../components/EarningsPage/socialMedia/SocialMedia'
 
 const Earnings: React.FC = () => {
   const theme = useTheme();
@@ -122,7 +122,7 @@ const Earnings: React.FC = () => {
           {selectedOption === 'Crea speech' && <CreaSpeech onChange={setIsButtonEnabled}/>}
           {selectedOption === 'Traduttore' && <Traduttore />}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
-          {selectedOption === 'LinkedIn post' && <LinkedinPost />}
+          {selectedOption === 'LinkedIn post' && <SocialMedia />}
           
         </Box>
       </Box>
