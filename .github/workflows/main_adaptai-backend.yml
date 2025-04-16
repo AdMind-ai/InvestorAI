@@ -33,6 +33,9 @@ jobs:
           echo "PERPLEXITY_KEY=${{ secrets.PERPLEXITY_KEY }}" >> $GITHUB_ENV 
           echo "DEEPL_KEY=${{ secrets.DEEPL_KEY }}" >> $GITHUB_ENV 
           echo "ELEVENLABS_KEY=${{ secrets.ELEVENLABS_KEY }}" >> $GITHUB_ENV
+          echo "URL_HOST=${{ secrets.URL_HOST }}" >> $GITHUB_ENV
+          echo "AYRSHARE_TOKEN=${{ secrets.AYRSHARE_TOKEN }}" >> $GITHUB_ENV
+          echo "AYRSHARE_KEY=${{ secrets.AYRSHARE_KEY }}" >> $GITHUB_ENV
 
       - name: Create and start virtual environment
         run: |
