@@ -98,7 +98,6 @@ const Sidebar: React.FC = () => {
           maxWidth: '400px',
           textAlign: 'center',
           height: 'calc(8.5vh)',
-          borderBottom: `calc(0.1vh) solid ${theme.palette.background.paper}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

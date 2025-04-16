@@ -63,7 +63,7 @@ const theme: Theme = createTheme({
     },
     background: {
       default: '#FFFFFF', //white
-      paper: '#E4E4E4', //light grey
+      paper: '#F5F5F5', //light grey
     },
     text: {
       primary: '#292929', //black
