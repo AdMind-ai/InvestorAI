@@ -6,6 +6,7 @@ import Sidebar from "../components/Sidebar";
 // import ArchiveButton from "../components/ArchiveButton";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -55,7 +56,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             // backgroundColor:'red',
             height: "calc(9.1vh)",
             width: "calc(93vw)",
-            paddingRight: "calc(4vh)",
+            paddingRight: "calc(3vh)",
             paddingTop: "calc(1.5vh)",  
             display: "flex",
             alignItems: "center",
@@ -71,7 +72,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               display: "flex", 
               alignItems: "center", 
               cursor: "pointer", 
-              padding: '0.5vh 0.8vw',
+              padding: '0.7vh 0.6vw',
               '&:hover': {
                 backgroundColor: 'rgba(0, 0, 0, 0.05)',
                 borderRadius: 'calc(4vh)',
@@ -100,6 +101,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               {userName}
             </Typography>
+            <ExpandMoreRoundedIcon
+              sx={{
+                fontSize: "2.5vh",
+                color: theme.palette.text.secondary,
+              }}
+            />
           </Box>
 
           {/* Dropdown Menu  */}
