@@ -19,10 +19,9 @@ const cardsMock: Record<string, CardData[]> = {
     { title: 'Linkedin post', usage: '120/240' },
   ],
   chat: [
-    { title: 'GPT-4o mini', usage: '50%' },
-    { title: 'GPT-4o', usage: '0%' },
-    { title: 'GPT-4.5', usage: '50%' },
-    { title: 'o3 mini', usage: '50%' },
+    { title: 'GPT-4.1', usage: '50%' },
+    { title: 'OpenAI o3 mini', usage: '0%' },
+    { title: 'GPT-4.1 mini', usage: '50%' },
     { title: 'SearchWeb', usage: '1/10' },
     { title: 'Overview del titolo', usage: '20/70' },
     { title: 'Allega immagini/documento', usage: '55/60' },
