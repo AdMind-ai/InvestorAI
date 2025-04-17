@@ -78,7 +78,7 @@ const ModalEditPost = ({
                 {states.aiSubmit.value ? <CircularProgress size={20} /> : <></>}
               </Box>
               <Typography
-                variant="p"
+                
                 sx={{
                   fontSize: '10pt',
                   color: '#a7a6a6',

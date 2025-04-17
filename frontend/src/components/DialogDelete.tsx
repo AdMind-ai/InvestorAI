@@ -22,10 +22,10 @@ const DialogDelete = ({open, onClose, onConfirm, title, text, subText, textButto
                 </DialogTitle>
                 <DialogContent>
                 <DialogContentText id="alert-dialog-description" sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                    <Typography variant="p" sx={{fontSize:'13pt', color:'#000'}} >
+                    <Typography  sx={{fontSize:'13pt', color:'#000'}} >
                         {text}
                     </Typography>
-                    <Typography variant="p" sx={{fontSize:'13pt', color:'#000'}} >
+                    <Typography  sx={{fontSize:'13pt', color:'#000'}} >
                         {subText}
                     </Typography>
                 </DialogContentText>

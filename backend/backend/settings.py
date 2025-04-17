@@ -224,7 +224,9 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Storage configuration for handling static and media files
 STORAGES = {
     "default": {
-        # Default storage for uploaded files
         "BACKEND": "storages.backends.azure_storage.AzureStorage",
     },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    }
 }

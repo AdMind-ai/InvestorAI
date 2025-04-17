@@ -40,13 +40,13 @@ const PostLine = ({
 
                 <Box sx={{width:'100%', margin:'10px', marginTop:"0px"}}>   
                     <Box>
-                        <Typography variant='p' sx={{fontSize:'11pt'}} >
+                        <Typography  sx={{fontSize:'11pt'}} >
                         {post.text?.length > 270 ? post.text.slice(0, 270) + '...' : post.text}
                         </Typography>
                         
                     </Box>       
                     <Box>
-                        <Typography variant='p' sx={{fontSize:'11pt', color:'#a7a6a6'}} >
+                        <Typography  sx={{fontSize:'11pt', color:'#a7a6a6'}} >
                             Post programmato il: <span style={{border: '1px solid #e0e0e0',backgroundColor:'#e0e0e0', borderRadius: '10px',padding:'2px'}}>{moment(post.post_date).format('DD MMMM YYYY - HH:mm')}</span>
                         </Typography>
                     </Box>
@@ -60,7 +60,7 @@ const PostLine = ({
                 </Box>
             </Box>
             <Box sx={{display:'flex', flexDirection: 'row', justifyContent:'flex-end', margin:'0px'}}>
-                <Typography onClick={()=>{editPost(post)}} variant='p' sx={{fontSize:'11pt', color:'#a7a6a6', textDecoration:'underline', cursor:'pointer'}} >
+                <Typography onClick={()=>{editPost(post)}}  sx={{fontSize:'11pt', color:'#a7a6a6', textDecoration:'underline', cursor:'pointer'}} >
                         Modifica post
                 </Typography>
             </Box>
@@ -136,7 +136,7 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
                                 }}
                             >
                                 <ArrowBackIcon />
-                                <Typography variant="p" sx={{fontSize: '10pt'}}>Precedente</Typography>
+                                <Typography  sx={{fontSize: '10pt'}}>Precedente</Typography>
                             </Box>
                             {
                                 Array.from({ length: (states.countPosts.value/3)+1 }, (_, i) => i + 1).map((page, key) => (
@@ -157,7 +157,7 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
                                             width: 'calc(5.3vh)',
                                         }}
                                     >
-                                        <Typography variant="p" sx={{fontSize: '10pt'}}>{page}</Typography>
+                                        <Typography  sx={{fontSize: '10pt'}}>{page}</Typography>
                                     </Box>
                                 ))
                             }
@@ -178,7 +178,7 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
                                     cursor: states.urlPostsNext.value===null? 'default':'pointer',
                                 }}
                             >
-                                <Typography variant="p" sx={{fontSize: '10pt'}}>Successivo</Typography>
+                                <Typography  sx={{fontSize: '10pt'}}>Successivo</Typography>
                                 <ArrowForwardIcon />
                             </Box>
                             
