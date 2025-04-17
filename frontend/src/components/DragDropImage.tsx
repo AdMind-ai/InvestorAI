@@ -22,8 +22,7 @@ const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, image}) => 
 
   const handleFileUpload = (file: File) => {
     const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-
+    reader.onload = () => {
       onFileUpload(file);
     };
     reader.readAsText(file);

@@ -1,6 +1,6 @@
-interface ResponseInterface {
+export interface ResponseInterface<T = unknown> {
     type: string;
-    data: any;
+    data: T;
 }
 
 export default ResponseInterface;

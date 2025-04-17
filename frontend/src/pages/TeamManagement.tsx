@@ -146,10 +146,10 @@ const TeamManagement: React.FC = () => {
     }
   }
   const sortedData = useMemo(() => {
-    let arr = [...members];
+    const arr = [...members];
     arr.sort((a, b) => {
-      let valA = a[orderBy];
-      let valB = b[orderBy];
+      const valA = a[orderBy];
+      const valB = b[orderBy];
       if (orderBy === "createdAt" || orderBy === "modifiedAt") {
         // Sort by date
         return (order==="asc" ? 1 : -1) * (valA > valB ? 1 : -1);
@@ -230,7 +230,10 @@ const TeamManagement: React.FC = () => {
   }
 
   // Pagination handlers
-  function handleChangePage(_e: any, newPage: number) {
+  function handleChangePage(
+    _e: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) {
     setPage(newPage);
   }
   function handleChangeRowsPerPage(event: React.ChangeEvent<HTMLInputElement>) {
@@ -334,7 +337,7 @@ const TeamManagement: React.FC = () => {
                         align={col.align || "left"}
                         sx={{ fontSize:"16px" }}
                       >
-                        {col.render ? col.render(member) : (member as any)[col.key]}
+                        {col.render ? col.render(member) : member[col.key as keyof Member]}
                       </TableCell>
                     ))}
                     <TableCell align="right">

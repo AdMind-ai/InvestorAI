@@ -12,7 +12,15 @@ import { useState } from 'react';
 import ModalNewPost from './ModalNewPost';
 import ModalEditPost from './ModalEditPost';
 
-const PostLine = ({post, setHandlerDeletPost, editPost}: {post: PostInterface, setHandlerDeletPost:any, editPost:any}) => {
+const PostLine = ({
+    post,
+    setHandlerDeletPost,
+    editPost
+  }: {
+    post: PostInterface,
+    setHandlerDeletPost: React.Dispatch<React.SetStateAction<number | null>>,
+    editPost: (post: PostInterface) => void
+  }) => {
 
     return (
         <Box sx={{border: '1px solid #e0e0e0', borderRadius: '10px', width: '100%', marginBottom: '10px', alignItems:'center', alignContent:'center', padding:'10px'}}>  

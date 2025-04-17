@@ -1,4 +1,3 @@
-import { data } from 'react-router-dom';
 import { api } from './api';
 import ResponseInterface from '../interfaces/responseInterface';
 

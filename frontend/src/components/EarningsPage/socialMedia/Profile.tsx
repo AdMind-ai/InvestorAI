@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 
 const Profile =  ({states}: {states: AyrshareInterface}) => {
 
-  let [attempt, setAttempt] = useState(0);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (states.profile.value === null) {
         states.profile.set();

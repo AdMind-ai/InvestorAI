@@ -2,6 +2,8 @@ import { Box, Button, Dialog, DialogContent, DialogTitle, Typography } from "@mu
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { Dispatch, SetStateAction } from "react";
+import { Dayjs } from "dayjs";
 
 interface DialogDateTimeInterface {
     open: boolean;
@@ -9,28 +11,28 @@ interface DialogDateTimeInterface {
     onConfirm: () => void;
     onCancel: () => void;
     datetimeState: {
-            value: any;
-            set: () => Dispatch<void>;
-        };
+        value: Dayjs | null;
+        set: Dispatch<SetStateAction<Dayjs | null>>;
+    };
     textConfirmButton: string;
 }
     
 
-    const DialogDateTime = ({open, onClose, onConfirm, onCancel, textConfirmButton, datetimeState}:DialogDateTimeInterface)=> {
+const DialogDateTime = ({open, onClose, onConfirm, onCancel, textConfirmButton, datetimeState}:DialogDateTimeInterface)=> {
 
-        let slotProps = {
-            layout: {
-              sx: {
-                [`.Mui-selected`]: {
-                  color: '#721384',
-                  fontWeight:500,
-                  backgroundColor: '#FFF',
-        
-                },
-              },
+    const slotProps = {
+        layout: {
+            sx: {
+            [`.Mui-selected`]: {
+                color: '#721384',
+                fontWeight:500,
+                backgroundColor: '#FFF',
+    
             },
-            textField: { size: 'small' }
-          }
+            },
+        },
+        textField: { size: 'small' }
+        }
 
     return (
         <Dialog open={open} onClose={onClose}>
