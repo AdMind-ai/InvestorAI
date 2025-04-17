@@ -33,7 +33,7 @@ export const postProfiles = async () : Promise<ResponseInterface>=> {
   }
 };
 
-export const getProfileKey = async (id:int) : Promise<ResponseInterface>=> {
+export const getProfileKey = async (id:number) : Promise<ResponseInterface>=> {
     const response = await api.get(`ayrshare/profilekey/${id}/`);	
     if (response.status === 200){
       return {
@@ -49,7 +49,7 @@ export const getProfileKey = async (id:int) : Promise<ResponseInterface>=> {
     }
   };
 
-  export const getProfilePosts= async (url:str) : Promise<ResponseInterface>=> {
+  export const getProfilePosts= async (url:string) : Promise<ResponseInterface>=> {
     const response = await api.get(url);	//?status=scheduled
     if (response.status === 200){
       return {
