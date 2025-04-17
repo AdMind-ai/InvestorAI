@@ -17,12 +17,12 @@ class ProfilesListView(generics.ListAPIView):
         queryset = Profiles.objects.filter(user=request.user)
         serializer = ProfilesSerializer(queryset, many=True)
         return Response(serializer.data)
-    
+
     def post(self, request):
         profiles = Profiles.objects.filter(user=request.user)
         profiles_count = profiles.count()
         # checks if the user already has 1 profile
-        if  profiles_count >= 1:
+        if profiles_count >= 1:
             serializer = ProfilesSerializer(profiles, many=True)
             return Response(serializer.data)
         name = f'ADAPT-AI: {profiles_count+1} - {request.user.email}'

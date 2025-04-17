@@ -20,6 +20,7 @@ from api_ayrshare.serializers.posts_serializer import PostsSerializer
 
 ayrshare_url = 'https://app.ayrshare.com/api'
 
+
 class BasicPagination(PageNumberPagination):
     page_size = 3
     max_page_size = 100
@@ -30,11 +31,11 @@ class PostsListView(PaginationHandlerMixin, APIView):
     authentication_classes = [JWTAuthentication]
     pagination_class = BasicPagination
 
-    def _create_header(self, profile= None):
+    def _create_header(self, profile=None):
         headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {settings.AYRSHARE_TOKEN}',
-            }
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {settings.AYRSHARE_TOKEN}',
+        }
         if profile:
             headers['Profile-Key'] = profile.key
         return headers
@@ -45,7 +46,7 @@ class PostsListView(PaginationHandlerMixin, APIView):
             return profile
         except Profiles.DoesNotExist:
             raise Http404
-        
+
     def _check_scheduled_posts(self, profile):
         today = timezone.now()
         schedule_posts = Posts.objects.filter(
@@ -77,7 +78,6 @@ class PostsListView(PaginationHandlerMixin, APIView):
                         schedule_post.message_error = posts_error.get(
                             'message', ''
                         )
-                        
 
                         erros.append(
                             f'{schedule_post.platform}: {schedule_post.message_error}'
@@ -89,7 +89,7 @@ class PostsListView(PaginationHandlerMixin, APIView):
                     for image in images:
                         image.delete()
                     schedule_post.delete()
-                    '''                
+                    '''
 
     def _create_post(self, request, serializer, profile):
         text = serializer.validated_data.get('post')
@@ -98,21 +98,23 @@ class PostsListView(PaginationHandlerMixin, APIView):
         schedule = serializer.validated_data.get('schedule')
         file = request.data.get('file')
 
-        payload = {'post': text, 'platforms': [platform], 'profileKey': profile.key}
+        payload = {'post': text, 'platforms': [
+            platform], 'profileKey': profile.key}
         if file:
             payload['mediaUrls'] = []
             image = ImageUpload()
             image.user = request.user
             image.save_image_from_file(file)
             image.save()
-            image_url = f'{settings.URL_HOST}{image.image_url}'
+            image_url = image.get_blob_sas_url(expires_in_minutes=10)
             payload['mediaUrls'].append(image_url)
 
-        if (schedule != date and schedule > date):  
+        if (schedule != date and schedule > date):
             payload['scheduleDate'] = schedule.isoformat()
 
         headers = self._create_header()
-        r = requests.post(f'{ayrshare_url}/post', json=payload, headers=headers)
+        r = requests.post(f'{ayrshare_url}/post',
+                          json=payload, headers=headers)
         ayrshare_json = r.json()
         ayrshare_erros = []
         ayrshare_posts = ayrshare_json.get('posts')
@@ -133,21 +135,21 @@ class PostsListView(PaginationHandlerMixin, APIView):
                 and '' not in payload['mediaUrls']
             ):
                 post.image = payload['mediaUrls'][0]
-        
+
             if post.status == 'scheduled':
                 post.platform_post_id = '0000'
                 post.url = '-'
             else:
                 ayrshare_post_platforms = ayrshare_post.get('postIds', [])
                 for posts_platform in ayrshare_post_platforms:
-                    post.platform_post_id  = posts_platform.get('id', '0000')
+                    post.platform_post_id = posts_platform.get('id', '0000')
                     post.url = posts_platform.get('postUrl', '-')
                     post.message_error = posts_platform.get('message', '')
                     post.status = posts_platform.get('status')
 
             ayrshare_post_errors = ayrshare_post.get('errors', [])
             for ayrshare_post_error in ayrshare_post_errors:
-                post.platform_post_id  = ayrshare_post_error.get('id', '0000')
+                post.platform_post_id = ayrshare_post_error.get('id', '0000')
                 post.url = ayrshare_post_error.get('postUrl', '-')
                 post.message_error = ayrshare_post_error.get('message', '')
                 post.status = ayrshare_post_error.get('status')
@@ -169,7 +171,7 @@ class PostsListView(PaginationHandlerMixin, APIView):
             return Response(
                 {'data': 'all posts published'}, status=status.HTTP_201_CREATED
             )
-                
+
     def get(self, request, id, format=None):
         profile = self._get_profile(request.user, id)
         self._check_scheduled_posts(profile)
@@ -235,7 +237,7 @@ class PostsListView(PaginationHandlerMixin, APIView):
                 serializer = PostsSerializer(posts, many=True)
 
         return Response(serializer.data)
-    
+
     def post(self, request, id, format=None):
         serializer = CreatePostSerializer(data=request.data)
 
@@ -250,5 +252,3 @@ class PostsListView(PaginationHandlerMixin, APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    

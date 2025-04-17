@@ -12,7 +12,7 @@ from api_ayrshare.models import Profiles
 
 class ProfileKeyView(APIView):
     permission_classes = (IsAuthenticated,)
-    
+
     def get(self, request, pk, format=None):
         try:
             key_data = settings.AYRSHARE_KEY.replace("\\n", "\n")

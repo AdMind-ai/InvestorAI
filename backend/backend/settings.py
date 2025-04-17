@@ -24,8 +24,15 @@ DEEPL_KEY = os.environ['DEEPL_KEY']
 ELEVENLABS_KEY = os.environ['ELEVENLABS_KEY']
 AYRSHARE_TOKEN = os.environ['AYRSHARE_TOKEN']
 AYRSHARE_KEY = os.environ['AYRSHARE_KEY']
-#AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
 URL_HOST = os.environ['URL_HOST']
+
+
+# Azure Storage
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+AZURE_ACCOUNT_NAME = "adaptaistorage"
+AZURE_CONTAINER = 'adaptai-storage'
+AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
+AZURE_OVERWRITE_FILES = False
 
 keys = [
     'OPENAI_KEY',
@@ -34,16 +41,11 @@ keys = [
     'ELEVENLABS_KEY',
     'AYRSHARE_TOKEN',
     'AYRSHARE_KEY',
-    #'AZURE_ACCOUNT_KEY',
-    'URL_HOST'
+    'URL_HOST',
+    'AZURE_ACCOUNT_KEY',
 ]
 
 missing_keys = [key for key in keys if not os.getenv(key)]
-
-# Azure Storage
-AZURE_ACCOUNT_NAME = 'adaptaistorage'
-AZURE_CONTAINER = 'adaptai-storage'
-
 
 if missing_keys:
     raise Exception(
@@ -97,7 +99,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'django_extensions',
-    #'storages',
+    'storages',
 ]
 
 LOCAL_APPS = [
@@ -225,5 +227,3 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Define the root directory for collected static files
 STATIC_URL = 'staticfiles/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-ALLOWED_HOSTS=['a6c1-168-197-245-2.ngrok-free.app', 'localhost']
