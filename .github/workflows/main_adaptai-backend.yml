@@ -28,12 +28,11 @@ jobs:
         run: |
           echo "WEBSITE_HOSTNAME=${{ secrets.WEBSITE_HOSTNAME }}" >> $GITHUB_ENV
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-          echo "AZURE_POSTGRESQL_CONNECTIONSTRING=${{ secrets.AZURE_POSTGRESQL_CONNECTIONSTRING }}" >> $GITHUB_ENV
+          echo "AZURE_ACCOUNT_KEY=${{ secrets.AZURE_ACCOUNT_KEY }}" >> $GITHUB_ENV
           echo "OPENAI_KEY=${{ secrets.OPENAI_KEY }}" >> $GITHUB_ENV
           echo "PERPLEXITY_KEY=${{ secrets.PERPLEXITY_KEY }}" >> $GITHUB_ENV 
           echo "DEEPL_KEY=${{ secrets.DEEPL_KEY }}" >> $GITHUB_ENV 
           echo "ELEVENLABS_KEY=${{ secrets.ELEVENLABS_KEY }}" >> $GITHUB_ENV
-          echo "URL_HOST=${{ secrets.URL_HOST }}" >> $GITHUB_ENV
           echo "AYRSHARE_TOKEN=${{ secrets.AYRSHARE_TOKEN }}" >> $GITHUB_ENV
           echo "AYRSHARE_KEY=${{ secrets.AYRSHARE_KEY }}" >> $GITHUB_ENV
 

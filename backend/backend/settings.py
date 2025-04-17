@@ -24,7 +24,6 @@ DEEPL_KEY = os.environ['DEEPL_KEY']
 ELEVENLABS_KEY = os.environ['ELEVENLABS_KEY']
 AYRSHARE_TOKEN = os.environ['AYRSHARE_TOKEN']
 AYRSHARE_KEY = os.environ['AYRSHARE_KEY']
-URL_HOST = os.environ['URL_HOST']
 
 
 # Azure Storage
@@ -41,7 +40,6 @@ keys = [
     'ELEVENLABS_KEY',
     'AYRSHARE_TOKEN',
     'AYRSHARE_KEY',
-    'URL_HOST',
     'AZURE_ACCOUNT_KEY',
 ]
 
