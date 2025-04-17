@@ -39,17 +39,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Storage configuration for handling static and media files
-STORAGES = {
-    "default": {
-        # Default storage for uploaded files
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        # Efficient storage for static files
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    }
-}
 
 # Retrieve database connection string from environment variables
 CONNECTION = os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING']
@@ -69,4 +58,9 @@ DATABASES = {
         # Database password from connection string
         "PASSWORD": CONNECTION_STR['password'],
     }
+}
+
+
+STORAGES["staticfiles"] = {
+    "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
 }

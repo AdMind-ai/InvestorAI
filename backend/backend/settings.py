@@ -27,7 +27,6 @@ AYRSHARE_KEY = os.environ['AYRSHARE_KEY']
 
 
 # Azure Storage
-DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 AZURE_ACCOUNT_NAME = "adaptaistorage"
 AZURE_CONTAINER = 'adaptai-storage'
 AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
@@ -203,11 +202,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'staticfiles/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -225,3 +219,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Define the root directory for collected static files
 STATIC_URL = 'staticfiles/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+# Storage configuration for handling static and media files
+STORAGES = {
+    "default": {
+        # Default storage for uploaded files
+        "BACKEND": "storages.backends.azure_storage.AzureStorage",
+    },
+}
