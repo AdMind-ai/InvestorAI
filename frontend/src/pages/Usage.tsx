@@ -23,7 +23,7 @@ const cardsMock: Record<string, CardData[]> = {
     { title: 'OpenAI o3 mini', usage: '0%' },
     { title: 'GPT-4.1 mini', usage: '50%' },
     { title: 'SearchWeb', usage: '1/10' },
-    { title: 'Overview del titolo', usage: '20/70' },
+    { title: 'Overview del titolo', usage: '21/70' },
     { title: 'Allega immagini/documento', usage: '55/60' },
   ],
 };
