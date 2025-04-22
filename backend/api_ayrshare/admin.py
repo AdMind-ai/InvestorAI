@@ -2,11 +2,38 @@ from django.conf import settings
 from django.contrib import admin
 from api_ayrshare.models import Profiles, Posts, ImageUpload
 from django.utils.html import format_html
+from administration_tools.delete_ayrshare_profile import delete_profile
+
+from django.contrib import messages
 
 
 class ProfilesAdmin(admin.ModelAdmin):
     list_display = ['user', 'name', 'creation_date']
     list_per_page = 30
+
+    actions = ['delete_on_ayrshare']
+
+    def delete_on_ayrshare(self, request, queryset):
+        success = 0
+        fail = 0
+        for profile in queryset:
+            if delete_profile(profile):
+                success += 1
+            else:
+                fail += 1
+        if success:
+            self.message_user(
+                request,
+                f"{success} profile(s) successfully deleted from Ayrshare and the database.",
+                level=messages.SUCCESS,
+            )
+        if fail:
+            self.message_user(
+                request,
+                f"{fail} profile(s) could NOT be deleted from Ayrshare.",
+                level=messages.ERROR,
+            )
+    delete_on_ayrshare.short_description = "Delete from Ayrshare and database"
 
 
 class PostsAdmin(admin.ModelAdmin):
