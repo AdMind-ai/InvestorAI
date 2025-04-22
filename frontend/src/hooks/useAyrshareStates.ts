@@ -11,6 +11,7 @@ import formatDate from '../utils/formatDate'
 import { toast } from 'react-toastify'
 import PostInterface from '../interfaces/postInterface'
 import ProfileInterface from '../interfaces/profileInterface'
+import { Dayjs } from 'dayjs'
 
 type PostPage = 'assistant' | 'publish'
 
@@ -20,14 +21,14 @@ const useAyrshareStates = (): AyrshareInterface => {
   const [submit, setSubmit] = useState<boolean>(true)
   const [aiSubmit, setAISubmit] = useState<boolean>(false)
 
-  const [profile, setProfile] = useState<ProfileInterface>(null)
+  const [profile, setProfile] = useState<ProfileInterface | null>(null)
   const [posts, setPosts] = useState<PostInterface[]>([])
   const [profileUrl, setProfileUrl] = useState<string>('')
   const [social, setSocial] = useState<string[]>([])
   const [postText, setPostText] = useState<string>('')
   const [postPublishText, setPostPublishText] = useState<string>('')
   const [postPublishImage, setPostPublishImage] = useState<File | null>(null)
-  const [postPublishSchedule, setPostPublishSchedule] = useState<Date | null>(
+  const [postPublishSchedule, setPostPublishSchedule] = useState<Dayjs | null>(
     null
   )
   const [postFiles, setPostFiles] = useState<File[]>([])
@@ -233,7 +234,7 @@ const useAyrshareStates = (): AyrshareInterface => {
 
     if (kind === 'schedule') {
       // Validate schedule date
-      if (!postPublishSchedule || new Date(postPublishSchedule) <= new Date()) {
+      if (!postPublishSchedule || new Date(postPublishSchedule.toISOString()) <= new Date()) {
         toast.error('Data non valida per programmare la pubblicazione')
         return
       }
@@ -253,14 +254,14 @@ const useAyrshareStates = (): AyrshareInterface => {
       formData.append('date', formatDate(new Date()))
 
       if (kind === 'schedule' && postPublishSchedule) {
-        formData.append('schedule', formatDate(new Date(postPublishSchedule)))
+        formData.append('schedule', formatDate(new Date(postPublishSchedule.toISOString())))
       } else {
         // Immediate publish
         formData.append('schedule', formatDate(new Date()))
       }
 
       const response = await fetchWithAuth(
-        `/ayrshare/profiles/${profile.id}/posts/`,
+        `/ayrshare/profiles/${profile?.id}/posts/`,
         {
           method: 'POST',
           body: formData,
@@ -285,13 +286,13 @@ const useAyrshareStates = (): AyrshareInterface => {
   }
 
   // Delete a post
-  const deletePost = async (postId: number) => {
-    if (submit) return
+  const deletePost = async (postId: number | null) => {
+    if (submit || postId === null) return
 
     try {
       setSubmit(true)
       const response = await fetchWithAuth(
-        `/ayrshare/profiles/${profile.id}/posts/${postId}/`,
+        `/ayrshare/profiles/${profile?.id}/posts/${postId}/`,
         {
           method: 'DELETE',
         }
@@ -318,7 +319,7 @@ const useAyrshareStates = (): AyrshareInterface => {
     if (submit) return
 
     if (kind === 'schedule') {
-      if (!postPublishSchedule || new Date(postPublishSchedule) <= new Date()) {
+      if (!postPublishSchedule || new Date(postPublishSchedule.toISOString()) <= new Date()) {
         toast.error('Data non valida per programmare la pubblicazione')
         return
       }
@@ -338,13 +339,13 @@ const useAyrshareStates = (): AyrshareInterface => {
       formData.append('date', formatDate(new Date()))
 
       if (kind === 'schedule' && postPublishSchedule) {
-        formData.append('schedule', formatDate(new Date(postPublishSchedule)))
+        formData.append('schedule', formatDate(new Date(postPublishSchedule.toISOString())))
       } else {
         formData.append('schedule', formatDate(new Date()))
       }
 
       const response = await fetchWithAuth(
-        `/ayrshare/profiles/${profile.id}/posts/${postId}/`,
+        `/ayrshare/profiles/${profile?.id}/posts/${postId}/`,
         {
           method: 'PUT',
           body: formData,

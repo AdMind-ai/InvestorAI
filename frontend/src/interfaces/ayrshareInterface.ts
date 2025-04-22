@@ -1,12 +1,13 @@
 import { Dispatch, SetStateAction } from 'react'
 import PostInterface from './postInterface'
 import ProfileInterface from './profileInterface'
+import { Dayjs } from 'dayjs'
 
 
 type PostPageType = 'assistant' | 'publish'
 type PublishPostType = (kind?: "publish" | "schedule") => Promise<void>
 type EditPostType = (postId: number, kind?: "publish" | "schedule") => Promise<void>
-type DeletePostType = (postId: number) => Promise<void>
+type DeletePostType = (postId: number |null) => Promise<void>
 
 interface AyrshareInterface {
   
@@ -44,12 +45,12 @@ interface AyrshareInterface {
   }
   
   postPublishSchedule: {
-    value: Date | null
-    set: Dispatch<SetStateAction<string>>
+    value: Dayjs | null
+    set: Dispatch<SetStateAction<Dayjs | null>>
   }
   postPublishImage: {
-    value: File | null
-    set: Dispatch<SetStateAction<string>>
+    value: File | null 
+    set: Dispatch<SetStateAction<File | null>>
   },
   postFiles: {
     value: File[] | null
@@ -69,7 +70,7 @@ interface AyrshareInterface {
   }
   createLinkedlnPost: {
     value: boolean
-    set: Dispatch<SetStateAction<string>>
+    set: () => void
   }
   deletePost: {
     value: boolean

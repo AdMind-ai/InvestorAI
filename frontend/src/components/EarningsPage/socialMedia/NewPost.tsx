@@ -6,11 +6,12 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-import AyrshareInterface from "../../interfaces/ayrshareInterface";
+
 import UploadableTextArea from "../../UploadableTextArea";
 import CustomTextArea from "../../CustomTextArea";
 import DragDropImage from "../../DragDropImage";
 import DialogDateTime from "../../DialogDateTime";
+import AyrshareInterface from "../../../interfaces/ayrshareInterface";
 
 interface NewPostProps {
   states: AyrshareInterface;
@@ -30,6 +31,7 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
   const handleImageUpload = (file: File) => {
     states.postPublishImage.set(file);
   };
+
 
   /********************************
    * Layout for assistant section *
@@ -65,7 +67,7 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
           }}
         >
           <Button
-            onClick={states.createLinkedlnPost.set}
+            onClick={()=>states.createLinkedlnPost.set()}
             variant="contained"
             color="primary"
             sx={{
@@ -144,7 +146,7 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
         }}
       >
         <Button
-          onClick={states.publishPost.set}
+          onClick={()=> states.publishPost.set()}
           disabled={states.aiSubmit.value}
           variant="contained"
           color="secondary"

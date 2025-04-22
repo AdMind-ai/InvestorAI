@@ -69,9 +69,9 @@ const PostLine = ({
 
 const ListPosts =  ({states}: {states: AyrshareInterface}) => {
 
-    const [handlerDeletPost, setHandlerDeletPost] = useState(null)
+    const [handlerDeletPost, setHandlerDeletPost] = useState<number| null>(null)
     const [openNewPost, setOpenNewPost] = useState(false);
-    const [editPost, setEditPost] = useState(null);
+    const [editPost, setEditPost] = useState<PostInterface| null>(null)
    
     return (
         <Box sx={{width: '100%'}}>
@@ -111,14 +111,14 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
             </Box>
             <Box sx={{width: '100%', marginTop: '20px', display:'flex', justifyContent:'center'}}>
                 {
-                    states.countPosts.value > 3 && (
+                    states.countPosts.value && states.countPosts.value > 3 && (
                         <Box sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center',textAlign: 'center', marginTop: '20px'}}>
                             {
 
                             }
                             
                             <Box component='button'
-                                onClick={states.urlPostsPrevious.set}
+                                onClick={()=>states.urlPostsPrevious.set(states.urlPostsPrevious.value?states.urlPostsPrevious.value:'')}
                                 disabled={states.urlPostsPrevious.value===null}
                                 sx={{
                                     display:'flex',
@@ -139,7 +139,7 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
                                 <Typography  sx={{fontSize: '10pt'}}>Precedente</Typography>
                             </Box>
                             {
-                                Array.from({ length: (states.countPosts.value/3)+1 }, (_, i) => i + 1).map((page, key) => (
+                                Array.from({ length: states.countPosts.value? ( states.countPosts.value/3)+1 : 1 }, (_, i) => i + 1).map((page, key) => (
                                     <Box key={key} component='button'
                                         sx={{
                                             display:'flex',
@@ -162,7 +162,7 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
                                 ))
                             }
                             <Box component='button'
-                                onClick={states.urlPostsNext.set}
+                                onClick={()=>states.urlPostsNext.set(states.urlPostsNext.value?states.urlPostsNext.value:'')}
                                 disabled={states.urlPostsNext.value===null}
                                 sx={{
                                     display:'flex',

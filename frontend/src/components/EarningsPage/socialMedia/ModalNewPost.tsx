@@ -2,11 +2,16 @@ import { Box, Modal } from '@mui/material'
 
 import { useEffect } from 'react';
 import NewPost from './NewPost';
+import AyrshareInterface from '../../../interfaces/ayrshareInterface';
 
 
 
 
-const ModalNewPost = ({open, onClose, states}) => {
+const ModalNewPost = ({open, onClose, states}: {
+    open: boolean
+    onClose: () => void
+    states: AyrshareInterface
+  }) => {
 
     useEffect(()=>{
         if (open) {

@@ -11,8 +11,8 @@ const ACCEPTED_FILE_EXTENSIONS = [
 ];
 
 interface DragDropImageProps {
-    onFileUpload: (file: File | File[]) => void;
-    image: File;
+    onFileUpload: (file: File) => void;
+    image:  File | null;
    }
  
 

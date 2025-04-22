@@ -6,6 +6,8 @@ interface UploadableTextAreaProps {
   text: string;
   setText: (value: string) => void;
   onFileUpload: (file: File | File[]) => void;
+  placeholder: string;
+  documentPlaceHolder: string
 }
 
 interface Document {

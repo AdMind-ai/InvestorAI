@@ -4,7 +4,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { Dispatch, SetStateAction } from "react";
 import { Dayjs } from "dayjs";
-
 interface DialogDateTimeInterface {
     open: boolean;
     onClose: () => void;
@@ -20,20 +19,6 @@ interface DialogDateTimeInterface {
 
 const DialogDateTime = ({open, onClose, onConfirm, onCancel, textConfirmButton, datetimeState}:DialogDateTimeInterface)=> {
 
-    const slotProps = {
-        layout: {
-            sx: {
-            [`.Mui-selected`]: {
-                color: '#721384',
-                fontWeight:500,
-                backgroundColor: '#FFF',
-    
-            },
-            },
-        },
-        textField: { size: 'small' }
-        }
-
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>
@@ -46,8 +31,6 @@ const DialogDateTime = ({open, onClose, onConfirm, onCancel, textConfirmButton, 
                 <Box sx={{display: 'flex', flexDirection:'row',justifyContent:'space-around', alignItems: 'center', width: '100%', margin:'10px'}}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DateTimePicker 
-                    size="small"
-                    slotProps={slotProps}
                     value={datetimeState.value} 
                     onChange={datetimeState.set} 
                     format="DD/MMM/YYYY HH:mm"
