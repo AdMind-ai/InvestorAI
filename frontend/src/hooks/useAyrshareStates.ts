@@ -41,14 +41,14 @@ const useAyrshareStates = (): AyrshareInterface => {
     if (social.length > 0 && profile !== null) {
       getPosts()
     }
-  }, [profile, social])
+  }, [profile, social]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch profile URL after picking up a profile
   useEffect(() => {
     if (profile !== null) {
       getProfileUrl()
     }
-  }, [profile])
+  }, [profile]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load or create a profile
   const getProfile = async () => {

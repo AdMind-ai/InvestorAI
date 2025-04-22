@@ -13,7 +13,7 @@ const SocialMedia = () => {
         if (states.profile.value === null) {
             states.profile.set();
         }
-      }, []);
+      }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     if (states.submit.value) {

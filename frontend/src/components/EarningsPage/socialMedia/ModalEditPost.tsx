@@ -33,17 +33,17 @@ const ModalEditPost = ({
 
   const [openDialog, setOpenDialog] = useState<boolean>(false)
   const handleImageUpload = (file: File) => {
-    states.postPublishImage.set(file)
+    states?.postPublishImage?.set(file)
   }
 
   useEffect(() => {
     if (post !== null) {
-      states.postPublishText.set(post.text)
-      states.postPublishImage.set(null)
-      states.postPublishSchedule.set(null)
-      states.postFiles.set([])
+      states?.postPublishText?.set(post.text)
+      states?.postPublishImage?.set(null)
+      states?.postPublishSchedule?.set(null)
+      states?.postFiles?.set([])
     }
-  }, [post])
+  }, [post]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Modal

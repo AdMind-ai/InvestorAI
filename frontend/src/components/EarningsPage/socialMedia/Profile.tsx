@@ -11,7 +11,7 @@ const Profile =  ({states}: {states: AyrshareInterface}) => {
     if (states.profile.value === null) {
         states.profile.set();
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConnectClick = () => {
     window.open(states.profileUrl.value, '_blank')
@@ -20,13 +20,13 @@ const Profile =  ({states}: {states: AyrshareInterface}) => {
     if (states.social.value?.filter(item=>item==='linkedin').length<=0 && attempt === 0) {
         setTimeout(()=>{setAttempt(attempt+1)}, 5000)
     }
-  }, [states.social.value]);
+  }, [states.social.value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(()=>{
     if (attempt > 0){
         checkSocials()
     }
-},[attempt])
+},[attempt]) // eslint-disable-line react-hooks/exhaustive-deps
 
 const checkSocials = () => {
   if (states.social.value?.filter(item=>item==='linkedin').length<=0) {

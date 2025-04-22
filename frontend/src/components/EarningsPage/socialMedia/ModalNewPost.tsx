@@ -10,13 +10,13 @@ const ModalNewPost = ({open, onClose, states}) => {
 
     useEffect(()=>{
         if (open) {
-            states.postPublishText.set('')
-            states.postPublishImage.set(null)
-            states.postPublishSchedule.set(null)
-            states.postFiles.set([])
+            states?.postPublishText?.set('')
+            states?.postPublishImage?.set(null)
+            states?.postPublishSchedule?.set(null)
+            states?.postFiles?.set([])
         }
 
-    },[open])
+    },[open]) // eslint-disable-line react-hooks/exhaustive-deps
 
     let margin = (window.innerWidth/100) * 10
     if (window.innerWidth < 600){
