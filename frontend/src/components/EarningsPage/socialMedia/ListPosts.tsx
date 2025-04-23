@@ -1,5 +1,6 @@
 import moment from 'moment'
 import { Box, Button, Typography } from '@mui/material'
+import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 
 import PostInterface from '../../../interfaces/postInterface'
 import AyrshareInterface from '../../../interfaces/ayrshareInterface'
@@ -47,7 +48,20 @@ const PostLine = ({
                     </Box>       
                     <Box>
                         <Typography  sx={{fontSize:'11pt', color:'#a7a6a6'}} >
-                            Post programmato il: <span style={{border: '1px solid #e0e0e0',backgroundColor:'#e0e0e0', borderRadius: '10px',padding:'2px'}}>{moment(post.post_date).format('DD MMMM YYYY - HH:mm')}</span>
+                            Post programmato il: 
+                            <Box sx={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                backgroundColor: '#F5F5F5',
+                                borderRadius: '30px',
+                                px: 1.8,
+                                py: 0.9,
+                                }}>
+                                <CalendarTodayOutlinedIcon sx={{ color: '#9a9a9a', fontSize: '12px', mr: 1 }} />
+                                <Typography variant='body2' sx={{ color: '#9a9a9a', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                                    {moment(post.post_date).format('DD MMMM YYYY - HH:mm')}
+                                </Typography>
+                            </Box>
                         </Typography>
                     </Box>
                 </Box>
