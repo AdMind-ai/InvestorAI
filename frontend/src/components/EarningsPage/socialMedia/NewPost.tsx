@@ -42,42 +42,50 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: "row",
-            width: "100%",
-            mb: 1,
-          }}
-        >
-          <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
-            <UploadableTextArea
-              text={states.postText.value}
-              setText={states.postText.set}
-              onFileUpload={handleFileUpload}
-              placeholder="Scrivi il tuo testo oppure"
-              documentPlaceHolder="Carica un comunicato stampa o trascinalo qui"
-            />
-          </Box>
-        </Box>
-        <Divider sx={{ width: "105%" }} />
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
             flexDirection: "column",
-            alignItems: "flex-end",
+            alignItems: "center",
+            width: "100%",
+            height:'100%',
+            mt:3,
           }}
-        >
-          <Button
-            onClick={()=>states.createLinkedlnPost.set()}
-            variant="contained"
-            color="primary"
-            sx={{
-              alignSelf: "flex-end",
-              mt: 2,
-              width: 155,
-            }}
-          >
-            Salva e Procedi
-          </Button>
+        > 
+          <Box sx={{ display: "flex", flexDirection: "column", width: "96%", alignItems:'center', py:2.5, px:3.5, border:`1px solid #CBCBCB`, borderRadius:'16px', boxShadow:'0px 3px 10px rgba(0,0,0,0.1)'}}>
+            <Box sx={{ display: "flex", flexDirection: "column", width: "100%", height:'300px' }}>
+              <Typography variant="h4" sx={{ mb: 0.5, mt:1 }}>
+                Definisci il contenuto del post che vuoi generare
+              </Typography>
+              <UploadableTextArea
+                text={states.postText.value}
+                setText={states.postText.set}
+                onFileUpload={handleFileUpload}
+                placeholder="Scrivi il tuo testo qui"
+                documentPlaceHolder="Carica un comunicato stampa o trascinalo qui"
+                textAreaHeight="150px"
+              />
+            </Box>
+            <Divider sx={{ width: "101%", mt:2 }} />
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+              }}
+            >
+              <Button
+                onClick={()=>states.createLinkedlnPost.set()}
+                variant="contained"
+                color="secondary"
+                sx={{
+                  alignSelf: "flex-end",
+                  mt: 2,
+                  width: 155,
+                }}
+              >
+                Salva e Procedi
+              </Button>
+            </Box>
+          </Box>
         </Box>
       </Box>
     );
@@ -87,88 +95,92 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
    * Layout for publish view  *
    ****************************/
   return (
-    <Box sx={{ width: "100%" }}>
-      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        <Typography variant="h4" sx={{ mr: 2 }}>
-          Anteprima del tuo post LinkedIn
-        </Typography>
-        {states.aiSubmit.value && <CircularProgress size={20} />}
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          width: "100%",
-          mb: 1,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            width: "70%",
-            p: 1,
-          }}
-        >
-          <CustomTextArea
-            value={states.postPublishText.value}
-            onChange={states.postPublishText.set}
-            placeholder="Inserisci il testo qui."
-            height="100%"
-          />
+    <Box sx={{ width: "100%", display:'flex', justifyContent:'center', mt:3 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", width: "96%", alignItems:'center', py:2.5, px:3.5, border:`1px solid #CBCBCB`, borderRadius:'16px', boxShadow:'0px 3px 10px rgba(0,0,0,0.1)', position:'relative', height: '430px' }}>  
+        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+          <Typography variant="h4" sx={{ position:'absolute', top:25, left:30 }}>
+            Anteprima del tuo post LinkedIn
+          </Typography>
+          {states.aiSubmit.value && <CircularProgress size={20} />}
         </Box>
 
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
-            width: "30%",
-            p: 1,
+            flexDirection: "row",
+            width: "100%",
+            height: "280px",
+            mt: 4,
+            mb: 1,
+            gap: 2
           }}
         >
-          <DragDropImage
-            onFileUpload={handleImageUpload}
-            image={states.postPublishImage.value}
-          />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flex:2,
+            }}
+          >
+            <CustomTextArea
+              value={states.postPublishText.value}
+              onChange={states.postPublishText.set}
+              placeholder="Inserisci il testo qui."
+              height="100%"
+            />
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+            }}
+          >
+            <DragDropImage
+              onFileUpload={handleImageUpload}
+              image={states.postPublishImage.value}
+            />
+          </Box>
+        </Box>
+
+        <Divider sx={{ width: "102%", mt:2 }} />
+
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            mt: 2,
+          }}
+        >
+          <Button
+            onClick={()=> states.publishPost.set()}
+            disabled={states.aiSubmit.value}
+            variant="contained"
+            color="secondary"
+            sx={{
+              width: 155,
+              mr: 1,
+            }}
+          >
+            Pubblica subito
+          </Button>
+          <Button
+            onClick={() => setOpenDialog(true)}
+            disabled={states.aiSubmit.value}
+            variant="contained"
+            color="primary"
+            sx={{
+              width: 155,
+            }}
+          >
+            Pianifica post
+          </Button>
         </Box>
       </Box>
 
-      <Divider sx={{ width: "105%" }} />
-
-      <Box
-        sx={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-end",
-          mt: 2,
-        }}
-      >
-        <Button
-          onClick={()=> states.publishPost.set()}
-          disabled={states.aiSubmit.value}
-          variant="contained"
-          color="secondary"
-          sx={{
-            width: 155,
-            mr: 1,
-          }}
-        >
-          Pubblica subito
-        </Button>
-        <Button
-          onClick={() => setOpenDialog(true)}
-          disabled={states.aiSubmit.value}
-          variant="contained"
-          color="primary"
-          sx={{
-            width: 155,
-          }}
-        >
-          Pianifica post
-        </Button>
-      </Box>
 
       <DialogDateTime
         open={openDialog}

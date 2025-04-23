@@ -203,7 +203,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         fullWidth
         minRows={2}
         value={text}
-        placeholder="Come posso esserti d’aiuto?"
+        placeholder="Scrivi qui la tua richiesta o usa uno degli strumenti."
         onChange={e => setText(e.target.value)}
         onKeyDown={e => {
           if (e.key === 'Enter' && !e.shiftKey) {

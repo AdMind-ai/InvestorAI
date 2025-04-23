@@ -1,6 +1,8 @@
 import { Box, Button, Paper, Typography, Divider, CircularProgress } from '@mui/material'
-import linkedinBackground from '../../../assets/backgrounds/linkedin-background.svg'
-import LinkedinLogo from '../../../assets/icons/linkedin-logo.png'
+import SocialMediaBackground from '../../../assets/backgrounds/linkedin-background.svg'
+// import SocialMediaLogo from '../../../assets/icons/social-media-logo.svg'
+// import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import HubOutlinedIcon from '@mui/icons-material/HubOutlined';
 import AyrshareInterface from '../../../interfaces/ayrshareInterface'
 import { useEffect, useState } from 'react'
 
@@ -54,7 +56,7 @@ const checkSocials = () => {
       {/* Fundo SVG */}
       <Box
         component="img"
-        src={linkedinBackground}
+        src={SocialMediaBackground}
         sx={{
           position: 'absolute',
           bottom: 0,
@@ -83,7 +85,7 @@ const checkSocials = () => {
         }}
       >
         <Typography variant="subtitle2" sx={{fontWeight: '600', mb: '20px'}}>
-          Connetti il tuo canale Linkedin
+          Connetti il tuo canale social
         </Typography>
         
         <Paper variant='outlined' sx={{
@@ -96,15 +98,19 @@ const checkSocials = () => {
           justifyContent: 'center',
           border: '1px solid #1976d2',
           backgroundColor: '#ffffff',
-          gap: '35px',
+          gap: '25px',
           boxShadow: '0px 3px 8px rgba(0,0,0,0.1)',
         }}>
-          <Box
+          {/* <Box
             component="img"
-            src={LinkedinLogo}
+            src={SocialMediaLogo}
             alt="Linkedin"
-            sx={{ width: '75px', height: 'auto'}}
-          />
+            sx={{ width: '80px', height: '90px' }}
+          /> */}
+          <HubOutlinedIcon 
+            sx={{ width: '100px', height: '100px', color: '#103ab1' }} 
+            titleAccess="Social Media" 
+          />          
           {
             states.profile.value === null ?
             <CircularProgress /> : <></>

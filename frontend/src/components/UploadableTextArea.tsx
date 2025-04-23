@@ -7,7 +7,8 @@ interface UploadableTextAreaProps {
   setText: (value: string) => void;
   onFileUpload: (file: File | File[]) => void;
   placeholder: string;
-  documentPlaceHolder: string
+  documentPlaceHolder: string;
+  textAreaHeight?: string;
 }
 
 interface Document {
@@ -20,7 +21,7 @@ const ACCEPTED_FILE_EXTENSIONS = [
   '.txt', '.pdf', '.doc', '.docx', '.odt', '.rtf', '.html', '.md', '.xls', '.xlsx'
 ];
 
-const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder='Inserisci il testo qui', documentPlaceHolder='Carica un file o trascinalo qui' }) => {
+const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder='Inserisci il testo qui', documentPlaceHolder='Carica un file o trascinalo qui', textAreaHeight='29vh' }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dragOver, setDragOver] = useState<boolean>(false);
 
@@ -169,7 +170,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
                     display: 'flex',
                     flexDirection: 'column',
                     fontSize: '14px',
-                    height: '29vh',
+                    height: textAreaHeight,
                     overflowY: 'auto',
                     borderRadius: '2vh',
                   },

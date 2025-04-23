@@ -82,12 +82,13 @@ const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, image}) => 
         marginTop: '12px',
         padding: '14px',
         textAlign: 'center',
-        border: dragOver ? '2px dashed #0072E5' : '2px solid #dadada',
+        border: dragOver ? '2px dashed #0072E5' : '2px solid #F2F2F2',
         borderRadius: '2vh',
-        backgroundColor: dragOver ? '#f0faff' : '#dadada',
+        backgroundColor: dragOver ? '#f0faff' : '#F2F2F2',
         cursor: !image ? 'pointer' : 'default',
         transition: 'background-color 0.3s, border 0.3s',
         overflow: 'auto',
+        boxShadow: `0px 3px 10px rgba(0,0,0,0.1)`
       }}
       onDragOver={(e) => {
         e.preventDefault();
@@ -118,7 +119,7 @@ const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, image}) => 
         <>
           {image ===null && (
             <>
-              <Box onClick={openFileSelector}>
+              <Box onClick={openFileSelector} sx={{ height:'100%', display:'flex', flexDirection:'column', justifyContent:'center'}}>
                 <Typography sx={{ fontSize: '16px', color: '#666' }}>
                   Vuoi aggiungere um´immagine?
                 </Typography>

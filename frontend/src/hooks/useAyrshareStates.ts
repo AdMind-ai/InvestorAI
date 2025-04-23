@@ -138,7 +138,7 @@ const useAyrshareStates = (): AyrshareInterface => {
     }
   }
 
-  // Generate text from AI for a LinkedIn post or from a provided file
+  // Generate text from AI for a Social Media post or from a provided file
   const createLinkedInPost = async () => {
     if (submit) return
 

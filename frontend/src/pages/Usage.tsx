@@ -16,7 +16,7 @@ const cardsMock: Record<string, CardData[]> = {
     { title: 'Traduttore di testo', usage: '1%' },
     { title: 'Traduttore di documenti', usage: '84%' },
     { title: 'Trascrizione di audio', usage: '12%' },
-    { title: 'Linkedin post', usage: '120/240' },
+    { title: 'Social Media', usage: '120/240' },
   ],
   chat: [
     { title: 'GPT-4.1', usage: '50%' },
