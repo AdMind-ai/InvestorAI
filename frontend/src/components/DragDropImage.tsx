@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Box, Typography, Button } from '@mui/material';
-
+import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 
 
 
@@ -12,13 +12,26 @@ const ACCEPTED_FILE_EXTENSIONS = [
 
 interface DragDropImageProps {
     onFileUpload: (file: File) => void;
+    onFileDelete: () => void;
     image:  File | null;
    }
  
 
-const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, image}) => {
+const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, onFileDelete, image}) => {
   const [dragOver, setDragOver] = useState<boolean>(false);
   const [url, setUrl] =  useState<string>('');
+  const [img, setImg] = useState<File | null>(image);
+
+  React.useEffect(() => {
+    setImg(image);
+    setUrl(image ? URL.createObjectURL(image) : '');
+  }, [image]);
+  
+  const handleFileDelete = () => {
+    setUrl('');
+    setImg(null);
+    onFileDelete();
+  };
 
   const handleFileUpload = (file: File) => {
     const reader = new FileReader();
@@ -85,7 +98,7 @@ const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, image}) => 
         border: dragOver ? '2px dashed #0072E5' : '2px solid #F2F2F2',
         borderRadius: '2vh',
         backgroundColor: dragOver ? '#f0faff' : '#F2F2F2',
-        cursor: !image ? 'pointer' : 'default',
+        cursor: !img ? 'pointer' : 'default',
         transition: 'background-color 0.3s, border 0.3s',
         overflow: 'auto',
         boxShadow: `0px 3px 10px rgba(0,0,0,0.1)`
@@ -117,7 +130,7 @@ const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, image}) => 
         </Box>
       ) : (
         <>
-          {image ===null && (
+          {(img === null && !url) && (
             <>
               <Box onClick={openFileSelector} sx={{ height:'100%', display:'flex', flexDirection:'column', justifyContent:'center'}}>
                 <Typography sx={{ fontSize: '16px', color: '#666' }}>
@@ -139,17 +152,28 @@ const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, image}) => 
           )}
 
           {url && (
-            <Box sx={{ height:'98%', marginTop: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between'}}>
-              <Box sx={{width: '100%', objectFit: 'cover'}}component="img" alt={'selected image'} src={url}/>
-              <Button
-                variant="contained"
-                color="secondary"
-                size="small"
-                sx={{ marginTop: '12px', fontSize: '14px' }}
-                onClick={openFileSelector}
-              >
-                Aggiungi Documento
-              </Button>
+            <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+              <Box
+                component="img"
+                alt={'selected image'}
+                src={url}
+                sx={{ width: '100%', objectFit: 'cover', borderRadius: '2vh' }}
+              />
+              <HighlightOffOutlinedIcon
+                onClick={handleFileDelete}
+                sx={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  color: 'red',
+                  background: '#fff',
+                  borderRadius: '50%',
+                  fontSize: 32,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                }}
+                titleAccess="Delete"
+              />
             </Box>
           )}
         </>

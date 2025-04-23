@@ -23,25 +23,25 @@ const PostLine = ({
   }) => {
 
     return (
-        <Box sx={{border: '1px solid #e0e0e0', borderRadius: '10px', width: '100%', marginBottom: '10px', alignItems:'center', alignContent:'center', padding:'10px'}}>  
+        <Box sx={{position:'relative', border: '1px solid #e0e0e0', borderRadius: '10px', width: '100%', marginBottom: '10px', alignItems:'center', alignContent:'center', padding:'10px'}}>  
             <Box sx={{display:'flex', flexDirection: 'row'}}>
-                <Box sx={{padding:'10px'}}>
+                <Box sx={{ p:1, width: '110px',  height: '110px'}}>
                     <Box
                         component="img"
                         alt={post.image ? 'image to post' : 'no image'}
                         src={post.image ? post.image : noImagePNG}
                         sx={{
-                            width: '80px',
-                            height: '80px',
+                            width: '90px',
                             objectFit: 'cover',
+                            borderRadius: '6px',
                         }}
                     />
                 </Box>
 
-                <Box sx={{width:'100%', margin:'10px', marginTop:"0px"}}>   
+                <Box sx={{width:'100%', px:1, py:1, display:'flex', flexDirection: 'column', justifyContent:'space-between'}}>   
                     <Box>
                         <Typography  sx={{fontSize:'11pt'}} >
-                        {post.text?.length > 270 ? post.text.slice(0, 270) + '...' : post.text}
+                        {post.text?.length > 310 ? post.text.slice(0, 310) + '...' : post.text}
                         </Typography>
                         
                     </Box>       
@@ -59,11 +59,10 @@ const PostLine = ({
 
                 </Box>
             </Box>
-            <Box sx={{display:'flex', flexDirection: 'row', justifyContent:'flex-end', margin:'0px'}}>
-                <Typography onClick={()=>{editPost(post)}}  sx={{fontSize:'11pt', color:'#a7a6a6', textDecoration:'underline', cursor:'pointer'}} >
-                        Modifica post
-                </Typography>
-            </Box>
+            
+            <Typography onClick={()=>{editPost(post)}}  sx={{position:'absolute', bottom:10, right:15, fontSize:'11pt', color:'#a7a6a6', textDecoration:'underline', cursor:'pointer'}} >
+                    Modifica post
+            </Typography>
         </Box>)
 }
 
@@ -74,10 +73,10 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
     const [editPost, setEditPost] = useState<PostInterface| null>(null)
    
     return (
-        <Box sx={{width: '100%'}}>
-            <Box sx={{display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center',textAlign: 'center'}}>
+        <Box sx={{width: '100%', mt:2}}>
+            <Box sx={{display: 'flex', flexDirection: 'row', justifyContent:'space-between', alignContent: 'center', alignItems: 'center',textAlign: 'center'}}>
             
-                <Typography variant="h4" sx={{marginRight: '10px'}}>
+                <Typography variant="h4">
                     I tuoi post programmati
                 </Typography>
                 <Button 
@@ -87,11 +86,9 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
                     variant="contained"
                     color='primary'
                     sx={{
-                        alignSelf: 'flex-end',
-                        mt: '15px',
-                        width: '155px',
+                        width: '125px',
                         backgroundColor: '#ced7ec',
-                        borderColor: '#708bd4',
+                        border: `1px solid #708bd4`,
                         color: '#708bd4',
                         '&:hover': {
                             color: '#ced7ec',

@@ -22,32 +22,42 @@ const DialogDateTime = ({open, onClose, onConfirm, onCancel, textConfirmButton, 
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>
-                <Typography component='p'>
+                <Typography>
                     Schedule post
                 </Typography>
             </DialogTitle>
             <DialogContent>
-                <Box sx={{margin:'30px'}}>
-                <Box sx={{display: 'flex', flexDirection:'row',justifyContent:'space-around', alignItems: 'center', width: '100%', margin:'10px'}}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker 
-                    value={datetimeState.value} 
-                    onChange={datetimeState.set} 
-                    format="DD/MMM/YYYY HH:mm"
-                    />
-                </LocalizationProvider>
+                <Box sx={{display: 'flex', flexDirection:'row',justifyContent:'center', alignItems: 'center', width: '100%'}}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker 
+                        value={datetimeState.value} 
+                        onChange={datetimeState.set} 
+                        format="DD/MM/YYYY HH:mm"
+                        slotProps={{
+                            textField: {
+                              size: 'small',
+                              sx: {
+                                '& .MuiInputBase-input': {
+                                  fontSize: '18px',
+                                },
+                                '& .MuiInputBase-input::placeholder': {
+                                  color: '#aaa',     
+                                  opacity: 1,
+                                }
+                              }
+                            },
+                            popper: {
+                              placement: "right",
+                            }
+                          }}
+                        />
+                    </LocalizationProvider>
                 </Box>
-                <Box sx={{display: 'flex', flexDirection:'row',justifyContent:'space-around', alignItems: 'center', width: '100%', margin:'10px'}}>
+                <Box sx={{display: 'flex', flexDirection:'row',justifyContent:'space-between', alignItems: 'center', width: '100%', gap:2, mt:2}}>
                     <Button 
                         onClick={onCancel}
                         variant="contained"
                         color='secondary'
-                        sx={{
-                            alignSelf: 'flex-end',
-                            mt: '15px',
-                            flexDirection: 'column',
-                            marginRight: '10px',
-                        }}
                         >
                         Cancellare
                     </Button>
@@ -55,17 +65,10 @@ const DialogDateTime = ({open, onClose, onConfirm, onCancel, textConfirmButton, 
                         onClick={onConfirm}
                         variant="contained"
                         color='primary'
-                        sx={{
-                            alignSelf: 'flex-end',
-                            mt: '15px',
-                            flexDirection: 'column',
-                            marginRight: '10px',
-                        }}
                         >
                         {textConfirmButton}
                     </Button>
                 </Box>
-            </Box>
             </DialogContent>
         </Dialog>
     )

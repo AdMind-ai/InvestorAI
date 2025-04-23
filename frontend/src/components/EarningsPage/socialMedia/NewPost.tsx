@@ -32,6 +32,10 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
     states.postPublishImage.set(file);
   };
 
+  const handleImageDelete = () => {
+    states.postPublishImage.set(null);
+  };
+
 
   /********************************
    * Layout for assistant section *
@@ -101,7 +105,12 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
           <Typography variant="h4" sx={{ position:'absolute', top:25, left:30 }}>
             Anteprima del tuo post LinkedIn
           </Typography>
-          {states.aiSubmit.value && <CircularProgress size={20} />}
+          {states.aiSubmit.value && 
+            <Box sx={{ position: 'absolute', top:170, left:420 }}>
+              <CircularProgress size={20} />
+            </Box>
+
+          }
         </Box>
 
         <Box
@@ -139,6 +148,7 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
           >
             <DragDropImage
               onFileUpload={handleImageUpload}
+              onFileDelete={handleImageDelete}
               image={states.postPublishImage.value}
             />
           </Box>
