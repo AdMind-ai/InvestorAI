@@ -33,7 +33,7 @@ const HomeCard: React.FC<CardProps> = ({ title, description, icon, path }) => {
           src={icon}
           alt={`${title} Icon`}
           sx={{
-            width: '40px',
+            width: '35px',
             height: '40px',
             objectFit: 'contain',
             color: theme.palette.secondary.main,

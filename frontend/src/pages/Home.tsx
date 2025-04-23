@@ -4,11 +4,11 @@ import Layout from '../layouts/Layout'
 import HomeCard from '../components/HomeCard'
 
 // Importação dos ícones
-import ChatIcon from '../assets/icons/chat-icon.svg'
-import CEOIcon from '../assets/icons/ceo-icon.svg'
-import MarketIcon from '../assets/icons/market-icon.svg'
-import EarningsIcon from '../assets/icons/earnings-icon.svg'
-import ESGIcon from '../assets/icons/esg-icon.svg'
+import ChatIcon from '../assets/icons-sidebar/chat-icon.svg'
+import CEOIcon from '../assets/icons-sidebar/ceo-icon.svg'
+import MarketIcon from '../assets/icons-sidebar/market-icon.svg'
+import EarningsIcon from '../assets/icons-sidebar/earnings-icon.svg'
+import ESGIcon from '../assets/icons-sidebar/esg-icon.svg'
 
 const cards = [
   {
