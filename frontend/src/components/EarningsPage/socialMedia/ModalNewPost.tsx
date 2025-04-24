@@ -35,12 +35,12 @@ const ModalNewPost = ({open, onClose, states}: {
         onClose={onClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
-      >
+      > 
             <Box sx={{position:'relative', margin:`${margin}px`}}>
-                <Box sx={{border:'0px solid #e0e0e0', borderRadius: '10px', padding:'20px', backgroundColor:'#FFF'}}>   
+                {/* <Box sx={{border:'0px solid #e0e0e0', borderRadius: '10px', padding:'20px', backgroundColor:'#FFF', bgcolor:'blue'}}>    */}
 
                     <NewPost states={states}/>
-                </Box>
+                {/* </Box> */}
             </Box>
         </Modal>
     )

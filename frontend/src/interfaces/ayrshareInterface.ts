@@ -92,6 +92,11 @@ interface AyrshareInterface {
     value: boolean
     set: Dispatch<SetStateAction<boolean>>
   }
+
+  /**
+   * Disconnects/Deletes Ayrshare profile and related data.
+   */
+  handleDisconnectProfile: () => Promise<void>;
 }
 
 export default AyrshareInterface

@@ -5,6 +5,15 @@ import ProfileKeyInterface from '../interfaces/profileKeyInterface';
 import PaginationInterface from '../interfaces/paginationInterface';
 import PostInterface from '../interfaces/postInterface';
 
+export const deleteProfile = async () => {
+  const response = await api.delete(`ayrshare/profile/delete/`);
+  if (response.status === 204) {
+    return { type: 'success' };
+  } else {
+    return { type: 'error', data: response.data };
+  }
+};
+
 export const getProfiles = async () : Promise<ResponseInterface<ProfileInterface[]>>=> {
   const response = await api.get("ayrshare/profiles/");
   if (response.status === 200){

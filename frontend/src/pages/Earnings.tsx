@@ -58,7 +58,7 @@ const Earnings: React.FC = () => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          padding: '3vh',
+          padding: '3vh ',
           overflow: 'auto',
           height: '100%',
           width: '100%',

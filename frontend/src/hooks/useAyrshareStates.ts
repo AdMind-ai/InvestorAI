@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import AyrshareInterface from '../interfaces/ayrshareInterface'
+import { deleteProfile as deleteProfileRequest } from '../api/ayrshare';
 import {
   getProfileKey,
   getProfilePosts,
@@ -13,10 +15,12 @@ import PostInterface from '../interfaces/postInterface'
 import ProfileInterface from '../interfaces/profileInterface'
 import { Dayjs } from 'dayjs'
 
+
 type PostPage = 'assistant' | 'publish'
 
 
 const useAyrshareStates = (): AyrshareInterface => {
+  const navigate = useNavigate();
   let  loading = false
   const [submit, setSubmit] = useState<boolean>(true)
   const [aiSubmit, setAISubmit] = useState<boolean>(false)
@@ -50,6 +54,41 @@ const useAyrshareStates = (): AyrshareInterface => {
       getProfileUrl()
     }
   }, [profile]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Delete profile and reset states
+  const handleDisconnectProfile = async () => {
+    if (submit) return; // Debounce
+  
+    setSubmit(true);
+    try {
+      const response = await deleteProfileRequest();
+      if (response.type === 'success') {
+        // Clear all relevant states
+        setProfile(null);
+        setPosts([]);
+        setProfileUrl('');
+        setSocial([]);
+        setPostText('');
+        setPostPublishText('');
+        setPostPublishImage(null);
+        setPostPublishSchedule(null);
+        setPostFiles([]);
+        setPostPage('assistant');
+        setUrlPostsNext(null);
+        setUrlPostsPrevious(null);
+        setCountPosts(0);
+        navigate('/');
+  
+        toast.success('Profile disconnected successfully!');
+      } else {
+        toast.error('An error occurred while disconnecting your profile.');
+      }
+    } catch (error) {
+      toast.error('An error occurred while disconnecting your profile.');
+    } finally {
+      setSubmit(false);
+    }
+  };
 
   // Load or create a profile
   const getProfile = async () => {
@@ -448,6 +487,7 @@ const useAyrshareStates = (): AyrshareInterface => {
       value: submit,
       set: () => 'function not implemented',
     },
+    handleDisconnectProfile,
   }
 }
 

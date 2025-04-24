@@ -15,10 +15,12 @@ urlpatterns = [
         views.PostsListView.as_view(),
         name='posts_list',
     ),
-    path('profiles/<int:pk>/', views.ProfilesDetailView.as_view(), name='profiles_detail'),
+    path('profiles/<int:pk>/', views.ProfilesDetailView.as_view(),
+         name='profiles_detail'),
     path(
         'profilekey/<int:pk>/',
         views.ProfileKeyView.as_view(),
         name='profile_key',
     ),
+    path('profile/delete/', views.ProfileDeleteView.as_view(), name="profile-delete"),
 ]
