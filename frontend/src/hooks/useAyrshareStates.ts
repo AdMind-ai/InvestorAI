@@ -85,6 +85,7 @@ const useAyrshareStates = (): AyrshareInterface => {
       }
     } catch (error) {
       toast.error('An error occurred while disconnecting your profile.');
+      console.error('Error disconnecting profile:', error);
     } finally {
       setSubmit(false);
     }
