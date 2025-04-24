@@ -145,7 +145,7 @@ const DragDropImage: React.FC<DragDropImageProps> = ({ onFileUpload, onFileDelet
                     cursor: 'pointer',
                   }}
                 >
-                  Caricalao trabscinala direttamente qui
+                  Caricala o trascinala direttamente qui
                 </Typography>
               </Box>
             </>

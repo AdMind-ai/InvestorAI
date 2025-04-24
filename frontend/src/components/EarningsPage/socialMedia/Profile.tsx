@@ -108,7 +108,7 @@ const checkSocials = () => {
             sx={{ width: '80px', height: '90px' }}
           /> */}
           <HubOutlinedIcon 
-            sx={{ width: '100px', height: '100px', color: '#103ab1' }} 
+            sx={{ width: '100px', height: '100px', color: '#9BAFE6' }} 
             titleAccess="Social Media" 
           />          
           {

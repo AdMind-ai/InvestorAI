@@ -4,7 +4,7 @@ from django.db import models
 class ESGArticle(models.Model):
     TOPIC_CHOICES = [
         ("Evoluzione del contesto normativo", "Evoluzione del contesto normativo"),
-        ("News reati informativi", "News reati informativi"),
+        ("Reati informativi", "Reati informativi"),
         ("Responsabilità amministratori", "Responsabilità amministratori"),
         ("Rischi reputazionali", "Rischi reputazionali")
     ]

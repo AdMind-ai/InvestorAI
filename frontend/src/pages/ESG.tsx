@@ -44,7 +44,7 @@ interface NewsItem {
 
 const topics = [
   'Evoluzione del contesto normativo',
-  'News reati informativi',
+  'Reati informativi',
   'Responsabilità amministratori',
   'Rischi reputazionali'
 ];
@@ -59,7 +59,7 @@ const ESGPage: React.FC = () => {
   const [viewedArticles, setViewedArticles] = useState<Set<number>>(new Set());
   const [data, setData] = useState<Record<string, NewsItem[]>>({
     'Evoluzione del contesto normativo': [],
-    'News reati informativi': [],
+    'Reati informativi': [],
     'Responsabilità amministratori': [],
     'Rischi reputazionali': [],
   });
@@ -197,7 +197,7 @@ const ESGPage: React.FC = () => {
 
       const groupedData: Record<string, NewsItem[]> = {
         'Evoluzione del contesto normativo': [],
-        'News reati informativi': [],
+        'Reati informativi': [],
         'Responsabilità amministratori': [],
         'Rischi reputazionali': [],
       };

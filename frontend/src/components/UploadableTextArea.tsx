@@ -21,7 +21,7 @@ const ACCEPTED_FILE_EXTENSIONS = [
   '.txt', '.pdf', '.doc', '.docx', '.odt', '.rtf', '.html', '.md', '.xls', '.xlsx'
 ];
 
-const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder='Inserisci il testo qui', documentPlaceHolder='Carica un file o trascinalo qui', textAreaHeight='29vh' }) => {
+const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder='Scrivi il tuo testo qui', documentPlaceHolder='Carica un file o trascinalo qui', textAreaHeight='29vh' }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dragOver, setDragOver] = useState<boolean>(false);
 

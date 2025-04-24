@@ -167,7 +167,7 @@ const Traduttore = () => {
           {/* Dropdown Lingua originale */}
           <SimpleDropdown title="Lingua originale" options={filteredOriginalLanguages} onSelect={setSelectedLanguageOriginal} selectedValue={selectedLanguageOriginal}/>
           {/* Upload Area */}
-          <UploadableTextArea text={text} setText={setText} onFileUpload={handleFileUpload} placeholder='Inserisci il testo qui' documentPlaceHolder='Carica un file o trascinalo qui'/>
+          <UploadableTextArea text={text} setText={setText} onFileUpload={handleFileUpload} placeholder='Scrivi il tuo testo qui' documentPlaceHolder='Carica un file o trascinalo qui'/>
         </Box>
         <Box
           sx={{

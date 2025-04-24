@@ -134,7 +134,7 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
             <CustomTextArea
               value={states.postPublishText.value}
               onChange={states.postPublishText.set}
-              placeholder="Inserisci il testo qui."
+              placeholder="Scrivi il tuo testo qui."
               height="100%"
             />
           </Box>

@@ -53,7 +53,7 @@ const CEOPage: React.FC = () => {
   const [viewedArticles, setViewedArticles] = useState<Set<number>>(new Set());
   const [data, setData] = useState<Record<string, NewsItem[]>>({
       'Mario Rossi': [],
-      'News reati informativi': [],
+      'Reati informativi': [],
       'Luigi Farris': [],
   });
 
