@@ -24,6 +24,7 @@ DEEPL_KEY = os.environ['DEEPL_KEY']
 ELEVENLABS_KEY = os.environ['ELEVENLABS_KEY']
 AYRSHARE_TOKEN = os.environ['AYRSHARE_TOKEN']
 AYRSHARE_KEY = os.environ['AYRSHARE_KEY']
+ALPHA_VANTAGE_API_KEY = os.environ['ALPHA_VANTAGE_API_KEY']
 
 
 # Azure Storage
@@ -40,6 +41,7 @@ keys = [
     'AYRSHARE_TOKEN',
     'AYRSHARE_KEY',
     'AZURE_ACCOUNT_KEY',
+    'ALPHA_VANTAGE_API_KEY',
 ]
 
 missing_keys = [key for key in keys if not os.getenv(key)]

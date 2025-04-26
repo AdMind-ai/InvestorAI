@@ -99,6 +99,31 @@ const Market: React.FC = () => {
   // Chart data
   const [stockData, setStockData] = useState<StockData | null>(null);
   // const [selectedCompany, setSelectedCompany] = useState<StockData | null>(null);
+  const [historyInfo, setHistoryInfo] = useState<any>(null);
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [period, setPeriod] = useState<string>('1mo');     // periodo default: 1 mês
+  const [interval, setInterval] = useState<string>('1d');  // intervalo default: 1 dia
+  const [varPercent, setVarPercent] = useState(true); 
+  const chartDataLabels = historyData.map(d => (d.Datetime || d.Date).slice(0, 10));
+  // Chart Cards
+  const currencySymbol = historyInfo?.currency === 'EUR' ? '€' : '$';
+  const prezzoAttuale = historyInfo?.previousClose;
+  const [companyInfo, setCompanyInfo] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchCompanyInfo() {
+      try {
+        const response = await api.get('/stocks/company-info/', {
+          params: { symbol: 'GRN.MI' }
+        });
+        setCompanyInfo(response.data);
+      } catch (err) {
+        setCompanyInfo(null);
+      }
+    }
+    fetchCompanyInfo();
+  }, []);
+
 
   // Competitors data
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
@@ -127,6 +152,7 @@ const Market: React.FC = () => {
 
   useEffect(() => {
     setCurrentPage(1)
+
     const fetchStockData = async () => {
       try {
         const response = await api.get<StockData>("/openai/investing-scraper/", {
@@ -218,6 +244,27 @@ const Market: React.FC = () => {
     fetchOverviewReport();
   }, [selectedQuarter]);
 
+  useEffect(() => {
+    async function fetchHistory() {
+      try {
+        const resp = await api.get('/stocks/history/', {
+          params: {
+            symbol: 'GRN.MI',
+            period,     
+            interval,
+          }
+        });
+        setHistoryInfo(resp.data.info);
+        setHistoryData(resp.data.data);
+      } catch (e) {
+        setHistoryInfo(null);
+        setHistoryData([]);
+      }
+    }
+
+    fetchHistory();
+  }, [period, interval]);
+
   // Pagination logic for competitors
   const paginateCompetitors = () => {
     const start = (currentPage - 1) * competitorsPerPage;
@@ -256,30 +303,32 @@ const Market: React.FC = () => {
 
 
   const chartData = {
-    labels: stockData ? stockData.created_at.map(date => new Date(date).toLocaleDateString()) : [],
+    labels: historyData.map(d => (d.Datetime || d.Date).slice(0, 10)),
+    // labels: stockData ? stockData.created_at.map(date => new Date(date).toLocaleDateString()) : [],
     datasets: [
       {
         label: 'Prezzo del titolo (€)',
-        data: stockData ? stockData.stock_price_today_eur : [],
-        borderColor: 'orange',
-        backgroundColor: 'rgba(255,165,0,0.4)', // preenchimento abaixo da linha colorido com transparência
-        fill: true, // preenche a área abaixo da linha
-        tension: 0.3, // curva suave (0 é reto, 0.5 mais suavizado)
-        pointBackgroundColor: 'orange',
-        pointRadius: 4,
-        pointHoverRadius: 7,
-      },
-      {
-        label: 'Prezzo del titolo (USD)',
-        data: stockData ? stockData.stock_price_today_usd : [],
+        data: historyData.map(d => d.Close),
+        // data: stockData ? stockData.stock_price_today_eur : [],
         borderColor: 'blue',
-        backgroundColor: 'rgba(0,0,255,0.3)',
-        fill: true,
-        tension: 0.3,
+        backgroundColor: 'rgba(0,0,255,0.3)', // preenchimento abaixo da linha colorido com transparência
+        fill: true, // preenche a área abaixo da linha
+        tension: 0.2, // curva suave (0 é reto, 0.5 mais suavizado)
         pointBackgroundColor: 'blue',
-        pointRadius: 4,
+        pointRadius: historyData.length>20? 2:4,
         pointHoverRadius: 7,
       },
+      // {
+      //   label: 'Prezzo del titolo (USD)',
+      //   data: stockData ? stockData.stock_price_today_usd : [],
+      //   borderColor: 'orange',
+      //   backgroundColor: 'rgba(255,165,0,0.4)',
+      //   fill: true,
+      //   tension: 0.3,
+      //   pointBackgroundColor: 'orange',
+      //   pointRadius: 4,
+      //   pointHoverRadius: 7,
+      // },
     ],
   };
 
@@ -293,9 +342,9 @@ const Market: React.FC = () => {
     layout: {
       padding: {
         left: 20,   // padding esquerdo (em pixels)
-        right: 50,  // padding direito (em pixels)
-        top: 30,    // padding superior (em pixels)
-        bottom: 10  // padding inferior (em pixels)
+        right: 22,  // padding direito (em pixels)
+        top: 22,    // padding superior (em pixels)
+        bottom: 5  // padding inferior (em pixels)
       }
     },
     plugins: {
@@ -304,7 +353,7 @@ const Market: React.FC = () => {
         position: 'bottom', // posição da legenda: top, bottom, left, right
         labels: {
           color: '#333', // cor da legenda
-          padding: 15,
+          padding: 10,
           font: {
             family: 'Roboto',
             size: 12,
@@ -314,6 +363,19 @@ const Market: React.FC = () => {
         },
       },
       tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            const idx = context.dataIndex;
+            const d = historyData[idx];
+            return [
+              `Close: ${d.Close.toFixed(4)}`,
+              `Open: ${d.Open.toFixed(4)}`,
+              `High: ${d.High.toFixed(4)}`,
+              `Low: ${d.Low.toFixed(4)}`,
+              `Volume: ${d.Volume}`
+            ];
+          }
+        },
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
         titleFont: {
           size: 14,
@@ -331,9 +393,16 @@ const Market: React.FC = () => {
           color: '#eee', 
         },
         ticks: {
+          maxTicksLimit: 5,
+          callback: function(index: number) {
+            const dateStr = chartDataLabels[index];
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
+          },
           color: '#555',
           font: {
-            size: 12,
+            size: 11,
           },
         },
       },
@@ -364,21 +433,31 @@ const Market: React.FC = () => {
     return `${symbol}${roundedVariation}%`;
   };
   
-//   useEffect(() => {
-//     const measureHeight = () => {
-//         if(riskFactorsRef.current) {
-//             const height = riskFactorsRef.current.offsetTop + riskFactorsRef.current.offsetHeight;
-//             setLinePosition(height+3);
-//         }
-//     };
+  function getVarValue(isPercent = true) {
+    if (!historyData || historyData.length < 2) return {value: '--', positive: false};
+    const last = historyData[0].Close;
+    const first = historyData[historyData.length - 1].Close;
+    const diff = first - last;
+    const positive = diff >= 0;
+    if (isPercent) {
+      const percent = (diff / last) * 100;
+      return {
+        value: `${diff >= 0 ? '▲' : '▼'} ${Math.abs(percent).toFixed(2)}%`,
+        positive,
+      };
+    } else {
+      const str = (diff >= 0 ? '+ ' : '- ') + Math.abs(diff).toFixed(4);
+      return {
+        value: str,
+        positive,
+      };
+    }
+  }
 
-//     measureHeight();
-
-//     window.addEventListener('resize', measureHeight); 
-
-//     return () => window.removeEventListener('resize', measureHeight);
-// }, [stockData?.possible_risk_factors]);
-
+  function formatTime(epoch: any) {
+    if (!epoch) return '';
+    return new Date(epoch * 1000).toLocaleString();
+  }
 
   return (
     <Layout>
@@ -433,8 +512,34 @@ const Market: React.FC = () => {
                     <Typography variant="h4" fontWeight="bold" color="#A700FF">
                       Overview del titolo mensile
                     </Typography>
-                    <Box component="select" sx={{ borderRadius: 3, py: 1, px:3, borderColor: '#ccc', color:'grey', cursor:'pointer' }}>
-                      <option>Ultimi 12 mesi</option>
+                    <Box>
+                      <Box component="select" 
+                        value={period}
+                        onChange={(e) => setPeriod(e.target.value)}
+                        sx={{ borderRadius: 3, py: 1, px:3, borderColor: '#ccc', color:'grey', cursor:'pointer' }}
+                      >
+                        <option value='1d'>1d</option>
+                        <option value='5d'>5d</option>
+                        <option value='1mo'>1mo</option>
+                        <option value='3mo'>3mo</option>
+                        <option value='6mo'>6mo</option>
+                        <option value='1y'>1y</option>
+                        <option value='2y'>2y</option>
+                        <option value='ytd'>YTD</option>
+                        <option value='max'>max</option>
+                      </Box>
+                      <Box component="select" 
+                        value={interval}
+                        onChange={(e) => setInterval(e.target.value)}
+                        sx={{ ml:1, borderRadius: 3, py: 1, px:3, borderColor: '#ccc', color:'grey', cursor:'pointer' }}
+                      >
+                        <option value='1d'>1d</option>
+                        <option value='1h'>1h</option>
+                        <option value='1m'>1m</option>
+                        <option value='1wk'>1wk</option>
+                        <option value='1mo'>1mo</option>
+                        {/* (1m, 2m, 5m, 15m, 30m, 60m, 1d, 1wk, 1mo) */}
+                      </Box>
                     </Box>
                   </Box>
 
@@ -447,13 +552,18 @@ const Market: React.FC = () => {
                         style={{ width: '100%', height:'100%' }}
                       />
                     </Box> */}
-                    <Box sx={{ flex: 1, height: 250, bgcolor: '#f7f7f7', borderRadius: 3, mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Line data={chartData} options={chartOptions} />
+                    <Box sx={{ flex: 1, display: 'flex', flexDirection:'column', gap: 1 }}>
+                      <Typography sx={{ color: '#888', textAlign: 'start', fontSize: '0.6rem' }}>
+                        ultima aggiornamento: {formatTime(historyInfo?.regularMarketTime)}
+                      </Typography>
+                      <Box sx={{ height: 250, bgcolor: '#f7f7f7', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Line data={chartData} options={chartOptions} />
+                      </Box>
                     </Box>
 
                     {/* Cards */}
-                    <Box sx={{ display: 'flex', flexDirection:'column', gap: 1, mt: 2, mb:2 }}>
-                      <Box sx={{ display: 'flex', flexDirection:'row', pl:1, pr:2, py:1.5, bgcolor: '#fff', borderRadius: 2, boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)", gap:0.6, alignItems:'center' }}>
+                    <Box sx={{ display: 'flex', flexDirection:'column', gap: 1, mt: 2, mb:2, width: '150px'}}>
+                      <Box sx={{  display: 'flex', flexDirection:'row', pl:1, pr:2, py:1.5, bgcolor: '#fff', borderRadius: 2, boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)", gap:0.6, alignItems:'center', height:'70px' }}>
                         <Box
                           component="img"
                           src={CardEuroIcon}
@@ -465,11 +575,11 @@ const Market: React.FC = () => {
                           }}
                         />
                         <Box sx={{ display: 'flex', flexDirection:'column'}}>
-                          <Typography variant="subtitle2"><b>{stockData? stockData.stock_price_today_eur[0]: ''} €</b></Typography>
-                          <Typography variant="caption">Prezzo attuale</Typography>
+                          <Typography variant="subtitle2"><b>{prezzoAttuale} {currencySymbol}</b></Typography>
+                          <Typography variant="caption" sx={{lineHeight:1, mt:0.5}}>Prezzo attuale</Typography>
                         </Box>
                       </Box>
-                      <Box sx={{ display: 'flex', flexDirection:'row', pl:1, pr:2, py:1.5, bgcolor: '#fff', borderRadius: 2, boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)", gap:0.6, alignItems:'center' }}>
+                      <Box sx={{ display: 'flex', flexDirection:'row', pl:1, pr:2, py:1.5, bgcolor: '#fff', borderRadius: 2, boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)", gap:0.6, alignItems:'center', height:'70px' }}>
                         <Box
                           component="img"
                           src={CardArrowsIcon}
@@ -481,13 +591,17 @@ const Market: React.FC = () => {
                           }}
                         />
                         <Box sx={{ display: 'flex', flexDirection:'column'}}>
-                          <Typography variant="subtitle2">
-                            <b>{calculateDailyVariation(stockData?.stock_price_today_eur)}</b>
+                          <Typography 
+                            variant="subtitle2"
+                            onClick={() => setVarPercent(v => !v)}
+                            sx={{cursor:'pointer', color: getVarValue(varPercent)?.positive === false ? 'red' : '#10AF2A'}}
+                          >
+                            <b>{getVarValue(varPercent)?.value}</b>
                           </Typography>
-                          <Typography variant="caption">Var. giornaliera</Typography>
+                          <Typography variant="caption" sx={{lineHeight:1, mt:0.5}}>Variazione del periodo</Typography>
                         </Box>
                       </Box>
-                      <Box sx={{ display: 'flex', flexDirection:'row', pl:1, pr:2, py:1.5, bgcolor: '#fff', borderRadius: 2, boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)", gap:0.6, alignItems:'center' }}>
+                      <Box sx={{ display: 'flex', flexDirection:'row', pl:1, pr:2, py:1.5, bgcolor: '#fff', borderRadius: 2, boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.15)", gap:0.6, alignItems:'center', height:'70px' }}>
                         <Box
                           component="img"
                           src={CardCurveArrowIcon}
@@ -500,7 +614,7 @@ const Market: React.FC = () => {
                         />
                         <Box sx={{ display: 'flex', flexDirection:'column'}}>
                           <Typography variant="subtitle2"><b>{stockData? stockData.stock_volatility_level: ''}</b></Typography>
-                          <Typography variant="caption">Volatilità</Typography>
+                          <Typography variant="caption" sx={{lineHeight:1, mt:0.5}}>Volatilità</Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -535,10 +649,10 @@ const Market: React.FC = () => {
                     }}/> */}
 
                     <Box sx={{ flex: '1 1 50%', pb: 1, pl:2, mt:1 }}>
-                      <Typography variant="subtitle1">Settore: <b>{stockData? stockData.sector: ''}</b></Typography>
-                      <Typography variant="subtitle1">Capitalizzazione mercato: <b>U$ {stockData? stockData.market_cap_usd: ''}</b></Typography>
+                      <Typography variant="subtitle1">Settore: <b>{companyInfo ? `${companyInfo.industry} / ${companyInfo.sector}` : ''}</b></Typography>
+                      <Typography variant="subtitle1">Capitalizzazione mercato: <b>{companyInfo ? `€ ${companyInfo.marketCap?.toLocaleString('it-IT')}` : ''}</b></Typography>
+                      <Typography variant="subtitle1">Raccomandazione: <b>{companyInfo ? companyInfo.recommendationKey.replace('_', ' ') : ''}</b></Typography>
                       <Typography variant="subtitle1">Indice PE: <b>{stockData? stockData.pe_ratio: ''}</b></Typography>
-                      <Typography variant="subtitle1">Raccomandazione: <b>{stockData? stockData.analyst_recommendation: ''}</b></Typography>
                     </Box>
 
                     <Box 

@@ -34,12 +34,20 @@ urlpatterns = [
     # Chat
     path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
          name='openai-chat-send-message'),
-     path('openai/assistant/send-message/', OpenAISendAssistantMessageView.as_view(),
+    path('openai/assistant/send-message/', OpenAISendAssistantMessageView.as_view(),
          name='openai-assistant-send-message'),
     path('elevenlabs/text-to-speech/',
          ElevenlabsTextToSpeechView.as_view(), name='text-to-speech',),
     path('openai/investing-scraper/', OpenAIInvestingDataScraper.as_view(),
          name='get_investing_data'),
+    path('stocks/history/', StockDataView.as_view(), name='stock-data'),
+    path('stocks/company-info/', CompanyInfoView.as_view(), name='company-info'),
+    path('stocks/search/', SearchStocksView.as_view(), name='search-stocks'),
+    path('stocks/fast-info/', FastInfoView.as_view(), name='fast-info'),
+    path('stocks/analyst-price-targets/',
+         AnalystPriceTargetsView.as_view(), name='analyst-price-targets'),
+    path('stocks/recommendations/',
+         RecommendationsView.as_view(), name='recommendations'),
 ]
 
 urlpatterns += router.urls

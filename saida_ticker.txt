@@ -1,0 +1,458 @@
+
+============================================================
+ATRIBUTOS
+============================================================
+actions:
+Empty DataFrame
+Columns: [Dividends, Stock Splits]
+Index: []
+---
+analyst_price_targets:
+{'current': 0.78, 'high': 1.55, 'low': 1.33, 'mean': 1.41, 'median': 1.35}
+---
+balance_sheet:
+                                                  2023-12-31  2022-12-31  2021-12-31
+Ordinary Shares Number                            32348500.0  25628500.0  25628500.0
+Share Issued                                      32348500.0  25628500.0  25628500.0
+Net Debt                                          14422398.0  18974007.0  16963000.0
+Total Debt                                        16357374.0  20935784.0  18080000.0
+Tangible Book Value                               15466745.0  15160851.0   
+---
+balancesheet:
+                                                  2023-12-31  2022-12-31  2021-12-31
+Ordinary Shares Number                            32348500.0  25628500.0  25628500.0
+Share Issued                                      32348500.0  25628500.0  25628500.0
+Net Debt                                          14422398.0  18974007.0  16963000.0
+Total Debt                                        16357374.0  20935784.0  18080000.0
+Tangible Book Value                               15466745.0  15160851.0   
+---
+fast_info:
+lazy-loading dict with keys = ['currency', 'dayHigh', 'dayLow', 'exchange', 'fiftyDayAverage', 'lastPrice', 'lastVolume', 'marketCap', 'open', 'previousClose', 'quoteType', 'regularMarketPreviousClose', 'shares', 'tenDayAverageVolume', 'threeMonthAverageVolume', 'timezone', 'twoHundredDayAverage', 'yearChange', 'yearHigh', 'yearLow']
+---
+calendar:
+{'Earnings Date': [], 'Earnings High': None, 'Earnings Low': None, 'Earnings Average': None, 'Revenue High': None, 'Revenue Low': None, 'Revenue Average': None}
+---
+capital_gains:
+Series([], dtype: object)
+---
+cash_flow:
+                                            2023-12-31 2022-12-31 2021-12-31
+Free Cash Flow                               -475685.0 -2384331.0  -585000.0
+Repurchase Of Capital Stock                        0.0        0.0        0.0
+Repayment Of Debt                           -5650318.0 -3834405.0 -4272000.0
+Issuance Of Debt                             2000000.0  3700000.0  5740000.0
+Issuance Of Capital Stock                    5000776.0        0.0  1350000.0
+Capital Expenditure                   
+---
+cashflow:
+                                            2023-12-31 2022-12-31 2021-12-31
+Free Cash Flow                               -475685.0 -2384331.0  -585000.0
+Repurchase Of Capital Stock                        0.0        0.0        0.0
+Repayment Of Debt                           -5650318.0 -3834405.0 -4272000.0
+Issuance Of Debt                             2000000.0  3700000.0  5740000.0
+Issuance Of Capital Stock                    5000776.0        0.0  1350000.0
+Capital Expenditure                   
+---
+dividends:
+Series([], Name: Dividends, dtype: float64)
+---
+earnings_dates:
+                           EPS Estimate  Reported EPS  Surprise(%)
+Earnings Date                                                     
+2024-09-27 13:56:00+02:00           NaN           NaN          NaN
+2023-09-28 06:32:00+02:00           NaN           NaN          NaN
+---
+earnings_estimate:
+          avg    low   high  numberOfAnalysts  yearAgoEps  growth
+period                                                           
+0q      0.000  0.000  0.000                 0         NaN     NaN
++1q     0.000  0.000  0.000                 0         NaN     NaN
+0y      0.005  0.005  0.005                 1         NaN     NaN
++1y     0.005  0.005  0.005                 1       0.005     0.0
+---
+earnings_history:
+Empty DataFrame
+Columns: []
+Index: []
+---
+eps_revisions:
+        upLast7days  upLast30days  downLast30days  downLast7Days
+period                                                          
+0q                0             0               0              0
++1q               0             0               0              0
+0y                0             0               0              0
++1y               0             0               1              1
+---
+eps_trend:
+        current  7daysAgo  30daysAgo  60daysAgo  90daysAgo
+period                                                    
+0q        0.000     0.000      0.000      0.000        0.0
++1q       0.000     0.000      0.000      0.000        0.0
+0y        0.005     0.000      0.000      0.000        0.0
++1y       0.005     0.031      0.031      0.031        0.0
+---
+fast_info:
+lazy-loading dict with keys = ['currency', 'dayHigh', 'dayLow', 'exchange', 'fiftyDayAverage', 'lastPrice', 'lastVolume', 'marketCap', 'open', 'previousClose', 'quoteType', 'regularMarketPreviousClose', 'shares', 'tenDayAverageVolume', 'threeMonthAverageVolume', 'timezone', 'twoHundredDayAverage', 'yearChange', 'yearHigh', 'yearLow']
+---
+financials:
+                                                    2023-12-31  2022-12-31      2021-12-31
+Tax Effect Of Unusual Items                          -53019.36   -52891.68   -15128.258603
+Tax Rate For Calcs                                        0.24        0.24        0.064651
+Normalized EBITDA                                    1755772.0   8425653.0       4911000.0
+Total Unusual Items                                  -220914.0   -220382.0       -234000.0
+Total Unusual Items Excluding Goodwill       
+---
+funds_data:
+<yfinance.scrapers.funds.FundsData object at 0x000002224C6DAEF0>
+---
+growth_estimates:
+        stockTrend  indexTrend
+period                        
+0q             NaN      0.0694
++1q            NaN      0.0452
+0y             NaN      0.0832
++1y            0.0      0.1418
+LTG            NaN      0.1220
+---
+history_metadata:
+{'currency': 'EUR', 'symbol': 'GRN.MI', 'exchangeName': 'MIL', 'fullExchangeName': 'Milan', 'instrumentType': 'EQUITY', 'firstTradeDate': 1689058800, 'regularMarketTime': 1745584168, 'hasPrePostMarketData': False, 'gmtoffset': 7200, 'timezone': 'CEST', 'exchangeTimezoneName': 'Europe/Rome', 'regularMarketPrice': 0.78, 'fiftyTwoWeekHigh': 1.03, 'fiftyTwoWeekLow': 0.75, 'regularMarketDayHigh': 0.78, 'regularMarketDayLow': 0.775, 'regularMarketVolume': 4500, 'longName': 'Green Oleo S.p.A.', 'shortN
+---
+income_stmt:
+                                                    2023-12-31  2022-12-31      2021-12-31
+Tax Effect Of Unusual Items                          -53019.36   -52891.68   -15128.258603
+Tax Rate For Calcs                                        0.24        0.24        0.064651
+Normalized EBITDA                                    1755772.0   8425653.0       4911000.0
+Total Unusual Items                                  -220914.0   -220382.0       -234000.0
+Total Unusual Items Excluding Goodwill       
+---
+incomestmt:
+                                                    2023-12-31  2022-12-31      2021-12-31
+Tax Effect Of Unusual Items                          -53019.36   -52891.68   -15128.258603
+Tax Rate For Calcs                                        0.24        0.24        0.064651
+Normalized EBITDA                                    1755772.0   8425653.0       4911000.0
+Total Unusual Items                                  -220914.0   -220382.0       -234000.0
+Total Unusual Items Excluding Goodwill       
+---
+info:
+{'address1': 'Via Bergamo, 66', 'city': 'Cremona', 'state': 'CR', 'zip': '26100', 'country': 'Italy', 'phone': '39 0372 48 71', 'fax': '39 0372 412 123', 'website': 'https://www.greenoleo.com', 'industry': 'Chemicals', 'industryKey': 'chemicals', 'industryDisp': 'Chemicals', 'sector': 'Basic Materials', 'sectorKey': 'basic-materials', 'sectorDisp': 'Basic Materials', 'longBusinessSummary': 'Green Oleo S.p.A. produces and sells fine oleochemicals from bridgeable and renewable sources. It offers f
+---
+insider_purchases:
+       Insider Purchases Last 6m    Shares  Trans
+0                      Purchases         0      0
+1                          Sales      <NA>      0
+2    Net Shares Purchased (Sold)         0      0
+3      Total Insider Shares Held  26482272   <NA>
+4  % Net Shares Purchased (Sold)      <NA>   <NA>
+5                   % Buy Shares      <NA>   <NA>
+6                  % Sell Shares      <NA>   <NA>
+---
+insider_roster_holders:
+Empty DataFrame
+Columns: []
+Index: []
+---
+insider_transactions:
+Empty DataFrame
+Columns: []
+Index: []
+---
+institutional_holders:
+Empty DataFrame
+Columns: []
+Index: []
+---
+isin:
+IT0005549768
+---
+major_holders:
+Breakdown                       Value
+insidersPercentHeld           0.81991
+institutionsPercentHeld       0.01574
+institutionsFloatPercentHeld  0.08742
+institutionsCount             3.00000
+---
+mutualfund_holders:
+Empty DataFrame
+Columns: []
+Index: []
+---
+news:
+[]
+---
+options:
+()
+---
+quarterly_balance_sheet:
+Empty DataFrame
+Columns: []
+Index: []
+---
+quarterly_balancesheet:
+Empty DataFrame
+Columns: []
+Index: []
+---
+quarterly_cash_flow:
+Empty DataFrame
+Columns: []
+Index: []
+---
+quarterly_cashflow:
+Empty DataFrame
+Columns: []
+Index: []
+---
+quarterly_earnings:
+None
+---
+quarterly_financials:
+Empty DataFrame
+Columns: []
+Index: []
+---
+quarterly_income_stmt:
+Empty DataFrame
+Columns: []
+Index: []
+---
+quarterly_incomestmt:
+Empty DataFrame
+Columns: []
+Index: []
+---
+recommendations:
+  period  strongBuy  buy  hold  sell  strongSell
+0     0m          0    2     0     0           0
+1    -1m          0    2     0     0           0
+2    -2m          0    2     0     0           0
+---
+recommendations_summary:
+  period  strongBuy  buy  hold  sell  strongSell
+0     0m          0    2     0     0           0
+1    -1m          0    2     0     0           0
+2    -2m          0    2     0     0           0
+---
+revenue_estimate:
+             avg       low      high  numberOfAnalysts  yearAgoRevenue  growth
+period                                                                        
+0q             0         0         0                 0             NaN     NaN
++1q            0         0         0                 0             NaN     NaN
+0y      68600000  65000000  71200000                 3      60572460.0  0.1325
++1y     75366670  73000000  78300000                 3      68600000.0  0.0986
+---
+sec_filings:
+{}
+---
+Erro lendo atributo shares: Have not implemented fetching 'shares' from Yahoo API
+splits:
+Series([], Name: Stock Splits, dtype: float64)
+---
+sustainability:
+Empty DataFrame
+Columns: []
+Index: []
+---
+ttm_cash_flow:
+                                      2023-12-31
+Free Cash Flow                         -475685.0
+Repurchase Of Capital Stock                  0.0
+Repayment Of Debt                     -5650318.0
+Issuance Of Debt                       2000000.0
+Issuance Of Capital Stock              5000776.0
+Capital Expenditure                   -2744965.0
+End Cash Position                      1934976.0
+Beginning Cash Position                1961777.0
+Effect Of Exchange Rate Changes              0.0
+Changes In
+---
+ttm_cashflow:
+                                      2023-12-31
+Free Cash Flow                         -475685.0
+Repurchase Of Capital Stock                  0.0
+Repayment Of Debt                     -5650318.0
+Issuance Of Debt                       2000000.0
+Issuance Of Capital Stock              5000776.0
+Capital Expenditure                   -2744965.0
+End Cash Position                      1934976.0
+Beginning Cash Position                1961777.0
+Effect Of Exchange Rate Changes              0.0
+Changes In
+---
+ttm_financials:
+                                                    2023-12-31
+Tax Effect Of Unusual Items                          -53019.36
+Tax Rate For Calcs                                        0.24
+Normalized EBITDA                                    1755772.0
+Total Unusual Items                                  -220914.0
+Total Unusual Items Excluding Goodwill               -220914.0
+Net Income From Continuing Operation Net Minori...   -590747.0
+Reconciled Depreciation                              280806
+---
+ttm_income_stmt:
+                                                    2023-12-31
+Tax Effect Of Unusual Items                          -53019.36
+Tax Rate For Calcs                                        0.24
+Normalized EBITDA                                    1755772.0
+Total Unusual Items                                  -220914.0
+Total Unusual Items Excluding Goodwill               -220914.0
+Net Income From Continuing Operation Net Minori...   -590747.0
+Reconciled Depreciation                              280806
+---
+ttm_incomestmt:
+                                                    2023-12-31
+Tax Effect Of Unusual Items                          -53019.36
+Tax Rate For Calcs                                        0.24
+Normalized EBITDA                                    1755772.0
+Total Unusual Items                                  -220914.0
+Total Unusual Items Excluding Goodwill               -220914.0
+Net Income From Continuing Operation Net Minori...   -590747.0
+Reconciled Depreciation                              280806
+---
+upgrades_downgrades:
+Empty DataFrame
+Columns: []
+Index: []
+---
+
+============================================================
+MÉTODOS PRINCIPAIS
+============================================================
+get_info:
+{'address1': 'Via Bergamo, 66', 'city': 'Cremona', 'state': 'CR', 'zip': '26100', 'country': 'Italy', 'phone': '39 0372 48 71', 'fax': '39 0372 412 123', 'website': 'https://www.greenoleo.com', 'industry': 'Chemicals', 'industryKey': 'chemicals', 'industryDisp': 'Chemicals', 'sector': 'Basic Materials', 'sectorKey': 'basic-materials', 'sectorDisp': 'Basic Materials', 'longBusinessSummary': 'Green Oleo S.p.A. produces and sells fine oleochemicals from bridgeable and renewable sources. It offers f
+---
+get_fast_info:
+lazy-loading dict with keys = ['currency', 'dayHigh', 'dayLow', 'exchange', 'fiftyDayAverage', 'lastPrice', 'lastVolume', 'marketCap', 'open', 'previousClose', 'quoteType', 'regularMarketPreviousClose', 'shares', 'tenDayAverageVolume', 'threeMonthAverageVolume', 'timezone', 'twoHundredDayAverage', 'yearChange', 'yearHigh', 'yearLow']
+---
+get_isin:
+IT0005549768
+---
+Erro executando método get_options: 'Ticker' object has no attribute 'get_options'
+history:
+                            Open   High    Low  Close  Volume  Dividends  Stock Splits
+Date                                                                                  
+2025-03-25 00:00:00+01:00  0.880  0.885  0.860  0.875   12000        0.0           0.0
+2025-03-26 00:00:00+01:00  0.875  0.875  0.875  0.875       0        0.0           0.0
+2025-03-27 00:00:00+01:00  0.880  0.885  0.865  0.865    7500        0.0           0.0
+2025-03-28 00:00:00+01:00  0.865  0.865  0.865  0.865    1500    
+---
+get_balance_sheet:
+                                            2023-12-31  2022-12-31  2021-12-31
+OrdinarySharesNumber                        32348500.0  25628500.0  25628500.0
+ShareIssued                                 32348500.0  25628500.0  25628500.0
+NetDebt                                     14422398.0  18974007.0  16963000.0
+TotalDebt                                   16357374.0  20935784.0  18080000.0
+TangibleBookValue                           15466745.0  15160851.0   9105000.0
+...                       
+---
+get_cash_flow:
+                                       2023-12-31 2022-12-31 2021-12-31
+FreeCashFlow                            -475685.0 -2384331.0  -585000.0
+RepurchaseOfCapitalStock                      0.0        0.0        0.0
+RepaymentOfDebt                        -5650318.0 -3834405.0 -4272000.0
+IssuanceOfDebt                          2000000.0  3700000.0  5740000.0
+IssuanceOfCapitalStock                  5000776.0        0.0  1350000.0
+CapitalExpenditure                     -2744965.0 -5362378.0 -364500
+---
+get_income_stmt:
+                                                    2023-12-31  2022-12-31      2021-12-31
+TaxEffectOfUnusualItems                              -53019.36   -52891.68   -15128.258603
+TaxRateForCalcs                                           0.24        0.24        0.064651
+NormalizedEBITDA                                     1755772.0   8425653.0       4911000.0
+TotalUnusualItems                                    -220914.0   -220382.0       -234000.0
+TotalUnusualItemsExcludingGoodwill           
+---
+get_earnings:
+None
+---
+get_earnings_dates:
+                           EPS Estimate  Reported EPS  Surprise(%)
+Earnings Date                                                     
+2024-09-27 13:56:00+02:00           NaN           NaN          NaN
+2023-09-28 06:32:00+02:00           NaN           NaN          NaN
+---
+get_dividends:
+Series([], Name: Dividends, dtype: float64)
+---
+get_splits:
+Series([], Name: Stock Splits, dtype: float64)
+---
+get_actions:
+Empty DataFrame
+Columns: [Dividends, Stock Splits]
+Index: []
+---
+get_analyst_price_targets:
+{'current': 0.78, 'high': 1.55, 'low': 1.33, 'mean': 1.41, 'median': 1.35}
+---
+get_recommendations:
+  period  strongBuy  buy  hold  sell  strongSell
+0     0m          0    2     0     0           0
+1    -1m          0    2     0     0           0
+2    -2m          0    2     0     0           0
+---
+get_calendar:
+{'Earnings Date': [], 'Earnings High': None, 'Earnings Low': None, 'Earnings Average': None, 'Revenue High': None, 'Revenue Low': None, 'Revenue Average': None}
+---
+get_major_holders:
+Breakdown                       Value
+insidersPercentHeld           0.81991
+institutionsPercentHeld       0.01574
+institutionsFloatPercentHeld  0.08742
+institutionsCount             3.00000
+---
+get_institutional_holders:
+Empty DataFrame
+Columns: []
+Index: []
+---
+get_mutualfund_holders:
+Empty DataFrame
+Columns: []
+Index: []
+---
+get_funds_data:
+<yfinance.scrapers.funds.FundsData object at 0x000002224C6DAEF0>
+---
+get_sec_filings:
+{}
+---
+get_sustainability:
+Empty DataFrame
+Columns: []
+Index: []
+---
+get_news:
+[]
+---
+get_recommendations_summary:
+  period  strongBuy  buy  hold  sell  strongSell
+0     0m          0    2     0     0           0
+1    -1m          0    2     0     0           0
+2    -2m          0    2     0     0           0
+---
+get_revenue_estimate:
+             avg       low      high  numberOfAnalysts  yearAgoRevenue  growth
+period                                                                        
+0q             0         0         0                 0             NaN     NaN
++1q            0         0         0                 0             NaN     NaN
+0y      68600000  65000000  71200000                 3      60572460.0  0.1325
++1y     75366670  73000000  78300000                 3      68600000.0  0.0986
+---
+Erro executando método get_shares: Have not implemented fetching 'shares' from Yahoo API
+get_shares_full:
+2023-10-25 00:00:00+02:00    27643600
+2023-10-26 00:00:00+02:00    27699500
+2023-10-27 00:00:00+02:00    27422500
+2023-10-31 00:00:00+01:00    27699500
+2023-11-01 00:00:00+01:00    25628500
+                               ...   
+2025-04-19 00:00:00+02:00    31955500
+2025-04-22 00:00:00+02:00    31951000
+2025-04-23 00:00:00+02:00    32775500
+2025-04-24 00:00:00+02:00    33868100
+2025-04-25 00:00:00+02:00    32988400
+Length: 266, dtype: int64
+---
+option_chain:
+Options(calls=None, puts=None, underlying=None)
+---

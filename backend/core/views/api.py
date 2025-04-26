@@ -21,7 +21,7 @@ class APIRootView(APIView):
     def get(self, request, *args, **kwargs):
         user_id = request.user.id
         return Response({
-            "main": request.build_absolute_uri(reverse("api-root")),
+            # "main": request.build_absolute_uri(reverse("api-root")),
             "users": {
                 "token_obtain": request.build_absolute_uri(reverse("token_obtain_pair")),
                 "token_refresh": request.build_absolute_uri(reverse("token_refresh")),
@@ -59,5 +59,13 @@ class APIRootView(APIView):
                     "esg-articles": request.build_absolute_uri(reverse("esgarticle-list")),
                     "ceo-articles": request.build_absolute_uri(reverse("ceoarticle-list")),
                 },
+                "stock": {
+                    "stock-data": request.build_absolute_uri(reverse("stock-data")),
+                    "company-info": request.build_absolute_uri(reverse("company-info")),
+                    "search-stocks": request.build_absolute_uri(reverse("search-stocks")),
+                    "fast-info": request.build_absolute_uri(reverse("fast-info")),
+                    "analyst-price-targets": request.build_absolute_uri(reverse("analyst-price-targets")),
+                    "recommendations": request.build_absolute_uri(reverse("recommendations")),
+                }
             }
         })

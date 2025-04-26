@@ -24,7 +24,14 @@ from .elevenlabs import ElevenlabsTextToSpeechView
 from .combined_article_view import CombinedArticleViewSet
 from .esg_article_view import ESGArticleViewSet
 from .ceo_article_view import CEOArticleViewSet
-
+from .stocks_view import (
+    StockDataView,
+    CompanyInfoView,
+    SearchStocksView,
+    FastInfoView,
+    AnalystPriceTargetsView,
+    RecommendationsView,
+)
 
 __all__ = [
     'PerplexityDeepSearchView',
@@ -47,4 +54,10 @@ __all__ = [
     'ESGArticleViewSet',
     'CEOArticleViewSet',
     'OpenAISendAssistantMessageView',
+    'StockDataView',
+    'CompanyInfoView',
+    'SearchStocksView',
+    'FastInfoView',
+    'AnalystPriceTargetsView',
+    'RecommendationsView',
 ]
