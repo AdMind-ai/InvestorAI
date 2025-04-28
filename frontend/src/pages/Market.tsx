@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Divider, Link, Button, Pagination, Grow } from '@mui/material'
-import ReactMarkdown from 'react-markdown';
 // import { useTheme } from '@mui/material/styles'
+import { Box, Typography, Divider, Link, Button, Pagination, Grow, TextField, MenuItem } from '@mui/material'
+import ReactMarkdown from 'react-markdown';
 import '../styles/markdown.css';
 import Layout from '../layouts/Layout'
+import type { HistoryInfo, HistoryDataItem, CompanyInfo } from '../interfaces/market';
 import { api } from '../api/api'
 
 // Icon Imports
 import CardEuroIcon from '../assets/dashboard_icons/card_euro_icon.svg'
 import CardArrowsIcon from '../assets/dashboard_icons/card_arrows_icon.svg'
 import CardCurveArrowIcon from '../assets/dashboard_icons/card_curvearrow_icon.svg'
-import { Line } from 'react-chartjs-2';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+
+// Chart Imports
+import CrosshairPlugin from 'chartjs-plugin-crosshair';
+import { TooltipItem } from 'chart.js';
+import { Chart } from 'react-chartjs-2';
+import { ChartData, ChartTypeRegistry, ChartOptions } from 'chart.js';
 import {
   Chart as ChartJS,
   CategoryScale, 
@@ -20,7 +27,9 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  BarElement,
+  BarController, 
 } from 'chart.js';
 
 ChartJS.register(
@@ -31,11 +40,25 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  BarElement,    
+  BarController, 
+  CrosshairPlugin
 );
 
 
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+interface RawHistoryDataItem {
+  Date?: string;
+  Datetime?: string;
+  Open: number;
+  High: number;
+  Low: number;
+  Close: number;
+  Volume: number;
+  Dividends: number;
+  'Stock Splits': number;
+}
+
 
 interface Competitor {
   competitor: string;
@@ -99,16 +122,40 @@ const Market: React.FC = () => {
   // Chart data
   const [stockData, setStockData] = useState<StockData | null>(null);
   // const [selectedCompany, setSelectedCompany] = useState<StockData | null>(null);
-  const [historyInfo, setHistoryInfo] = useState<any>(null);
-  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null);
+  const [historyData, setHistoryData] = useState<HistoryDataItem[]>([]);
   const [period, setPeriod] = useState<string>('1mo');     // periodo default: 1 mês
   const [interval, setInterval] = useState<string>('1d');  // intervalo default: 1 dia
   const [varPercent, setVarPercent] = useState(true); 
-  const chartDataLabels = historyData.map(d => (d.Datetime || d.Date).slice(0, 10));
+  const chartDataLabels = historyData.map(d => d.Date || "");
+  const periodi = {
+    '1d': '1 giorno',
+    '5d': '5 giorni',
+    '1mo': '1 mese',
+    '3mo': '3 mesi',
+    '6mo': '6 mesi',
+    '1y': '1 anno',
+    '2y': '2 anni',
+    'ytd': 'Da inizio anno',
+    'max': 'Massimo'
+  };
+  
+  const intervalli = {
+    '1m': '1 minuto',
+    '2m': '2 minuti',
+    '5m': '5 minuti',
+    '15m': '15 minuti',
+    '30m': '30 minuti',
+    '1h': '1 ora',
+    '1d': '1 giorno',
+    '1wk': '1 settimana',
+    '1mo': '1 mese'
+  };
+
   // Chart Cards
   const currencySymbol = historyInfo?.currency === 'EUR' ? '€' : '$';
   const prezzoAttuale = historyInfo?.previousClose;
-  const [companyInfo, setCompanyInfo] = useState<any>(null);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null)
 
   useEffect(() => {
     async function fetchCompanyInfo() {
@@ -117,7 +164,7 @@ const Market: React.FC = () => {
           params: { symbol: 'GRN.MI' }
         });
         setCompanyInfo(response.data);
-      } catch (err) {
+      } catch {
         setCompanyInfo(null);
       }
     }
@@ -255,8 +302,14 @@ const Market: React.FC = () => {
           }
         });
         setHistoryInfo(resp.data.info);
-        setHistoryData(resp.data.data);
-      } catch (e) {
+
+        const normalizedData: HistoryDataItem[] = (resp.data.data as RawHistoryDataItem[]).map(item => ({
+          ...item,
+          Date: item.Date || item.Datetime || ''
+        }));
+    
+        setHistoryData(normalizedData);
+      } catch {
         setHistoryInfo(null);
         setHistoryData([]);
       }
@@ -302,11 +355,31 @@ const Market: React.FC = () => {
   };
 
 
-  const chartData = {
-    labels: historyData.map(d => (d.Datetime || d.Date).slice(0, 10)),
+  const chartData: ChartData<keyof ChartTypeRegistry> = {
+    labels: historyData.map(d => {
+      if (!d.Date) return "";
+      const dt = new Date(d.Date);
+    
+      // Date: dd/mm/yyyy
+      const data = dt.toLocaleDateString('it-IT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    
+      // Hour: HH:mm
+      const hora = dt.toLocaleTimeString('it-IT', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false // 24h
+      });
+    
+      return `${data} ${hora}`; // "28/04/2025 13:38"
+    }),
     // labels: stockData ? stockData.created_at.map(date => new Date(date).toLocaleDateString()) : [],
     datasets: [
       {
+        type: 'line',
         label: 'Prezzo del titolo (€)',
         data: historyData.map(d => d.Close),
         // data: stockData ? stockData.stock_price_today_eur : [],
@@ -317,33 +390,42 @@ const Market: React.FC = () => {
         pointBackgroundColor: 'blue',
         pointRadius: historyData.length>20? 2:4,
         pointHoverRadius: 7,
+        pointHoverBackgroundColor: '#25d366',
+        yAxisID: 'y',
+        order: 2,
       },
-      // {
-      //   label: 'Prezzo del titolo (USD)',
-      //   data: stockData ? stockData.stock_price_today_usd : [],
-      //   borderColor: 'orange',
-      //   backgroundColor: 'rgba(255,165,0,0.4)',
-      //   fill: true,
-      //   tension: 0.3,
-      //   pointBackgroundColor: 'orange',
-      //   pointRadius: 4,
-      //   pointHoverRadius: 7,
-      // },
+      {
+        // Volume barras
+        type: 'bar',
+        label: 'Volume',
+        data: historyData.map(d => d.Volume),
+        yAxisID: 'yVolume',
+        backgroundColor: 'rgba(255,165,0,0.4)',
+        borderRadius: 4,
+        order: 1,
+        barPercentage: 1, // largura máxima
+        categoryPercentage: 1,
+        // Não precisa stack se não houver outros bars
+      }, 
     ],
   };
 
-  const chartOptions = {
+  const chartOptions: ChartOptions<keyof ChartTypeRegistry> = {
     responsive: true, 
     maintainAspectRatio: false, 
     animation: {
       duration: 1500,
       easing: 'easeOutQuart', 
     },
+    interaction: {
+      mode: 'index',      
+      intersect: false  
+    },
     layout: {
       padding: {
-        left: 20,   // padding esquerdo (em pixels)
-        right: 22,  // padding direito (em pixels)
-        top: 22,    // padding superior (em pixels)
+        left: 10,   // padding esquerdo (em pixels)
+        right: 10,  // padding direito (em pixels)
+        top: 25,    // padding superior (em pixels)
         bottom: 5  // padding inferior (em pixels)
       }
     },
@@ -356,23 +438,26 @@ const Market: React.FC = () => {
           padding: 10,
           font: {
             family: 'Roboto',
-            size: 12,
+            size: 11,
             weight: 'bold',
           },
           usePointStyle: true,
         },
       },
       tooltip: {
+        enabled: true,
         callbacks: {
-          label: function(context: any) {
+          label: function(context: TooltipItem<'line'>) {
             const idx = context.dataIndex;
             const d = historyData[idx];
+            if (context.dataset.label === 'Volume') {
+              return `Volume: ${d.Volume.toLocaleString()}`;
+            }
             return [
               `Close: ${d.Close.toFixed(4)}`,
               `Open: ${d.Open.toFixed(4)}`,
               `High: ${d.High.toFixed(4)}`,
               `Low: ${d.Low.toFixed(4)}`,
-              `Volume: ${d.Volume}`
             ];
           }
         },
@@ -385,19 +470,42 @@ const Market: React.FC = () => {
           size: 13,
         },
       },
+      // @ts-expect-error crosshair is from external plugin and not in Chart.js types
+      crosshair: {
+        line: {
+          color: '#fff',   
+          width: 2,
+          dashPattern: [4, 4], 
+        },
+        sync: { enabled: false },
+        zoom: { enabled: false },
+        snap: true,
+      },
     },
     scales: {
       x: {
+        display: false,
+        grid: {
+          display: false,
+        },
+        offset: false,
+      },
+      xPrice: {
         grid: {
           display: true,
           color: '#eee', 
+          drawTicks: true,        
+          tickColor: 'red',
+          tickLength: 8,
         },
         ticks: {
           maxTicksLimit: 5,
-          callback: function(index: number) {
-            const dateStr = chartDataLabels[index];
+          callback: function(tickValue: string | number) {
+            const dateStr = chartDataLabels[tickValue as number];
             if (!dateStr) return '';
+
             const d = new Date(dateStr);
+            console.log(d, dateStr)
             return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
           },
           color: '#555',
@@ -415,23 +523,55 @@ const Market: React.FC = () => {
           font: {
             size: 12,
           },
+          callback: function(tickValue: string | number) {
+            if (typeof tickValue === "number") {
+              return tickValue.toFixed(2);
+            }
+            return tickValue;
+          }
+
         },
+        // title: { display: true, text: "Precio" },
       },
+      yVolume: {
+        position: 'right',
+        grid: { display: false },
+        // ticks: { display: false }, 
+        ticks: {
+          display: true,
+          color: '#888',
+          font: { size: 11 },
+          callback: function(tickValue: string | number) {
+            // Compact notation: k, M, B
+            if (typeof tickValue === "number") {
+              const absVal = Math.abs(tickValue);
+              if (absVal >= 1_000_000_000) return (tickValue/1e9).toFixed(1).replace('.0','') + 'B';
+              if (absVal >= 1_000_000) return (tickValue/1e6).toFixed(1).replace('.0','') + 'M';
+              if (absVal >= 1_000) return (tickValue/1e3).toFixed(1).replace('.0','') + 'k';
+              return tickValue;
+            }
+          }
+        },
+        title: { display: false },
+        beginAtZero: true,
+        max: Math.max(...historyData.map(d => d.Volume)) * 1, // *3 diminui a altura relativa das barras!
+        // O multiplicador faz com que as barras fiquem proporcionais, mas não enormes.
+      }
     },
   } as const;
 
-  const calculateDailyVariation = (prices: number[] | undefined): string => {
-    if (!prices || prices.length < 2) return "--";
+  // const calculateDailyVariation = (prices: number[] | undefined): string => {
+  //   if (!prices || prices.length < 2) return "--";
   
-    const today = prices[0];
-    const yesterday = prices[1];
+  //   const today = prices[0];
+  //   const yesterday = prices[1];
   
-    const variation = ((today - yesterday) / yesterday) * 100;
-    const roundedVariation = variation.toFixed(2);
+  //   const variation = ((today - yesterday) / yesterday) * 100;
+  //   const roundedVariation = variation.toFixed(2);
   
-    const symbol = variation > 0 ? "+" : variation < 0 ? "-" : "";
-    return `${symbol}${roundedVariation}%`;
-  };
+  //   const symbol = variation > 0 ? "+" : variation < 0 ? "-" : "";
+  //   return `${symbol}${roundedVariation}%`;
+  // };
   
   function getVarValue(isPercent = true) {
     if (!historyData || historyData.length < 2) return {value: '--', positive: false};
@@ -454,9 +594,17 @@ const Market: React.FC = () => {
     }
   }
 
-  function formatTime(epoch: any) {
-    if (!epoch) return '';
-    return new Date(epoch * 1000).toLocaleString();
+  function formatTime(epochSeconds?: number) {
+    if (!epochSeconds) return '';
+    const dt = new Date(epochSeconds * 1000);
+    return dt.toLocaleString('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,    
+    });
   }
 
   return (
@@ -513,33 +661,42 @@ const Market: React.FC = () => {
                       Overview del titolo mensile
                     </Typography>
                     <Box>
-                      <Box component="select" 
+                      <TextField
+                        select
+                        label="Periodo"
                         value={period}
-                        onChange={(e) => setPeriod(e.target.value)}
-                        sx={{ borderRadius: 3, py: 1, px:3, borderColor: '#ccc', color:'grey', cursor:'pointer' }}
+                        onChange={e => setPeriod(e.target.value)}
+                        size='small'
+                        sx={{
+                          minWidth: 110,
+                          mr: 2,
+                          fontSize: '0.85rem',
+                          '& .MuiInputBase-root': { fontSize: '0.85rem' },
+                          '& .MuiInputLabel-root': { fontSize: '0.85rem' },
+                        }}
                       >
-                        <option value='1d'>1d</option>
-                        <option value='5d'>5d</option>
-                        <option value='1mo'>1mo</option>
-                        <option value='3mo'>3mo</option>
-                        <option value='6mo'>6mo</option>
-                        <option value='1y'>1y</option>
-                        <option value='2y'>2y</option>
-                        <option value='ytd'>YTD</option>
-                        <option value='max'>max</option>
-                      </Box>
-                      <Box component="select" 
+                        {Object.entries(periodi).map(([key, label]) => (
+                          <MenuItem value={key} key={key} sx={{ fontSize: '0.85rem', minHeight: '1.5em' }}>{label}</MenuItem>
+                        ))}
+                      </TextField>
+
+                      <TextField
+                        select
+                        label="Intervallo"
                         value={interval}
-                        onChange={(e) => setInterval(e.target.value)}
-                        sx={{ ml:1, borderRadius: 3, py: 1, px:3, borderColor: '#ccc', color:'grey', cursor:'pointer' }}
+                        onChange={e => setInterval(e.target.value)}
+                        size="small"
+                        sx={{
+                          minWidth: 110,
+                          fontSize: '0.85rem',
+                          '& .MuiInputBase-root': { fontSize: '0.85rem' },
+                          '& .MuiInputLabel-root': { fontSize: '0.85rem' },
+                        }}
                       >
-                        <option value='1d'>1d</option>
-                        <option value='1h'>1h</option>
-                        <option value='1m'>1m</option>
-                        <option value='1wk'>1wk</option>
-                        <option value='1mo'>1mo</option>
-                        {/* (1m, 2m, 5m, 15m, 30m, 60m, 1d, 1wk, 1mo) */}
-                      </Box>
+                        {Object.entries(intervalli).map(([key, label]) => (
+                          <MenuItem value={key} key={key} sx={{ fontSize: '0.85rem', minHeight: '1.5em' }}>{label}</MenuItem>
+                        ))}
+                      </TextField>
                     </Box>
                   </Box>
 
@@ -554,10 +711,10 @@ const Market: React.FC = () => {
                     </Box> */}
                     <Box sx={{ flex: 1, display: 'flex', flexDirection:'column', gap: 1 }}>
                       <Typography sx={{ color: '#888', textAlign: 'start', fontSize: '0.6rem' }}>
-                        ultima aggiornamento: {formatTime(historyInfo?.regularMarketTime)}
+                        ultima aggiornamento: {historyInfo?.regularMarketTime ? formatTime(historyInfo.regularMarketTime) : ''}
                       </Typography>
                       <Box sx={{ height: 250, bgcolor: '#f7f7f7', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Line data={chartData} options={chartOptions} />
+                        <Chart type="line" data={chartData} options={chartOptions} />
                       </Box>
                     </Box>
 
@@ -613,8 +770,10 @@ const Market: React.FC = () => {
                           }}
                         />
                         <Box sx={{ display: 'flex', flexDirection:'column'}}>
-                          <Typography variant="subtitle2"><b>{stockData? stockData.stock_volatility_level: ''}</b></Typography>
-                          <Typography variant="caption" sx={{lineHeight:1, mt:0.5}}>Volatilità</Typography>
+                          {/* <Typography variant="subtitle2"><b>{stockData? stockData.stock_volatility_level: ''}</b></Typography>
+                          <Typography variant="caption" sx={{lineHeight:1, mt:0.5}}>Volatilità</Typography> */}
+                          <Typography variant="subtitle2"><b>{companyInfo?.debtToEquity != null ? `${companyInfo.debtToEquity.toFixed(1)}%` : '--'}</b></Typography>
+                          <Typography variant="caption" sx={{lineHeight:1, mt:0.5}}>Debt / Equity</Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -652,7 +811,7 @@ const Market: React.FC = () => {
                       <Typography variant="subtitle1">Settore: <b>{companyInfo ? `${companyInfo.industry} / ${companyInfo.sector}` : ''}</b></Typography>
                       <Typography variant="subtitle1">Capitalizzazione mercato: <b>{companyInfo ? `€ ${companyInfo.marketCap?.toLocaleString('it-IT')}` : ''}</b></Typography>
                       <Typography variant="subtitle1">Raccomandazione: <b>{companyInfo ? companyInfo.recommendationKey.replace('_', ' ') : ''}</b></Typography>
-                      <Typography variant="subtitle1">Indice PE: <b>{stockData? stockData.pe_ratio: ''}</b></Typography>
+                      <Typography variant="subtitle1">Indice PE: <b>{companyInfo && companyInfo.forwardPE != null ? companyInfo.forwardPE.toFixed(1) : 'N/A'}</b></Typography>
                     </Box>
 
                     <Box 
