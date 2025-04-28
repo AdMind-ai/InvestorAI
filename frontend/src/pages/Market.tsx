@@ -432,9 +432,9 @@ const Market: React.FC = () => {
     plugins: {
       legend: {
         display: true,
-        position: 'bottom', // posição da legenda: top, bottom, left, right
+        position: 'bottom',
         labels: {
-          color: '#333', // cor da legenda
+          color: '#333', 
           padding: 10,
           font: {
             family: 'Roboto',
