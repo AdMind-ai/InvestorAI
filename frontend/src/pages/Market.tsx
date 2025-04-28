@@ -24,6 +24,7 @@ import {
   LinearScale,   
   PointElement,
   LineElement,
+  LineController,
   Title,
   Tooltip,
   Legend,
@@ -37,6 +38,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  LineController,
   Title,
   Tooltip,
   Legend,
@@ -384,9 +386,9 @@ const Market: React.FC = () => {
         data: historyData.map(d => d.Close),
         // data: stockData ? stockData.stock_price_today_eur : [],
         borderColor: 'blue',
-        backgroundColor: 'rgba(0,0,255,0.3)', // preenchimento abaixo da linha colorido com transparência
-        fill: true, // preenche a área abaixo da linha
-        tension: 0.2, // curva suave (0 é reto, 0.5 mais suavizado)
+        backgroundColor: 'rgba(0,0,255,0.3)', 
+        fill: true, 
+        tension: 0.2, 
         pointBackgroundColor: 'blue',
         pointRadius: historyData.length>20? 2:4,
         pointHoverRadius: 7,
