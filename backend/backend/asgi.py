@@ -11,7 +11,13 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-settings_module = 'backend.production' if 'WEBSITE_HOSTNAME' in os.environ else 'backend.settings'
+settings_module = ''
+if 'RUNNING_IN_PRODUCTION' in os.environ:
+    settings_module = 'backend.azure-production'
+elif 'WEBSITE_HOSTNAME' in os.environ:
+    settings_module = 'backend.production'
+else:
+    settings_module = 'backend.settings'
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
 
 application = get_asgi_application()

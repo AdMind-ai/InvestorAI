@@ -1,3 +1,6 @@
 .env
 teste_websearch.py
 azure-pipelines.yml
+yfinance_teste.py
+saida_ticker.txt
+.vscode/
