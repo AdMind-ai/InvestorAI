@@ -4,11 +4,12 @@
 
 name: (Backend WebApp) Build and deploy Python app to Azure Web App
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+# Disable Action Trigger
+# on:
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch:
 
 jobs:
   build:
