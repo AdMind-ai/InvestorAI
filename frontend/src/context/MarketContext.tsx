@@ -12,7 +12,7 @@ import {
 
 interface MarketContextType {
   // Shared states
-  stockData: any;
+  stockData: StockData | null;
   setStockData: React.Dispatch<React.SetStateAction<StockData | null>>;
   historyInfo: HistoryInfo | null;
   setHistoryInfo: React.Dispatch<React.SetStateAction<HistoryInfo | null>>;
@@ -64,7 +64,6 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const citeLinks = (text: string, citations: string[]) => {
     return text.replace(/\[(\d+)\]/g, (match: string, num: string) => {
       const citationIndex = parseInt(num, 10) - 1; 
-      // console.log(citationIndex, citations[citationIndex])
       if (citationIndex >= 0 && citationIndex < citations.length) {
         const citationLink = citations[citationIndex];
         return ` [[${num}]](${citationLink})`;
@@ -87,11 +86,14 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 
   useEffect(() => {
-    fetchStockData('GRN.MI').then(setStockData);
+    fetchStockData('Apple').then(setStockData);
   }, []);
 
   useEffect(() => {
-    console.log(selectedQuarter);
+    console.log(stockData)
+  }, [stockData]);
+
+  useEffect(() => {
     fetchQuarterlyReport(
       'Apple', 
       selectedQuarter.split(' ')[0], 
