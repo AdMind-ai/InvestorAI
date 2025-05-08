@@ -1,6 +1,8 @@
 # core/views/__init__.py
 from .example_view import ExampleView
 
+from .company_info import CompanyInfoView as CompanyInfoViewAdm
+
 from .perplexity import PerplexityDeepSearchView
 from .perplexity import PerplexityESGNewsView
 from .perplexity import PerplexityCEONewsView
@@ -34,6 +36,7 @@ from .stocks_view import (
 )
 
 __all__ = [
+    'CompanyInfoViewAdm',
     'PerplexityDeepSearchView',
     'PerplexityESGNewsView',
     'PerplexityCEONewsView',

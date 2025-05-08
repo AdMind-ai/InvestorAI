@@ -63,7 +63,7 @@ class StockDataView(APIView):
         result = YahooFinanceService.get_stock_data(symbol, period, interval)
 
         # Se falhar, tenta Alpha Vantage como fallback
-        if not result["success"]:
+        if not result['success']:
             logger.warning(
                 f"Yahoo Finance API failed for {symbol}. Trying Alpha Vantage.")
 

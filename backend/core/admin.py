@@ -7,6 +7,7 @@ from core.models.market_article_model import MarketNewsArticle
 from core.models.market_company_report import CompanyMarketReport
 from core.models.company_stock_data_model import CompanyStockData
 from core.models.company_quarterly_report import CompanyQuarterlyReport
+from core.models.company_info import CompanyInfo, CEO, CompetitorInfo
 # Register your models here.
 
 
@@ -105,3 +106,29 @@ class CompanyQuarterlyReportAdmin(admin.ModelAdmin):
     @admin.display(boolean=True, description='Has Insight Report')
     def has_insight_report(self, obj):
         return bool(obj.insight_report)
+
+
+class CompetitorInline(admin.TabularInline):
+    model = CompetitorInfo
+    extra = 0
+
+
+class CEOInline(admin.TabularInline):
+    model = CEO
+    extra = 0
+
+
+@admin.register(CompanyInfo)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ('long_name', 'stock_symbol', 'sector', 'country')
+    inlines = [CompetitorInline, CEOInline]
+
+
+@admin.register(CompetitorInfo)
+class CompetitorAdmin(admin.ModelAdmin):
+    list_display = ('name', 'stock_symbol', 'sector', 'company')
+
+
+@admin.register(CEO)
+class CEOAdmin(admin.ModelAdmin):
+    list_display = ('name', 'role', 'company')

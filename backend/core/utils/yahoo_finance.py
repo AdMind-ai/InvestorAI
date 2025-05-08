@@ -1,5 +1,10 @@
 import yfinance as yf
 from datetime import datetime, timedelta
+import time
+import random
+import requests
+import os
+import shutil
 
 
 class YahooFinanceService:

@@ -21,5 +21,4 @@ __all__ = [
     'OpenAICompetitorSearchView',
     'OpenAIMarketNewsView',
     'OpenAICompanyQuarterlyReportView',
-
 ]

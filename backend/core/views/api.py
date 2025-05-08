@@ -22,6 +22,7 @@ class APIRootView(APIView):
         user_id = request.user.id
         return Response({
             # "main": request.build_absolute_uri(reverse("api-root")),
+            "company": request.build_absolute_uri(reverse("company-info-adm")),
             "users": {
                 "token_obtain": request.build_absolute_uri(reverse("token_obtain_pair")),
                 "token_refresh": request.build_absolute_uri(reverse("token_refresh")),

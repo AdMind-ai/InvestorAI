@@ -11,6 +11,8 @@ router.register(r'openai/chat', OpenAIConversationViewSet,
                 basename='openai-chat-conversation')
 
 urlpatterns = [
+    path('company-info/',
+         CompanyInfoViewAdm.as_view(), name='company-info-adm'),
     path('perplexity/deep-search/',
          PerplexityDeepSearchView.as_view(), name='deep-search'),
     path('perplexity/esg-news/', PerplexityESGNewsView.as_view(),
