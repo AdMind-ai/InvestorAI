@@ -12,10 +12,7 @@ from rest_framework import serializers
 from datetime import datetime
 from core.models.competitor_model import Competitor, CompetitorSearch
 from django.db.models import Max
-
-
-class CompetitorInfoSerializer(serializers.Serializer):
-    company = serializers.CharField(max_length=255)
+from core.utils.get_company_info import get_company_info, get_competitors
 
 
 class CompetitorInfo(BaseModel):
@@ -38,24 +35,27 @@ class OpenAICompetitorSearchView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
-    serializer_class = CompetitorInfoSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        company = get_company_info()
+        company_name = company.short_name
+        competitors = get_competitors()
+        competitor_names = [c.name for c in competitors if c.name]
+        competitor_block = "\n".join(competitor_names)
 
-        company_name = request.data.get('company')
-        print(company_name)
         if not company_name:
             return Response({"error": "Company name is required."}, status=400)
 
         prompt = f"""
-        Identify at least 20 major competitors of {company_name}. For each competitor, provide:
+        Identify at least 3 and max of 20 major competitors of {company_name}. For each competitor, provide:
         - Company Name
         - Official Logo URL (format: "https://logo.clearbit.com/companydomain.com")
         - Business Sectors (e.g., Technology, Finance, etc.)
         - Brief Description
         - Official Website URL
+
+        Include those competitors:
+        {competitor_block}
         """
 
         try:
@@ -95,19 +95,29 @@ class OpenAICompetitorSearchView(APIView):
 
     def get(self, request, *args, **kwargs):
         recent = request.query_params.get('recent')
-        company_name = request.query_params.get('company')
+        company = get_company_info()
+        company_name = company.short_name
 
         if company_name:
             search_records = CompetitorSearch.objects.filter(
                 company_name__iexact=company_name).order_by('-search_date')
         else:
-            search_records = CompetitorSearch.objects.all()
+            return Response({'error': 'Company not found'}, status=404)
 
         if recent is not None:
             latest_date = search_records.aggregate(Max('search_date'))[
                 'search_date__max']
             search_records = search_records.filter(
                 search_date=latest_date).order_by('-search_date')
+
+        if not search_records.exists():
+            self.post(request, *args, **kwargs)
+
+            search_records = CompetitorSearch.objects.filter(
+                company_name__iexact=company_name).order_by('-search_date')
+
+            if not search_records.exists():
+                return Response({"error": "No competitor data available and failed to create new entries."}, status=404)
 
         response_data = [
             {

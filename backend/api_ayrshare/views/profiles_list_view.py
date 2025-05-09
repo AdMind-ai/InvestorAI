@@ -6,6 +6,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import datetime
 
 
 class ProfilesListView(generics.ListAPIView):
@@ -25,7 +26,7 @@ class ProfilesListView(generics.ListAPIView):
         if profiles_count >= 1:
             serializer = ProfilesSerializer(profiles, many=True)
             return Response(serializer.data)
-        name = f'ADAPT-AI: {profiles_count+1} - {request.user.email}'
+        name = f'ADAPT-AI: {datetime.now().strftime("%Y%m%d%H%M%S%f")} - {request.user.email}'
         social = SocialPost(settings.AYRSHARE_TOKEN)
 
         json = social.createProfile(
@@ -55,7 +56,7 @@ class ProfilesListView(generics.ListAPIView):
                 return Response(
                     {
                         'code': 'error',
-                        'detail': 'Invalid name',
+                        'detail': 'Invalid name, profile title already exists',
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )

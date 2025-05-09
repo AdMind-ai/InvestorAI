@@ -21,7 +21,7 @@ class CompanyQuarterlyReportSerializer(serializers.Serializer):
 
 
 class OpenAICompanyQuarterlyReportView(APIView):
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = CompanyQuarterlyReportSerializer
@@ -55,14 +55,11 @@ class OpenAICompanyQuarterlyReportView(APIView):
             return Response({"error": "Quarterly report not found."}, status=status.HTTP_404_NOT_FOUND)
 
         prompt = f"""
-        You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {qreport.company} for {qreport.quarter}, {qreport.year}. 
+        You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {qreport.company} for {qreport.quarter} of {qreport.year}. 
         
-        Your task is to access the provided press release, financial statements, and form 10-K (when available) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
+        Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
 
-        URLs provided are:
-        - Press Release: {qreport.press_release}
-        - Financial Statements: {qreport.financial_statements}
-        {f'- Form 10-K: {qreport.form_10k}' if qreport.form_10k else ''}
+        {f'Aditional information: {qreport}' if qreport.form_10k else ''}
         
         Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, products launches, investments, or strategic news released by {qreport.company} around that quarter.
 
@@ -70,7 +67,7 @@ class OpenAICompanyQuarterlyReportView(APIView):
         1. Highlights Finanziari
         2. Innovazione e Strategia
 
-        Write clearly, professionally and formatted in Italian. Use realistic numbers, bullet points, and YoY percentage variations. 
+        Write clearly, professionally and formatted in Italian. Use real numbers, bullet points, and YoY percentage variations. 
         """
 
         try:

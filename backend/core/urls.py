@@ -50,6 +50,10 @@ urlpatterns = [
          AnalystPriceTargetsView.as_view(), name='analyst-price-targets'),
     path('stocks/recommendations/',
          RecommendationsView.as_view(), name='recommendations'),
+    path('newsapi/market-news/', NewsApiMarketNewsView.as_view(),
+         name='newsapi-market-news'),
+
+
 ]
 
 urlpatterns += router.urls

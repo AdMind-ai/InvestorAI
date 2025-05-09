@@ -11,6 +11,8 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN pip install gunicorn azure-identity
 
+RUN pip install --no-cache-dir supervisor
+
 WORKDIR /app
 COPY . /app
 
@@ -22,3 +24,4 @@ USER appuser
 
 
 ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["/usr/local/bin/supervisord", "-c", "/app/supervisord.conf"]

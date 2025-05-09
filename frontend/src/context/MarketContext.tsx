@@ -9,6 +9,7 @@ import {
     fetchCompetitors,
     fetchMarketOverview
 } from '../api/marketApi';
+import { useGlobal } from "./GlobalContext";
 
 interface MarketContextType {
   // Shared states
@@ -42,6 +43,7 @@ const MarketContext = createContext<MarketContextType | undefined>(undefined);
 
 export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Shared states
+  const { companyInfoAdm } = useGlobal();
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null);
   const [historyData, setHistoryData] = useState<HistoryDataItem[]>([]);
@@ -74,11 +76,11 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Fetch Data
   useEffect(() => {
-    fetchCompanyInfo('GRN.MI').then(setCompanyInfo);
+    fetchCompanyInfo().then(setCompanyInfo);
   }, []);
 
   useEffect(() => {
-    fetchStockHistory('GRN.MI', period, interval).then(({ info, data }) => {
+    fetchStockHistory(period, interval).then(({ info, data }) => {
       setHistoryInfo(info);
       setHistoryData(data);
     });
@@ -86,12 +88,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 
   useEffect(() => {
-    fetchStockData('Apple').then(setStockData);
+      fetchStockData().then(setStockData);
   }, []);
-
-  useEffect(() => {
-    console.log(stockData)
-  }, [stockData]);
 
   useEffect(() => {
     fetchQuarterlyReport(
@@ -103,14 +101,14 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     setCompetitorNewsCurrentPage(1)
-    fetchMarketNews('apple inc').then(articles => {
+    fetchMarketNews().then(articles => {
       setCompetitorNews(articles.filter(article => article.type === 'competitors'));
       setSectorNews(articles.filter(article => article.type === 'sector'));
     });
   }, []);
 
   useEffect(() => {
-    fetchCompetitors('apple inc').then(setCompetitors);
+    fetchCompetitors().then(setCompetitors);
   }, []);
 
   useEffect(() => {

@@ -7,7 +7,7 @@ class CompanyStockDataSerializer(serializers.ModelSerializer):
         model = CompanyStockData
         fields = [
             'date',
-            'company_name',
+            'company',
             'stock_symbol',
             'stock_exchange',
             'stock_price_today_usd',

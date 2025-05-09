@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 import os
+from celery.schedules import crontab
 
 load_dotenv()
 
@@ -25,6 +26,9 @@ ELEVENLABS_KEY = os.environ['ELEVENLABS_KEY']
 AYRSHARE_TOKEN = os.environ['AYRSHARE_TOKEN']
 AYRSHARE_KEY = os.environ['AYRSHARE_KEY']
 ALPHA_VANTAGE_API_KEY = os.environ['ALPHA_VANTAGE_API_KEY']
+NEWSAPI_KEY = os.environ['NEWSAPI_KEY']
+CURR_NEWSAPI_KEY = os.environ['CURR_NEWSAPI_KEY']
+MEDIASTACK_NEWSAPI_KEY = os.environ['MEDIASTACK_NEWSAPI_KEY']
 
 
 # Azure Storage
@@ -42,6 +46,9 @@ keys = [
     'AYRSHARE_KEY',
     'AZURE_ACCOUNT_KEY',
     'ALPHA_VANTAGE_API_KEY',
+    'NEWSAPI_KEY',
+    'CURR_NEWSAPI_KEY',
+    'MEDIASTACK_NEWSAPI_KEY'
 ]
 
 missing_keys = [key for key in keys if not os.getenv(key)]
@@ -49,6 +56,34 @@ missing_keys = [key for key in keys if not os.getenv(key)]
 if missing_keys:
     raise Exception(
         f"The following environment variables are not set: {', '.join(missing_keys)}")
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_TIMEZONE = "Europe/Rome"
+
+
+CELERY_BEAT_SCHEDULE = {
+    'news_sector_morning': {
+        'task': 'core.tasks.collect_market_news',
+        'schedule': crontab(hour=8, minute=0),
+        'args': ('sector',)
+    },
+    'news_sector_afternoon': {
+        'task': 'core.tasks.collect_market_news',
+        'schedule': crontab(hour=13, minute=0),
+        'args': ('sector',)
+    },
+    'news_competitors_morning': {
+        'task': 'core.tasks.collect_market_news',
+        'schedule': crontab(hour=8, minute=0),
+        'args': ('competitors',)
+    },
+    'news_competitors_afternoon': {
+        'task': 'core.tasks.collect_market_news',
+        'schedule': crontab(hour=13, minute=0),
+        'args': ('competitors',)
+    },
+}
 
 LOGGING = {
     'version': 1,

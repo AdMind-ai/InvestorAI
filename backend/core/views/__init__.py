@@ -2,6 +2,7 @@
 from .example_view import ExampleView
 
 from .company_info import CompanyInfoView as CompanyInfoViewAdm
+from .newsapi import NewsApiMarketNewsView
 
 from .perplexity import PerplexityDeepSearchView
 from .perplexity import PerplexityESGNewsView
@@ -37,6 +38,7 @@ from .stocks_view import (
 
 __all__ = [
     'CompanyInfoViewAdm',
+    'NewsApiMarketNewsView',
     'PerplexityDeepSearchView',
     'PerplexityESGNewsView',
     'PerplexityCEONewsView',

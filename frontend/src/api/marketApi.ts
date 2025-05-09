@@ -5,14 +5,14 @@ import type { StockData, HistoryInfo, HistoryDataItem, RawHistoryDataItem, Compa
 
 
 // 1. Buscar company info
-export async function fetchCompanyInfo(symbol: string): Promise<CompanyInfo> {
-  const response = await api.get('/stocks/company-info/', { params: { symbol } });
+export async function fetchCompanyInfo(): Promise<CompanyInfo> {
+  const response = await api.get('/stocks/company-info/');
   return response.data;
 }
 
 // 2. Buscar histórico de preços
-export async function fetchStockHistory(symbol: string, period: string, interval: string): Promise<{ info: HistoryInfo, data: HistoryDataItem[] }> {
-  const response = await api.get('/stocks/history/', { params: { symbol, period, interval } });
+export async function fetchStockHistory(period: string, interval: string): Promise<{ info: HistoryInfo, data: HistoryDataItem[] }> {
+  const response = await api.get('/stocks/history/', { params: { period, interval } });
   // Normaliza Date/Datetime:
   const normalizedData: HistoryDataItem[] = (response.data.data as RawHistoryDataItem[]).map(item => ({
     ...item,
@@ -22,8 +22,8 @@ export async function fetchStockHistory(symbol: string, period: string, interval
 }
 
 // 3. Buscar dados da empresa/overview
-export async function fetchStockData(company: string): Promise<StockData> {
-  const response = await api.get<StockData>('/openai/investing-scraper/', { params: { company } });
+export async function fetchStockData(): Promise<StockData> {
+  const response = await api.get<StockData>('/openai/investing-scraper/');
   return response.data;
 }
 
@@ -38,17 +38,17 @@ export async function fetchQuarterlyReport(company: string, quarter: string, yea
 }
 
 // 5. Buscar concorrentes
-export async function fetchCompetitors(company: string): Promise<Competitor[]> {
+export async function fetchCompetitors(): Promise<Competitor[]> {
   const response = await api.get('/openai/competitors-search/', {
-    params: { recent: true, company }
+    params: { recent: true }
   });
   // Retorna o array (confira o formato conforme uso)
   return response.data[0]?.competitors ?? [];
 }
 
 // 6. Buscar notícias
-export async function fetchMarketNews(company: string): Promise<Article[]> {
-  const response = await api.get('/openai/market-news/', { params: { company }});
+export async function fetchMarketNews(): Promise<Article[]> {
+  const response = await api.get('/newsapi/market-news/');
   return response.data?.articles as Article[] ?? [];
 }
 

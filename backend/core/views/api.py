@@ -23,6 +23,7 @@ class APIRootView(APIView):
         return Response({
             # "main": request.build_absolute_uri(reverse("api-root")),
             "company": request.build_absolute_uri(reverse("company-info-adm")),
+            "newsapi": request.build_absolute_uri(reverse("newsapi-market-news")),
             "users": {
                 "token_obtain": request.build_absolute_uri(reverse("token_obtain_pair")),
                 "token_refresh": request.build_absolute_uri(reverse("token_refresh")),

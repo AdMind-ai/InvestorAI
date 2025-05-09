@@ -2,6 +2,10 @@ from django.db import models
 
 
 class CompanyQuarterlyReport(models.Model):
+    PERIOD = [
+        ('bimestral', 'bimestral'),
+        ('semestral', 'semestral'),
+    ]
     QUARTERS = [
         ('Q1', 'Q1'),
         ('Q2', 'Q2'),

@@ -8,6 +8,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.utils.yahoo_finance import YahooFinanceService
 from core.utils.alpha_vantage import AlphaVantageService
+from core.utils.get_company_info import get_company_info
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,8 +20,8 @@ def convert_mi_to_bit(symbol):
     return symbol
 
 
+
 class StockDataInputSerializer(serializers.Serializer):
-    symbol = serializers.CharField(required=True)
     period = serializers.CharField(
         required=False, default='1mo',
         help_text="Ex: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max"
@@ -29,10 +30,6 @@ class StockDataInputSerializer(serializers.Serializer):
         required=False, default='1d',
         help_text="Ex: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo"
     )
-
-
-class CompanyInfoInputSerializer(serializers.Serializer):
-    symbol = serializers.CharField(required=True)
 
 
 class SearchStocksInputSerializer(serializers.Serializer):
@@ -47,9 +44,10 @@ class StockDataView(APIView):
     def get(self, request):
         # period: Período de dados (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
         # interval: Intervalo de dados (1m, 2m, 5m, 15m, 30m, 60m, 1d, 1wk, 1mo)
+        company = get_company_info()
         serializer = StockDataInputSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
-        symbol = serializer.validated_data['symbol']
+        symbol = company.stock_symbol
         period = serializer.validated_data.get('period', 'max')
         interval = serializer.validated_data.get('interval', '1d')
 
@@ -67,7 +65,6 @@ class StockDataView(APIView):
             logger.warning(
                 f"Yahoo Finance API failed for {symbol}. Trying Alpha Vantage.")
 
-            # Ações diárias
             alpha_symbol = convert_mi_to_bit(symbol)
             outputsize = "compact" if period in ["1mo", "3mo"] else "full"
             result = AlphaVantageService.get_daily_adjusted(
@@ -88,12 +85,10 @@ class StockDataView(APIView):
 class CompanyInfoView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
-    serializer_class = CompanyInfoInputSerializer
 
     def get(self, request):
-        serializer = CompanyInfoInputSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-        symbol = serializer.validated_data['symbol']
+        company = get_company_info()
+        symbol = company.stock_symbol
 
         if not symbol:
             return Response(
@@ -152,12 +147,10 @@ class SearchStocksView(APIView):
 class FastInfoView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
-    serializer_class = CompanyInfoInputSerializer
 
     def get(self, request):
-        serializer = CompanyInfoInputSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-        symbol = serializer.validated_data['symbol']
+        company = get_company_info()
+        symbol = company.stock_symbol
 
         if not symbol:
             return Response(
@@ -179,12 +172,10 @@ class FastInfoView(APIView):
 class AnalystPriceTargetsView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
-    serializer_class = CompanyInfoInputSerializer
 
     def get(self, request):
-        serializer = CompanyInfoInputSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-        symbol = serializer.validated_data['symbol']
+        company = get_company_info()
+        symbol = company.stock_symbol
 
         if not symbol:
             return Response(
@@ -206,12 +197,10 @@ class AnalystPriceTargetsView(APIView):
 class RecommendationsView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
-    serializer_class = CompanyInfoInputSerializer
 
     def get(self, request):
-        serializer = CompanyInfoInputSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-        symbol = serializer.validated_data['symbol']
+        company = get_company_info()
+        symbol = company.stock_symbol
 
         if not symbol:
             return Response(
