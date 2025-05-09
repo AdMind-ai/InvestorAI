@@ -109,6 +109,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     fetchCompetitors().then(setCompetitors);
+    console.log(companyInfoAdm)
   }, []);
 
   useEffect(() => {
