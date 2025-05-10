@@ -10,8 +10,10 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN pip install gunicorn azure-identity
-
 RUN pip install --no-cache-dir supervisor
+
+# Redis
+RUN apt-get update && apt-get install -y redis-server
 
 WORKDIR /app
 COPY . /app
