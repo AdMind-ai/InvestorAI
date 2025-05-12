@@ -11,13 +11,15 @@ from core.utils.cron.market_news import fetch_news_thenewsapi, fetch_news_curren
 
 from openai import OpenAI
 from pydantic import ValidationError
-import os
-from datetime import datetime
 from core.models.competitor_model import Competitor, CompetitorSearch
-from core.utils.get_company_info import get_company_info, get_competitors
 from core.models.company_info import CompetitorInfo as CompanyCompetitors
 from typing import List
 from pydantic import BaseModel
+
+from core.utils.cron.stock import get_usd_to_eur_rate, get_stock_info
+from core.models.company_stock_data_model import CompanyStockData
+from core.serializers.company_stock_data_serializer import CompanyStockDataSerializer
+from typing import Optional
 
 
 @shared_task
@@ -200,4 +202,99 @@ def fetch_and_store_competitors():
         return {"error": str(e)}
 
 
+class CompanyStockInfo(BaseModel):
+    short_term_forecast: Optional[str]
+    possible_risk_factors: Optional[str]
+    latest_news: Optional[str]
+
+
 @shared_task
+def fetch_and_store_daily_company_stock_data():
+    client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
+
+    date_today = datetime.now().strftime("%B %d, %Y")
+    company = get_company_info()
+    stockInfo = get_stock_info(company)
+
+    if stockInfo is None:
+        return {"error": "Failed to fetch stock info."}
+
+    prompt = f"""
+    You are a financial consultant specialized in detailed business profiles and market analysis.
+
+    Analyze the current business situation of {company.long_name} ({company.stock_symbol}).  
+    Base your answer on the provided company and stock data (see context below) and recent, reliable news—using online research.
+
+    **Your report must contain:**
+
+    1. **Latest Relevant News**
+        - Summarize the most important news and market movements about {company.long_name} from the past 7 days.
+        - Focus on facts that impact business outlook, reputation, or pricing.
+
+    2. **Short-Term Stock Forecast**
+        - Provide a concise prediction for the probable stock movement in the short term (next few weeks).
+        - Base your assessment on financial data and recent news.
+
+    3. **Potential Risk Factors**
+        - List and briefly explain the top risks or uncertainties that could affect the business or stock price soon.
+        - Use both quantitative (financial data) and qualitative (external news, trends) insights.
+
+    **Guidelines:**
+    - Only use up-to-date, trustworthy sources.
+    - If any data field is missing, try to supplement it using your online search abilities.
+    - Avoid unnecessary repetition—do not copy the context or data fields, synthesize your answer into clear narrative paragraphs.
+    - Maintain a professional, analytical tone.
+
+    **Context for your analysis:**
+    {stockInfo}
+
+    Today's date: {date_today}
+    """
+
+    completion = client.beta.chat.completions.parse(
+        model="gpt-4o-search-preview",
+        messages=[
+            {"role": "system", "content": (
+                "Utilize the provided financial data to complete the request. "
+                "Also, use additional reliable resources online to provide a comprehensive analysis where specific data is missing or needed."
+            )
+            },
+            {"role": "user", "content": prompt},
+        ],
+        response_format=CompanyStockInfo,
+    )
+
+    content = completion.choices[0].message.parsed
+
+    usd_to_eur = get_usd_to_eur_rate()
+
+    if stockInfo.get('currency') == 'EUR':
+        price_eur = stockInfo.get('previousClose')
+        cap_eur = stockInfo.get('marketCap')
+        price_usd = round(price_eur / usd_to_eur, 4) if price_eur else None
+        cap_usd = round(cap_eur / usd_to_eur, 2) if cap_eur else None
+    else:
+        price_usd = stockInfo.get('previousClose')
+        cap_usd = stockInfo.get('marketCap')
+        price_eur = round(price_usd * usd_to_eur, 4) if price_usd else None
+        cap_eur = round(cap_usd * usd_to_eur, 2) if cap_usd else None
+
+    result = CompanyStockData.objects.create(
+        date=date_today,
+        company=company.short_name,
+        stock_symbol=company.stock_symbol,
+        stock_exchange=stockInfo.get('currency'),
+        stock_price_today_usd=price_usd,
+        stock_price_today_eur=price_eur,
+        market_cap_usd=cap_usd,
+        market_cap_eur=cap_eur,
+        pe_ratio=stockInfo.get('forwardPE'),
+        sector=f"{stockInfo.get('industry')},{stockInfo.get('sector')}",
+        stock_volatility_level='none',
+        short_term_forecast=content.short_term_forecast,
+        possible_risk_factors=content.possible_risk_factors,
+        latest_news=content.latest_news,
+        analyst_recommendation=stockInfo.get('recommendationKey')
+    )
+
+    return CompanyStockDataSerializer(result).data

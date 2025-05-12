@@ -88,7 +88,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=8, minute=0, day_of_week=1),
         'args': ()
     },
-    
+    'fetch_and_store_daily_company_stock_data': {
+        'task': 'core.tasks.fetch_and_store_daily_company_stock_data',
+        'schedule': crontab(hour=8, minute=0),
+        'args': ()
+    },
 }
 
 LOGGING = {

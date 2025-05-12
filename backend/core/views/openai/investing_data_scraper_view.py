@@ -69,7 +69,7 @@ def get_usd_to_eur_rate():
 
 
 class OpenAIInvestingDataScraper(APIView):
-    # authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
