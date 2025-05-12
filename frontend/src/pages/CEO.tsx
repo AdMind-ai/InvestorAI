@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useGlobal } from "../context/GlobalContext";
 import {
   Box,
   Divider,
@@ -40,22 +41,30 @@ interface NewsItem {
   viewed: boolean;
 }
 
-const personalities = ['Mario Rossi', 'Elvira Giacomelli', 'Luigi Farris']
+function createPersonalities(companyInfoAdm: any): string[] {
+  return [
+    ...(companyInfoAdm?.ceos?.map((ceo: any) => ceo.name) ?? []),
+  ];
+}
 
+function createInitialData(personalities: string[]): Record<string, NewsItem[]> {
+  const data: Record<string, NewsItem[]> = {};
+  personalities.forEach(name => { data[name] = []; });
+  return data;
+}
 
 
 const CEOPage: React.FC = () => {
   const theme = useTheme();
-  const [selectedPerson, setSelectedPerson] = useState<string>('Mario Rossi');
+  const { companyInfoAdm } = useGlobal();
+  const personalities = createPersonalities(companyInfoAdm);
+  const [data, setData] = useState<Record<string, NewsItem[]>>(createInitialData(personalities));
+  const [selectedPerson, setSelectedPerson] = useState(() => personalities[0] ?? '');
+  
   const [loadingGenerateArticles, setLoadingGenerateArticles] = useState<boolean>(false);
   const [loadingArticlesList, setLoadingArticlesList] = useState<boolean>(false);
   const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('openai');
   const [viewedArticles, setViewedArticles] = useState<Set<number>>(new Set());
-  const [data, setData] = useState<Record<string, NewsItem[]>>({
-      'Mario Rossi': [],
-      'Reati informativi': [],
-      'Luigi Farris': [],
-  });
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<NewsItem | null>(null);
@@ -84,10 +93,22 @@ const CEOPage: React.FC = () => {
     page * rowsPerPage
   );
 
-  // Load Articles on page initialization
+  useEffect(() => {
+    const dynamicPersonalities = createPersonalities(companyInfoAdm);
+    setData(createInitialData(dynamicPersonalities));
+    if (!dynamicPersonalities.includes(selectedPerson)) {
+      setSelectedPerson(dynamicPersonalities[0] ?? '');
+    }
+    // eslint-disable-next-line
+  }, [companyInfoAdm]);
+
+  // Load Articles on page initialization and when personalities change
   useEffect(() => {
     loadData();
-  }, []);
+    // eslint-disable-next-line
+  }, [selectedPerson, JSON.stringify(personalities)]);
+
+  
 
 
   // Controls how many articles on page based on height
@@ -176,12 +197,8 @@ const CEOPage: React.FC = () => {
     try {
       setLoadingArticlesList(true)
       const res = await api.get<NewsItem[]>("/articles/ceo/");
-
-      const groupedData: Record<string, NewsItem[]> = {
-        'Mario Rossi': [],
-        'Elvira Giacomelli': [],
-        'Luigi Farris': [],
-      };
+      const dynamicPersonalities = createPersonalities(companyInfoAdm);
+      const groupedData: Record<string, NewsItem[]> = createInitialData(dynamicPersonalities);
   
 
       res.data.forEach(article => {
@@ -191,7 +208,9 @@ const CEOPage: React.FC = () => {
       });
 
       setData(groupedData);
-      setSelectedPerson(personalities[0]);
+      if (!dynamicPersonalities.includes(selectedPerson)) {
+        setSelectedPerson(dynamicPersonalities[0] ?? '');
+      }
       setLoadingArticlesList(false)
     } catch (error) {
       console.error("Error updating ESG articles:", error);

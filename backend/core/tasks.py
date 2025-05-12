@@ -1,6 +1,7 @@
 # core/tasks.py
+import logging
 import os
-from core.utils.get_company_info import get_company_info, get_competitors
+from core.utils.get_company_info import get_company_info, get_competitors, get_ceos
 from core.models.market_article_model import MarketNewsArticle
 import re
 import requests
@@ -25,6 +26,10 @@ from django.db.models import Q
 from core.models.market_company_report import CompanyMarketReport
 
 from core.models.company_quarterly_report import CompanyQuarterlyReport
+
+import json
+from core.models.ceo_article_model import CEOArticle
+from core.views.openai.ceo_news_view import response_openai_api, get_sentiment_analysis
 
 
 @shared_task
@@ -467,3 +472,90 @@ def generate_company_quarterly_report(quarter: str, year: int):
 
     except requests.RequestException as e:
         return {"error": str(e)}
+
+
+logger = logging.getLogger(__name__)
+
+
+@shared_task
+def daily_ceo_articles_fetch():
+    ceos = get_ceos()
+    if not ceos:
+        logger.info("No CEOs found for fetching news articles.")
+        return
+
+    leaders = {
+        ceo.name: f"{getattr(ceo, 'role', '')} of {getattr(ceo, 'company', '')}" for ceo in ceos}
+    num_articles_total = 0
+
+    for ceo in ceos:
+        personality = ceo.name
+        logger.info(f"Fetching news articles for CEO: {personality}")
+
+        max_retries = 2
+        json_content = {"articles": []}
+        for attempt in range(max_retries + 1):
+            try:
+                response = response_openai_api(personality, leaders)
+                response_text = ''
+                for output in response.output:
+                    if output.type == 'message':
+                        for content in output.content:
+                            if content.type == 'output_text':
+                                response_text = content.text
+
+                if response_text == '':
+                    response_text = '{"articles":[]}'
+
+                usage = response.usage
+                logger.info(
+                    f"[{personality}] Tokens: in={usage.input_tokens}, out={usage.output_tokens}")
+
+                try:
+                    json_content = json.loads(response_text)
+                except json.JSONDecodeError as e:
+                    logger.error(
+                        f"JSON inválido recebido para {personality}: {response_text}")
+                    break
+
+                if 'articles' not in json_content:
+                    logger.error(
+                        f"[{personality}] Missing 'articles' in OpenAI response: {json_content}")
+                    break
+
+                break
+
+            except Exception as e:
+                logger.error(
+                    f"Erro ao tentar buscar dados para {personality}: {e}")
+                if attempt == max_retries:
+                    logger.error(
+                        f"Falha para {personality} após várias tentativas.")
+
+        created_articles = 0
+        for article_data in json_content.get("articles", []):
+            sentiment_score = get_sentiment_analysis(
+                personality, article_data["content"])
+            article, created = CEOArticle.objects.get_or_create(
+                title=article_data["title"],
+                url=article_data["url"],
+                defaults={
+                    "personality": personality,
+                    "author": article_data.get('author', 'Sconosciuto'),
+                    "content": article_data["content"],
+                    "source": article_data["source"],
+                    "language": article_data["language"],
+                    "date_published": article_data["date_published"],
+                    "sentiment": sentiment_score
+                }
+            )
+            if created:
+                created_articles += 1
+                article.sentiment = sentiment_score
+                article.save()
+
+        num_articles_total += created_articles
+        logger.info(f"{created_articles} articles created for {personality}")
+
+    logger.info(
+        f"Daily CEO articles fetch finalizada! Total artigos criados: {num_articles_total}")

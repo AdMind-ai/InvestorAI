@@ -10,22 +10,23 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from core.serializers.ceo_news_serializer import CEONewsSerializer
 from core.models.ceo_article_model import CEOArticle
+from core.utils.get_company_info import get_ceos
 
 import logging
 logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
-leaders = {
-    "Elvira Giacomelli": "Elvira Giacomelli è una leader aziendale italiana, nota per promuovere pratiche sostenibili e responsabilità sociale. Integra criteri ESG negli affari e partecipa a iniziative ambientali e filantropiche, distinguendosi nell'innovazione sostenibile nel settore manifatturiero.",
-    "Luigi Farris": "Luigi Farris è un imprenditore italiano specializzato nelle energie rinnovabili. Conosciuto per progetti innovativi che promuovono la sostenibilità ambientale, Farris guida iniziative ESG e collabora con imprese locali e internazionali per ridurre l'impatto ambientale.",
-    "Mario Rossi": ""
-}
-# Mario Rossi è una figura innovativa nel panorama aziendale italiano, riconosciuta per la sua capacità di adattarsi e innovare nel settore tecnologico. Collabora a stretto contatto con team interdisciplinari per sviluppare soluzioni avanzate che promuovono l'efficienza e la sostenibilità.
+leaders = get_ceos()
+# leaders = {
+#     "Elvira Giacomelli": "Elvira Giacomelli è una leader aziendale italiana, nota per promuovere pratiche sostenibili e responsabilità sociale. Integra criteri ESG negli affari e partecipa a iniziative ambientali e filantropiche, distinguendosi nell'innovazione sostenibile nel settore manifatturiero.",
+#     "Luigi Farris": "Luigi Farris è un imprenditore italiano specializzato nelle energie rinnovabili. Conosciuto per progetti innovativi che promuovono la sostenibilità ambientale, Farris guida iniziative ESG e collabora con imprese locali e internazionali per ridurre l'impatto ambientale.",
+#     "Mario Rossi": ""
+# }
 
 
 class OpenAICEONewsView(APIView):
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
     serializer_class = CEONewsSerializer
@@ -242,14 +243,14 @@ def get_sentiment_analysis(person, text):
     return sentiment_percent
 
 
-def response_openai_api(personality):
+def response_openai_api(personality, leaders=None):
     today = datetime.now()
     two_days_ago = today - timedelta(days=100)
     formattedTwoDaysAgo = two_days_ago.strftime("%d %B %Y")
     formattedDate = today.strftime("%d %B %Y")
 
     personality_description = leaders.get(
-        personality, "Descrizione non disponibile.")
+        personality, "")
 
     response = client.responses.create(
         model="gpt-4o",
