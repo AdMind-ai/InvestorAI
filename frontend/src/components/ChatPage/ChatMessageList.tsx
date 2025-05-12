@@ -111,7 +111,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
                     maxWidth: '95%',
                     px: '1.5rem',
                     py: '1rem',
-                    backgroundColor: msg.sender === 'user' ? '#E6E6E6' : '#F8F8FA',
+                    backgroundColor: msg.sender === 'user' ? '#F9F9FB' : 'white',
                     borderRadius: '8px',
                     boxShadow: 'none',
                     overflow: 'hidden',
@@ -186,9 +186,9 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
                                 {...props}
                                 style={{
                                   width: '100%',
-                                  tableLayout: 'fixed', // Isso garante que as colunas sejam fixas e alinhadas
+                                  tableLayout: 'fixed', 
                                   borderCollapse: 'collapse',
-                                  textAlign: 'left', // Ajuste o alinhamento se necessário
+                                  textAlign: 'left', 
                                 }}
                               >
                                 {children}
@@ -294,7 +294,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
                     maxWidth: '95%',
                     px: '1.5rem',
                     py: '1rem',
-                    backgroundColor: msg.sender === 'user' ? '#E6E6E6' : '#F8F8FA',
+                    backgroundColor: msg.sender === 'user' ? '#F9F9FB' : 'white',
                     borderRadius: '8px',
                     boxShadow: 'none',
                     overflow: 'hidden',
@@ -455,7 +455,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
                   maxWidth: '95%',
                   px: '1.5rem',
                   py: '1rem',
-                  backgroundColor: '#F8F8FA',
+                  backgroundColor: 'white',
                   borderRadius: '8px',
                   boxShadow: 'none',
                   mb: '1vw',
