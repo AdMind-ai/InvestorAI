@@ -2,10 +2,6 @@ from django.db import models
 
 
 class CompanyQuarterlyReport(models.Model):
-    PERIOD = [
-        ('bimestral', 'bimestral'),
-        ('semestral', 'semestral'),
-    ]
     QUARTERS = [
         ('Q1', 'Q1'),
         ('Q2', 'Q2'),
@@ -16,11 +12,9 @@ class CompanyQuarterlyReport(models.Model):
     company = models.CharField(max_length=100)
     quarter = models.CharField(max_length=2, choices=QUARTERS)
     year = models.PositiveIntegerField()
-    press_release = models.URLField()
-    financial_statements = models.URLField()
-    form_10k = models.URLField(blank=True, null=True)
     insight_report = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    citations = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ['-year', '-quarter']

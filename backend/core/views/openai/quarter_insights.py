@@ -8,16 +8,24 @@ from core.models.company_quarterly_report import CompanyQuarterlyReport
 from rest_framework import status
 from openai import OpenAI
 import os
+import requests
 from rest_framework import serializers
-
-
-client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
+from core.utils.get_company_info import get_company_info
 
 
 class CompanyQuarterlyReportSerializer(serializers.Serializer):
-    company = serializers.CharField(max_length=50)
     quarter = serializers.ChoiceField(choices=CompanyQuarterlyReport.QUARTERS)
     year = serializers.IntegerField()
+
+
+SYSTEM_MESSAGE = (
+    "You are an advanced deep search AI. Your role is to understand and process "
+    "complex queries by dissecting the input, identifying key themes, and "
+    "retrieving relevant and precise information. Ensure a thorough search "
+    "through multiple data layers and provide well-structured, concise, and "
+    "contextually appropriate results. Prioritize clarity, accuracy, and "
+    "relevance in all of your responses."
+)
 
 
 class OpenAICompanyQuarterlyReportView(APIView):
@@ -32,13 +40,12 @@ class OpenAICompanyQuarterlyReportView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        company = serializer.validated_data['company']
+        company = get_company_info().short_name
         quarter = serializer.validated_data['quarter']
         year = serializer.validated_data['year']
 
-        # validação simples e clara dos inputs
-        missing_params = [param for param in ['company',
-                                              'quarter', 'year'] if not request.data.get(param)]
+        missing_params = [param for param in [
+            'quarter', 'year'] if not request.data.get(param)]
         if missing_params:
             return Response(
                 {"error": f"Missing parameters: {', '.join(missing_params)}"},
@@ -46,7 +53,7 @@ class OpenAICompanyQuarterlyReportView(APIView):
             )
 
         try:
-            qreport = CompanyQuarterlyReport.objects.get(
+            qreport, _ = CompanyQuarterlyReport.objects.get_or_create(
                 company=company,
                 quarter=quarter,
                 year=year
@@ -54,14 +61,18 @@ class OpenAICompanyQuarterlyReportView(APIView):
         except CompanyQuarterlyReport.DoesNotExist:
             return Response({"error": "Quarterly report not found."}, status=status.HTTP_404_NOT_FOUND)
 
+        api_key = os.getenv("PERPLEXITY_KEY")
+        if not api_key:
+            return Response({"error": "API Key is missing"}, status=500)
+
         prompt = f"""
-        You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {qreport.company} for {qreport.quarter} of {qreport.year}. 
-        
+        You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company} for {qreport.quarter} of {qreport.year}. 
+
         Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
 
         {f'Aditional information: {qreport}' if qreport.form_10k else ''}
         
-        Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, products launches, investments, or strategic news released by {qreport.company} around that quarter.
+        Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, product launches, investments, or strategic news released by {qreport.company} around that quarter.
 
         Your insight report must be clearly structured in two parts:
         1. Highlights Finanziari
@@ -70,58 +81,85 @@ class OpenAICompanyQuarterlyReportView(APIView):
         Write clearly, professionally and formatted in Italian. Use real numbers, bullet points, and YoY percentage variations. 
         """
 
-        try:
-            completion = client.chat.completions.create(
-                model="gpt-4o-search-preview",
-                messages=[
-                    {"role": "system", "content": "You're a financial analyst."},
-                    {"role": "user", "content": prompt},
-                ],
-            )
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
 
-            insight_report_text = completion.choices[0].message.content
+        request_body = {
+            "model": "sonar-deep-research",
+            "messages": [
+                {"role": "system", "content": SYSTEM_MESSAGE},
+                {"role": "user", "content": prompt},
+            ],
+        }
+
+        try:
+            resp = requests.post(
+                "https://api.perplexity.ai/chat/completions",
+                headers=headers,
+                json=request_body
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+            insight_report_text = data.get("choices", [{}])[0].get(
+                "message", {}).get("content", "")
+            # Se quiser pegar citações:
+            citations = data.get("citations", [])
+
+            if not insight_report_text:
+                return Response({"error": "Failed to generate report."}, status=500)
 
             qreport.insight_report = insight_report_text
+            qreport.citations = citations
             qreport.save()
 
             return Response(
                 {
                     "insight_report": insight_report_text,
-                    "message": "Insight Report successfully generated and updated."
+                    "citations": citations,
+                    "message": "Insight Report successfully generated and updated via Perplexity."
                 },
                 status=status.HTTP_200_OK
             )
 
-        except Exception as e:
+        except requests.RequestException as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, *args, **kwargs):
-        serializer = CompanyQuarterlyReportSerializer(
-            data=request.query_params)
+        company = get_company_info().short_name
 
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        available_reports = CompanyQuarterlyReport.objects.filter(
+            company=company,
+            insight_report__isnull=False
+        ).values('quarter', 'year').distinct().order_by('-year', '-quarter')
 
-        company = serializer.validated_data['company']
-        quarter = serializer.validated_data['quarter']
-        year = serializer.validated_data['year']
+        options = [
+            f"{row['quarter']} {row['year']}" for row in available_reports]
 
-        try:
-            qreport = CompanyQuarterlyReport.objects.get(
+        quarter = request.query_params.get('quarter')
+        year = request.query_params.get('year')
+        report_data = None
+
+        if quarter and year:
+            qreport = CompanyQuarterlyReport.objects.filter(
                 company=company,
                 quarter=quarter,
-                year=year
-            )
-        except CompanyQuarterlyReport.DoesNotExist:
-            return Response({"error": "Quarterly report not found."}, status=status.HTTP_404_NOT_FOUND)
+                year=year,
+                insight_report__isnull=False
+            ).order_by('-created_at').first()
+            if qreport:
+                report_data = {
+                    "insight_report": qreport.insight_report,
+                    "citations": qreport.citations,
+                    "message": "Insight Report successfully retrieved."
+                }
+            else:
+                report_data = {
+                    "error": "Quarterly report not found.", "status": 404}
 
-        if not qreport.insight_report:
-            return Response({"error": "Insight report not generated yet."}, status=status.HTTP_404_NOT_FOUND)
-
-        return Response(
-            {
-                "insight_report": qreport.insight_report,
-                "message": "Insight Report successfully retrieved."
-            },
-            status=status.HTTP_200_OK
-        )
+        return Response({
+            "available_options": options,
+            **({"report": report_data} if report_data else {})
+        }, status=status.HTTP_200_OK)

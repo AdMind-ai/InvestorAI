@@ -24,6 +24,8 @@ from typing import Optional
 from django.db.models import Q
 from core.models.market_company_report import CompanyMarketReport
 
+from core.models.company_quarterly_report import CompanyQuarterlyReport
+
 
 @shared_task
 def minha_task():
@@ -387,6 +389,81 @@ def generate_monthly_market_report():
             return {"report": report_content, "citations": citations}
 
         return {"error": "Failed to generate report."}
+
+    except requests.RequestException as e:
+        return {"error": str(e)}
+
+
+@shared_task
+def generate_company_quarterly_report(quarter: str, year: int):
+    company = get_company_info().short_name
+    if not company:
+        return {"error": "Company name is required."}
+
+    qreport, _ = CompanyQuarterlyReport.objects.get_or_create(
+        company=company,
+        quarter=quarter,
+        year=year
+    )
+
+    api_key = os.getenv("PERPLEXITY_KEY")
+    if not api_key:
+        return {"error": "API Key is missing"}
+
+    prompt = f"""
+    You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company} for {qreport.quarter} of {qreport.year}.
+
+    Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
+
+    {f'Aditional information: {qreport}' if getattr(qreport, 'form_10k', None) else ''}
+    
+    Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, product launches, investments, or strategic news released by {qreport.company} around that quarter.
+
+    Your insight report must be clearly structured in two parts:
+    1. Highlights Finanziari
+    2. Innovazione e Strategia
+
+    Write clearly, professionally and formatted in Italian. Use real numbers, bullet points, and YoY percentage variations.
+    """
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    request_body = {
+        "model": "sonar-deep-research",
+        "messages": [
+            {"role": "system", "content": SYSTEM_MESSAGE},
+            {"role": "user", "content": prompt},
+        ],
+    }
+
+    try:
+        resp = requests.post(
+            "https://api.perplexity.ai/chat/completions",
+            headers=headers,
+            json=request_body
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+        insight_report_text = data.get("choices", [{}])[0].get(
+            "message", {}).get("content", "")
+        citations = data.get("citations", [])
+
+        if not insight_report_text:
+            return {"error": "Failed to generate report."}
+
+        qreport.insight_report = insight_report_text
+        qreport.citations = citations
+        qreport.save()
+
+        return {
+            "insight_report": insight_report_text,
+            "citations": citations,
+            "message": "Insight Report successfully generated and updated via Perplexity."
+        }
 
     except requests.RequestException as e:
         return {"error": str(e)}

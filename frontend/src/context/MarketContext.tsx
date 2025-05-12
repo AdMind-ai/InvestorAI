@@ -28,6 +28,8 @@ interface MarketContextType {
   companyInfo: CompanyInfo | null;
   setCompanyInfo: React.Dispatch<React.SetStateAction<CompanyInfo | null>>;
   insightReport: string; 
+  citationsInsight: string[];
+  insightOptions: string[];
   selectedQuarter: string;
   setSelectedQuarter: React.Dispatch<React.SetStateAction<string>>;
   competitorNews: Article[];
@@ -53,7 +55,9 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 
   const [insightReport, setInsightReport] = useState('');
-  const [selectedQuarter, setSelectedQuarter] = useState('Q1 2025');
+  const [citationsInsight, setCitationsInsight] = useState<string[]>([]);
+  const [selectedQuarter, setSelectedQuarter] = useState('');
+  const [insightOptions, setInsightOptions] = useState<string[]>([]);
 
   const [competitorNewsCurrentPage, setCompetitorNewsCurrentPage] = useState(1);
   const [competitorNews, setCompetitorNews] = useState<Article[]>([]);
@@ -63,16 +67,17 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   
   const [overviewReport, setOverviewReport] = useState('');
   const [citations, setCitations] = useState<string[]>([]);
-  const citeLinks = (text: string, citations: string[]) => {
-    return text.replace(/\[(\d+)\]/g, (match: string, num: string) => {
-      const citationIndex = parseInt(num, 10) - 1; 
+
+  function citeLinks(text: string, citations: string[]): string {
+    return text.replace(/\[(\d+)\]/g, (match: string, num: string): string => {
+      const citationIndex = parseInt(num, 10) - 1;
       if (citationIndex >= 0 && citationIndex < citations.length) {
-        const citationLink = citations[citationIndex];
+        const citationLink: string = citations[citationIndex];
         return ` [[${num}]](${citationLink})`;
       }
-      return match; 
+      return match;
     });
-  };
+  }
 
   // Fetch Data
   useEffect(() => {
@@ -92,11 +97,27 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   useEffect(() => {
-    fetchQuarterlyReport(
-      'Apple', 
-      selectedQuarter.split(' ')[0], 
-      selectedQuarter.split(' ')[1]
-    ).then(res => setInsightReport(res.insight_report));
+    const [quarter, year] = selectedQuarter ? selectedQuarter.split(' ') : [undefined, undefined];
+  
+    fetchQuarterlyReport(quarter, year).then(({ insightOptions, insight_report, citationsInsight }) => {
+      setInsightOptions(insightOptions);
+  
+      if (insight_report) {
+        const thinkTagMatch = /<think>[\s\S]*?<\/think>/g;
+        let reportContent = insight_report.replace(thinkTagMatch, '');
+        reportContent = citeLinks(reportContent, citationsInsight ?? []);
+  
+        setInsightReport(reportContent);
+        setCitationsInsight(citationsInsight ?? []);
+      } else {
+        setInsightReport('');
+        setCitationsInsight([]);
+      }
+  
+      if (!selectedQuarter && insightOptions.length > 0) {
+        setSelectedQuarter(insightOptions[0]);
+      }
+    });
   }, [selectedQuarter]);
 
   useEffect(() => {
@@ -133,7 +154,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       interval, setInterval,
       varPercent, setVarPercent,
       companyInfo, setCompanyInfo,
-      insightReport,
+      insightReport, citationsInsight,
+      insightOptions,
       selectedQuarter, setSelectedQuarter,
       competitorNews, sectorNews,
       competitorNewsCurrentPage,

@@ -28,13 +28,22 @@ export async function fetchStockData(): Promise<StockData> {
 }
 
 // 4. Buscar quarterly report
-export async function fetchQuarterlyReport(company: string, quarter: string, year: string): Promise<{
-  insight_report: string
+export async function fetchQuarterlyReport(
+  quarter?: string,
+  year?: string
+): Promise<{
+  insightOptions: string[], 
+  insight_report?: string,
+  citationsInsight?: string[]
 }> {
-  const response = await api.get('/openai/quarterly-report/', {
-    params: { company, quarter, year }
-  });
-  return response.data;
+  const params = quarter && year ? { quarter, year } : {};
+  const response = await api.get('/openai/quarterly-report/', { params });
+
+  return {
+    insightOptions: response.data.available_options ?? [],
+    insight_report: response.data.report?.insight_report ?? '',
+    citationsInsight: response.data.report?.citations ?? []
+  };
 }
 
 // 5. Buscar concorrentes

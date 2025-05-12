@@ -4,11 +4,11 @@ import { Box, Typography } from "@mui/material";
 import ReactMarkdown from 'react-markdown';
 
 const MarketInsightReport = () => {
-  const { insightReport, selectedQuarter, setSelectedQuarter } = useMarket();
+  const { insightReport, selectedQuarter, setSelectedQuarter, insightOptions } = useMarket();
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <Box sx={{ position: 'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, pt: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)', maxHeight: expanded ? 'none' : '382px', overflow: 'hidden', minHeight: '490px' }}>
+    <Box sx={{ position: 'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, pt: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)', maxHeight: expanded ? 'none' : '382px', overflow: 'hidden'}}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="body2" fontWeight="bold" color="#5072CC">
           Insight Report - Performance Aziendale
@@ -19,10 +19,15 @@ const MarketInsightReport = () => {
           onChange={(e) => setSelectedQuarter(e.target.value)}
           sx={{ borderRadius: 3, py: 1, px: 3, borderColor: '#ccc', color: 'grey' }}
         >
-          <option>Q1 2025</option>
-          <option>Q2 2025</option>
-          <option>Q3 2025</option>
-          <option>Q4 2025</option>
+          {insightOptions.length === 0 ? (
+            <option disabled value="">Trimestri non disponibili</option>
+          ) : (
+            insightOptions.map(option => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))
+          )}
         </Box>
       </Box>
       <Box sx={{ mb: 8, overflow: 'auto' }}>

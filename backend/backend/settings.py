@@ -15,6 +15,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 import os
 from celery.schedules import crontab
+from datetime import datetime
 
 load_dotenv()
 
@@ -61,6 +62,8 @@ CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_TIMEZONE = "Europe/Rome"
 
+now = datetime.now()
+current_year = now.year
 
 CELERY_BEAT_SCHEDULE = {
     'news_sector_morning': {
@@ -97,6 +100,26 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'core.tasks.generate_monthly_market_report',
         'schedule': crontab(hour=8, minute=0, day_of_month=1),
         'args': ()
+    },
+    "generate_company_Q1_report": {
+        "task": "core.tasks.generate_company_quarterly_report",
+        "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=4),
+        "args": ("Q1", current_year),
+    },
+    "generate_company_Q2_report": {
+        "task": "core.tasks.generate_company_quarterly_report",
+        "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=7),
+        "args": ("Q2", current_year),
+    },
+    "generate_company_Q3_report": {
+        "task": "core.tasks.generate_company_quarterly_report",
+        "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=10),
+        "args": ("Q3", current_year),
+    },
+    "generate_company_Q4_report": {
+        "task": "core.tasks.generate_company_quarterly_report",
+        "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=1),
+        "args": ("Q4", current_year),
     },
 }
 
