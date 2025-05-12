@@ -13,6 +13,7 @@ from datetime import datetime
 from core.models.competitor_model import Competitor, CompetitorSearch
 from django.db.models import Max
 from core.utils.get_company_info import get_company_info, get_competitors
+from core.models.company_info import CompetitorInfo as CompanyCompetitors
 
 
 class CompetitorInfo(BaseModel):
@@ -70,7 +71,6 @@ class OpenAICompetitorSearchView(APIView):
                 response_format=CompetitorInfoList,
             )
             competitor_info = completion.choices[0].message.parsed.model_dump()
-            print(competitor_info, type(competitor_info))
 
             search_record = CompetitorSearch.objects.create(
                 company_name=company_name)
@@ -83,6 +83,17 @@ class OpenAICompetitorSearchView(APIView):
                     sectors=competitor['sectors'],
                     description=competitor['description'],
                     website=competitor['website'],
+                )
+
+            for competitor in competitor_info['competitors']:
+                CompanyCompetitors.objects.get_or_create(
+                    company=company,
+                    name=competitor['company'],
+                    defaults={
+                        # "stock_symbol": competitor['stock_symbol'],
+                        "sector": ", ".join(competitor['sectors']) if isinstance(competitor['sectors'], list) else competitor['sectors'],
+                        "website": competitor['website'],
+                    }
                 )
 
             return Response({

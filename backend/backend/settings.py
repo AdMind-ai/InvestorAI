@@ -83,6 +83,12 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=13, minute=0),
         'args': ('competitors',)
     },
+    'search_competitors_weekly': {
+        'task': 'core.tasks.fetch_and_store_competitors',
+        'schedule': crontab(hour=8, minute=0, day_of_week=1),
+        'args': ()
+    },
+    
 }
 
 LOGGING = {

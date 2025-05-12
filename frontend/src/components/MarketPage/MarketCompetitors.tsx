@@ -69,7 +69,7 @@ const MarketCompetitors = () => {
               <Box sx={{
                 position: 'absolute',
                 top: '100%',
-                left: '-35%',
+                left: '-60%',
                 width: '200px',
                 bgcolor: 'white',
                 border: '1px solid #ccc',

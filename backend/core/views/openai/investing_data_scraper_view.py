@@ -11,13 +11,10 @@ from django.db.models import Q
 import os
 import requests
 from datetime import datetime
-from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
 from core.models.company_stock_data_model import CompanyStockData
 from core.serializers.company_stock_data_serializer import CompanyStockDataSerializer
 from rest_framework import serializers
 from core.utils.get_company_info import get_company_info
-from ..stocks_view import CompanyInfoView
 from core.utils.yahoo_finance import YahooFinanceService
 
 
@@ -165,7 +162,8 @@ class OpenAIInvestingDataScraper(APIView):
         return Response(serializer.data, status=200)
 
     def get(self, request, *args, **kwargs):
-        company = request.query_params.get('company', None)
+        company = get_company_info().short_name
+        # company = request.query_params.get('company', None)
         start_date = request.query_params.get('start_date', None)
         end_date = request.query_params.get('end_date', None)
 

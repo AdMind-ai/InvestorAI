@@ -9,6 +9,16 @@ from datetime import datetime, timedelta
 from celery import shared_task
 from core.utils.cron.market_news import fetch_news_thenewsapi, fetch_news_currentsapi, fetch_news_mediastack
 
+from openai import OpenAI
+from pydantic import ValidationError
+import os
+from datetime import datetime
+from core.models.competitor_model import Competitor, CompetitorSearch
+from core.utils.get_company_info import get_company_info, get_competitors
+from core.models.company_info import CompetitorInfo as CompanyCompetitors
+from typing import List
+from pydantic import BaseModel
+
 
 @shared_task
 def minha_task():
@@ -106,3 +116,88 @@ def collect_market_news(news_type):
                 fetch_news_mediastack(q, since, MEDIASTACK_NEWSAPI_KEY))}
         ],
     }
+
+
+class CompetitorInfo(BaseModel):
+    company: str
+    logo: str
+    sectors: List[str]
+    description: str
+    website: str
+
+
+class CompetitorInfoList(BaseModel):
+    date: str
+    competitors: List[CompetitorInfo]
+
+
+@shared_task
+def fetch_and_store_competitors():
+    client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
+
+    company = get_company_info()
+    company_name = company.short_name
+    competitors = get_competitors()
+    competitor_names = [c.name for c in competitors if c.name]
+    competitor_block = "\n".join(competitor_names)
+
+    if not company_name:
+        return {"error": "Company name is required."}
+
+    prompt = f"""
+    Identify at least 3 and max of 20 major competitors of {company_name}. For each competitor, provide:
+    - Company Name
+    - Official Logo URL (format: "https://logo.clearbit.com/companydomain.com")
+    - Business Sectors (e.g., Technology, Finance, etc.)
+    - Brief Description
+    - Official Website URL
+
+    Include those competitors:
+    {competitor_block}
+    """
+
+    try:
+        completion = client.beta.chat.completions.parse(
+            model="gpt-4o-search-preview",
+            messages=[
+                {"role": "system", "content": "Extract competitor information from the web."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format=CompetitorInfoList,
+        )
+        competitor_info = completion.choices[0].message.parsed.model_dump()
+
+        search_record = CompetitorSearch.objects.create(
+            company_name=company_name, sector=company.sector)
+
+        for competitor in competitor_info['competitors']:
+            Competitor.objects.create(
+                search=search_record,
+                competitor=competitor['company'],
+                logo=competitor['logo'],
+                sectors=competitor['sectors'],
+                description=competitor['description'],
+                website=competitor['website'],
+            )
+
+        for competitor in competitor_info['competitors']:
+            CompanyCompetitors.objects.get_or_create(
+                company=company,
+                name=competitor['company'],
+                defaults={
+                    # "stock_symbol": competitor.get('stock_symbol', ""),
+                    "sector": ", ".join(competitor['sectors']) if isinstance(competitor['sectors'], list) else competitor['sectors'],
+                    "website": competitor['website'],
+                }
+            )
+
+        return {
+            "date": search_record.search_date.isoformat(),
+            "competitors": competitor_info['competitors']
+        }
+
+    except ValidationError as e:
+        return {"error": str(e)}
+
+
+@shared_task
