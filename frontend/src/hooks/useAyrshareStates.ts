@@ -218,7 +218,7 @@ const useAyrshareStates = (): AyrshareInterface => {
         setPostPublishText(fullText)
       }
 
-      toast.success('Testo generato con successo!')
+      // toast.success('Testo generato con successo!')
       setPostText('')
     } catch (error) {
       console.error('Erro ao conectar:', error)
@@ -259,7 +259,7 @@ const useAyrshareStates = (): AyrshareInterface => {
         setPostPublishText(fullText)
       }
 
-      toast.success('Testo generato con successo!')
+      // toast.success('Testo generato con successo!')
       setPostFiles([])
     } catch (error) {
       console.error('Erro ao conectar:', error)
@@ -317,7 +317,7 @@ const useAyrshareStates = (): AyrshareInterface => {
       setPostPublishSchedule(null)
       setPostPage('assistant')
       getPosts()
-      toast.success('Post pubblicato con successo!')
+      toast.success("Post programmato con successo!")
     } catch (error) {
       console.error('Erro ao conectar:', error)
     } finally {

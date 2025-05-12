@@ -50,10 +50,11 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
             alignItems: "center",
             width: "100%",
             height:'100%',
-            mt:3
+            mt:3,
+            position: "relative"
           }}
         > 
-          <Box sx={{ display: "flex", flexDirection: "column", width: "96%", alignItems:'center', py:2.5, px:3.5, border:`1px solid #CBCBCB`, borderRadius:'16px', boxShadow:'0px 3px 10px rgba(0,0,0,0.1)', bgcolor:'#FFFFFF'}}>
+          <Box sx={{ display: "flex", flexDirection: "column", width: "100%", alignItems:'center', py:2.5, px:3.5, border:`1px solid #CBCBCB`, borderRadius:'16px', boxShadow:'0px 3px 10px rgba(0,0,0,0.1)', bgcolor:'#FFFFFF'}}>
             <Box sx={{ display: "flex", flexDirection: "column", width: "100%", height:'300px' }}>
               <Typography variant="h4" sx={{ mb: 0.5, mt:1 }}>
                 Definisci il contenuto del post che vuoi generare
@@ -100,7 +101,7 @@ const NewPost: React.FC<NewPostProps> = ({ states }) => {
    ****************************/
   return (
     <Box sx={{ width: "100%", display:'flex', justifyContent:'center', mt:3 }}>
-      <Box sx={{ display: "flex", flexDirection: "column", width: "96%", alignItems:'center', py:2.5, px:3.5, border:`1px solid #CBCBCB`, borderRadius:'16px', boxShadow:'0px 3px 10px rgba(0,0,0,0.1)', position:'relative', height: '430px', bgcolor:'#FFFFFF' }}>  
+      <Box sx={{ display: "flex", flexDirection: "column", width: "100%", alignItems:'center', py:2.5, px:3.5, border:`1px solid #CBCBCB`, borderRadius:'16px', boxShadow:'0px 3px 10px rgba(0,0,0,0.1)', position:'relative', height: '430px', bgcolor:'#FFFFFF' }}>  
         <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
           <Typography variant="h4" sx={{ position:'absolute', top:25, left:30 }}>
             Anteprima del tuo post LinkedIn
