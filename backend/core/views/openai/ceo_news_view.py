@@ -18,11 +18,6 @@ logger = logging.getLogger(__name__)
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
 leaders = get_ceos()
-# leaders = {
-#     "Elvira Giacomelli": "Elvira Giacomelli è una leader aziendale italiana, nota per promuovere pratiche sostenibili e responsabilità sociale. Integra criteri ESG negli affari e partecipa a iniziative ambientali e filantropiche, distinguendosi nell'innovazione sostenibile nel settore manifatturiero.",
-#     "Luigi Farris": "Luigi Farris è un imprenditore italiano specializzato nelle energie rinnovabili. Conosciuto per progetti innovativi che promuovono la sostenibilità ambientale, Farris guida iniziative ESG e collabora con imprese locali e internazionali per ridurre l'impatto ambientale.",
-#     "Mario Rossi": ""
-# }
 
 
 class OpenAICEONewsView(APIView):

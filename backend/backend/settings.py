@@ -125,6 +125,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "core.tasks.daily_ceo_articles_fetch",
         "schedule": crontab(hour=8, minute=0),
     },
+    "fetch_all_esg_topics_daily": {
+        "task": "core.tasks.fetch_all_esg_topics_daily",
+        "schedule": crontab(hour=17, minute=0),
+    }
 }
 
 LOGGING = {

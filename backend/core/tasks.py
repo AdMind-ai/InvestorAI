@@ -31,6 +31,11 @@ import json
 from core.models.ceo_article_model import CEOArticle
 from core.views.openai.ceo_news_view import response_openai_api, get_sentiment_analysis
 
+from core.models.esg_article_model import ESGArticle
+from core.views.openai.esg_news_view import generate_openai_system, generate_openai_prompt
+
+client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
+
 
 @shared_task
 def minha_task():
@@ -145,8 +150,6 @@ class CompetitorInfoList(BaseModel):
 
 @shared_task
 def fetch_and_store_competitors():
-    client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
-
     company = get_company_info()
     company_name = company.short_name
     competitors = get_competitors()
@@ -220,8 +223,6 @@ class CompanyStockInfo(BaseModel):
 
 @shared_task
 def fetch_and_store_daily_company_stock_data():
-    client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
-
     date_today = datetime.now().strftime("%B %d, %Y")
     company = get_company_info()
     stockInfo = get_stock_info(company)
@@ -559,3 +560,69 @@ def daily_ceo_articles_fetch():
 
     logger.info(
         f"Daily CEO articles fetch finalizada! Total artigos criados: {num_articles_total}")
+
+
+ESG_TOPICS = [
+    "Evoluzione del contesto normativo",
+    "Reati informativi",
+    "Responsabilità amministratori",
+    "Rischi reputazionali"
+]
+
+
+@shared_task
+def fetch_all_esg_topics_daily():
+    total_created = 0
+    for topic in ESG_TOPICS:
+        logger.info(f"Fetching ESG articles for topic: {topic}")
+        max_retries = 2
+        json_content = {"articles": []}
+        for attempt in range(max_retries + 1):
+            try:
+                completion = client.chat.completions.create(
+                    model="gpt-4o-search-preview",
+                    messages=[
+                        {"role": "system", "content": generate_openai_system()},
+                        {"role": "user",
+                            "content": generate_openai_prompt(topic)},
+                    ],
+                    max_tokens=16000
+                )
+                content = completion.choices[0].message.content
+                try:
+                    json_content = json.loads(content)
+                except json.JSONDecodeError as e:
+                    logger.error(
+                        f"(ESG-{topic}) JSON inválido recebido: {content}")
+                    break
+                if 'articles' not in json_content:
+                    logger.error(
+                        f"(ESG-{topic}) Campo 'articles' ausente: {json_content}")
+                    break
+                break
+            except Exception as e:
+                logger.error(f"(ESG-{topic}) Erro ao tentar buscar dados: {e}")
+                if attempt == max_retries:
+                    logger.error(f"(ESG-{topic}) Falha após várias tentativas")
+                    continue
+
+        created_articles = 0
+        for article_data in json_content.get("articles", []):
+            article, created = ESGArticle.objects.get_or_create(
+                title=article_data["title"],
+                url=article_data["url"],
+                defaults={
+                    "topic": topic,
+                    "author": article_data.get('author', 'Sconosciuto'),
+                    "summary": article_data["summary"],
+                    "source": article_data["source"],
+                    "language": article_data["language"],
+                    "date_published": article_data["date_published"]
+                }
+            )
+            if created:
+                created_articles += 1
+        logger.info(f"(ESG-{topic}) Artigos criados: {created_articles}")
+        total_created += created_articles
+    logger.info(
+        f"fetch_all_esg_topics_daily FINALIZADO. Total criados: {total_created}")
