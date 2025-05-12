@@ -93,6 +93,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=8, minute=0),
         'args': ()
     },
+    'generate_monthly_market_report': {
+        'task': 'core.tasks.generate_monthly_market_report',
+        'schedule': crontab(hour=8, minute=0, day_of_month=1),
+        'args': ()
+    },
 }
 
 LOGGING = {

@@ -21,6 +21,9 @@ from core.models.company_stock_data_model import CompanyStockData
 from core.serializers.company_stock_data_serializer import CompanyStockDataSerializer
 from typing import Optional
 
+from django.db.models import Q
+from core.models.market_company_report import CompanyMarketReport
+
 
 @shared_task
 def minha_task():
@@ -298,3 +301,92 @@ def fetch_and_store_daily_company_stock_data():
     )
 
     return CompanyStockDataSerializer(result).data
+
+
+SYSTEM_MESSAGE = (
+    "You are an advanced deep search AI. Your role is to understand and process "
+    "complex queries by dissecting the input, identifying key themes, and "
+    "retrieving relevant and precise information. Ensure a thorough search "
+    "through multiple data layers and provide well-structured, concise, and "
+    "contextually appropriate results. Prioritize clarity, accuracy, and "
+    "relevance in all of your responses."
+)
+
+
+@shared_task
+def generate_monthly_market_report():
+    comp = get_company_info()
+    company = comp.short_name
+
+    if not company:
+        return {"error": "Company name is required."}
+
+    today = datetime.today()
+    last_month = today - timedelta(days=30)
+
+    first_this_month = today.replace(day=1)
+    last_month_end = first_this_month - timedelta(days=1)
+    first_last_month = last_month_end.replace(day=1)
+    month_name = last_month_end.strftime("%B")
+    year = last_month_end.strftime("%Y")
+
+    news_titles = MarketNewsArticle.objects.filter(
+        Q(company__iexact=company) &
+        Q(date_published__gte=first_last_month) &
+        Q(date_published__lte=last_month_end)
+    ).values_list('title', flat=True)
+
+    # if not news_titles:
+    #     return {"error": "No news found for this company in the last month."}
+
+    # titles_text = ' '.join(news_titles)
+
+    message = (
+        f"You need to create a monthly report overview for {comp.long_name}. "
+        f"specifically for the month of {month_name} {year}. "
+        f"The report should summarize the key events, trends, ups and downs, and important data from the last month. "
+        "Ensure the summary is concise and covers significant points relevant to the company's performance and market position."
+    )
+
+    api_key = os.getenv("PERPLEXITY_KEY")
+    if not api_key:
+        return {"error": "API Key is missing"}
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    request_body = {
+        "model": "sonar-deep-research",
+        "messages": [
+            {"role": "system", "content": SYSTEM_MESSAGE},
+            {"role": "user", "content": message},
+        ],
+    }
+
+    try:
+        response = requests.post(
+            "https://api.perplexity.ai/chat/completions",
+            headers=headers,
+            json=request_body
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        report_content = data.get("choices", [{}])[0].get(
+            "message", {}).get("content", "")
+        citations = data.get("citations", [])
+
+        if report_content:
+            CompanyMarketReport.objects.create(
+                company=company,
+                report=report_content,
+                citations=citations
+            )
+            return {"report": report_content, "citations": citations}
+
+        return {"error": "Failed to generate report."}
+
+    except requests.RequestException as e:
+        return {"error": str(e)}

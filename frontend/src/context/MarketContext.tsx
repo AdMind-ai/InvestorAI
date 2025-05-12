@@ -113,7 +113,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   useEffect(() => {
-    fetchMarketOverview('apple inc').then(({ report, citations }) => {
+    fetchMarketOverview().then(({ report, citations }) => {
       const thinkTagMatch = /<think>[\s\S]*?<\/think>/g;
       let reportContent = report.replace(thinkTagMatch, '');
       reportContent = citeLinks(reportContent, citations);
