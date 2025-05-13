@@ -10,14 +10,22 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from core.serializers.ceo_news_serializer import CEONewsSerializer
 from core.models.ceo_article_model import CEOArticle
-from core.utils.get_company_info import get_ceos
+from core.utils.get_company_info import get_ceos, get_company_info
 
 import logging
 logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
-leaders = get_ceos()
+
+def get_ceos_dict():
+    company = get_company_info()
+    if not company:
+        return {}
+    return {ceo.name.lower(): ceo.role for ceo in company.ceos.all()}
+
+
+leaders = get_ceos_dict()
 
 
 class OpenAICEONewsView(APIView):
@@ -238,14 +246,13 @@ def get_sentiment_analysis(person, text):
     return sentiment_percent
 
 
-def response_openai_api(personality, leaders=None):
+def response_openai_api(personality):
     today = datetime.now()
     two_days_ago = today - timedelta(days=100)
     formattedTwoDaysAgo = two_days_ago.strftime("%d %B %Y")
     formattedDate = today.strftime("%d %B %Y")
 
-    personality_description = leaders.get(
-        personality, "")
+    personality_role = leaders.get(personality.lower(), "")
 
     response = client.responses.create(
         model="gpt-4o",
@@ -273,7 +280,7 @@ def response_openai_api(personality, leaders=None):
                     {
                         "type": "input_text",
                         "text": f"""
-                            Descrizione: {personality_description}. 
+                            Descrizione: {personality_role}. 
                             Si prega di trovare articoli, notizie e pubblicazioni recenti su {personality} pubblicati intorno al {formattedDate}. 
                             Assicurati che le informazioni provengano da fonti affidabili e riconosciute, che gli articoli siano reali, e che gli URL siano validi e contengano l'articolo cercato. 
                             Evita di includere articoli con contenuti molto simili. 

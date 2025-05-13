@@ -18,7 +18,7 @@ client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
 
 class OpenAIESGNewsView(APIView):
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
     serializer_class = ESGNewsSerializer

@@ -49,8 +49,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null);
   const [historyData, setHistoryData] = useState<HistoryDataItem[]>([]);
-  const [period, setPeriod] = useState<string>("1mo");
-  const [interval, setInterval] = useState<string>("1d");
+  const [period, setPeriod] = useState<string>("5d");
+  const [interval, setInterval] = useState<string>("15m");
   const [varPercent, setVarPercent] = useState(true);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
 
