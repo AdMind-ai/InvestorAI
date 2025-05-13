@@ -45,7 +45,7 @@ def safe_eval_list_string(list_string):
 
 
 class MonthlyMarketReportView(APIView):
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
 
@@ -59,20 +59,27 @@ class MonthlyMarketReportView(APIView):
         today = datetime.today()
         last_month = today - timedelta(days=30)
 
+        first_this_month = today.replace(day=1)
+        last_month_end = first_this_month - timedelta(days=1)
+        first_last_month = last_month_end.replace(day=1)
+        month_name = last_month_end.strftime("%B")
+        year = last_month_end.strftime("%Y")
+
         news_titles = MarketNewsArticle.objects.filter(
             Q(company__iexact=company) &
-            Q(date_published__gte=last_month)
+            Q(date_published__gte=first_last_month) &
+            Q(date_published__lte=last_month_end)
         ).values_list('title', flat=True)
 
-        if not news_titles:
-            return Response({"error": "No news found for this company in the last month."}, status=404)
+        # if not news_titles:
+        #     return Response({"error": "No news found for this company in the last month."}, status=404)
 
-        titles_text = ' '.join(news_titles)
+        # titles_text = ' '.join(news_titles)
 
         message = (
             f"You need to create a monthly report overview for {comp.long_name}. "
+            f"specifically for the month of {month_name} {year}. "
             f"The report should summarize the key events, trends, ups and downs, and important data from the last month. "
-            f"Use the following news titles to guide the content: {titles_text}. "
             "Ensure the summary is concise and covers significant points relevant to the company's performance and market position."
         )
 
@@ -156,8 +163,8 @@ class MonthlyMarketReportView(APIView):
         reports = report_query.order_by('-created_at')
         report_list = []
         for report in reports:
-            citations_list = safe_eval_list_string(report_query.citations)
-
+            citations_list = safe_eval_list_string(
+                report.citations)
             report_list.append({
                 "company": report.company,
                 "created_at": report.created_at,

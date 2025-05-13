@@ -382,6 +382,8 @@ def generate_monthly_market_report():
         response.raise_for_status()
         data = response.json()
 
+        print(data)
+
         report_content = data.get("choices", [{}])[0].get(
             "message", {}).get("content", "")
         citations = data.get("citations", [])
