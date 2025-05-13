@@ -487,10 +487,7 @@ def daily_ceo_articles_fetch():
         logger.info("No CEOs found for fetching news articles.")
         return
 
-    leaders = {
-        ceo.name: f"{getattr(ceo, 'role', '')} of {getattr(ceo, 'company', '')}" for ceo in ceos}
     num_articles_total = 0
-
     for ceo in ceos:
         personality = ceo.name
         logger.info(f"Fetching news articles for CEO: {personality}")
@@ -499,7 +496,7 @@ def daily_ceo_articles_fetch():
         json_content = {"articles": []}
         for attempt in range(max_retries + 1):
             try:
-                response = response_openai_api(personality, leaders)
+                response = response_openai_api(personality)
                 response_text = ''
                 for output in response.output:
                     if output.type == 'message':
