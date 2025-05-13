@@ -41,6 +41,9 @@ class OpenAICompanyQuarterlyReportView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         company = get_company_info().short_name
+        if not company:
+            return {"error": "Company name is required."}
+
         quarter = serializer.validated_data['quarter']
         year = serializer.validated_data['year']
 
@@ -66,11 +69,11 @@ class OpenAICompanyQuarterlyReportView(APIView):
             return Response({"error": "API Key is missing"}, status=500)
 
         prompt = f"""
-        You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company} for {qreport.quarter} of {qreport.year}. 
+        You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company} for {qreport.quarter} of {qreport.year}.
 
         Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
 
-        {f'Aditional information: {qreport}' if qreport.form_10k else ''}
+        {f'Aditional information: {qreport}' if getattr(qreport, 'form_10k', None) else ''}
         
         Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, product launches, investments, or strategic news released by {qreport.company} around that quarter.
 
@@ -78,7 +81,7 @@ class OpenAICompanyQuarterlyReportView(APIView):
         1. Highlights Finanziari
         2. Innovazione e Strategia
 
-        Write clearly, professionally and formatted in Italian. Use real numbers, bullet points, and YoY percentage variations. 
+        Write clearly, professionally and formatted in Italian. Use real numbers, bullet points, and YoY percentage variations.
         """
 
         headers = {
