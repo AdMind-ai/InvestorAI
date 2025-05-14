@@ -9,7 +9,6 @@ import {
     fetchCompetitors,
     fetchMarketOverview
 } from '../api/marketApi';
-import { useGlobal } from "./GlobalContext";
 
 interface MarketContextType {
   // Shared states

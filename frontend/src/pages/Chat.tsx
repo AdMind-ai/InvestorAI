@@ -46,7 +46,7 @@ const Chat: React.FC = () => {
       
       try {
         const response = await api.get(`/openai/chat/${id}`);
-        console.log(response.data); 
+        console.log(response.data, citations); 
     
         const messages = response.data.messages.map((message: ApiMessage & { citations?: string[] }) => ({
           sender: message.is_user ? 'user' : 'ai',

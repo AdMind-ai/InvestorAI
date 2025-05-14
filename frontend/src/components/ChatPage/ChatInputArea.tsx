@@ -145,24 +145,32 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         toast.error("An error occurred while starting the deep search.");
       }
     } catch (err) {
-      toast.error("An error occurred while starting the deep search.");
+      toast.error("An error occurred while starting the deep search. error: " + err);
     } finally {
       setIsOverview(false);
     }
   };
 
-  useEffect(() => {
-    function handleDeepResearchReady(e: any) {
-      if (selectedChat && e.detail.conversationId === selectedChat.id) {
-        setLoading(false);
-        onSend(e.detail.content, "ai", true);
-        if (setCitations && e.detail.citations) {
-          setCitations(e.detail.citations);  
-        }
+  function handleDeepResearchReady(e: CustomEvent<{
+    conversationId: string | number,
+    messageId: string | number,
+    chatName: string,
+    content: string,
+    citations: string[]
+  }>) {
+    if (selectedChat && e.detail.conversationId === selectedChat.id) {
+      setLoading(false);
+      onSend(e.detail.content, "ai", true);
+      if (setCitations && e.detail.citations) {
+        setCitations(e.detail.citations);  
       }
     }
-    window.addEventListener("deepResearchReady", handleDeepResearchReady);
-    return () => window.removeEventListener("deepResearchReady", handleDeepResearchReady);
+  }
+
+  useEffect(() => {
+    const handler = handleDeepResearchReady as EventListener;
+    window.addEventListener("deepResearchReady", handler as EventListener);
+    return () => window.removeEventListener("deepResearchReady", handler as EventListener);
   }, [selectedChat, onSend]);
 
 

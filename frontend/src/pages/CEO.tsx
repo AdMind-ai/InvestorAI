@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGlobal } from "../context/GlobalContext";
+import type { CompanyInfoAdm } from "../interfaces/companyInfoInterface";
 import {
   Box,
   Divider,
@@ -41,10 +42,8 @@ interface NewsItem {
   viewed: boolean;
 }
 
-function createPersonalities(companyInfoAdm: any): string[] {
-  return [
-    ...(companyInfoAdm?.ceos?.map((ceo: any) => ceo.name) ?? []),
-  ];
+function createPersonalities(companyInfoAdm: CompanyInfoAdm | null): string[] {
+  return companyInfoAdm?.ceos?.map(ceo => ceo.name) ?? [];
 }
 
 function createInitialData(personalities: string[]): Record<string, NewsItem[]> {

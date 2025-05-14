@@ -11,6 +11,16 @@ interface GlobalContextType {
   setAwaitingDeepResponse: React.Dispatch<React.SetStateAction<AwaitingDeepResponseType | null>>;
 }
 
+interface ApiMessage {
+  id: number|string;
+  conversation: string;
+  content: string;
+  file: string | null;
+  created_at: string;
+  is_user: boolean;
+  citations?: string[];
+}
+
 interface AwaitingDeepResponseType {
   conversationId: string | number;
   messageId: string | number;
@@ -23,8 +33,8 @@ const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [companyInfoAdm, setCompanyInfoAdm] = useState<CompanyInfoAdm | null>(null);
   const [awaitingDeepResponse, setAwaitingDeepResponse] = useState<AwaitingDeepResponseType | null>(null);
-
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
+  
 
   useEffect(() => {
     fetchCompanyInfo().then(setCompanyInfoAdm);
@@ -38,10 +48,8 @@ export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const resp = await fetchWithAuth(`/openai/chat/${awaitingDeepResponse.conversationId}/`);
         if (!resp.ok) return;
         const data = await resp.json();
-        const messages = data.messages || [];
-        const msg = messages.find(
-          (m: any) => String(m.id) === String(awaitingDeepResponse.messageId)
-        );
+        const messages: ApiMessage[] = data.messages || [];
+        const msg = messages.find((m) => String(m.id) === String(awaitingDeepResponse.messageId));
         if (msg && msg.content && msg.content !== awaitingDeepResponse.placeholderText) {
           toast.success("La tua deep research è pronta! Chat: " + awaitingDeepResponse.chatName);
           window.dispatchEvent(
@@ -58,7 +66,7 @@ export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setAwaitingDeepResponse(null);
           if (pollingInterval.current) clearInterval(pollingInterval.current);
         }
-      } catch {}
+      } catch {console.error("Error fetching deep research response");}
     }, 3000);
     return () => {
       if (pollingInterval.current) clearInterval(pollingInterval.current);
