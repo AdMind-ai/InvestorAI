@@ -123,7 +123,8 @@ CELERY_BEAT_SCHEDULE = {
     },
     "daily_ceo_articles_fetch": {
         "task": "core.tasks.daily_ceo_articles_fetch",
-        "schedule": crontab(hour=8, minute=0),
+        # "schedule": crontab(hour=8, minute=0),
+        "schedule": crontab(),
     },
     "fetch_all_esg_topics_daily": {
         "task": "core.tasks.fetch_all_esg_topics_daily",

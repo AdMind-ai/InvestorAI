@@ -1,14 +1,10 @@
 from django.db import models
+from core.models.company_info import CEO
 
 
 class CEOArticle(models.Model):
-    PERSONALITY_CHOICES = [
-        ("Mario Rossi", "Mario Rossi"),
-        ("Elvira Giacomelli", "Elvira Giacomelli"),
-        ("Luigi Farris", "Luigi Farris"),
-    ]
-
-    personality = models.CharField(max_length=100, choices=PERSONALITY_CHOICES)
+    personality = models.ForeignKey(
+        CEO, on_delete=models.CASCADE, related_name="articles")
     title = models.CharField(max_length=250)
     author = models.CharField(max_length=100, default="Sconosciuto")
     content = models.TextField()

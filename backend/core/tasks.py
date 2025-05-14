@@ -491,14 +491,14 @@ def daily_ceo_articles_fetch():
 
     num_articles_total = 0
     for ceo in ceos:
-        personality = ceo.name
-        logger.info(f"Fetching news articles for CEO: {personality}")
+        personality = ceo
+        logger.info(f"Fetching news articles for CEO: {ceo.name}")
 
         max_retries = 2
         json_content = {"articles": []}
         for attempt in range(max_retries + 1):
             try:
-                response = response_openai_api(personality)
+                response = response_openai_api(ceo.name)
                 response_text = ''
                 for output in response.output:
                     if output.type == 'message':
@@ -511,33 +511,33 @@ def daily_ceo_articles_fetch():
 
                 usage = response.usage
                 logger.info(
-                    f"[{personality}] Tokens: in={usage.input_tokens}, out={usage.output_tokens}")
+                    f"[{ceo.name}] Tokens: in={usage.input_tokens}, out={usage.output_tokens}")
 
                 try:
                     json_content = json.loads(response_text)
                 except json.JSONDecodeError as e:
                     logger.error(
-                        f"JSON inválido recebido para {personality}: {response_text}")
+                        f"JSON inválido recebido para {ceo.name}: {response_text}")
                     break
 
                 if 'articles' not in json_content:
                     logger.error(
-                        f"[{personality}] Missing 'articles' in OpenAI response: {json_content}")
+                        f"[{ceo.name}] Missing 'articles' in OpenAI response: {json_content}")
                     break
 
                 break
 
             except Exception as e:
                 logger.error(
-                    f"Erro ao tentar buscar dados para {personality}: {e}")
+                    f"Erro ao tentar buscar dados para {ceo.name}: {e}")
                 if attempt == max_retries:
                     logger.error(
-                        f"Falha para {personality} após várias tentativas.")
+                        f"Falha para {ceo.name} após várias tentativas.")
 
         created_articles = 0
         for article_data in json_content.get("articles", []):
             sentiment_score = get_sentiment_analysis(
-                personality, article_data["content"])
+                ceo.name, article_data["content"])
             article, created = CEOArticle.objects.get_or_create(
                 title=article_data["title"],
                 url=article_data["url"],
@@ -557,7 +557,7 @@ def daily_ceo_articles_fetch():
                 article.save()
 
         num_articles_total += created_articles
-        logger.info(f"{created_articles} articles created for {personality}")
+        logger.info(f"{created_articles} articles created for {ceo.name}")
 
     logger.info(
         f"Daily CEO articles fetch finalizada! Total artigos criados: {num_articles_total}")

@@ -103,11 +103,13 @@ class OpenAICEONewsView(APIView):
         for article_data in json_content["articles"]:
             sentiment_score = get_sentiment_analysis(
                 personality, article_data["content"])
+
+            ceo = get_ceos().get(name=personality)
             article, created = CEOArticle.objects.get_or_create(
                 title=article_data["title"],
                 url=article_data["url"],
                 defaults={
-                    "personality": personality,
+                    "personality": ceo,
                     "author": article_data.get('author', 'Sconosciuto'),
                     "content": article_data["content"],
                     "source": article_data["source"],
@@ -133,7 +135,7 @@ class OpenAICEONewsView(APIView):
                 "url": article.url,
                 "language": article.language,
                 "date_published": article.date_published,
-                "personality": article.personality,
+                "personality": personality,
                 "created_at": article.created_at.isoformat(),
                 "sentiment": article.sentiment
             }

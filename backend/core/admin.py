@@ -8,6 +8,7 @@ from core.models.market_company_report import CompanyMarketReport
 from core.models.company_stock_data_model import CompanyStockData
 from core.models.company_quarterly_report import CompanyQuarterlyReport
 from core.models.company_info import CompanyInfo, CEO, CompetitorInfo
+from django import forms
 # Register your models here.
 
 
@@ -19,12 +20,21 @@ class ESGArticleAdmin(admin.ModelAdmin):
     search_fields = ("title", "summary", "author")
 
 
+class CEOArticleAdminForm(forms.ModelForm):
+    class Meta:
+        model = CEOArticle
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        ceos = CEO.objects.all()
+        self.fields['personality'].widget = forms.Select(
+            choices=[(ceo.name, ceo.name) for ceo in ceos])
+
+
 @admin.register(CEOArticle)
 class CEOArticleAdmin(admin.ModelAdmin):
-    list_display = ("personality", "title",
-                    "source", "url", "date_published")
-    list_filter = ("personality", "source", "date_published")
-    search_fields = ("title", "content", "author")
+    form = CEOArticleAdminForm
 
 
 class ChatMessageInline(admin.StackedInline):
