@@ -45,7 +45,6 @@ const MarketContext = createContext<MarketContextType | undefined>(undefined);
 
 export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Shared states
-  const { companyInfoAdm } = useGlobal();
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null);
   const [historyData, setHistoryData] = useState<HistoryDataItem[]>([]);
@@ -130,7 +129,6 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     fetchCompetitors().then(setCompetitors);
-    console.log(companyInfoAdm)
   }, []);
 
   useEffect(() => {

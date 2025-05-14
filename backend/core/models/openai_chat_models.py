@@ -29,6 +29,7 @@ class ChatMessage(models.Model):
     conversation = models.ForeignKey(
         ChatConversation, related_name='messages', on_delete=models.CASCADE)
     content = models.TextField(blank=True)
+    citations = models.JSONField(null=True, blank=True, default=list)
     is_user = models.BooleanField(default=True)
 
     # If saving files

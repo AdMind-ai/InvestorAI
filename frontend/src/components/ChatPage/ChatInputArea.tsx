@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useGlobal } from "../../context/GlobalContext";
 import { Box, Button, TextField, Typography, IconButton  } from '@mui/material';
 import OutlinedButton from '../OutlinedButton';
 import FilePresentRoundedIcon from '@mui/icons-material/FilePresentRounded';
@@ -10,6 +11,7 @@ import { modelMapping } from './ChatHeader';
 import { useTheme } from '@mui/material/styles';
 import { fetchWithAuth } from '../../api/fetchWithAuth';
 import CircularProgress from '@mui/material/CircularProgress';
+import { toast } from "react-toastify";
 
 interface ChatInputAreaProps {
   onSend: (content: string, sender: 'user' | 'ai', isStream?: boolean) => void;
@@ -28,6 +30,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onSend,
   selectedModel,
   selectedChat,
+  setSelectedChat,
   searchWebEnabled,
   setSearchWebEnabled,
   isEmptyMessages,
@@ -36,12 +39,14 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   setIsTyping
 }) => {
   const theme = useTheme();
+  const { setAwaitingDeepResponse } = useGlobal();
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [isFileAttached, setIsFileAttached] = useState(false);
   // const [searchWebEnabled, setSearchWebEnabled] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -63,62 +68,103 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     setSearchWebEnabled(!searchWebEnabled);
   };
 
+  // const handleOverviewClick = async () => {
+  //   setIsOverview(true);
+  //   setLoading(true);
+    
+  //   try {
+  //     const response = await fetchWithAuth('/perplexity/deep-search/', {
+  //       method: 'POST'
+  //     });
+  
+  //     if (!response.ok || !response.body) {
+  //       onSend('Erro ao conectar.', 'ai');
+  //       setLoading(false);
+  //       return;
+  //     }
+  //     setLoading(false);
+  
+  //     const reader = response.body.getReader();
+  //     const decoder = new TextDecoder("utf-8");
+  //     let citationsReceived = false;
+  
+  //     while (true) {
+  //       const { done, value } = await reader.read();
+  //       if (done) break;
+  
+  //       const chunk = decoder.decode(value, { stream: true });
+  
+  //       if (!citationsReceived && chunk.includes('_CITATIONS_START_')) {
+  //         const citationsJson = chunk.substring(
+  //           chunk.indexOf('_CITATIONS_START_') + '_CITATIONS_START_'.length,
+  //           chunk.indexOf('_CITATIONS_END_')
+  //         );
+  //         const citations = JSON.parse(citationsJson).citations;
+  //         setCitations?.(citations);
+  //         citationsReceived = true;
+  
+  //         const cleanedChunk = chunk.substring(chunk.indexOf('_CITATIONS_END_') + '_CITATIONS_END_'.length);
+  //         onSend(cleanedChunk, 'ai', true);
+  //         // console.log(cleanedChunk)
+  //       } else {
+  //         onSend(chunk, 'ai', true); 
+  //         // console.log(chunk)
+  //       }
+  //     }
+  
+  //   } catch (error) {
+  //     console.error('Erro ao conectar:', error);
+  //     onSend('Erro ao conectar.', 'ai');
+  //   } finally {
+  //     console.log('ACABOU')
+  //     setLoading(false);
+  //     setIsOverview(false);
+  //   }
+  // };
+
   const handleOverviewClick = async () => {
     setIsOverview(true);
-    setLoading(true);
-    
     try {
       const response = await fetchWithAuth('/perplexity/deep-search/', {
         method: 'POST',
-        body: JSON.stringify({
-          message: "Please give me a deep overview about the company FOPE SPA, listed in the Italian Stock Market, stock price and general overview for the last 24 hours. Please answer in Italian language."
-        })
+        headers: {"Content-Type": "application/json"},
       });
-  
-      if (!response.ok || !response.body) {
-        onSend('Erro ao conectar.', 'ai');
-        setLoading(false);
-        return;
+      const resData = await response.json();
+      if (response.ok && resData.conversation_id && resData.waiting_message_id) {
+        setSelectedChat({ id: resData.conversation_id, name: resData.conversation_name });
+        onSend("Starting Deep Research...", 'ai', true);
+        setLoading(true);
+        setAwaitingDeepResponse({
+          conversationId: resData.conversation_id,
+          messageId: resData.waiting_message_id,
+          placeholderText: "processing",
+          chatName: resData.conversation_name
+        });
+        toast.info("Ricerca approfondita in corso, verrai notificato quando sarà pronta.");
+      } else {
+        toast.error("An error occurred while starting the deep search.");
       }
-      setLoading(false);
-  
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let citationsReceived = false;
-  
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-  
-        const chunk = decoder.decode(value, { stream: true });
-  
-        if (!citationsReceived && chunk.includes('_CITATIONS_START_')) {
-          const citationsJson = chunk.substring(
-            chunk.indexOf('_CITATIONS_START_') + '_CITATIONS_START_'.length,
-            chunk.indexOf('_CITATIONS_END_')
-          );
-          const citations = JSON.parse(citationsJson).citations;
-          setCitations?.(citations);
-          citationsReceived = true;
-  
-          const cleanedChunk = chunk.substring(chunk.indexOf('_CITATIONS_END_') + '_CITATIONS_END_'.length);
-          onSend(cleanedChunk, 'ai', true);
-          // console.log(cleanedChunk)
-        } else {
-          onSend(chunk, 'ai', true); 
-          // console.log(chunk)
-        }
-      }
-  
-    } catch (error) {
-      console.error('Erro ao conectar:', error);
-      onSend('Erro ao conectar.', 'ai');
+    } catch (err) {
+      toast.error("An error occurred while starting the deep search.");
     } finally {
-      console.log('ACABOU')
-      setLoading(false);
       setIsOverview(false);
     }
   };
+
+  useEffect(() => {
+    function handleDeepResearchReady(e: any) {
+      if (selectedChat && e.detail.conversationId === selectedChat.id) {
+        setLoading(false);
+        onSend(e.detail.content, "ai", true);
+        if (setCitations && e.detail.citations) {
+          setCitations(e.detail.citations);  
+        }
+      }
+    }
+    window.addEventListener("deepResearchReady", handleDeepResearchReady);
+    return () => window.removeEventListener("deepResearchReady", handleDeepResearchReady);
+  }, [selectedChat, onSend]);
+
 
   const handleSubmit = async () => {
     setIsOverview(false);

@@ -9,17 +9,17 @@ import { DotTyping } from '../DotTyping'
 interface Message {
   sender: 'user' | 'ai'
   content: string
+  citations?: string[]
 }
 
 interface ChatMessageListProps {
   messages: Message[]
-  citations?: string[];
   isTyping: boolean
   isOverview: boolean;
 }
 
 
-const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations = [], isTyping, isOverview }) => {
+const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isTyping, isOverview }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -67,11 +67,11 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
   //   return content.replace(/(<br\s*\/?>\s*){1,}/gi, '<br><br>');
   // };
 
-  const citeLinks = (text: string, citations: string[]) => {
+  const citeLinks = (text: string, citations: string[] = []) => {
     return text.replace(/\[(\d+)\]/g, (match, num) => {
       const citationLink = citations[parseInt(num) - 1];
       if (citationLink) {
-        return `[ [${num}] ](${citationLink})`;
+        return `[ [${num}] ](${citationLink})`
       }
       return match;
     });
@@ -103,7 +103,9 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
             console.log('Overview-----> ', isOverview, isTyping, messages.length , ' - ', msg.content);
             const isThinking = handleThink(msg.content);
             const parsedContent = parseThinkTag(msg.content);
-            const contentWithCitations = citeLinks(parsedContent, citations);
+            const contentWithCitations = msg.sender === 'ai' 
+              ? citeLinks(parsedContent, msg.citations) 
+              : parsedContent;
             return (
               <Box key={idx} display="flex" justifyContent={msg.sender === 'user' ? 'flex-end' : 'flex-start'} mb={0.5}>
                 <Paper 
@@ -286,7 +288,9 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, citations =
             // const contentWithCitations = citeLinks(originalContent, citations);
             console.log('Chat normal-----> ','isOverview: ', isOverview,'isTyping: ', isTyping, messages.length , ' - ', msg.content);
             const parsedContent = parseThinkTag(msg.content);
-            const contentWithCitations = citeLinks(parsedContent, citations);
+            const contentWithCitations = msg.sender === 'ai' 
+              ? citeLinks(parsedContent, msg.citations) 
+              : parsedContent;
             return (
               <Box key={idx} display="flex" justifyContent={msg.sender === 'user' ? 'flex-end' : 'flex-start'} mb={0.5}>
                 <Paper 

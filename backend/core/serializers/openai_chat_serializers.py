@@ -12,7 +12,7 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatMessage
         fields = [
-            'id', 'conversation', 'content',
+            'id', 'conversation', 'content', 'citations',
             'file',
             'created_at',
             'is_user'

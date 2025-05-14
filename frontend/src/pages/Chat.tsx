@@ -10,6 +10,7 @@ import {api} from '../api/api'
 interface Message {
   sender: 'user' | 'ai'
   content: string
+  citations?: string[]
 }
 
 interface ApiMessage {
@@ -47,9 +48,10 @@ const Chat: React.FC = () => {
         const response = await api.get(`/openai/chat/${id}`);
         console.log(response.data); 
     
-        const messages = response.data.messages.map((message: ApiMessage) => ({
-          ...message,  
-          sender: message.is_user ? 'user' : 'ai'  
+        const messages = response.data.messages.map((message: ApiMessage & { citations?: string[] }) => ({
+          sender: message.is_user ? 'user' : 'ai',
+          content: message.content,
+          citations: message.citations || []
         }));
     
         setMessages(messages);
@@ -132,7 +134,6 @@ const Chat: React.FC = () => {
         >
           <ChatMessageList 
             messages={messages} 
-            citations={citations} 
             isTyping={isTyping} 
             isOverview={isOverview}
           />

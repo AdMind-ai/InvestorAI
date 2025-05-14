@@ -14,7 +14,7 @@ class OpenAIConversationViewSet(viewsets.ModelViewSet):
     queryset = ChatConversation.objects.all()
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
 
     def get_queryset(self):
@@ -37,6 +37,7 @@ class OpenAIConversationViewSet(viewsets.ModelViewSet):
             ChatMessage.objects.create(
                 conversation=conversation,
                 content=message['content'],
+                citations=message.get('citations', []),
                 file=None,
                 is_user=message['is_user']
             )

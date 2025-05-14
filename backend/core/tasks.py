@@ -34,6 +34,8 @@ from core.views.openai.ceo_news_view import response_openai_api, get_sentiment_a
 from core.models.esg_article_model import ESGArticle
 from core.views.openai.esg_news_view import generate_openai_system, generate_openai_prompt
 
+from core.models.openai_chat_models import ChatConversation, ChatMessage
+
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
 
@@ -625,3 +627,77 @@ def fetch_all_esg_topics_daily():
         total_created += created_articles
     logger.info(
         f"fetch_all_esg_topics_daily FINALIZADO. Total criados: {total_created}")
+
+
+@shared_task
+def deep_search_perplexity_async(conversation_id, message_id, user_id, company):
+    """
+    Task assíncrona para consultar Perplexity e atualizar a mensagem do chat.
+    """
+    api_key = os.getenv("PERPLEXITY_KEY")
+    if not api_key:
+        logger.error("PERPLEXITY_KEY não configurada.")
+        _update_message(message_id, "(Falha: API Key não configurada)")
+        return
+
+    user_message = f"Please give me a deep overview about the company {company}, listed in the Italian Stock Market, stock price and general overview for the last 24 hours. Please answer in Italian language."
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    request_body = {
+        "model": "sonar-deep-research",
+        "messages": [
+            {"role": "system", "content": SYSTEM_MESSAGE},
+            {"role": "user", "content": user_message},
+        ],
+        "stream": False
+    }
+
+    try:
+        logger.info(
+            f"Iniciando Deep Search para chat {conversation_id}: {company}")
+        response = requests.post(
+            "https://api.perplexity.ai/chat/completions",
+            headers=headers,
+            json=request_body,
+            timeout=(10, 600)
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as ex:
+        logger.error(f"Deep Search RequestException: {ex}")
+        _update_message(message_id, f"Erro: {str(ex)}")
+        return
+
+    try:
+        result = response.json()
+        print(result)
+        citations = result.get("citations", [])
+        choices = result.get("choices", [])
+        if choices:
+            resposta = choices[0].get("message", {}).get("content", "")
+        else:
+            resposta = "(No response from Perplexity API)"
+            citations = []
+    except Exception as ex:
+        logger.error(f"Erro ao processar resposta do Perplexity: {ex}")
+        resposta = "(Erro ao processar resposta)"
+
+    # Atualizar a mensagem "placeholder" do chat
+    _update_message(message_id, resposta, citations)
+
+
+def _update_message(message_id, content, citations):
+    """
+    Atualiza o conteúdo de uma mensagem específica do chat.
+    """
+    try:
+        message = ChatMessage.objects.get(id=message_id)
+        message.content = content
+        message.citations = citations
+        message.created_at = timezone.now()
+        message.save()
+    except Exception as ex:
+        logger.error(f"Erro ao atualizar mensagem do chat: {ex}")
