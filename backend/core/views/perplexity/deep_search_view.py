@@ -25,7 +25,7 @@ SYSTEM_MESSAGE = (
 
 
 class PerplexityDeepSearchView(APIView):
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
 
@@ -54,4 +54,4 @@ class PerplexityDeepSearchView(APIView):
             "waiting_message_id": waiting_message.id,
             "conversation_name": f"Deep Search {tag}",
             "status": "processing"
-        })
+        }, status=200)

@@ -36,7 +36,9 @@ interface NewsItem {
   source: string;
   author: string;
   date_published: string;
-  personality: string;
+  personality_name: string;
+  personality: number;
+  language: string;
   created_at: string;
   sentiment: string;
   viewed: boolean;
@@ -196,13 +198,14 @@ const CEOPage: React.FC = () => {
     try {
       setLoadingArticlesList(true)
       const res = await api.get<NewsItem[]>("/articles/ceo/");
+      // console.log(res.data)
       const dynamicPersonalities = createPersonalities(companyInfoAdm);
       const groupedData: Record<string, NewsItem[]> = createInitialData(dynamicPersonalities);
   
 
       res.data.forEach(article => {
-        if(groupedData[article.personality]) {
-          groupedData[article.personality].push(article);
+        if(groupedData[article.personality_name]) {
+          groupedData[article.personality_name].push(article);
         }
       });
 

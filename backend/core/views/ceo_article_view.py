@@ -9,6 +9,9 @@ from rest_framework import status
 
 
 class CEOArticleSerializer(serializers.ModelSerializer):
+    personality_name = serializers.CharField(
+        source='personality.name', read_only=True)
+
     class Meta:
         model = CEOArticle
         fields = '__all__'

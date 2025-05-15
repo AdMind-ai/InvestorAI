@@ -14,8 +14,8 @@ from django import forms
 
 @admin.register(ESGArticle)
 class ESGArticleAdmin(admin.ModelAdmin):
-    list_display = ("topic", "title", "author",
-                    "source", "url", "date_published")
+    list_display = ("topic", "title",
+                    "source", "created_at")
     list_filter = ("topic", "source", "date_published")
     search_fields = ("title", "summary", "author")
 
@@ -35,6 +35,7 @@ class CEOArticleAdminForm(forms.ModelForm):
 @admin.register(CEOArticle)
 class CEOArticleAdmin(admin.ModelAdmin):
     form = CEOArticleAdminForm
+    list_display = ['personality', 'title', 'created_at']
 
 
 class ChatMessageInline(admin.StackedInline):

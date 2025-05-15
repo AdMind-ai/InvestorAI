@@ -13,6 +13,7 @@ CSRF_TRUSTED_ORIGINS = [
 CORS_ALLOWED_ORIGINS = [
     "https://app.investorai.it",
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Disable debug mode in production

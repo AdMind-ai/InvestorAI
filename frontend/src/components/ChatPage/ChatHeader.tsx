@@ -346,7 +346,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         <SimpleDropdown 
           // onClick={() => handleDeleteClick(selectedChat)}
           title="Chat salvate" 
-          options={chats.map(chat => chat.name)} 
+          options={chats.slice().reverse().map(chat => chat.name)}
           onSelect={handleDropdownSelect} 
           selectedValue={selectedChat ? selectedChat.name : ''}
           isDeleteItems
