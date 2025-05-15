@@ -127,7 +127,6 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     try {
       const response = await fetchWithAuth('/perplexity/deep-search/', {
         method: 'POST',
-        headers: {"Content-Type": "application/json"},
       });
       const resData = await response.json();
       if (response.ok && resData.conversation_id && resData.waiting_message_id) {
