@@ -55,14 +55,11 @@ class OpenAICompanyQuarterlyReportView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        try:
-            qreport, _ = CompanyQuarterlyReport.objects.get_or_create(
-                company=company,
-                quarter=quarter,
-                year=year
-            )
-        except CompanyQuarterlyReport.DoesNotExist:
-            return Response({"error": "Quarterly report not found."}, status=status.HTTP_404_NOT_FOUND)
+        qreport, _ = CompanyQuarterlyReport.objects.get_or_create(
+            company=company,
+            quarter=quarter,
+            year=year
+        )
 
         api_key = os.getenv("PERPLEXITY_KEY")
         if not api_key:
@@ -72,9 +69,7 @@ class OpenAICompanyQuarterlyReportView(APIView):
         You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company} for {qreport.quarter} of {qreport.year}.
 
         Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
-
-        {f'Aditional information: {qreport}' if getattr(qreport, 'form_10k', None) else ''}
-        
+    
         Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, product launches, investments, or strategic news released by {qreport.company} around that quarter.
 
         Your insight report must be clearly structured in two parts:
@@ -108,7 +103,6 @@ class OpenAICompanyQuarterlyReportView(APIView):
 
             insight_report_text = data.get("choices", [{}])[0].get(
                 "message", {}).get("content", "")
-            # Se quiser pegar citações:
             citations = data.get("citations", [])
 
             if not insight_report_text:

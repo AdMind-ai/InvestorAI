@@ -424,8 +424,6 @@ def generate_company_quarterly_report(quarter: str, year: int):
     You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company} for {qreport.quarter} of {qreport.year}.
 
     Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
-
-    {f'Aditional information: {qreport}' if getattr(qreport, 'form_10k', None) else ''}
     
     Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, product launches, investments, or strategic news released by {qreport.company} around that quarter.
 
