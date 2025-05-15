@@ -29,10 +29,10 @@ from core.models.company_quarterly_report import CompanyQuarterlyReport
 
 import json
 from core.models.ceo_article_model import CEOArticle
-from core.views.openai.ceo_news_view import response_openai_api, get_sentiment_analysis
+from core.utils.cron.ceo_news import response_openai_api, get_sentiment_analysis
 
 from core.models.esg_article_model import ESGArticle
-from core.views.openai.esg_news_view import generate_openai_system, generate_openai_prompt
+from core.utils.cron.esg_news import generate_openai_system, generate_openai_prompt
 
 from core.models.openai_chat_models import ChatConversation, ChatMessage
 
