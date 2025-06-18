@@ -6,6 +6,7 @@ import Sidebar from "../components/Sidebar";
 // import ArchiveButton from "../components/ArchiveButton";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useGlobal } from "../context/GlobalContext";
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 
 interface LayoutProps {
@@ -13,6 +14,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { setIsNewFunctionalities, isNewFunctionalities } = useGlobal();
   const theme = useTheme();
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
@@ -142,6 +144,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={handleLogout}
             >
               Logout
+            </MenuItem>
+            <MenuItem
+              sx={{
+                fontSize: "2vh",
+                backgroundColor: "white",
+                color: isNewFunctionalities ? theme.palette.primary.main : 'green',
+                "&:hover": {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}
+              onClick={() => setIsNewFunctionalities(prev => !prev)}
+            >
+              {isNewFunctionalities? 'Extra Functionalities Off':'Extra Functionalities On'}
             </MenuItem>
           </Menu>
         </Box>

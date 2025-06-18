@@ -24,6 +24,9 @@ class APIRootView(APIView):
             # "main": request.build_absolute_uri(reverse("api-root")),
             "company": request.build_absolute_uri(reverse("company-info-adm")),
             "newsapi": request.build_absolute_uri(reverse("newsapi-market-news")),
+            "quickdoc-generate": request.build_absolute_uri(reverse("quickdoc-generate")),
+            "smartscan-extract": request.build_absolute_uri(reverse("smartscan-extract")),
+            "smartscan-chat": request.build_absolute_uri(reverse("smartscan-chat")),
             "users": {
                 "token_obtain": request.build_absolute_uri(reverse("token_obtain_pair")),
                 "token_refresh": request.build_absolute_uri(reverse("token_refresh")),

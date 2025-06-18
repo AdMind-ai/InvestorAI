@@ -52,8 +52,11 @@ urlpatterns = [
          RecommendationsView.as_view(), name='recommendations'),
     path('newsapi/market-news/', NewsApiMarketNewsView.as_view(),
          name='newsapi-market-news'),
-
-
+    path('smartscan/extract/', SmartScanExtractView.as_view(),
+         name='smartscan-extract'),
+    path('smartscan/chat/', SmartScanChatView.as_view(), name='smartscan-chat'),
+    path('quickdoc/generate/', QuickDocGenerateView.as_view(),
+         name='quickdoc-generate'),
 ]
 
 urlpatterns += router.urls

@@ -7,6 +7,8 @@ import Chat from './pages/Chat'
 import CEO from './pages/CEO'
 import ESG from './pages/ESG'
 import Earnings from './pages/Earnings'
+import SmartScan from './pages/SmartScan'
+import QuickDoc from './pages/QuickDoc'
 import Usage from './pages/Usage'
 import TeamManagement from './pages/TeamManagement'
 import { AuthProvider } from './context/AuthContext'
@@ -29,6 +31,8 @@ const AppRoutes = () => {
             <Route path="/ceo-perception" element={<CEO />} />
             <Route path="/earnings" element={<Earnings />} />
             <Route path="/esg" element={<ESG />} />
+            <Route path="/smart-scan" element={<SmartScan />} />
+            <Route path="/doc-creator" element={<QuickDoc />} />
             <Route path="/usage" element={<Usage />} />
             <Route path="/access" element={<TeamManagement />} />
             <Route path="*" element={<Home />} />

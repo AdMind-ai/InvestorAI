@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, TextField, Typography, Button } from '@mui/material';
-import DocumentList from './DocumentList';
+import DocumentList from '../DocumentList';
 
 interface UploadableTextAreaProps {
   text: string;

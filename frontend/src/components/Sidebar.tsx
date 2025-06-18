@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Box, List, ListItem, ListItemIcon, Divider } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@mui/material/styles'
+import { useGlobal } from '../context/GlobalContext'
 
 // Importação dos ícones
 import HomeIcon from '../assets/icons-sidebar/home-icon.svg'
@@ -20,6 +21,12 @@ import FinanceIcon from '../assets/icons-sidebar/usage-icon.svg'
 import FinanceIconActive from '../assets/icons-sidebar/usage-icon-active.svg'
 import SecurityIcon from '../assets/icons-sidebar/access-icon.svg'
 import SecurityIconActive from '../assets/icons-sidebar/access-icon-active.svg'
+
+// Extras
+import ScanIcon from '../assets/icons-sidebar/scan.svg'
+import ScanIconActive from '../assets/icons-sidebar/scan-active.svg'
+import DocIcon from '../assets/icons-sidebar/doc.svg'
+import DocIconActive from '../assets/icons-sidebar/doc-active.svg'
 
 // Logos
 import InvestorLogo from '../assets/logos/svg/NOPAYOFF_LEFT_POSITIVE.svg'
@@ -59,12 +66,28 @@ const menuItems = [
   },
 ]
 
+const menuItemsExtra = [
+  {
+    title: 'SmartScan AI',
+    path: '/smart-scan',
+    icon: ScanIcon,
+    activeIcon: ScanIconActive,
+  },
+  {
+    title: 'QuickDoc Creator',
+    path: '/doc-creator',
+    icon: DocIcon,
+    activeIcon: DocIconActive,
+  },
+]
+
 const admItems = [
   { title: 'Finance', path: '/usage', icon: FinanceIcon, activeIcon: FinanceIconActive },
   { title: 'Adm', path: '/access', icon: SecurityIcon, activeIcon: SecurityIconActive },
 ]
 
 const Sidebar: React.FC = () => {
+  const { isNewFunctionalities } = useGlobal()
   const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
@@ -182,6 +205,55 @@ const Sidebar: React.FC = () => {
               </ListItem>
             )
           })}
+          {isNewFunctionalities && (
+            <>
+              {menuItemsExtra.map((item) => {
+                const isActive = activePath === item.path
+                return (
+                  <ListItem
+                    key={item.title}
+                    onClick={() => handleNavigation(item.path)}
+                    sx={{
+                      padding: 0,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: 'calc(4vw)',
+                      height: 'calc(3.6vw)',
+                      cursor: 'pointer',
+                      backgroundColor: isActive
+                        ? theme.palette.primary.main
+                        : 'transparent',
+                      borderRadius: 'calc(0.5vw)',
+                      '&:hover': {
+                        backgroundColor: isActive ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.1)',
+                        borderRadius: 'calc(0.5vw)',
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: 'calc(3vw)',
+                        minWidth: '10px',
+                        maxWidth: '400px',
+                      }}
+                    >
+                      <img
+                        src={isActive ? item.activeIcon : item.icon}
+                        alt={`${item.title} Icon`}
+                        style={{
+                          width: 'calc(1.7vw)',
+                          height: 'calc(1.7vw)',
+                        }}
+                      />
+                    </ListItemIcon>
+                  </ListItem>
+                )
+              })}
+            </>
+          )}
         </List>
       </Box>
 

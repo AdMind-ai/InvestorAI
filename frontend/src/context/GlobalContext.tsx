@@ -9,6 +9,8 @@ interface GlobalContextType {
   companyInfoAdm: CompanyInfoAdm | null;
   awaitingDeepResponse: AwaitingDeepResponseType | null;
   setAwaitingDeepResponse: React.Dispatch<React.SetStateAction<AwaitingDeepResponseType | null>>;
+  isNewFunctionalities: boolean;
+  setIsNewFunctionalities: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface ApiMessage {
@@ -31,6 +33,7 @@ interface AwaitingDeepResponseType {
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isNewFunctionalities, setIsNewFunctionalities] = useState<boolean>(false);
   const [companyInfoAdm, setCompanyInfoAdm] = useState<CompanyInfoAdm | null>(null);
   const [awaitingDeepResponse, setAwaitingDeepResponse] = useState<AwaitingDeepResponseType | null>(null);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
@@ -73,8 +76,19 @@ export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, [awaitingDeepResponse]);
 
+  useEffect(() => {
+    if (!isNewFunctionalities) return;
+  }, [isNewFunctionalities]);
+
   return (
-    <GlobalContext.Provider value={{ companyInfoAdm, awaitingDeepResponse, setAwaitingDeepResponse }}>
+    <GlobalContext.Provider 
+      value={{ 
+        companyInfoAdm, 
+        awaitingDeepResponse, 
+        setAwaitingDeepResponse,
+        isNewFunctionalities,
+        setIsNewFunctionalities 
+      }}>
       {children}
     </GlobalContext.Provider>
   );

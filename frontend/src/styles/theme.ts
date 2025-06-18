@@ -136,6 +136,39 @@ const theme: Theme = createTheme({
         },
       },
     },
+    MuiTextField: {
+      defaultProps: {
+        fullWidth: true,
+        variant: 'outlined',
+        size: 'small',
+      },
+      styleOverrides: {
+        root: {
+          fontSize: '0.8rem',
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          fontSize: '1rem',
+          borderRadius: '8px',
+          backgroundColor: '#fff',
+          borderColor: '#E1E8F0',
+        },
+        notchedOutline: {
+          borderColor: '#E1E8F0',
+          borderRadius: '8px',
+        },
+      }
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          fontSize: '1rem',
+        },
+      }
+    },
   },
 })
 

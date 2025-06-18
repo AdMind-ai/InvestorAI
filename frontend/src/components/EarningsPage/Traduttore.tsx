@@ -3,7 +3,7 @@ import { Box, Button } from '@mui/material'
 import SimpleDropdown from '../SimpleDropdown'
 import { useState, useEffect } from 'react'
 import CustomTextArea from '../CustomTextArea'
-import UploadableTextArea from '../UploadableTextArea'
+import UploadableTextArea from '../upload-components/UploadableTextArea'
 import DocumentList from '../DocumentList';
 import { api } from '../../api/api'
 import CircularProgress from '@mui/material/CircularProgress';

@@ -36,6 +36,9 @@ from .stocks_view import (
     RecommendationsView,
 )
 
+from .smartscan import SmartScanExtractView, SmartScanChatView
+from .quickdoc_view import QuickDocGenerateView
+
 __all__ = [
     'CompanyInfoViewAdm',
     'NewsApiMarketNewsView',
@@ -65,4 +68,7 @@ __all__ = [
     'FastInfoView',
     'AnalystPriceTargetsView',
     'RecommendationsView',
+    'SmartScanExtractView',
+    'SmartScanChatView',
+    'QuickDocGenerateView',
 ]

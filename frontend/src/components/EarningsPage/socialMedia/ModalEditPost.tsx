@@ -11,7 +11,7 @@ import PostInterface from '../../../interfaces/postInterface'
 import AyrshareInterface from '../../../interfaces/ayrshareInterface'
 import { useEffect, useState } from 'react'
 import CustomTextArea from '../../CustomTextArea'
-import DragDropImage from '../../DragDropImage'
+import DragDropImage from '../../upload-components/DragDropImage'
 import DialogDateTime from '../../DialogDateTime'
 
 import dayjs from 'dayjs';

@@ -7,9 +7,9 @@ import {
   Typography,
 } from "@mui/material";
 
-import UploadableTextArea from "../../UploadableTextArea";
+import UploadableTextArea from "../../upload-components/UploadableTextArea";
 import CustomTextArea from "../../CustomTextArea";
-import DragDropImage from "../../DragDropImage";
+import DragDropImage from "../../upload-components/DragDropImage";
 import DialogDateTime from "../../DialogDateTime";
 import AyrshareInterface from "../../../interfaces/ayrshareInterface";
 
