@@ -55,7 +55,6 @@ class DeeplTranslation:
         self.key = deepl_key
 
     def translate_file(self, file, target, origin):
-
         file_b = file.read()
         translator = deepl.Translator(self.key)
         filename_without_extension, extension = os.path.splitext(file.name)
@@ -93,18 +92,15 @@ class DeeplTranslation:
 
             temp_file.close()
 
-            formatted_date = datetime.now().strftime("%Y-%m-%d-%H%M%S%f")
+            formatted_date = datetime.now().strftime("%d-%m-%H%M")
             clean_filename = filename_without_extension.replace(
                 "_tradotto", "")
             new_filename = f"{clean_filename}_{formatted_date}_tradotto{extension}"
-
             final_path = os.path.join(file_path, new_filename)
-            if os.path.exists(final_path):
-                os.remove(final_path)
 
             os.rename(temp_file.name, final_path)
 
-            return new_filename
+            return final_path
 
         except deepl.DocumentTranslationException as error:
             doc_id = error.document_handle.id

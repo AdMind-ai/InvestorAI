@@ -55,7 +55,7 @@ class ImageUpload(models.Model):
         blob_name = self.image.name  # ex: "upload/ayrshare/arquivo.png"
         account_name = settings.AZURE_ACCOUNT_NAME
         account_key = settings.AZURE_ACCOUNT_KEY
-        container_name = settings.AZURE_CONTAINER
+        container_name = settings.AZURE_CONTAINER_NAME
 
         # Gera o SAS para leitura temporária
         sas_token = generate_blob_sas(

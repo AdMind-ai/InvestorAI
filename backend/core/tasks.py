@@ -1,4 +1,9 @@
 # core/tasks.py
+from django.conf import settings
+import tempfile
+from core.utils.quickdoc.upload_to_blob_storage import upload_to_blob_storage
+from azure.storage.blob import BlobServiceClient
+from core.utils.deepl_translation import DeeplTranslation
 import logging
 import os
 from core.utils.get_company_info import get_company_info, get_competitors, get_ceos
@@ -699,3 +704,49 @@ def _update_message(message_id, content, citations):
         message.save()
     except Exception as ex:
         logger.error(f"Erro ao atualizar mensagem do chat: {ex}")
+
+
+@shared_task
+def async_translate_file(deepl_key, blob_name, target, origin):
+    # blob_name: ex "usuario/uuid_nomeoriginal.pdf"
+    user_folder = os.path.dirname(blob_name)        # "usuario"
+    base_name = os.path.basename(blob_name)         # "uuid_nomeoriginal.pdf"
+    filename_wo_ext, ext = os.path.splitext(base_name)
+
+    # 1. Baixar do Blob para arquivo temporário local
+    blob_service_client = BlobServiceClient.from_connection_string(
+        settings.AZURE_CONNECTION_STRING)
+    blob_client = blob_service_client.get_blob_client(
+        container=settings.AZURE_CONTAINER_NAME, blob=blob_name)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as temp_file:
+        temp_file.write(blob_client.download_blob().readall())
+        temp_file.flush()
+        temp_path = temp_file.name
+
+    # 2. Traduzir para temp file (gera arquivo FÍSICO local)
+    with open(temp_path, 'rb') as f:
+        translation = DeeplTranslation(deepl_key)
+        translated_file_path = translation.translate_file(
+            f, target, origin)
+
+    # 3. Criar nome final do arquivo traduzido com extensão
+    translated_file_name = os.path.basename(
+        translated_file_path)
+    translated_blob_name = f"{user_folder}/{translated_file_name}"
+
+    # 4. Subir arquivo traduzido para o BLOB
+    with open(translated_file_path, 'rb') as f:
+        translated_url = upload_to_blob_storage(f, translated_blob_name)
+
+    # 5. Limpar arquivos temporários
+    try:
+        os.remove(temp_path)
+    except Exception:
+        pass
+    try:
+        os.remove(translated_file_path)
+    except Exception:
+        pass
+
+    # 6. Retornar a URL já com SAS
+    return translated_url

@@ -1,14 +1,14 @@
 import React from 'react';
-import { Box, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Box, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
-import { saveAs } from 'file-saver';
-import { toast } from 'react-toastify'
-import { api } from '../../api/api';
+// import { saveAs } from 'file-saver';
+// import { toast } from 'react-toastify'
+// import { api } from '../../api/api';
 
 interface Document {
   id: number;
@@ -30,22 +30,22 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, onDelete, isResu
     return null; 
   }
   
-  const handleOpenProtectedDoc = async (document: Document) => {
-    if (!document.translatedUrl) {
-      toast.error("Documento tradotto non disponibile.");
-      return;
-    }
+  // const handleOpenProtectedDoc = async (document: Document) => {
+  //   if (!document.translatedUrl) {
+  //     toast.error("Documento tradotto non disponibile.");
+  //     return;
+  //   }
   
-    try {
-      const response = await api.get(document.translatedUrl, { responseType: 'blob' });
+  //   try {
+  //     const response = await api.get(document.translatedUrl, { responseType: 'blob' });
   
-      // Usa file-saver para baixar automaticamente:
-      saveAs(response.data, document.name);
-    } catch (error) {
-      console.error("Errore durante il download del documento:", error);
-      toast.error("Impossibile scaricare il documento.");
-    }
-  };
+  //     // Usa file-saver para baixar automaticamente:
+  //     saveAs(response.data, document.name);
+  //   } catch (error) {
+  //     console.error("Errore durante il download del documento:", error);
+  //     toast.error("Impossibile scaricare il documento.");
+  //   }
+  // };
 
   const getIconForType = (type: string) => {
     switch (type) {
@@ -116,18 +116,19 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, onDelete, isResu
             </Box>
             {/* Alternar entre exclusão e link de documento traduzido */}
             {isResult && isTranslation ? (
-              <Typography
-                onClick={() => handleOpenProtectedDoc(document)}
-                sx={{
+              <a
+                href={document.translatedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
                   fontSize: '12px',
                   color: theme.palette.secondary.main,
                   textDecoration: 'underline',
-                  cursor: 'pointer',
-                  '&:hover': { color: theme.palette.secondary.dark },
+                  cursor: 'pointer'
                 }}
               >
                 Vai al documento tradotto
-              </Typography>
+              </a>
             ) : (
               onDelete && (
                 <CloseIcon

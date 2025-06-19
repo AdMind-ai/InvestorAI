@@ -4,11 +4,14 @@ from reportlab.lib import colors
 from reportlab.lib.utils import simpleSplit
 from pathlib import Path
 from django.conf import settings
+from io import BytesIO
 
 
-def create_pdf_with_header_footer(outfile, text, title):
+def create_pdf_with_header_footer(text, title):
     logo_path = Path(settings.STATIC_ROOT) / "quickdoc" / "logo-admind.png"
-    c = canvas.Canvas(str(outfile), pagesize=A4)
+    pdf_buffer = BytesIO(); 
+    
+    c = canvas.Canvas(pdf_buffer, pagesize=A4)
     width, height = A4
 
     header_height = height - 80
@@ -64,3 +67,5 @@ def create_pdf_with_header_footer(outfile, text, title):
             y -= line_height // 2
 
     c.save()
+    pdf_buffer.seek(0)
+    return pdf_buffer

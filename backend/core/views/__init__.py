@@ -11,6 +11,7 @@ from .perplexity import MonthlyMarketReportView
 
 from .deepl import DeeplTranslateFileView
 from .deepl import DeeplTranslateTextView
+from .deepl import DeeplTranslateFileViewAsync, DeeplFileTaskStatusView
 
 from .openai import OpenAiAudioTranscriptView
 from .openai import OpenAIESGNewsView
@@ -48,6 +49,8 @@ __all__ = [
     'MonthlyMarketReportView',
     'DeeplTranslateFileView',
     'DeeplTranslateTextView',
+    'DeeplTranslateFileViewAsync',
+    'DeeplFileTaskStatusView',
     'OpenAiAudioTranscriptView',
     'OpenAIESGNewsView',
     'OpenAICEONewsView',

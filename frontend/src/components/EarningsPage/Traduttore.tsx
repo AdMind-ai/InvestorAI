@@ -4,9 +4,17 @@ import SimpleDropdown from '../SimpleDropdown'
 import { useState, useEffect } from 'react'
 import CustomTextArea from '../CustomTextArea'
 import UploadableTextArea from '../upload-components/UploadableTextArea'
-import DocumentList from '../DocumentList';
+import DocumentList from "../upload-components/DocumentListUploaded";
 import { api } from '../../api/api'
+import { toast } from "react-toastify";
 import CircularProgress from '@mui/material/CircularProgress';
+
+interface PendingTask {
+  task_id: string;
+  filename: string;
+  originalName: string;
+  originalType: string;
+}
 
 interface Document {
   id: number;
@@ -27,6 +35,7 @@ const languageMap: Record<string, string> = {
 
 const Traduttore = () => {
   // const theme = useTheme()
+  const [pendingTasks, setPendingTasks] = useState<PendingTask[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
   // Text
@@ -53,15 +62,19 @@ const Traduttore = () => {
 
   // Send Button Activation
   const isButtonEnabled =
-    selectedLanguageOriginal !== null && selectedLanguageTarget !== null && (text.trim().length > 0 || files.length > 0);
+    selectedLanguageOriginal !== '' && selectedLanguageTarget !== '' && (text.trim().length > 0 || files.length > 0);
 
+  const getFilename = (url: string) => {
+    // remove o query string
+    const cleanUrl = url.split('?')[0];
+    // pega só o último segmento do caminho
+    return cleanUrl.split('/').pop();
+  }
 
   // File Delete 
-  const handleDeleteDocument = (id: number) => {
-    setDocumentsTranslated((prevDocs) => prevDocs.filter((doc) => doc.id !== id));
-    if (documentsTranslated.length === 0) {
-      setIsFileTranslated(false);
-    }
+  const handleDeleteDocument = (filename: string) => {
+    setFiles((prev) => prev.filter(f => f.name !== filename));
+    setIsFileTranslated(false);
   };
 
   // File Upload
@@ -86,38 +99,28 @@ const Traduttore = () => {
     setIsLoading(true); 
     try {
       if (files.length > 0) { 
-        setIsTranslated(false);
+        setIsFileTranslated(false);
 
         const translationRequests = files.map(file => {
           const formData = new FormData();
           formData.append('file', file);
           formData.append('origin', languageMap[selectedLanguageOriginal!]);
           formData.append('target', languageMap[selectedLanguageTarget!]);
-  
           return api.post('/deepl/file/', formData, {
             headers: { "Content-Type": "multipart/form-data" }
-          });
+          }).then(res => ({ 
+            task_id: res.data.task_id, 
+            filename: res.data.filename, 
+            originalName: file.name,
+            originalType: getFileExtension(file.name)
+          }));
         });
+
+        toast.info("Attendere un momento, la traduzione potrebbe richiedere alcuni minuti.");
   
-        const responses = await Promise.all(translationRequests);
+        const tasksStarted = await Promise.all(translationRequests);
         
-        const translatedDocuments: Document[] = responses.map((res, idx) => {
-          const translatedFileUrl = `/deepl/file?document=${res.data.document}`;
-          const translatedFileName = res.data.document || files[idx].name;
-          const fileExtension = getFileExtension(translatedFileName);
-
-          return {
-            id: Date.now() + idx,
-            name: translatedFileName,
-            type: fileExtension,
-            translatedUrl: translatedFileUrl,
-          };
-        });
-
-        setDocumentsTranslated(prevDocs => [...prevDocs, ...translatedDocuments]);
-        setIsFileTranslated(true);
-        setFiles([]);
-        setIsLoading(false);
+        setPendingTasks(tasksStarted); 
 
       } else if (text.trim()) { 
         setIsFileTranslated(false);
@@ -132,16 +135,66 @@ const Traduttore = () => {
         setIsTranslated(true);
         setIsLoading(false);
       } else {
-        alert("Insira texto ou carregue documento claramente!");
+        toast.error('Error: Nessun testo o file da tradurre.');
         setIsLoading(false);
       }
     } catch (error) {
       console.error('Erro durante tradução:', error);
-      alert('Erro durante a tradução.');
+      toast.error('Error durante la traduzione. Riprova più tardi.');
       setIsLoading(false);
     }
     
   };
+
+
+  useEffect(() => {
+    if (pendingTasks.length === 0) {
+      setIsLoading(false);
+      return;
+    }
+    
+    setIsLoading(true);
+
+    // checa status de cada e atualiza a lista
+    const interval = setInterval(async () => {
+      for (const task of pendingTasks) {
+        try {
+          const { data } = await api.get('/deepl/file/task_status/', { 
+            params: { task_id: task.task_id }
+          });
+          console.log("Task status:");
+          console.log(data);
+          if (data.status === "SUCCESS" && data.result && !data.error) {
+            console.log("File translated successfully:", data.result);
+            setDocumentsTranslated(prev => [
+              ...prev,
+              {
+                id: Date.now() + Math.random(),
+                name: getFilename(data.result) as string,
+                type: task.originalType,
+                translatedUrl: data.result,              
+                originalName: task.originalName
+              }
+            ]);
+            setIsFileTranslated(true);
+            setFiles([]); 
+            setPendingTasks(current => current.filter(t => t.task_id !== task.task_id));
+          }
+          else if (data.status === "FAILURE" || data.status === "REVOKED") {
+            // erro
+            toast.error('Falha ao traduzir arquivo ' + task.originalName);
+            setPendingTasks(current => current.filter(t => t.task_id !== task.task_id));
+          }
+          // Não faz nada enquanto estiver "PENDING" ou "STARTED"
+        } catch (err) {
+          // erro de conexão, mostra toast mas não tira da fila ainda
+          console.error(err);
+        }
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [pendingTasks]);
 
 
   return (
@@ -182,7 +235,7 @@ const Traduttore = () => {
           {
             isFileTranslated ? (
               <Box sx={{ position: 'relative', width: '100%', height: '100%', marginTop: '12px', borderRadius: '2vh', border: '1px solid #ddd', py: '16px', display: 'flex', justifyContent: 'center' }}>
-                <DocumentList documents={[...documentsTranslated].reverse()} onDelete={handleDeleteDocument} isTranslated={true} />
+                <DocumentList documents={[...documentsTranslated].reverse()} onDelete={handleDeleteDocument} isTranslation isResult/>
               </Box>
             ) : isTranslated ? (
               <CustomTextArea 

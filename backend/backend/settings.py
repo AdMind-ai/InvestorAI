@@ -34,9 +34,10 @@ MEDIASTACK_NEWSAPI_KEY = os.environ['MEDIASTACK_NEWSAPI_KEY']
 
 # Azure Storage
 AZURE_ACCOUNT_NAME = "adaptaistorage"
-AZURE_CONTAINER = 'adaptai-storage'
+AZURE_CONTAINER_NAME = 'adaptai-storage'
 AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
-AZURE_OVERWRITE_FILES = False
+AZURE_CONNECTION_STRING = f"DefaultEndpointsProtocol=https;AccountName={AZURE_ACCOUNT_NAME};AccountKey={AZURE_ACCOUNT_KEY};EndpointSuffix=core.windows.net"
+AZURE_OVERWRITE_FILES = True
 
 keys = [
     'OPENAI_KEY',
@@ -49,7 +50,7 @@ keys = [
     'ALPHA_VANTAGE_API_KEY',
     'NEWSAPI_KEY',
     'CURR_NEWSAPI_KEY',
-    'MEDIASTACK_NEWSAPI_KEY'
+    # 'MEDIASTACK_NEWSAPI_KEY'
 ]
 
 missing_keys = [key for key in keys if not os.getenv(key)]
@@ -65,71 +66,71 @@ CELERY_TIMEZONE = "Europe/Rome"
 now = datetime.now()
 current_year = now.year
 
-CELERY_BEAT_SCHEDULE = {
-    'news_sector_morning': {
-        'task': 'core.tasks.collect_market_news',
-        'schedule': crontab(hour=8, minute=0),
-        'args': ('sector',)
-    },
-    'news_sector_afternoon': {
-        'task': 'core.tasks.collect_market_news',
-        'schedule': crontab(hour=13, minute=0),
-        'args': ('sector',)
-    },
-    'news_competitors_morning': {
-        'task': 'core.tasks.collect_market_news',
-        'schedule': crontab(hour=8, minute=0),
-        'args': ('competitors',)
-    },
-    'news_competitors_afternoon': {
-        'task': 'core.tasks.collect_market_news',
-        'schedule': crontab(hour=13, minute=0),
-        'args': ('competitors',)
-    },
-    'search_competitors_weekly': {
-        'task': 'core.tasks.fetch_and_store_competitors',
-        'schedule': crontab(hour=8, minute=0, day_of_week=1),
-        'args': ()
-    },
-    'fetch_and_store_daily_company_stock_data': {
-        'task': 'core.tasks.fetch_and_store_daily_company_stock_data',
-        'schedule': crontab(hour=8, minute=0),
-        'args': ()
-    },
-    'generate_monthly_market_report': {
-        'task': 'core.tasks.generate_monthly_market_report',
-        'schedule': crontab(hour=8, minute=0, day_of_month=1),
-        'args': ()
-    },
-    "generate_company_Q1_report": {
-        "task": "core.tasks.generate_company_quarterly_report",
-        "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=4),
-        "args": ("Q1", current_year),
-    },
-    "generate_company_Q2_report": {
-        "task": "core.tasks.generate_company_quarterly_report",
-        "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=7),
-        "args": ("Q2", current_year),
-    },
-    "generate_company_Q3_report": {
-        "task": "core.tasks.generate_company_quarterly_report",
-        "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=10),
-        "args": ("Q3", current_year),
-    },
-    "generate_company_Q4_report": {
-        "task": "core.tasks.generate_company_quarterly_report",
-        "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=1),
-        "args": ("Q4", current_year),
-    },
-    "daily_ceo_articles_fetch": {
-        "task": "core.tasks.daily_ceo_articles_fetch",
-        "schedule": crontab(hour=8, minute=0),
-    },
-    "fetch_all_esg_topics_daily": {
-        "task": "core.tasks.fetch_all_esg_topics_daily",
-        "schedule": crontab(hour=17, minute=0),
-    }
-}
+# CELERY_BEAT_SCHEDULE = {
+#     'news_sector_morning': {
+#         'task': 'core.tasks.collect_market_news',
+#         'schedule': crontab(hour=8, minute=0),
+#         'args': ('sector',)
+#     },
+#     'news_sector_afternoon': {
+#         'task': 'core.tasks.collect_market_news',
+#         'schedule': crontab(hour=13, minute=0),
+#         'args': ('sector',)
+#     },
+#     'news_competitors_morning': {
+#         'task': 'core.tasks.collect_market_news',
+#         'schedule': crontab(hour=8, minute=0),
+#         'args': ('competitors',)
+#     },
+#     'news_competitors_afternoon': {
+#         'task': 'core.tasks.collect_market_news',
+#         'schedule': crontab(hour=13, minute=0),
+#         'args': ('competitors',)
+#     },
+#     'search_competitors_weekly': {
+#         'task': 'core.tasks.fetch_and_store_competitors',
+#         'schedule': crontab(hour=8, minute=0, day_of_week=1),
+#         'args': ()
+#     },
+#     'fetch_and_store_daily_company_stock_data': {
+#         'task': 'core.tasks.fetch_and_store_daily_company_stock_data',
+#         'schedule': crontab(hour=8, minute=0),
+#         'args': ()
+#     },
+#     'generate_monthly_market_report': {
+#         'task': 'core.tasks.generate_monthly_market_report',
+#         'schedule': crontab(hour=8, minute=0, day_of_month=1),
+#         'args': ()
+#     },
+#     "generate_company_Q1_report": {
+#         "task": "core.tasks.generate_company_quarterly_report",
+#         "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=4),
+#         "args": ("Q1", current_year),
+#     },
+#     "generate_company_Q2_report": {
+#         "task": "core.tasks.generate_company_quarterly_report",
+#         "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=7),
+#         "args": ("Q2", current_year),
+#     },
+#     "generate_company_Q3_report": {
+#         "task": "core.tasks.generate_company_quarterly_report",
+#         "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=10),
+#         "args": ("Q3", current_year),
+#     },
+#     "generate_company_Q4_report": {
+#         "task": "core.tasks.generate_company_quarterly_report",
+#         "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=1),
+#         "args": ("Q4", current_year),
+#     },
+#     "daily_ceo_articles_fetch": {
+#         "task": "core.tasks.daily_ceo_articles_fetch",
+#         "schedule": crontab(hour=8, minute=0),
+#     },
+#     "fetch_all_esg_topics_daily": {
+#         "task": "core.tasks.fetch_all_esg_topics_daily",
+#         "schedule": crontab(hour=17, minute=0),
+#     }
+# }
 
 LOGGING = {
     'version': 1,

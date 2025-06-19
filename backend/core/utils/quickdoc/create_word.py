@@ -3,9 +3,9 @@ from docx.shared import Inches, Pt, RGBColor
 from django.conf import settings
 from pathlib import Path
 from docx.oxml.ns import qn
+from io import BytesIO
 
-
-def create_word_with_header_footer(outfile, text, title):
+def create_word_with_header_footer(text, title):
     doc = Document()
     section = doc.sections[0]
 
@@ -52,4 +52,8 @@ def create_word_with_header_footer(outfile, text, title):
         elif i == 2:
             run.text = "Sede legale e operativa: Via Mazzini 9, 20123 Milano – C.F. e P.IVA 12694200960"
 
-    doc.save(outfile)
+    word_buffer = BytesIO()
+    doc.save(word_buffer)
+    word_buffer.seek(0) 
+    
+    return word_buffer

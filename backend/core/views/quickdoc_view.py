@@ -4,8 +4,9 @@ from rest_framework import status
 from django.conf import settings
 from django.utils import timezone
 from core.models.quickdoc_model import GeneratedDocument
-from core.utils.quickdoc import generate_doc_with_assistant, create_pdf_with_header_footer, create_word_with_header_footer
+from core.utils.quickdoc import generate_doc_with_assistant, create_pdf_with_header_footer, create_word_with_header_footer, upload_to_blob_storage
 import os
+from io import BytesIO
 
 
 class QuickDocGenerateView(APIView):
@@ -23,22 +24,29 @@ class QuickDocGenerateView(APIView):
         # print(
         #     f"Generated file: {nome_arquivo}, Date: {data}, Text: {generated_text}")
 
-        pdf_path = f"{settings.MEDIA_ROOT}/quick-documents/{nome_arquivo}.pdf"
-        word_path = f"{settings.MEDIA_ROOT}/quick-documents/{nome_arquivo}.docx"
+        # - pdf_path = f"{settings.MEDIA_ROOT}/documents/{nome_arquivo}.pdf"
+        # - word_path = f"{settings.MEDIA_ROOT}/documents/{nome_arquivo}.docx"
 
         # Gerar PDF
-        create_pdf_with_header_footer(
-            pdf_path, generated_text, title)
-        create_word_with_header_footer(
-            word_path, generated_text, title)
+        pdf_data = create_pdf_with_header_footer(
+            generated_text, title)
+        word_data = create_word_with_header_footer(
+            generated_text, title)
+
+        # Enviar PDF ao Blob Storage
+        pdf_url = upload_to_blob_storage(
+            pdf_data.getvalue(), f"{nome_arquivo}.pdf")
+        word_url = upload_to_blob_storage(
+            word_data.getvalue(), f"{nome_arquivo}.docx")
 
         # Salvar no banco
         doc = GeneratedDocument.objects.create(
             name=nome_arquivo, date=timezone.now().date(),
             doc_format=format, language=language, text=generated_text
         )
-        doc.pdf_file.name = f"quick-documents/{nome_arquivo}.pdf"
-        doc.word_file.name = f"quick-documents/{nome_arquivo}.docx"
+
+        doc.pdf_file.name = f"documents/{nome_arquivo}.pdf"
+        doc.word_file.name = f"documents/{nome_arquivo}.docx"
         doc.save()
 
         return Response({
@@ -47,7 +55,7 @@ class QuickDocGenerateView(APIView):
             "type": ["pdf", "word"],
             "text": generated_text,
             "urls": {
-                "pdf": request.build_absolute_uri(f"{settings.MEDIA_URL}quick-documents/{nome_arquivo}.pdf"),
-                "word": request.build_absolute_uri(f"{settings.MEDIA_URL}quick-documents/{nome_arquivo}.docx")
+                "pdf": request.build_absolute_uri(pdf_url),
+                "word": request.build_absolute_uri(word_url)
             }
         })
