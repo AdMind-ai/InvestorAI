@@ -1,7 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from core.models.company_info.company_info import CompanyInfo
 
 
 class CustomUser(AbstractUser):
-    """Modelo de usuário customizado para futuras extensões"""
-    pass
+    company = models.ForeignKey(
+        CompanyInfo,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="users"
+    )

@@ -1,12 +1,16 @@
 // GlobalContext.tsx
 import React, { createContext, useContext, useEffect, useState, useRef  } from "react";
 import { fetchCompanyInfo } from "../api/companyInfo"; 
+import { fetchRestrictedRoutes } from "../api/restrictedRoutes";
+import { ALL_APP_ROUTES } from "../routes";
 import type { CompanyInfoAdm } from "../interfaces/companyInfoInterface";
 import { toast } from "react-toastify";
 import { fetchWithAuth } from "../api/fetchWithAuth";
 
 interface GlobalContextType {
   companyInfoAdm: CompanyInfoAdm | null;
+  restrictedRoutes: string[];
+  setRestrictedRoutes: React.Dispatch<React.SetStateAction<string[]>>;
   awaitingDeepResponse: AwaitingDeepResponseType | null;
   setAwaitingDeepResponse: React.Dispatch<React.SetStateAction<AwaitingDeepResponseType | null>>;
   isNewFunctionalities: boolean;
@@ -35,12 +39,19 @@ const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isNewFunctionalities, setIsNewFunctionalities] = useState<boolean>(false);
   const [companyInfoAdm, setCompanyInfoAdm] = useState<CompanyInfoAdm | null>(null);
+  const [restrictedRoutes, setRestrictedRoutes] = useState<string[]>([]);
   const [awaitingDeepResponse, setAwaitingDeepResponse] = useState<AwaitingDeepResponseType | null>(null);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
   
 
   useEffect(() => {
     fetchCompanyInfo().then(setCompanyInfoAdm);
+  }, []);
+
+  useEffect(() => {
+    fetchRestrictedRoutes()
+      .then(setRestrictedRoutes)
+      .catch(() => setRestrictedRoutes(ALL_APP_ROUTES));
   }, []);
 
   // Polling para Deep Research
@@ -84,6 +95,8 @@ export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     <GlobalContext.Provider 
       value={{ 
         companyInfoAdm, 
+        restrictedRoutes, 
+        setRestrictedRoutes,
         awaitingDeepResponse, 
         setAwaitingDeepResponse,
         isNewFunctionalities,

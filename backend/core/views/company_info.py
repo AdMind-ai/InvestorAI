@@ -1,6 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import RetrieveAPIView
 from core.models.company_info import CompanyInfo
 from core.serializers.company_info import CompanySerializer
 from rest_framework.permissions import IsAuthenticated
@@ -13,10 +12,14 @@ class CompanyInfoView(APIView):
 
     def get(self, request):
         try:
-            company = CompanyInfo.objects.first()
+            user = request.user
+            company = getattr(user, "company", None)
+
             if not company:
-                return Response({'error': 'No company found.'}, status=404)
+                return Response({'error': 'No company found for this user.'}, status=404)
+
             serializer = CompanySerializer(company)
             return Response(serializer.data)
+
         except Exception as e:
             return Response({'error': str(e)}, status=500)

@@ -1,7 +1,9 @@
 # core/views/__init__.py
 from .example_view import ExampleView
 
+from .frontend_master_route_list_view import MasterRouteListUpdateView
 from .company_info import CompanyInfoView as CompanyInfoViewAdm
+from .company_route_restriction_view import CompanyRouteRestrictionView
 from .newsapi import NewsApiMarketNewsView
 
 from .perplexity import PerplexityDeepSearchView
@@ -41,7 +43,9 @@ from .smartscan import SmartScanExtractView, SmartScanChatView
 from .quickdoc_view import QuickDocGenerateView
 
 __all__ = [
+    'MasterRouteListUpdateView',
     'CompanyInfoViewAdm',
+    'CompanyRouteRestrictionView',
     'NewsApiMarketNewsView',
     'PerplexityDeepSearchView',
     'PerplexityESGNewsView',
