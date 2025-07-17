@@ -47,14 +47,70 @@ const AppRoutes = () => {
                 </RestrictedRoute>
               } 
             />
-            <Route path="/chat-assistant" element={<Chat />} />
-            <Route path="/ceo-perception" element={<CEO />} />
-            <Route path="/earnings" element={<Earnings />} />
-            <Route path="/esg" element={<ESG />} />
-            <Route path="/smart-scan" element={<SmartScan />} />
-            <Route path="/doc-creator" element={<QuickDoc />} />
-            <Route path="/usage" element={<Usage />} />
-            <Route path="/access" element={<TeamManagement />} />
+            <Route
+              path="/chat-assistant"
+              element={
+                <RestrictedRoute routeName="/chat-assistant">
+                  <Chat />
+                </RestrictedRoute>
+              }
+            />
+            <Route
+              path="/ceo-perception"
+              element={
+                <RestrictedRoute routeName="/ceo-perception">
+                  <CEO />
+                </RestrictedRoute>
+              }
+            />
+            <Route
+              path="/earnings"
+              element={
+                <RestrictedRoute routeName="/earnings">
+                  <Earnings />
+                </RestrictedRoute>
+              }
+            />
+            <Route
+              path="/esg"
+              element={
+                <RestrictedRoute routeName="/esg">
+                  <ESG />
+                </RestrictedRoute>
+              }
+            />
+            <Route
+              path="/smart-scan"
+              element={
+                <RestrictedRoute routeName="/smart-scan">
+                  <SmartScan />
+                </RestrictedRoute>
+              }
+            />
+            <Route
+              path="/doc-creator"
+              element={
+                <RestrictedRoute routeName="/doc-creator">
+                  <QuickDoc />
+                </RestrictedRoute>
+              }
+            />
+            <Route
+              path="/usage"
+              element={
+                <RestrictedRoute routeName="/usage">
+                  <Usage />
+                </RestrictedRoute>
+              }
+            />
+            <Route
+              path="/access"
+              element={
+                <RestrictedRoute routeName="/access">
+                  <TeamManagement />
+                </RestrictedRoute>
+              }
+            />
             <Route path="*" element={<Error404 />} />
           </Route>
         </Routes>
