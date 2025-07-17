@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from datetime import datetime
+import locale
 from core.serializers.perplexity_serializer import PerplexityRequestSerializer
 from core.models.openai_chat_models import ChatConversation, ChatMessage
 from core.tasks import deep_search_perplexity_async
@@ -36,9 +37,11 @@ class PerplexityDeepSearchView(APIView):
         user = request.user
 
         # 1. Salva placeholder no chat
-        tag = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        locale.setlocale(locale.LC_TIME, 'it_IT.UTF-8')
+        tag = datetime.now().strftime("%d %B %Y %H:%M")
+        # tag = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         conversation, _ = ChatConversation.objects.get_or_create(
-            user=user, name=f"Deep Search {tag}")
+            user=user, name=f"Overview del titolo - {tag}")
         waiting_message = ChatMessage.objects.create(
             conversation=conversation,
             content="processing",
@@ -52,6 +55,6 @@ class PerplexityDeepSearchView(APIView):
         return Response({
             "conversation_id": conversation.id,
             "waiting_message_id": waiting_message.id,
-            "conversation_name": f"Deep Search {tag}",
+            "conversation_name": f"Overview del titolo - {tag}",
             "status": "processing"
         }, status=200)
