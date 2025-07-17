@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import models
 from core.models.esg_article_model import ESGArticle
 from core.models.ceo_article_model import CEOArticle
 from core.models.openai_chat_models import ChatConversation, ChatMessage
@@ -8,8 +9,51 @@ from core.models.market_company_report import CompanyMarketReport
 from core.models.company_stock_data_model import CompanyStockData
 from core.models.company_quarterly_report import CompanyQuarterlyReport
 from core.models.company_info import CompanyInfo, CEO, CompetitorInfo
+from core.models.company_info.company_route_restriction import CompanyRouteRestriction
+from core.models.frontend_master_route_list import MasterRouteList
 from django import forms
 # Register your models here.
+
+
+class CompanyRouteRestrictionForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        master = MasterRouteList.objects.first()
+        route_choices = [(r, r) for r in master.routes] if master else []
+        if route_choices:
+            self.fields['restricted_routes'] = forms.MultipleChoiceField(
+                choices=route_choices,
+                initial=self.instance.restricted_routes if self.instance else [],
+                required=False,
+                widget=admin.widgets.FilteredSelectMultiple(
+                    'rotas', is_stacked=False)
+            )
+        else:
+            self.fields['restricted_routes'] = forms.CharField(
+                widget=admin.widgets.AdminTextareaWidget(
+                    attrs={"rows": 8, "cols": 60}),
+                required=False,
+                initial=", ".join(
+                    self.instance.restricted_routes) if self.instance and self.instance.restricted_routes else ""
+            )
+
+    class Meta:
+        model = CompanyRouteRestriction
+        fields = '__all__'
+
+    def clean_restricted_routes(self):
+        data = self.cleaned_data['restricted_routes']
+        if isinstance(data, str):
+            return [d.strip() for d in data.split(",") if d.strip()]
+        return list(data)
+
+
+@admin.register(CompanyRouteRestriction)
+class CompanyRouteRestrictionAdmin(admin.ModelAdmin):
+    form = CompanyRouteRestrictionForm
+    list_display = ('company', 'updated_at')
+    search_fields = ('company__long_name',)
+    list_filter = ('company',)
 
 
 @admin.register(ESGArticle)

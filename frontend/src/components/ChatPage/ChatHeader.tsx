@@ -65,21 +65,21 @@ const modelDescriptions: Record<string, { name: string, desc: string }> = {
     name: "GPT-4.1",
     desc: "Il modello più avanzato, ottimo per affrontare compiti complessi e ottenere risposte dettagliate e affidabili sulle richieste più difficili."
   }, 
-  "GPT o3 mini": { 
-    name: "OpenAI o3-mini",
-    desc: "Assistente ideale per risolvere problemi, fare calcoli e rispondere a domande di scienza. Perfetto per lavorare con testi molto lunghi in modo semplice e chiaro."
-  }, 
-  "GPT-4.1 mini": {
-    name: "GPT-4.1 mini",
-    desc: "Un modello che unisce velocità e precisione, perfetto per risposte veloci su attività quotidiane o domande non troppo complesse."
-  }  
+  // "GPT o3 mini": { 
+  //   name: "OpenAI o3-mini",
+  //   desc: "Assistente ideale per risolvere problemi, fare calcoli e rispondere a domande di scienza. Perfetto per lavorare con testi molto lunghi in modo semplice e chiaro."
+  // }, 
+  // "GPT-4.1 mini": {
+  //   name: "GPT-4.1 mini",
+  //   desc: "Un modello che unisce velocità e precisione, perfetto per risposte veloci su attività quotidiane o domande non troppo complesse."
+  // }  
   // ...new models
 }
 
 export const modelMapping: Record<string, string> = {
   "GPT-4.1": "gpt-4.1",
-  "GPT o3 mini": "o3-mini",
-  "GPT-4.1 mini": "gpt-4.1-mini",
+  // "GPT o3 mini": "o3-mini",
+  // "GPT-4.1 mini": "gpt-4.1-mini",
 };
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ 
