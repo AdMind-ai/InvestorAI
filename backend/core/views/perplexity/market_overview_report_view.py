@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
+from rest_framework import status
 
 from core.serializers.perplexity_serializer import PerplexityRequestSerializer
 
@@ -21,7 +22,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework import serializers
 from django.db.models import Q
 from core.models.market_company_report import CompanyMarketReport
-from core.utils.get_company_info import get_company_info
+from core.utils.get_company_info import get_user_company
 
 
 SYSTEM_MESSAGE = (
@@ -45,13 +46,18 @@ def safe_eval_list_string(list_string):
 
 
 class MonthlyMarketReportView(APIView):
-    # authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
 
     def post(self, request):
-        comp = get_company_info()
-        company = comp.short_name
+        company_info = get_user_company(request.user)
+        if not company_info:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        company = company_info.short_name
 
         if not company:
             return Response({"error": "Company name is required."}, status=400)
@@ -77,7 +83,7 @@ class MonthlyMarketReportView(APIView):
         # titles_text = ' '.join(news_titles)
 
         message = (
-            f"You need to create a monthly report overview for {comp.long_name}. "
+            f"You need to create a monthly report overview for {company_info.long_name}. "
             f"specifically for the month of {month_name} {year}. "
             f"The report should summarize the key events, trends, ups and downs, and important data from the last month. "
             "Ensure the summary is concise and covers significant points relevant to the company's performance and market position."
@@ -128,7 +134,13 @@ class MonthlyMarketReportView(APIView):
             return Response({"error": str(e)}, status=500)
 
     def get(self, request):
-        company = get_company_info().short_name
+        company_info = get_user_company(request.user)
+        if not company_info:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        company = company_info.short_name
         recent = request.query_params.get('recent', 'false').lower() == 'true'
 
         today = datetime.today()
