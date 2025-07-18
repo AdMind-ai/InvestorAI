@@ -14,5 +14,9 @@ class MarketNewsArticle(models.Model):
     date_published = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Article - Market News"
+        verbose_name_plural = "Articles - Market News"
+
     def __str__(self):
         return self.title

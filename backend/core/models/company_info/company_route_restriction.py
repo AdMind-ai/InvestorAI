@@ -10,3 +10,7 @@ class CompanyRouteRestriction(models.Model):
     restricted_routes = models.JSONField(default=list)
 
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Company - Route Restriction"
+        verbose_name_plural = "Companies - Route Restrictions"

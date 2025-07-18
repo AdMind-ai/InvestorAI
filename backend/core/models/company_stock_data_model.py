@@ -21,5 +21,9 @@ class CompanyStockData(models.Model):
     analyst_recommendation = models.CharField(
         max_length=200, null=True, blank=True)
 
+    class Meta:
+        verbose_name = "Company - Stock Data"
+        verbose_name_plural = "Companies - Stock Data"
+
     def __str__(self):
         return f"{self.company} - {self.stock_symbol} ({self.date})"

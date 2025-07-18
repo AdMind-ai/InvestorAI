@@ -10,5 +10,9 @@ class CompetitorInfo(models.Model):
     sector = models.CharField(max_length=128, blank=True)
     website = models.URLField(blank=True, null=True)
 
+    class Meta:
+        verbose_name = "Competitor - Info"
+        verbose_name_plural = "Competitors - Info"
+
     def __str__(self):
         return f"{self.name} ({self.stock_symbol})"

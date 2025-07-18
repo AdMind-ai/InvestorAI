@@ -11,6 +11,8 @@ class ChatConversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name = "Chat - Conversation"
+        verbose_name_plural = "Chat - Conversations"
         constraints = [
             models.UniqueConstraint(
                 fields=['name'], name='unique_conversation_name')
@@ -37,6 +39,10 @@ class ChatMessage(models.Model):
     # file_url = models.URLField(max_length=200, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Chat - Message"
+        verbose_name_plural = "Chat - Messages"
 
     def __str__(self):
         return f"Message {self.id} ({'User' if self.is_user else 'AI'})"

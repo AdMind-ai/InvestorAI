@@ -21,5 +21,9 @@ class ESGArticle(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     viewed = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "Article - ESG"
+        verbose_name_plural = "Articles - ESG"
+
     def __str__(self):
         return f"{self.topic} - {self.title}"

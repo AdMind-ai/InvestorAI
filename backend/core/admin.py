@@ -26,7 +26,7 @@ class CompanyRouteRestrictionForm(forms.ModelForm):
                 initial=self.instance.restricted_routes if self.instance else [],
                 required=False,
                 widget=admin.widgets.FilteredSelectMultiple(
-                    'rotas', is_stacked=False)
+                    'routes', is_stacked=False)
             )
         else:
             self.fields['restricted_routes'] = forms.CharField(
