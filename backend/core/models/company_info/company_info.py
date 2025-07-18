@@ -4,7 +4,7 @@ from django.db import models
 class CompanyInfo(models.Model):
     long_name = models.CharField(max_length=255)
     short_name = models.CharField(max_length=255)
-    stock_symbol = models.CharField(max_length=32, unique=True, blank=True)
+    stock_symbol = models.CharField(max_length=32, blank=True)
     website = models.URLField(blank=True, null=True)
     description = models.TextField(blank=True)
     sector = models.CharField(max_length=200, blank=True)
