@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.utils.yahoo_finance import YahooFinanceService
 from core.utils.alpha_vantage import AlphaVantageService
-from core.utils.get_company_info import get_company_info
+from core.utils.get_company_info import get_user_company
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,6 @@ def convert_mi_to_bit(symbol):
     if symbol.endswith('.MI'):
         return symbol[:-3] + '.BIT'
     return symbol
-
 
 
 class StockDataInputSerializer(serializers.Serializer):
@@ -44,10 +43,23 @@ class StockDataView(APIView):
     def get(self, request):
         # period: Período de dados (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
         # interval: Intervalo de dados (1m, 2m, 5m, 15m, 30m, 60m, 1d, 1wk, 1mo)
-        company = get_company_info()
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = StockDataInputSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
+
         symbol = company.stock_symbol
+        if not symbol:
+            return Response(
+                {"error": "Symbol parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         period = serializer.validated_data.get('period', 'max')
         interval = serializer.validated_data.get('interval', '1d')
 
@@ -87,8 +99,19 @@ class CompanyInfoView(APIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
-        company = get_company_info()
+
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         symbol = company.stock_symbol
+        if not symbol:
+            return Response(
+                {"error": "Symbol parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not symbol:
             return Response(
@@ -149,9 +172,14 @@ class FastInfoView(APIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
-        company = get_company_info()
-        symbol = company.stock_symbol
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+        symbol = company.stock_symbol
         if not symbol:
             return Response(
                 {"error": "Symbol parameter is required"},
@@ -174,8 +202,19 @@ class AnalystPriceTargetsView(APIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
-        company = get_company_info()
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         symbol = company.stock_symbol
+        if not symbol:
+            return Response(
+                {"error": "Symbol parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not symbol:
             return Response(
@@ -199,8 +238,19 @@ class RecommendationsView(APIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
-        company = get_company_info()
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         symbol = company.stock_symbol
+        if not symbol:
+            return Response(
+                {"error": "Symbol parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not symbol:
             return Response(
