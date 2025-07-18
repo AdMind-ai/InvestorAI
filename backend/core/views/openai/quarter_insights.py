@@ -10,7 +10,7 @@ from openai import OpenAI
 import os
 import requests
 from rest_framework import serializers
-from core.utils.get_company_info import get_company_info
+from core.utils.get_company_info import get_user_company
 
 
 class CompanyQuarterlyReportSerializer(serializers.Serializer):
@@ -40,9 +40,13 @@ class OpenAICompanyQuarterlyReportView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        company = get_company_info().short_name
-        if not company:
-            return {"error": "Company name is required."}
+        company_info = get_user_company(request.user)
+        if not company_info:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        company = company_info.short_name
 
         quarter = serializer.validated_data['quarter']
         year = serializer.validated_data['year']
@@ -125,7 +129,13 @@ class OpenAICompanyQuarterlyReportView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, *args, **kwargs):
-        company = get_company_info().short_name
+        company_info = get_user_company(request.user)
+        if not company_info:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        company = company_info.short_name
 
         available_reports = CompanyQuarterlyReport.objects.filter(
             company=company,
