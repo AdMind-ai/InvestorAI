@@ -14,7 +14,7 @@ from datetime import datetime
 from core.models.company_stock_data_model import CompanyStockData
 from core.serializers.company_stock_data_serializer import CompanyStockDataSerializer
 from rest_framework import serializers
-from core.utils.get_company_info import get_company_info
+from core.utils.get_company_info import get_user_company
 from core.utils.yahoo_finance import YahooFinanceService
 
 
@@ -37,23 +37,19 @@ class CompanyStockInfo(BaseModel):
 
 
 # 2️⃣ Functions
-def get_stock_info():
-    company = get_company_info()
-    symbol = company.stock_symbol
+def get_stock_info(user):
+    company = get_user_company(user)
+    if not company:
+        return None
 
+    symbol = company.stock_symbol
     if not symbol:
-        return Response(
-            {"error": "Symbol parameter is required"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return None
 
     result = YahooFinanceService.get_company_info(symbol)
 
     if not result["success"]:
-        return Response(
-            {"error": f"Failed to fetch company info for {symbol}"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return None
 
     return result["data"]
 
@@ -75,8 +71,20 @@ class OpenAIInvestingDataScraper(APIView):
 
     def post(self, request):
         date_today = datetime.now().strftime("%B %d, %Y")
-        company = get_company_info()
-        stockInfo = get_stock_info()
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        stockInfo = get_stock_info(request.user)
+        if not stockInfo:
+            return Response(
+                {"error": "Stock info not found for this company."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         print(stockInfo)
 
         prompt = f"""
@@ -128,10 +136,10 @@ class OpenAIInvestingDataScraper(APIView):
         content = completion.choices[0].message.parsed
         print(content)
 
-        usd_to_eur = get_usd_to_eur_rate()
+        usd_to_eur = get_usd_to_eur_rate() or 1
 
         if stockInfo.get('currency') == 'EUR':
-            price_eur = stockInfo.get('previousClose')
+            price_eur = stockInfo.get('previousClose') or 0
             cap_eur = stockInfo.get('marketCap')
             price_usd = round(price_eur / usd_to_eur, 4) if price_eur else None
             cap_usd = round(cap_eur / usd_to_eur, 2) if cap_eur else None
@@ -162,7 +170,14 @@ class OpenAIInvestingDataScraper(APIView):
         return Response(serializer.data, status=200)
 
     def get(self, request, *args, **kwargs):
-        company = get_company_info().short_name
+        company_info = get_user_company(request.user)
+        if not company_info:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        company = company_info.short_name
+
         # company = request.query_params.get('company', None)
         start_date = request.query_params.get('start_date', None)
         end_date = request.query_params.get('end_date', None)

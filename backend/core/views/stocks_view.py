@@ -113,11 +113,6 @@ class CompanyInfoView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if not symbol:
-            return Response(
-                {"error": "Symbol parameter is required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
         # Tenta obter dados do Yahoo Finance primeiro
         result = YahooFinanceService.get_company_info(symbol)
