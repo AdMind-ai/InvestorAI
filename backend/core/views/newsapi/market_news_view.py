@@ -11,9 +11,9 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from core.models.competitor_model import CompetitorSearch
 from core.models.market_article_model import MarketNewsArticle
 from core.serializers.market_news_serializer import MarketNewsRequestSerializer
-from core.utils.get_company_info import get_company_info, get_competitors
+from core.utils.get_company_info import get_user_company, get_competitors
 from core.utils.cron.market_news import fetch_news_thenewsapi, fetch_news_currentsapi, fetch_news_mediastack
-
+from rest_framework import status
 
 NEWS_API_KEY = os.environ.get("NEWSAPI_KEY")
 CURR_NEWSAPI_KEY = os.environ.get("CURR_NEWSAPI_KEY")
@@ -21,7 +21,7 @@ MEDIASTACK_NEWSAPI_KEY = os.environ.get("MEDIASTACK_NEWSAPI_KEY")
 
 
 class NewsApiMarketNewsView(APIView):
-    # authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = MarketNewsRequestSerializer
@@ -30,7 +30,12 @@ class NewsApiMarketNewsView(APIView):
         serializer = MarketNewsRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        company = get_company_info()
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         company_name = company.short_name
         company_sector = company.sector
         news_type = serializer.validated_data['type']
@@ -48,7 +53,7 @@ class NewsApiMarketNewsView(APIView):
         else:
             q = f'"{company_name}"'
             if news_type == 'competitors':
-                competitors = get_competitors()
+                competitors = get_competitors(request.user)
                 terms = []
                 for c in competitors:
                     if c.name:
