@@ -30,7 +30,7 @@ const MarketChartSelectors = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', gap: 2 }}>
       <TextField
         select
         label="Periodo"
@@ -39,7 +39,6 @@ const MarketChartSelectors = () => {
         size='small'
         sx={{
           minWidth: 110,
-          mr: 2,
           fontSize: '0.85rem',
           '& .MuiInputBase-root': { fontSize: '0.85rem' },
           '& .MuiInputLabel-root': { fontSize: '0.85rem' },
