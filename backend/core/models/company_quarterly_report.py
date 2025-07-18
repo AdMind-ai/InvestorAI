@@ -17,6 +17,8 @@ class CompanyQuarterlyReport(models.Model):
     citations = models.TextField(null=True, blank=True)
 
     class Meta:
+        verbose_name = "Company - Quarterly Report"
+        verbose_name_plural = "Companies - Quarterly Reports"
         ordering = ['-year', '-quarter']
 
     def __str__(self):

@@ -15,5 +15,9 @@ class CompanyInfo(models.Model):
     phone = models.CharField(max_length=64, blank=True)
     email = models.EmailField(blank=True)
 
+    class Meta:
+        verbose_name = "Company - Info"
+        verbose_name_plural = "Companies - Info"
+
     def __str__(self):
         return self.long_name

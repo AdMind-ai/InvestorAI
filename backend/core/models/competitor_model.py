@@ -6,6 +6,10 @@ class CompetitorSearch(models.Model):
     search_date = models.DateField(auto_now_add=True)
     sector = models.CharField(max_length=255, default='Technology')
 
+    class Meta:
+        verbose_name = "Competitor - Search"
+        verbose_name_plural = "Competitors - Search"
+
 
 class Competitor(models.Model):
     search = models.ForeignKey(

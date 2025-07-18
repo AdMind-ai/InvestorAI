@@ -17,5 +17,9 @@ class CEOArticle(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     viewed = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "Article - CEO"
+        verbose_name_plural = "Articles - CEO"
+
     def __str__(self):
         return f"{self.personality} - {self.title}"
