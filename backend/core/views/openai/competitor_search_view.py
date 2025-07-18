@@ -12,8 +12,9 @@ from rest_framework import serializers
 from datetime import datetime
 from core.models.competitor_model import Competitor, CompetitorSearch
 from django.db.models import Max
-from core.utils.get_company_info import get_company_info, get_competitors
+from core.utils.get_company_info import get_user_company, get_competitors
 from core.models.company_info import CompetitorInfo as CompanyCompetitors
+from rest_framework import status
 
 
 class CompetitorInfo(BaseModel):
@@ -38,9 +39,14 @@ class OpenAICompetitorSearchView(APIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request, *args, **kwargs):
-        company = get_company_info()
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         company_name = company.short_name
-        competitors = get_competitors()
+        competitors = get_competitors(request.user)
         competitor_names = [c.name for c in competitors if c.name]
         competitor_block = "\n".join(competitor_names)
 
@@ -106,7 +112,12 @@ class OpenAICompetitorSearchView(APIView):
 
     def get(self, request, *args, **kwargs):
         recent = request.query_params.get('recent')
-        company = get_company_info()
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         company_name = company.short_name
 
         if company_name:
