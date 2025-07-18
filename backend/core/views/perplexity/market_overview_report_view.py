@@ -1,7 +1,6 @@
 import json
 import os
 import requests
-from django.http import StreamingHttpResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -12,14 +11,7 @@ from rest_framework import status
 from core.serializers.perplexity_serializer import PerplexityRequestSerializer
 
 from datetime import datetime, timedelta
-from django.http import JsonResponse
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models.market_article_model import MarketNewsArticle
-from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
-from rest_framework import serializers
 from django.db.models import Q
 from core.models.market_company_report import CompanyMarketReport
 from core.utils.get_company_info import get_user_company
