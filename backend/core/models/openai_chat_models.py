@@ -7,16 +7,17 @@ class ChatConversation(models.Model):
     id = models.CharField(max_length=40, primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, unique=True, default=None)
+    # Não tem nome único, NÀO ALTERAR!
+    name = models.CharField(max_length=100, default="New Chat", unique=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Chat - Conversation"
         verbose_name_plural = "Chat - Conversations"
-        constraints = [
-            models.UniqueConstraint(
-                fields=['name'], name='unique_conversation_name')
-        ]
+        # constraints = [
+        #     models.UniqueConstraint(
+        #         fields=['name'], name='unique_conversation_name')
+        # ]
 
     def save(self, *args, **kwargs):
         if not self.name:
