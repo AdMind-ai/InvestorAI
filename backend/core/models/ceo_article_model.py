@@ -5,7 +5,7 @@ from core.models.company_info.company_info import CompanyInfo
 
 class CEOArticle(models.Model):
     company = models.ForeignKey(
-        CompanyInfo, related_name='ceo_articles', on_delete=models.CASCADE)
+        CompanyInfo, related_name='ceo_articles', default=1, on_delete=models.CASCADE)
     personality = models.ForeignKey(
         CEO, on_delete=models.CASCADE, related_name="articles")
     title = models.CharField(max_length=250)

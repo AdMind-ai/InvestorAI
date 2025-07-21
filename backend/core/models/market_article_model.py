@@ -9,7 +9,7 @@ class MarketNewsArticle(models.Model):
     ]
 
     company = models.ForeignKey(
-        CompanyInfo, related_name="news_articles", on_delete=models.CASCADE)
+        CompanyInfo, related_name="news_articles", default=1, on_delete=models.CASCADE)
     type = models.CharField(max_length=12, choices=TYPE_CHOICES)
     title = models.CharField(max_length=255)
     url = models.URLField()

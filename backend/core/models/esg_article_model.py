@@ -11,7 +11,7 @@ class ESGArticle(models.Model):
     ]
 
     company = models.ForeignKey(
-        CompanyInfo, related_name='esg_articles', on_delete=models.CASCADE)
+        CompanyInfo, related_name='esg_articles', default=1, on_delete=models.CASCADE)
     topic = models.CharField(max_length=100, choices=TOPIC_CHOICES)
     title = models.CharField(max_length=250)
     author = models.CharField(max_length=100, default="Sconosciuto")
