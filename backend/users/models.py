@@ -11,3 +11,4 @@ class CustomUser(AbstractUser):
         on_delete=models.SET_NULL,
         related_name="users"
     )
+    is_company_admin = models.BooleanField(default=False)

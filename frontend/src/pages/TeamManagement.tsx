@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { api } from '../api/api';
 import {
   Box, Typography, Avatar, Button,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, TextField,
   IconButton, Link, Tooltip, TableSortLabel, TableFooter, TablePagination, 
-  InputAdornment, Select, MenuItem
+  InputAdornment
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -17,17 +18,39 @@ export interface Member {
   id: number;
   name: string;
   email: string;
-  role: string;
   avatar: string;
   password: string;
   createdAt: string;    
   modifiedAt: string;   
 }
 
+export interface MemberApi {
+  id: number;
+  username: string; 
+  email: string;
+  is_company_admin?: boolean;
+  createdAt: string;    
+  modifiedAt: string;   
+}
+
+function getColorFromName(name: string) {
+  // Gera uma cor "aleatória" mas sempre igual para o mesmo nome
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = '#';
+  for (let i = 0; i < 3; i++) {
+    color += ('00' + ((hash >> (i * 8)) & 0xff).toString(16)).slice(-2);
+  }
+  return color;
+}
+
 // Função para gerar data/hora do momento
 function nowIso() {
   return new Date().toISOString();
 }
+
 
 // Função simulando fetch
 function mockFetchMembers(): Promise<Member[]> {
@@ -46,7 +69,6 @@ function mockFetchMembers(): Promise<Member[]> {
     "Lombardi", "Martini", "Leone", "Longo", "Gentile", "Martinelli",
     "Vitale", "Bianco", "Lorenzi"
   ];
-  const roles = ['Admin', 'Editor', 'Viewer'];
   
   const members: Member[] = Array.from({length: 30}, (_, i) => {
     const gender = i % 2 === 0 ? "men" : "women";
@@ -54,7 +76,6 @@ function mockFetchMembers(): Promise<Member[]> {
       id: i + 1,
       name: `${firstNames[i]} ${lastNames[i]}`,
       email: `${firstNames[i].toLowerCase()}.${lastNames[i].toLowerCase()}@email.com`,
-      role: roles[i % roles.length],
       avatar: `https://randomuser.me/api/portraits/${gender}/${10+(i%80)}.jpg`,
       password: "",
       createdAt: new Date(now - 1000*60*60*24*(Math.floor(Math.random()*30+1))).toISOString(),
@@ -85,16 +106,25 @@ const columns: {
     key: "name", label: "Nome e cognome", sortable: true,
     render: (m: Member) => (
       <Box sx={{display:'flex',alignItems:'center',gap:2}}>
-        <Avatar src={m.avatar} alt={m.name} />
+        <Avatar
+          sx={{
+            bgcolor: getColorFromName(m.name),
+            color: "#fff",
+            width: 40,
+            height: 40,
+            fontWeight: 700,
+            fontSize: '1.3rem'
+          }}
+          src={undefined} 
+        >
+          {m.name ? m.name[0].toUpperCase() : '?'}
+        </Avatar>
         <span style={{fontSize: '16px'}}>{m.name}</span>
       </Box>
     )
   },
   {
     key: "email", label: "Email", sortable: true,
-  },
-  {
-    key: "role", label: "Ruolo", sortable: true,
   },
   {
     key: "createdAt", label: "Creato il", sortable: true,
@@ -111,7 +141,7 @@ const columns: {
 const TeamManagement: React.FC = () => {
   // Data
   const [members, setMembers] = useState<Member[]>([]);
-  const rolesArray = ['Admin', 'Editor', 'Viewer'];
+  const [isAdmin, setIsAdmin] = useState(false);
   // Sorting
   const [orderBy, setOrderBy] = useState<ColumnKey>("name");
   const [order, setOrder] = useState<Order>("asc");
@@ -129,13 +159,34 @@ const TeamManagement: React.FC = () => {
   const [deleteMember, setDeleteMember] = useState<Member | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newUser, setNewUser] = useState({
-    name:'', email:'', role:'', avatar:'', password:''
+    name:'', email:'', avatar:'', password:''
   });
 
   useEffect(() => {
-    // fetch members from mock API
-    mockFetchMembers().then(list => setMembers(list));
+    api.get('/auth/users/')
+      .then(res => {
+        const mappedMembers = res.data.map((user: MemberApi) => ({
+          id: user.id,
+          name: user.username,
+          email: user.email,
+          avatar: "", 
+          password: "",
+          createdAt: user.createdAt,
+          modifiedAt: user.modifiedAt,
+        }));
+        setMembers(mappedMembers);
+      })
+      .catch(() => setMembers([]));
+
+    api.get('/auth/users/me/')
+      .then(res => setIsAdmin(res.data.is_company_admin === true));
   }, []);
+
+
+  // useEffect(() => {
+  //   // fetch members from mock API
+  //   mockFetchMembers().then(list => setMembers(list));
+  // }, []);
 
   // Sorting handlers
   function handleSort(column: ColumnKey) {
@@ -198,6 +249,10 @@ const TeamManagement: React.FC = () => {
   }
 
   function openDeleteModal(member: Member) {
+    // api.delete(`/auth/users/${deleteMember.id}/`).then(() => {
+    //   setMembers(prev => prev.filter(m => m.id !== deleteMember.id));
+    //   setDeleteModalOpen(false);
+    // });
     setDeleteMember(member);
     setDeleteModalOpen(true);
   }
@@ -211,23 +266,49 @@ const TeamManagement: React.FC = () => {
 
   function openAddModal() {
     setAddModalOpen(true);
-    setNewUser({name:'', email:'', role:'', avatar:'', password:''});
+    setNewUser({name:'', email:'', avatar:'', password:''});
   }
   function closeAddModal() { setAddModalOpen(false); }
+
   function handleAddUser() {
-    const now = nowIso();
-    setMembers(prev => [
-      ...prev,
-      {
-        id: Date.now()+Math.floor(Math.random()*1000),
-        ...newUser,
-        avatar: newUser.avatar || `https://randomuser.me/api/portraits/lego/${Math.floor(Math.random()*10)}.jpg`,
-        createdAt: now,
-        modifiedAt: now,
-      }
-    ]);
-    setAddModalOpen(false);
+    api.post("/auth/users/", {
+      username: newUser.name, 
+      email: newUser.email,
+      password: newUser.password
+    })
+      .then(res => {
+        const user = res.data;
+        setMembers(prev => [...prev, {
+          id: user.id,
+          name: user.username,  
+          email: user.email,
+          avatar: "",
+          password: "",
+          createdAt: user.createdAt,
+          modifiedAt: user.modifiedAt,
+        }]);
+        setAddModalOpen(false);
+      })
+      .catch(err => {
+        // Isso mostra a mensagem do backend DRF
+        alert(JSON.stringify(err.response.data))
+        // ou console.log(err.response?.data)
+      })
   }
+  // function handleAddUser() {
+  //   const now = nowIso();
+  //   setMembers(prev => [
+  //     ...prev,
+  //     {
+  //       id: Date.now()+Math.floor(Math.random()*1000),
+  //       ...newUser,
+  //       avatar: newUser.avatar || `https://randomuser.me/api/portraits/lego/${Math.floor(Math.random()*10)}.jpg`,
+  //       createdAt: now,
+  //       modifiedAt: now,
+  //     }
+  //   ]);
+  //   setAddModalOpen(false);
+  // }
 
   // Pagination handlers
   function handleChangePage(
@@ -264,14 +345,16 @@ const TeamManagement: React.FC = () => {
           <Typography variant="h2">
             Membri e accesso
           </Typography>
-          <Button
-            variant="outlined"
-            color="secondary"
-            sx={{ width: '190px' }}
-            onClick={openAddModal}
-          >
-            + Aggiungi membro
-          </Button>
+          {isAdmin && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              sx={{ width: '190px' }}
+              onClick={openAddModal}
+            >
+              + Aggiungi membro
+            </Button>
+          )}
         </Box>
         {/* Searcher */}
         <Box sx={{ width: '95%', mx:"auto", mb:2.5 }}>
@@ -497,33 +580,6 @@ const TeamManagement: React.FC = () => {
                     },
                   }}
               />
-              <Select
-                value={newUser.role}
-                onChange={e=>setNewUser({...newUser, role: e.target.value as string})}
-                displayEmpty
-                fullWidth
-                size="small"
-                sx={{
-                  fontSize: 14,
-                  '& .MuiSelect-select': { fontSize: 14 },
-                  '& .MuiInputLabel-root': { fontSize: 14 }
-                }}
-                renderValue={(selected) => selected ? selected : "Seleziona ruolo"}
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      fontSize: 14, 
-                      '& .MuiMenuItem-root': {
-                        fontSize: 14  
-                      }
-                    }
-                  }
-                }}
-              >
-                {rolesArray.map(role =>
-                  <MenuItem key={role} value={role}>{role}</MenuItem>
-                )}
-              </Select>
               <TextField label="Password" type="password" value={newUser.password} onChange={e=>setNewUser({...newUser, password: e.target.value})} 
                 size="small"
                 sx={{
@@ -535,7 +591,7 @@ const TeamManagement: React.FC = () => {
                     },
                   }}
               />
-              <TextField label="URL Avatar (opzionale)" value={newUser.avatar} onChange={e=>setNewUser({...newUser, avatar: e.target.value})} 
+              {/* <TextField label="URL Avatar (opzionale)" value={newUser.avatar} onChange={e=>setNewUser({...newUser, avatar: e.target.value})} 
                 size="small"
                 sx={{
                     '& .MuiInputBase-input': {
@@ -545,7 +601,7 @@ const TeamManagement: React.FC = () => {
                       fontSize: 16,
                     },
                   }}
-              />
+              /> */}
             </Box>
           </DialogContent>
           <DialogActions sx={{justifyContent:'center', pb:2}}>
@@ -553,7 +609,7 @@ const TeamManagement: React.FC = () => {
               variant="contained"
               color="secondary"
               onClick={handleAddUser}
-              disabled={!newUser.name || !newUser.email || !newUser.role || !newUser.password}
+              disabled={!newUser.name || !newUser.email || !newUser.password}
             >
               Aggiungi
             </Button>

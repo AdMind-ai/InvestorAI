@@ -1,7 +1,7 @@
 // src/pages/Login.tsx
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material";
 import { CSSProperties } from "react";
 import { CircularProgress } from "@mui/material";
