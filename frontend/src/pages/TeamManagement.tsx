@@ -12,8 +12,8 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import Layout from '../layouts/Layout';
+import { toast } from "react-toastify";
 
-// Atualize o tipo do Member
 export interface Member {
   id: number;
   name: string;
@@ -21,6 +21,7 @@ export interface Member {
   avatar: string;
   createdAt: string;    
   modifiedAt: string;   
+  is_company_admin?: boolean; 
 }
 
 export interface MemberApi {
@@ -31,6 +32,7 @@ export interface MemberApi {
   createdAt: string;    
   modifiedAt: string;   
 }
+
 
 function getColorFromName(name: string) {
   // Gera uma cor "aleatória" mas sempre igual para o mesmo nome
@@ -44,45 +46,6 @@ function getColorFromName(name: string) {
   }
   return color;
 }
-
-// Função para gerar data/hora do momento
-// function nowIso() {
-//   return new Date().toISOString();
-// }
-
-
-// Função simulando fetch
-// function mockFetchMembers(): Promise<Member[]> {
-//   const now = Date.now();
-//   const firstNames = [
-//     "Luca", "Giulia", "Marco", "Anna", "Simone", "Sara", "Matteo", "Alice",
-//     "Francesco", "Elena", "Davide", "Martina", "Andrea", "Chiara", "Gabriele",
-//     "Valentina", "Alessio", "Federica", "Stefano", "Roberta", "Paolo",
-//     "Giorgia", "Alessandra", "Emanuele", "Serena", "Cristian", "Camilla",
-//     "Filippo", "Silvia", "Edoardo"
-//   ];
-//   const lastNames = [
-//     "Bianchi", "Rossi", "Verdi", "Neri", "Russo", "Ferrari", "Romano",
-//     "Gallo", "Costa", "Fontana", "Conti", "Esposito", "Ricci", "Marino",
-//     "Greco", "Bruno", "Galli", "Moretti", "De Luca", "Barbieri", "Rizzo",
-//     "Lombardi", "Martini", "Leone", "Longo", "Gentile", "Martinelli",
-//     "Vitale", "Bianco", "Lorenzi"
-//   ];
-  
-//   const members: Member[] = Array.from({length: 30}, (_, i) => {
-//     const gender = i % 2 === 0 ? "men" : "women";
-//     return {
-//       id: i + 1,
-//       name: `${firstNames[i]} ${lastNames[i]}`,
-//       email: `${firstNames[i].toLowerCase()}.${lastNames[i].toLowerCase()}@email.com`,
-//       avatar: `https://randomuser.me/api/portraits/${gender}/${10+(i%80)}.jpg`,
-//       password: "",
-//       createdAt: new Date(now - 1000*60*60*24*(Math.floor(Math.random()*30+1))).toISOString(),
-//       modifiedAt: new Date(now - 1000*60*60*24*(Math.floor(Math.random()*10+1))).toISOString(),
-//     };
-//   });
-//   return Promise.resolve(members);
-// }
 
 // Funções auxiliares
 function formatDate(iso: string) {
@@ -123,6 +86,21 @@ const columns: {
     )
   },
   {
+    key: "is_company_admin", label: "Tipo", sortable: false, align: "center",
+      render: (m: Member) => (
+        <span style={{
+            padding: '3px 8px',
+            borderRadius: '12px',
+            fontWeight: 'bold',
+            background: m.is_company_admin ? '#EDF7ED' : '#F6F7FB',
+            color: m.is_company_admin ? '#2BA52B' : '#606B75',
+            fontSize: 14
+          }}>
+          {m.is_company_admin ? "Admin" : "Standard"}
+        </span>
+      )
+  },
+  {
     key: "email", label: "Email", sortable: true,
   },
   {
@@ -137,6 +115,8 @@ const columns: {
   }
 ];
 
+
+// Main component
 const TeamManagement: React.FC = () => {
   // Data
   const [members, setMembers] = useState<Member[]>([]);
@@ -155,13 +135,24 @@ const TeamManagement: React.FC = () => {
   const [passwordMember, setPasswordMember] = useState<Member | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteMember, setDeleteMember] = useState<Member | null>(null);
+  const [deleteMemberId, setDeleteMemberId] = useState<number | null>(null);
+  const [deleteMemberName, setDeleteMemberName] = useState<string | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newUser, setNewUser] = useState({
     name:'', email:'', avatar:'', password:''
   });
 
+
+  // Fetch members and admin status
   useEffect(() => {
+    fetchMembers();
+
+    api.get('/auth/users/me/')
+      .then(res => setIsAdmin(res.data.is_company_admin === true));
+  }, []);
+
+  // Fetch members
+  function fetchMembers() {
     api.get('/auth/users/')
       .then(res => {
         const mappedMembers = res.data.map((user: MemberApi) => ({
@@ -169,17 +160,17 @@ const TeamManagement: React.FC = () => {
           name: user.username,
           email: user.email,
           avatar: "", 
-          password: "",
           createdAt: user.createdAt,
           modifiedAt: user.modifiedAt,
+          is_company_admin: user.is_company_admin || false,
         }));
         setMembers(mappedMembers);
       })
-      .catch(() => setMembers([]));
-
-    api.get('/auth/users/me/')
-      .then(res => setIsAdmin(res.data.is_company_admin === true));
-  }, []);
+      .catch((err) => {
+      alert(err); 
+      setMembers([])
+      });
+  }
 
 
   // Sorting handlers
@@ -221,7 +212,8 @@ const TeamManagement: React.FC = () => {
   const paginatedData = useMemo(()=>filteredData.slice(page*rowsPerPage, page*rowsPerPage+rowsPerPage), [filteredData, page, rowsPerPage]);
 
   // ------ Table Actions -----
-
+  
+  // Password reset modal handlers
   function openPasswordModal(member: Member) {
     setPasswordMember(member);
     setNewPassword('');
@@ -229,68 +221,67 @@ const TeamManagement: React.FC = () => {
   }
   function closePasswordModal() {
     setPasswordModalOpen(false);
+    setPasswordMember(null);
   }
   function handlePasswordChange() {
     if (!passwordMember) return;
     api.post(`/auth/users/${passwordMember.id}/set_password/`, {
-        password: newPassword
-      })
-      .then(() => {
-        // Opcional: notificação de sucesso
-        closePasswordModal();
-      })
-      .catch((err) => {
-        alert(err);
-        closePasswordModal();
-      });
+      password: newPassword
+    })
+    .then(() => {
+      closePasswordModal();
+      setPasswordMember(null);
+      toast.success(`Password di ${passwordMember.name} aggiornata con successo!`);
+      fetchMembers();
+    })
+    .catch((err) => {
+      alert(err);
+      closePasswordModal();
+    });
   }
 
+  // Delete member modal handlers
   function openDeleteModal(member: Member) {
-    // api.delete(`/auth/users/${deleteMember.id}/`).then(() => {
-    //   setMembers(prev => prev.filter(m => m.id !== deleteMember.id));
-    //   setDeleteModalOpen(false);
-    // });
-    setDeleteMember(member);
+    setDeleteMemberId(member.id);
+    setDeleteMemberName(member.name);
     setDeleteModalOpen(true);
   }
   function cancelDelete() {
     setDeleteModalOpen(false);
+    setDeleteMemberId(null);
+    setDeleteMemberName(null);
   }
   function confirmDelete() {
-    if (!deleteMember) return;
-    api.delete(`/auth/users/${deleteMember.id}/`)
+    if (!deleteMemberId) return;
+    api.delete(`/auth/users/${deleteMemberId}/`)
       .then(() => {
-        setMembers(prev => prev.filter(m => m.id !== deleteMember.id));
+        fetchMembers();
         setDeleteModalOpen(false);
+        setDeleteMemberId(null);
+        setDeleteMemberName(null);
+        toast.success(`Utente ${deleteMemberName} eliminato con successo!`);
       })
       .catch((err) => {
         alert(err);
       });
+    
   }
 
+  // Add user modal handlers
   function openAddModal() {
     setAddModalOpen(true);
     setNewUser({name:'', email:'', avatar:'', password:''});
   }
   function closeAddModal() { setAddModalOpen(false); }
-
   function handleAddUser() {
     api.post("/auth/users/", {
       username: newUser.name, 
       email: newUser.email,
       password: newUser.password
     })
-      .then(res => {
-        const user = res.data;
-        setMembers(prev => [...prev, {
-          id: user.id,
-          name: user.username,  
-          email: user.email,
-          avatar: "",
-          password: "",
-          createdAt: user.createdAt,
-          modifiedAt: user.modifiedAt,
-        }]);
+      .then(() => {
+        toast.success(`Utente ${newUser.name} aggiunto con successo!`);
+        fetchMembers();
         setAddModalOpen(false);
       })
       .catch(err => {
@@ -301,20 +292,7 @@ const TeamManagement: React.FC = () => {
 
     
   }
-  // function handleAddUser() {
-  //   const now = nowIso();
-  //   setMembers(prev => [
-  //     ...prev,
-  //     {
-  //       id: Date.now()+Math.floor(Math.random()*1000),
-  //       ...newUser,
-  //       avatar: newUser.avatar || `https://randomuser.me/api/portraits/lego/${Math.floor(Math.random()*10)}.jpg`,
-  //       createdAt: now,
-  //       modifiedAt: now,
-  //     }
-  //   ]);
-  //   setAddModalOpen(false);
-  // }
+  
 
   // Pagination handlers
   function handleChangePage(
@@ -430,22 +408,38 @@ const TeamManagement: React.FC = () => {
                       </TableCell>
                     ))}
                     <TableCell align="right">
-                      <Link 
-                        sx={{ cursor: 'pointer', fontSize: '16px', color:'grey', marginRight:2 }}
-                        component="button"
-                        onClick={()=>openPasswordModal(member)}
-                        underline="hover"
-                      >
-                        Reimposta password
-                      </Link>
-                      <Tooltip title="Elimina membro">
-                        <IconButton
-                          color="error"
-                          onClick={()=>openDeleteModal(member)}
+                      {isAdmin && (
+                        <Link 
+                          sx={{ cursor: 'pointer', fontSize: '16px', color:'grey', marginRight:2 }}
+                          component="button"
+                          onClick={()=>openPasswordModal(member)}
+                          underline="hover"
                         >
-                          <DeleteOutlineIcon sx={{fontSize:25}}/>
-                        </IconButton>
-                      </Tooltip>
+                          Reimposta password
+                        </Link>
+                      )}
+                      {isAdmin && (
+                        <Tooltip title={member.is_company_admin ? "Impossibile eliminare admin" : "Elimina membro"}>
+                          <span>
+                            <IconButton
+                              color="error"
+                              onClick={member.is_company_admin
+                                ? undefined
+                                : () => openDeleteModal(member)}
+                              disabled={member.is_company_admin}
+                              sx={{
+                                color: member.is_company_admin ? '#aaa' : '#d32f2f',
+                                cursor: member.is_company_admin ? 'not-allowed' : 'pointer'
+                              }}
+                            >
+                              <DeleteOutlineIcon sx={{
+                                fontSize: 25,
+                                color: member.is_company_admin ? '#aaa' : undefined
+                              }}/>
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -544,7 +538,7 @@ const TeamManagement: React.FC = () => {
           </DialogTitle>
           <DialogContent>
             <DialogContentText sx={{ color: 'black', textAlign: 'center', fontSize:'20px', my:0.5, mx:1 }}>
-              Vuoi davvero eliminare l’utente <strong>{deleteMember?.name}</strong>?
+              Vuoi davvero eliminare l’utente <strong>{deleteMemberName}</strong>?
               <br /> Una volta eliminato, non sarà possibile recuperarlo.
             </DialogContentText>
           </DialogContent>
