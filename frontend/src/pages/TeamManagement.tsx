@@ -19,7 +19,6 @@ export interface Member {
   name: string;
   email: string;
   avatar: string;
-  password: string;
   createdAt: string;    
   modifiedAt: string;   
 }
@@ -182,11 +181,6 @@ const TeamManagement: React.FC = () => {
       .then(res => setIsAdmin(res.data.is_company_admin === true));
   }, []);
 
-
-  // useEffect(() => {
-  //   // fetch members from mock API
-  //   mockFetchMembers().then(list => setMembers(list));
-  // }, []);
 
   // Sorting handlers
   function handleSort(column: ColumnKey) {

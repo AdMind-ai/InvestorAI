@@ -12,3 +12,4 @@ class CustomUser(AbstractUser):
         related_name="users"
     )
     is_company_admin = models.BooleanField(default=False)
+    modified_at = models.DateTimeField(auto_now=True)

@@ -6,8 +6,12 @@ from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework import status, viewsets, generics
 from rest_framework.decorators import action
 
-from .serializers import (CustomUserSerializer,
-                          CustomTokenObtainPairSerializer, RegisterSerializer)
+from .serializers import (
+    CustomUserSerializer,
+    CustomTokenObtainPairSerializer,
+    RegisterSerializer,
+    PasswordSerializer
+)
 
 User = get_user_model()
 
@@ -18,8 +22,20 @@ class IsCompanyAdmin(IsAuthenticated):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    serializer_class = CustomUserSerializer
     queryset = User.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return RegisterSerializer
+        if self.action == 'set_password':
+            return PasswordSerializer
+        return CustomUserSerializer
+
+    def perform_create(self, serializer):
+        company = self.request.user.company
+        serializer.context['company'] = self.request.user.company
+        print(f"Company: {company}")
+        serializer.save(company=company)
 
     def get_queryset(self):
         user = self.request.user
@@ -38,12 +54,11 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path="set_password")
     def set_password(self, request, pk=None):
         user = self.get_object()
-        password = request.data.get('password')
-        if not password:
-            return Response({'error': 'Password obrigatória.'}, status=status.HTTP_400_BAD_REQUEST)
-        user.set_password(password)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user.set_password(serializer.validated_data['password'])
         user.save()
-        return Response({'status': 'Senha atualizada com sucesso'})
+        return Response({'status': 'Password updated successfully'})
 
 
 class RegisterView(generics.CreateAPIView):
