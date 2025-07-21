@@ -47,43 +47,43 @@ function getColorFromName(name: string) {
 }
 
 // Função para gerar data/hora do momento
-function nowIso() {
-  return new Date().toISOString();
-}
+// function nowIso() {
+//   return new Date().toISOString();
+// }
 
 
 // Função simulando fetch
-function mockFetchMembers(): Promise<Member[]> {
-  const now = Date.now();
-  const firstNames = [
-    "Luca", "Giulia", "Marco", "Anna", "Simone", "Sara", "Matteo", "Alice",
-    "Francesco", "Elena", "Davide", "Martina", "Andrea", "Chiara", "Gabriele",
-    "Valentina", "Alessio", "Federica", "Stefano", "Roberta", "Paolo",
-    "Giorgia", "Alessandra", "Emanuele", "Serena", "Cristian", "Camilla",
-    "Filippo", "Silvia", "Edoardo"
-  ];
-  const lastNames = [
-    "Bianchi", "Rossi", "Verdi", "Neri", "Russo", "Ferrari", "Romano",
-    "Gallo", "Costa", "Fontana", "Conti", "Esposito", "Ricci", "Marino",
-    "Greco", "Bruno", "Galli", "Moretti", "De Luca", "Barbieri", "Rizzo",
-    "Lombardi", "Martini", "Leone", "Longo", "Gentile", "Martinelli",
-    "Vitale", "Bianco", "Lorenzi"
-  ];
+// function mockFetchMembers(): Promise<Member[]> {
+//   const now = Date.now();
+//   const firstNames = [
+//     "Luca", "Giulia", "Marco", "Anna", "Simone", "Sara", "Matteo", "Alice",
+//     "Francesco", "Elena", "Davide", "Martina", "Andrea", "Chiara", "Gabriele",
+//     "Valentina", "Alessio", "Federica", "Stefano", "Roberta", "Paolo",
+//     "Giorgia", "Alessandra", "Emanuele", "Serena", "Cristian", "Camilla",
+//     "Filippo", "Silvia", "Edoardo"
+//   ];
+//   const lastNames = [
+//     "Bianchi", "Rossi", "Verdi", "Neri", "Russo", "Ferrari", "Romano",
+//     "Gallo", "Costa", "Fontana", "Conti", "Esposito", "Ricci", "Marino",
+//     "Greco", "Bruno", "Galli", "Moretti", "De Luca", "Barbieri", "Rizzo",
+//     "Lombardi", "Martini", "Leone", "Longo", "Gentile", "Martinelli",
+//     "Vitale", "Bianco", "Lorenzi"
+//   ];
   
-  const members: Member[] = Array.from({length: 30}, (_, i) => {
-    const gender = i % 2 === 0 ? "men" : "women";
-    return {
-      id: i + 1,
-      name: `${firstNames[i]} ${lastNames[i]}`,
-      email: `${firstNames[i].toLowerCase()}.${lastNames[i].toLowerCase()}@email.com`,
-      avatar: `https://randomuser.me/api/portraits/${gender}/${10+(i%80)}.jpg`,
-      password: "",
-      createdAt: new Date(now - 1000*60*60*24*(Math.floor(Math.random()*30+1))).toISOString(),
-      modifiedAt: new Date(now - 1000*60*60*24*(Math.floor(Math.random()*10+1))).toISOString(),
-    };
-  });
-  return Promise.resolve(members);
-}
+//   const members: Member[] = Array.from({length: 30}, (_, i) => {
+//     const gender = i % 2 === 0 ? "men" : "women";
+//     return {
+//       id: i + 1,
+//       name: `${firstNames[i]} ${lastNames[i]}`,
+//       email: `${firstNames[i].toLowerCase()}.${lastNames[i].toLowerCase()}@email.com`,
+//       avatar: `https://randomuser.me/api/portraits/${gender}/${10+(i%80)}.jpg`,
+//       password: "",
+//       createdAt: new Date(now - 1000*60*60*24*(Math.floor(Math.random()*30+1))).toISOString(),
+//       modifiedAt: new Date(now - 1000*60*60*24*(Math.floor(Math.random()*10+1))).toISOString(),
+//     };
+//   });
+//   return Promise.resolve(members);
+// }
 
 // Funções auxiliares
 function formatDate(iso: string) {

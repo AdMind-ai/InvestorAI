@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Box, List, ListItem, ListItemIcon, Divider } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@mui/material/styles'
-import { useGlobal } from '../context/GlobalContext'
+// import { useGlobal } from '../context/GlobalContext'
 
 // Importação dos ícones
 import HomeIcon from '../assets/icons-sidebar/home-icon.svg'
@@ -17,16 +17,16 @@ import EarningsIcon from '../assets/icons-sidebar/earnings-icon.svg'
 import EarningsIconActive from '../assets/icons-sidebar/earnings-icon-active.svg'
 import ESGIcon from '../assets/icons-sidebar/esg-icon.svg'
 import ESGIconActive from '../assets/icons-sidebar/esg-icon-active.svg'
-import FinanceIcon from '../assets/icons-sidebar/usage-icon.svg'
-import FinanceIconActive from '../assets/icons-sidebar/usage-icon-active.svg'
+// import FinanceIcon from '../assets/icons-sidebar/usage-icon.svg'
+// import FinanceIconActive from '../assets/icons-sidebar/usage-icon-active.svg'
 import SecurityIcon from '../assets/icons-sidebar/access-icon.svg'
 import SecurityIconActive from '../assets/icons-sidebar/access-icon-active.svg'
 
 // Extras
-import ScanIcon from '../assets/icons-sidebar/scan.svg'
-import ScanIconActive from '../assets/icons-sidebar/scan-active.svg'
-import DocIcon from '../assets/icons-sidebar/doc.svg'
-import DocIconActive from '../assets/icons-sidebar/doc-active.svg'
+// import ScanIcon from '../assets/icons-sidebar/scan.svg'
+// import ScanIconActive from '../assets/icons-sidebar/scan-active.svg'
+// import DocIcon from '../assets/icons-sidebar/doc.svg'
+// import DocIconActive from '../assets/icons-sidebar/doc-active.svg'
 
 // Logos
 import InvestorLogo from '../assets/logos/svg/NOPAYOFF_LEFT_POSITIVE.svg'
@@ -66,20 +66,20 @@ const menuItems = [
   },
 ]
 
-const menuItemsExtra = [
-  {
-    title: 'SmartScan AI',
-    path: '/smart-scan',
-    icon: ScanIcon,
-    activeIcon: ScanIconActive,
-  },
-  {
-    title: 'QuickDoc Creator',
-    path: '/doc-creator',
-    icon: DocIcon,
-    activeIcon: DocIconActive,
-  },
-]
+// const menuItemsExtra = [
+//   {
+//     title: 'SmartScan AI',
+//     path: '/smart-scan',
+//     icon: ScanIcon,
+//     activeIcon: ScanIconActive,
+//   },
+//   {
+//     title: 'QuickDoc Creator',
+//     path: '/doc-creator',
+//     icon: DocIcon,
+//     activeIcon: DocIconActive,
+//   },
+// ]
 
 const admItems = [
   // { title: 'Finance', path: '/usage', icon: FinanceIcon, activeIcon: FinanceIconActive },
