@@ -12,7 +12,7 @@ import locale
 from core.serializers.perplexity_serializer import PerplexityRequestSerializer
 from core.models.openai_chat_models import ChatConversation, ChatMessage
 from core.tasks import deep_search_perplexity_async
-from core.utils.get_company_info import get_company_info
+from core.utils.get_company_info import get_user_company
 
 
 SYSTEM_MESSAGE = (
@@ -49,7 +49,13 @@ class PerplexityDeepSearchView(APIView):
             # name="deepsearch-placeholder"
         )
         # 2. Chama tarefa async (passe o chat/conversation/message ID como referência)
-        company = get_company_info().long_name
+        company_info = get_user_company(request.user)
+        if not company_info:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=400
+            )
+        company = company_info.long_name
         deep_search_perplexity_async.delay(
             conversation.id, waiting_message.id, user.id, company)
         return Response({

@@ -10,7 +10,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from core.serializers.ceo_news_serializer import CEONewsSerializer
 from core.models.ceo_article_model import CEOArticle
-from core.utils.get_company_info import get_ceos, get_company_info
+from core.utils.get_company_info import get_ceos
 from core.utils.cron.ceo_news import get_sentiment_analysis, response_openai_api
 
 import logging
@@ -19,14 +19,14 @@ logger = logging.getLogger(__name__)
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
 
-def get_ceos_dict():
-    company = get_company_info()
-    if not company:
-        return {}
-    return {ceo.name.lower(): ceo.role for ceo in company.ceos.all()}
+# def get_ceos_dict():
+#     company = get_company_info()
+#     if not company:
+#         return {}
+#     return {ceo.name.lower(): ceo.role for ceo in company.ceos.all()}
 
 
-leaders = get_ceos_dict()
+# leaders = get_ceos_dict()
 
 
 class OpenAICEONewsView(APIView):
@@ -105,7 +105,7 @@ class OpenAICEONewsView(APIView):
             sentiment_score = get_sentiment_analysis(
                 personality, article_data["content"])
 
-            ceo = get_ceos().get(name=personality)
+            ceo = get_ceos(request.user).get(name=personality)
             article, created = CEOArticle.objects.get_or_create(
                 title=article_data["title"],
                 url=article_data["url"],

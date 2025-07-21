@@ -6,7 +6,8 @@ from azure.storage.blob import BlobServiceClient
 from core.utils.deepl_translation import DeeplTranslation
 import logging
 import os
-from core.utils.get_company_info import get_company_info, get_competitors, get_ceos
+from core.utils.get_company_info import get_competitors, get_ceos
+from core.models.company_info.company_info import CompanyInfo
 from core.models.market_article_model import MarketNewsArticle
 import re
 import requests
@@ -52,15 +53,10 @@ def minha_task():
 
 @shared_task
 def collect_market_news(news_type):
-    # keys diferentes para cada api!
     NEWS_API_KEY = os.environ.get("NEWSAPI_KEY")
     CURR_NEWSAPI_KEY = os.environ.get("CURR_NEWSAPI_KEY")
     MEDIASTACK_NEWSAPI_KEY = os.environ.get("MEDIASTACK_NEWSAPI_KEY")
     assert news_type in ['sector', 'competitors'], "Invalid news type."
-
-    company = get_company_info()
-    company_name = company.short_name
-    company_sector = company.sector
 
     today = timezone.now().date()
     seven_days_ago = today - timedelta(days=7)
@@ -68,78 +64,92 @@ def collect_market_news(news_type):
     start_date = seven_days_ago.strftime("%Y-%m-%dT00:00:00Z")
     date_range = f"{seven_days_ago.strftime('%Y-%m-%d')},{today.strftime('%Y-%m-%d')}"
 
-    q = f'"{company_name}"'
-    if news_type == 'competitors':
-        competitors = get_competitors()
-        terms = []
-        for c in competitors:
-            if c.name:
-                match = re.match(r'^(.+?)\s*\(([^)]+)\)\s*$', c.name)
-                if match:
-                    name_pure = match.group(1).strip()
-                    nickname = match.group(2).strip()
-                    terms.append(f'"{name_pure}"')
-                    terms.append(f'"{nickname}"')
-                else:
-                    terms.append(f'"{c.name.strip()}"')
-        q = " | ".join(terms)
-    elif news_type == 'sector':
-        sectors = [s.strip() for s in company_sector.split(',') if s.strip()]
-        if sectors:
-            q = ' | '.join(f'"{s}"' for s in sectors)
-        else:
-            q = f'"{company_name}"'
+    result_all = []
 
-    # busca nas três APIs
-    results = []
-    results += fetch_news_thenewsapi(q, since, NEWS_API_KEY)
-    results += fetch_news_currentsapi(q, start_date, CURR_NEWSAPI_KEY)
-    results += fetch_news_mediastack(q, date_range, MEDIASTACK_NEWSAPI_KEY)
+    for company in CompanyInfo.objects.all():
+        company_name = company.short_name
+        company_sector = company.sector
 
-    count_saved = 0
-    for item in results:
-        date_str = item.get("date_published")
-        date_published = None
-        if date_str:
-            try:
-                if "T" in date_str:
-                    date_published = datetime.fromisoformat(
-                        date_str.replace("Z", "+00:00")).date()
-                else:
-                    date_published = datetime.strptime(
-                        date_str[:10], "%Y-%m-%d").date()
-            except Exception:
-                date_published = None
-        if date_published:
-            obj, created = MarketNewsArticle.objects.get_or_create(
-                company=company_name,
-                type=news_type,
-                title=item.get("title"),
-                defaults={
-                    'url': item.get("url"),
-                    'date_published': date_published,
-                }
-            )
-            if created:
-                count_saved += 1
+        # Montar a query:
+        q = f'"{company_name}"'
+        if news_type == 'competitors':
+            competitors = get_competitors(company)
+            terms = []
+            for c in competitors:
+                if c.name:
+                    match = re.match(r'^(.+?)\s*\(([^)]+)\)\s*$', c.name)
+                    if match:
+                        name_pure = match.group(1).strip()
+                        nickname = match.group(2).strip()
+                        terms.append(f'"{name_pure}"')
+                        terms.append(f'"{nickname}"')
+                    else:
+                        terms.append(f'"{c.name.strip()}"')
+            if terms:
+                q = " | ".join(terms)
+        elif news_type == 'sector':
+            sectors = [s.strip()
+                       for s in company_sector.split(',') if s.strip()]
+            if sectors:
+                q = ' | '.join(f'"{s}"' for s in sectors)
+            else:
+                q = f'"{company_name}"'
 
-    return {
-        "success": True,
-        "company": company_name,
-        "type": news_type,
-        "message": "Process completed successfully",
-        "query": q,
-        "news_found": len(results),
-        "news_saved": count_saved,
-        "details": [
-            {"source": "thenewsapi", "count": len(
-                fetch_news_thenewsapi(q, since, NEWS_API_KEY))},
-            {"source": "currentsapi", "count": len(
-                fetch_news_currentsapi(q, since, CURR_NEWSAPI_KEY))},
-            {"source": "mediastack", "count": len(
-                fetch_news_mediastack(q, since, MEDIASTACK_NEWSAPI_KEY))}
-        ],
-    }
+        # BUSCA nas 3 APIs
+        results_thenewsapi = fetch_news_thenewsapi(q, since, NEWS_API_KEY)
+        results_currentsapi = fetch_news_currentsapi(
+            q, start_date, CURR_NEWSAPI_KEY)
+        results_mediastack = fetch_news_mediastack(
+            q, date_range, MEDIASTACK_NEWSAPI_KEY)
+
+        results = []
+        results += results_thenewsapi
+        results += results_currentsapi
+        results += results_mediastack
+
+        count_saved = 0
+        for item in results:
+            date_str = item.get("date_published")
+            date_published = None
+            if date_str:
+                try:
+                    if "T" in date_str:
+                        date_published = datetime.fromisoformat(
+                            date_str.replace("Z", "+00:00")).date()
+                    else:
+                        date_published = datetime.strptime(
+                            date_str[:10], "%Y-%m-%d").date()
+                except Exception:
+                    date_published = None
+            if date_published:
+                obj, created = MarketNewsArticle.objects.get_or_create(
+                    company=company,
+                    type=news_type,
+                    title=item.get("title"),
+                    defaults={
+                        'url': item.get("url"),
+                        'date_published': date_published,
+                    }
+                )
+                if created:
+                    count_saved += 1
+
+        result_all.append({
+            "success": True,
+            "company": company_name,
+            "type": news_type,
+            "message": "Process completed successfully",
+            "query": q,
+            "news_found": len(results),
+            "news_saved": count_saved,
+            "details": [
+                {"source": "thenewsapi", "count": len(results_thenewsapi)},
+                {"source": "currentsapi", "count": len(results_currentsapi)},
+                {"source": "mediastack", "count": len(results_mediastack)},
+            ],
+        })
+
+    return result_all
 
 
 class CompetitorInfo(BaseModel):
@@ -157,69 +167,94 @@ class CompetitorInfoList(BaseModel):
 
 @shared_task
 def fetch_and_store_competitors():
-    company = get_company_info()
-    company_name = company.short_name
-    competitors = get_competitors()
-    competitor_names = [c.name for c in competitors if c.name]
-    competitor_block = "\n".join(competitor_names)
+    results = []
 
-    if not company_name:
-        return {"error": "Company name is required."}
+    for company in CompanyInfo.objects.all():
+        company_name = company.short_name
+        competitors = get_competitors(company)
+        competitor_names = [c.name for c in competitors if c.name]
+        competitor_block = "\n".join(competitor_names)
 
-    prompt = f"""
-    Identify at least 3 and max of 20 major competitors of {company_name}. For each competitor, provide:
-    - Company Name
-    - Official Logo URL (format: "https://logo.clearbit.com/companydomain.com")
-    - Business Sectors (e.g., Technology, Finance, etc.)
-    - Brief Description
-    - Official Website URL
+        if not company_name:
+            results.append(
+                {"company": company_name, "error": "Company name is required."})
+            continue
 
-    Include those competitors:
-    {competitor_block}
-    """
+        prompt = f"""
+        Identify at least 3 and max of 20 major competitors of {company_name}. For each competitor, provide:
+        - Company Name
+        - Official Logo URL (format: "https://logo.clearbit.com/companydomain.com")
+        - Business Sectors (e.g., Technology, Finance, etc.)
+        - Brief Description
+        - Official Website URL
 
-    try:
-        completion = client.beta.chat.completions.parse(
-            model="gpt-4o-search-preview",
-            messages=[
-                {"role": "system", "content": "Extract competitor information from the web."},
-                {"role": "user", "content": prompt},
-            ],
-            response_format=CompetitorInfoList,
-        )
-        competitor_info = completion.choices[0].message.parsed.model_dump()
+        Include those competitors:
+        {competitor_block}
+        """
 
-        search_record = CompetitorSearch.objects.create(
-            company_name=company_name, sector=company.sector)
-
-        for competitor in competitor_info['competitors']:
-            Competitor.objects.create(
-                search=search_record,
-                competitor=competitor['company'],
-                logo=competitor['logo'],
-                sectors=competitor['sectors'],
-                description=competitor['description'],
-                website=competitor['website'],
+        try:
+            completion = client.beta.chat.completions.parse(
+                model="gpt-4o-search-preview",
+                messages=[
+                    {"role": "system",
+                        "content": "Extract competitor information from the web."},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format=CompetitorInfoList,
             )
+            competitor_info = completion.choices[0].message.parsed.model_dump()
 
-        for competitor in competitor_info['competitors']:
-            CompanyCompetitors.objects.get_or_create(
+            search_record = CompetitorSearch.objects.create(
                 company=company,
-                name=competitor['company'],
-                defaults={
-                    # "stock_symbol": competitor.get('stock_symbol', ""),
-                    "sector": ", ".join(competitor['sectors']) if isinstance(competitor['sectors'], list) else competitor['sectors'],
-                    "website": competitor['website'],
-                }
+                company_name=company_name,
+                sector=company.sector
             )
 
-        return {
-            "date": search_record.search_date.isoformat(),
-            "competitors": competitor_info['competitors']
-        }
+            competitors_returned = []
+            for competitor in competitor_info['competitors']:
+                comp_instance = Competitor.objects.create(
+                    search=search_record,
+                    competitor=competitor['company'],
+                    logo=competitor['logo'],
+                    sectors=competitor['sectors'],
+                    description=competitor['description'],
+                    website=competitor['website'],
+                )
+                competitors_returned.append({
+                    "company": comp_instance.competitor,
+                    "logo": comp_instance.logo,
+                    "sectors": comp_instance.sectors,
+                    "description": comp_instance.description,
+                    "website": comp_instance.website,
+                })
 
-    except ValidationError as e:
-        return {"error": str(e)}
+            for competitor in competitor_info['competitors']:
+                CompanyCompetitors.objects.get_or_create(
+                    company=company,
+                    name=competitor['company'],
+                    defaults={
+                        # "stock_symbol": competitor.get('stock_symbol', ""),
+                        "sector": ", ".join(competitor['sectors']) if isinstance(competitor['sectors'], list) else competitor['sectors'],
+                        "website": competitor['website'],
+                    }
+                )
+
+            results.append({
+                "success": True,
+                "company": company_name,
+                "date": search_record.search_date.isoformat(),
+                "competitors": competitors_returned,
+                "message": "Competitor search completed successfully."
+            })
+
+        except ValidationError as e:
+            results.append(
+                {"success": False, "company": company_name, "error": str(e)})
+        except Exception as e:
+            results.append(
+                {"success": False, "company": company_name, "error": str(e)})
+
+    return results
 
 
 class CompanyStockInfo(BaseModel):
@@ -230,92 +265,121 @@ class CompanyStockInfo(BaseModel):
 
 @shared_task
 def fetch_and_store_daily_company_stock_data():
+    results = []
     date_today = datetime.now().strftime("%B %d, %Y")
-    company = get_company_info()
-    stockInfo = get_stock_info(company)
-
-    if stockInfo is None:
-        return {"error": "Failed to fetch stock info."}
-
-    prompt = f"""
-    You are a financial consultant specialized in detailed business profiles and market analysis.
-
-    Analyze the current business situation of {company.long_name} ({company.stock_symbol}).  
-    Base your answer on the provided company and stock data (see context below) and recent, reliable news—using online research.
-
-    **Your report must contain:**
-
-    1. **Latest Relevant News**
-        - Summarize the most important news and market movements about {company.long_name} from the past 7 days.
-        - Focus on facts that impact business outlook, reputation, or pricing.
-
-    2. **Short-Term Stock Forecast**
-        - Provide a concise prediction for the probable stock movement in the short term (next few weeks).
-        - Base your assessment on financial data and recent news.
-
-    3. **Potential Risk Factors**
-        - List and briefly explain the top risks or uncertainties that could affect the business or stock price soon.
-        - Use both quantitative (financial data) and qualitative (external news, trends) insights.
-
-    **Guidelines:**
-    - Only use up-to-date, trustworthy sources.
-    - If any data field is missing, try to supplement it using your online search abilities.
-    - Avoid unnecessary repetition—do not copy the context or data fields, synthesize your answer into clear narrative paragraphs.
-    - Maintain a professional, analytical tone.
-
-    **Context for your analysis:**
-    {stockInfo}
-
-    Today's date: {date_today}
-    """
-
-    completion = client.beta.chat.completions.parse(
-        model="gpt-4o-search-preview",
-        messages=[
-            {"role": "system", "content": (
-                "Utilize the provided financial data to complete the request. "
-                "Also, use additional reliable resources online to provide a comprehensive analysis where specific data is missing or needed."
-            )
-            },
-            {"role": "user", "content": prompt},
-        ],
-        response_format=CompanyStockInfo,
-    )
-
-    content = completion.choices[0].message.parsed
-
     usd_to_eur = get_usd_to_eur_rate()
 
-    if stockInfo.get('currency') == 'EUR':
-        price_eur = stockInfo.get('previousClose')
-        cap_eur = stockInfo.get('marketCap')
-        price_usd = round(price_eur / usd_to_eur, 4) if price_eur else None
-        cap_usd = round(cap_eur / usd_to_eur, 2) if cap_eur else None
-    else:
-        price_usd = stockInfo.get('previousClose')
-        cap_usd = stockInfo.get('marketCap')
-        price_eur = round(price_usd * usd_to_eur, 4) if price_usd else None
-        cap_eur = round(cap_usd * usd_to_eur, 2) if cap_usd else None
+    for company in CompanyInfo.objects.all():
+        # >> Pular se não tiver stock_symbol
+        if not company.stock_symbol:
+            results.append({
+                "success": False,
+                "company": company.short_name,
+                "error": "Skipped: company has no stock_symbol."
+            })
+            continue
 
-    result = CompanyStockData.objects.create(
-        date=date_today,
-        company=company.short_name,
-        stock_symbol=company.stock_symbol,
-        stock_exchange=stockInfo.get('currency'),
-        stock_price_today_usd=price_usd,
-        stock_price_today_eur=price_eur,
-        market_cap_usd=cap_usd,
-        market_cap_eur=cap_eur,
-        pe_ratio=stockInfo.get('forwardPE'),
-        sector=f"{stockInfo.get('industry')},{stockInfo.get('sector')}",
-        stock_volatility_level='none',
-        short_term_forecast=content.short_term_forecast,
-        possible_risk_factors=content.possible_risk_factors,
-        latest_news=content.latest_news,
-        analyst_recommendation=stockInfo.get('recommendationKey')
-    )
+        stockInfo = get_stock_info(company)
+        if stockInfo is None:
+            results.append({
+                "success": False,
+                "company": company.short_name,
+                "error": "Failed to fetch stock info."
+            })
+            continue
 
-    return CompanyStockDataSerializer(result).data
+        prompt = f"""
+        You are a financial consultant specialized in detailed business profiles and market analysis.
+
+        Analyze the current business situation of {company.long_name} ({company.stock_symbol}).  
+        Base your answer on the provided company and stock data (see context below) and recent, reliable news—using online research.
+
+        **Your report must contain:**
+
+        1. **Latest Relevant News**
+            - Summarize the most important news and market movements about {company.long_name} from the past 7 days.
+            - Focus on facts that impact business outlook, reputation, or pricing.
+
+        2. **Short-Term Stock Forecast**
+            - Provide a concise prediction for the probable stock movement in the short term (next few weeks).
+            - Base your assessment on financial data and recent news.
+
+        3. **Potential Risk Factors**
+            - List and briefly explain the top risks or uncertainties that could affect the business or stock price soon.
+            - Use both quantitative (financial data) and qualitative (external news, trends) insights.
+
+        **Guidelines:**
+        - Only use up-to-date, trustworthy sources.
+        - If any data field is missing, try to supplement it using your online search abilities.
+        - Avoid unnecessary repetition—do not copy the context or data fields, synthesize your answer into clear narrative paragraphs.
+        - Maintain a professional, analytical tone.
+
+        **Context for your analysis:**
+        {stockInfo}
+
+        Today's date: {date_today}
+        """
+
+        try:
+            completion = client.beta.chat.completions.parse(
+                model="gpt-4o-search-preview",
+                messages=[
+                    {"role": "system", "content": (
+                        "Utilize the provided financial data to complete the request. "
+                        "Also, use additional reliable resources online to provide a comprehensive analysis where specific data is missing or needed."
+                    )},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format=CompanyStockInfo,
+            )
+
+            content = completion.choices[0].message.parsed
+
+            if stockInfo.get('currency') == 'EUR':
+                price_eur = stockInfo.get('previousClose')
+                cap_eur = stockInfo.get('marketCap')
+                price_usd = round(price_eur / usd_to_eur,
+                                  4) if price_eur else None
+                cap_usd = round(cap_eur / usd_to_eur, 2) if cap_eur else None
+            else:
+                price_usd = stockInfo.get('previousClose')
+                cap_usd = stockInfo.get('marketCap')
+                price_eur = round(price_usd * usd_to_eur,
+                                  4) if price_usd else None
+                cap_eur = round(cap_usd * usd_to_eur, 2) if cap_usd else None
+
+            stock_data = CompanyStockData.objects.create(
+                date=date_today,
+                company=company,
+                stock_symbol=company.stock_symbol,
+                stock_exchange=stockInfo.get('currency'),
+                stock_price_today_usd=price_usd,
+                stock_price_today_eur=price_eur,
+                market_cap_usd=cap_usd,
+                market_cap_eur=cap_eur,
+                pe_ratio=stockInfo.get('forwardPE'),
+                sector=f"{stockInfo.get('industry')},{stockInfo.get('sector')}",
+                stock_volatility_level='none',
+                short_term_forecast=content.short_term_forecast,
+                possible_risk_factors=content.possible_risk_factors,
+                latest_news=content.latest_news,
+                analyst_recommendation=stockInfo.get('recommendationKey')
+            )
+
+            results.append({
+                "success": True,
+                "company": company.short_name,
+                "data": CompanyStockDataSerializer(stock_data).data,
+                "message": "Stock data fetched and saved successfully.",
+            })
+        except Exception as e:
+            results.append({
+                "success": False,
+                "company": company.short_name,
+                "error": str(e)
+            })
+
+    return results
 
 
 SYSTEM_MESSAGE = (
@@ -330,39 +394,14 @@ SYSTEM_MESSAGE = (
 
 @shared_task
 def generate_monthly_market_report():
-    comp = get_company_info()
-    company = comp.short_name
-
-    if not company:
-        return {"error": "Company name is required."}
-
+    results = []
     today = datetime.today()
-    last_month = today - timedelta(days=30)
-
     first_this_month = today.replace(day=1)
     last_month_end = first_this_month - timedelta(days=1)
     first_last_month = last_month_end.replace(day=1)
     month_name = last_month_end.strftime("%B")
     year = last_month_end.strftime("%Y")
 
-    news_titles = MarketNewsArticle.objects.filter(
-        Q(company__iexact=company) &
-        Q(date_published__gte=first_last_month) &
-        Q(date_published__lte=last_month_end)
-    ).values_list('title', flat=True)
-
-    # if not news_titles:
-    #     return {"error": "No news found for this company in the last month."}
-
-    # titles_text = ' '.join(news_titles)
-
-    message = (
-        f"You need to create a monthly report overview for {comp.long_name}. "
-        f"specifically for the month of {month_name} {year}. "
-        f"The report should summarize the key events, trends, ups and downs, and important data from the last month. "
-        "Ensure the summary is concise and covers significant points relevant to the company's performance and market position."
-    )
-
     api_key = os.getenv("PERPLEXITY_KEY")
     if not api_key:
         return {"error": "API Key is missing"}
@@ -372,114 +411,182 @@ def generate_monthly_market_report():
         "Content-Type": "application/json"
     }
 
-    request_body = {
-        "model": "sonar-deep-research",
-        "messages": [
-            {"role": "system", "content": SYSTEM_MESSAGE},
-            {"role": "user", "content": message},
-        ],
-    }
+    for comp in CompanyInfo.objects.all():
+        # >> Pular empresas sem nome curto!
+        if not comp.short_name:
+            results.append({
+                "success": False,
+                "company": "",
+                "error": "Company short_name is required."
+            })
+            continue
 
-    try:
-        response = requests.post(
-            "https://api.perplexity.ai/chat/completions",
-            headers=headers,
-            json=request_body
+        news_titles = MarketNewsArticle.objects.filter(
+            company=comp,
+            date_published__gte=first_last_month,
+            date_published__lte=last_month_end
+        ).values_list('title', flat=True)
+
+        # Ativar este filtro para retornar erro se não achou notícias
+        # if not news_titles:
+        #     results.append({
+        #         "success": False,
+        #         "company": comp.short_name,
+        #         "error": "No news found for this company in the last month."
+        #     })
+        #     continue
+
+        message = (
+            f"You need to create a monthly report overview for {comp.long_name}. "
+            f"specifically for the month of {month_name} {year}. "
+            f"The report should summarize the key events, trends, ups and downs, and important data from the last month. "
+            "Ensure the summary is concise and covers significant points relevant to the company's performance and market position."
         )
-        response.raise_for_status()
-        data = response.json()
 
-        print(data)
+        request_body = {
+            "model": "sonar-deep-research",
+            "messages": [
+                {"role": "system", "content": SYSTEM_MESSAGE},
+                {"role": "user", "content": message},
+            ],
+        }
 
-        report_content = data.get("choices", [{}])[0].get(
-            "message", {}).get("content", "")
-        citations = data.get("citations", [])
-
-        if report_content:
-            CompanyMarketReport.objects.create(
-                company=company,
-                report=report_content,
-                citations=citations
+        try:
+            response = requests.post(
+                "https://api.perplexity.ai/chat/completions",
+                headers=headers,
+                json=request_body
             )
-            return {"report": report_content, "citations": citations}
+            response.raise_for_status()
+            data = response.json()
 
-        return {"error": "Failed to generate report."}
+            report_content = data.get("choices", [{}])[0].get(
+                "message", {}).get("content", "")
+            citations = data.get("citations", [])
 
-    except requests.RequestException as e:
-        return {"error": str(e)}
+            if report_content:
+                CompanyMarketReport.objects.create(
+                    company=comp,
+                    report=report_content,
+                    citations=citations
+                )
+                results.append({
+                    "success": True,
+                    "company": comp.short_name,
+                    "report": report_content,
+                    "citations": citations,
+                    "message": "Report generated successfully."
+                })
+            else:
+                results.append({
+                    "success": False,
+                    "company": comp.short_name,
+                    "error": "Failed to generate report."
+                })
+
+        except requests.RequestException as e:
+            results.append({
+                "success": False,
+                "company": comp.short_name,
+                "error": str(e)
+            })
+
+    return results
 
 
 @shared_task
 def generate_company_quarterly_report(quarter: str, year: int):
-    company = get_company_info().short_name
-    if not company:
-        return {"error": "Company name is required."}
-
-    qreport, _ = CompanyQuarterlyReport.objects.get_or_create(
-        company=company,
-        quarter=quarter,
-        year=year
-    )
-
     api_key = os.getenv("PERPLEXITY_KEY")
     if not api_key:
         return {"error": "API Key is missing"}
-
-    prompt = f"""
-    You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company} for {qreport.quarter} of {qreport.year}.
-
-    Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
-    
-    Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, product launches, investments, or strategic news released by {qreport.company} around that quarter.
-
-    Your insight report must be clearly structured in two parts:
-    1. Highlights Finanziari
-    2. Innovazione e Strategia
-
-    Write clearly, professionally and formatted in Italian. Use real numbers, bullet points, and YoY percentage variations.
-    """
 
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
 
-    request_body = {
-        "model": "sonar-deep-research",
-        "messages": [
-            {"role": "system", "content": SYSTEM_MESSAGE},
-            {"role": "user", "content": prompt},
-        ],
-    }
+    results = []
 
-    try:
-        resp = requests.post(
-            "https://api.perplexity.ai/chat/completions",
-            headers=headers,
-            json=request_body
+    for company in CompanyInfo.objects.all():
+        if not company.short_name:
+            results.append({
+                "success": False,
+                "company": "",
+                "error": "Company name is required."
+            })
+            continue
+
+        qreport, _ = CompanyQuarterlyReport.objects.get_or_create(
+            company=company,
+            quarter=quarter,
+            year=year
         )
-        resp.raise_for_status()
-        data = resp.json()
 
-        insight_report_text = data.get("choices", [{}])[0].get(
-            "message", {}).get("content", "")
-        citations = data.get("citations", [])
+        prompt = f"""
+        You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company.short_name} for {qreport.quarter} of {qreport.year}.
 
-        if not insight_report_text:
-            return {"error": "Failed to generate report."}
+        Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
+        
+        Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, product launches, investments, or strategic news released by {qreport.company} around that quarter.
 
-        qreport.insight_report = insight_report_text
-        qreport.citations = citations
-        qreport.save()
+        Your insight report must be clearly structured in two parts:
+        1. Highlights Finanziari
+        2. Innovazione e Strategia
 
-        return {
-            "insight_report": insight_report_text,
-            "citations": citations,
-            "message": "Insight Report successfully generated and updated via Perplexity."
+        Write clearly, professionally and formatted in Italian. Use real numbers, bullet points, and YoY percentage variations.
+        """
+
+        request_body = {
+            "model": "sonar-deep-research",
+            "messages": [
+                {"role": "system", "content": SYSTEM_MESSAGE},
+                {"role": "user", "content": prompt},
+            ],
         }
 
-    except requests.RequestException as e:
-        return {"error": str(e)}
+        try:
+            resp = requests.post(
+                "https://api.perplexity.ai/chat/completions",
+                headers=headers,
+                json=request_body
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+            insight_report_text = data.get("choices", [{}])[0].get(
+                "message", {}).get("content", "")
+            citations = data.get("citations", [])
+
+            if not insight_report_text:
+                results.append({
+                    "success": False,
+                    "company": company.short_name,
+                    "error": "Failed to generate report."
+                })
+                continue
+
+            qreport.insight_report = insight_report_text
+            qreport.citations = citations
+            qreport.save()
+
+            results.append({
+                "success": True,
+                "company": company.short_name,
+                "quarter": quarter,
+                "year": year,
+                "insight_report": insight_report_text,
+                "citations": citations,
+                "message": "Insight Report successfully generated and updated via Perplexity."
+            })
+
+        except requests.RequestException as e:
+            results.append({
+                "success": False,
+                "company": company.short_name,
+                "error": str(e),
+            })
+
+    return results
 
 
 logger = logging.getLogger(__name__)

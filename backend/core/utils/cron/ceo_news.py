@@ -3,17 +3,18 @@ import logging
 import os
 import json
 from datetime import datetime, timedelta
-from core.utils.get_company_info import get_company_info
+from core.models.company_info.company_info import CompanyInfo
 logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
 
 def get_ceos_dict():
-    company = get_company_info()
-    if not company:
-        return {}
-    return {ceo.name.lower(): ceo.role for ceo in company.ceos.all()}
+    ceos_dict = {}
+    for company in CompanyInfo.objects.all():
+        for ceo in company.ceos.all():
+            ceos_dict[ceo.name.lower()] = ceo.role
+    return ceos_dict
 
 
 leaders = get_ceos_dict()

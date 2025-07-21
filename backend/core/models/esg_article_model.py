@@ -1,4 +1,5 @@
 from django.db import models
+from core.models.company_info.company_info import CompanyInfo
 
 
 class ESGArticle(models.Model):
@@ -9,6 +10,8 @@ class ESGArticle(models.Model):
         ("Rischi reputazionali", "Rischi reputazionali")
     ]
 
+    company = models.ForeignKey(
+        CompanyInfo, related_name='esg_articles', on_delete=models.CASCADE)
     topic = models.CharField(max_length=100, choices=TOPIC_CHOICES)
     title = models.CharField(max_length=250)
     author = models.CharField(max_length=100, default="Sconosciuto")
