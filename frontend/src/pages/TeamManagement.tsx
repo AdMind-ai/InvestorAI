@@ -238,14 +238,17 @@ const TeamManagement: React.FC = () => {
   }
   function handlePasswordChange() {
     if (!passwordMember) return;
-    setMembers(prev =>
-      prev.map(m =>
-        m.id === passwordMember.id
-          ? { ...m, password: newPassword, modifiedAt: nowIso() }
-          : m
-      )
-    );
-    closePasswordModal();
+    api.post(`/auth/users/${passwordMember.id}/set_password/`, {
+        password: newPassword
+      })
+      .then(() => {
+        // Opcional: notificação de sucesso
+        closePasswordModal();
+      })
+      .catch((err) => {
+        alert(err);
+        closePasswordModal();
+      });
   }
 
   function openDeleteModal(member: Member) {
@@ -260,8 +263,15 @@ const TeamManagement: React.FC = () => {
     setDeleteModalOpen(false);
   }
   function confirmDelete() {
-    setMembers(prev => prev.filter(m => m.id !== deleteMember?.id));
-    setDeleteModalOpen(false);
+    if (!deleteMember) return;
+    api.delete(`/auth/users/${deleteMember.id}/`)
+      .then(() => {
+        setMembers(prev => prev.filter(m => m.id !== deleteMember.id));
+        setDeleteModalOpen(false);
+      })
+      .catch((err) => {
+        alert(err);
+      });
   }
 
   function openAddModal() {
@@ -294,6 +304,8 @@ const TeamManagement: React.FC = () => {
         alert(JSON.stringify(err.response.data))
         // ou console.log(err.response?.data)
       })
+
+    
   }
   // function handleAddUser() {
   //   const now = nowIso();
