@@ -1,5 +1,4 @@
 from django.db import models
-from core.models.company_info.company_info import CompanyInfo
 
 
 class MarketNewsArticle(models.Model):
@@ -8,8 +7,7 @@ class MarketNewsArticle(models.Model):
         ('competitors', 'Competitors'),
     ]
 
-    company = models.ForeignKey(
-        CompanyInfo, related_name="news_articles", default=1, on_delete=models.CASCADE)
+    company = models.CharField(max_length=255)
     type = models.CharField(max_length=12, choices=TYPE_CHOICES)
     title = models.CharField(max_length=255)
     url = models.URLField()
