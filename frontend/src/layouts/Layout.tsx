@@ -6,7 +6,7 @@ import Sidebar from "../components/Sidebar";
 // import ArchiveButton from "../components/ArchiveButton";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useGlobal } from "../context/GlobalContext";
+// import { useGlobal } from "../context/GlobalContext";
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 
 interface LayoutProps {
@@ -14,7 +14,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { setIsNewFunctionalities, isNewFunctionalities } = useGlobal();
+  // const { setIsNewFunctionalities, isNewFunctionalities } = useGlobal();
   const theme = useTheme();
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
@@ -145,7 +145,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               Logout
             </MenuItem>
-            <MenuItem
+            {/* <MenuItem
               sx={{
                 fontSize: "2vh",
                 backgroundColor: "white",
@@ -157,7 +157,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={() => setIsNewFunctionalities(prev => !prev)}
             >
               {isNewFunctionalities? 'Extra Functionalities Off':'Extra Functionalities On'}
-            </MenuItem>
+            </MenuItem> */}
           </Menu>
         </Box>
 

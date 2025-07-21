@@ -13,8 +13,8 @@ interface GlobalContextType {
   setRestrictedRoutes: React.Dispatch<React.SetStateAction<string[]>>;
   awaitingDeepResponse: AwaitingDeepResponseType | null;
   setAwaitingDeepResponse: React.Dispatch<React.SetStateAction<AwaitingDeepResponseType | null>>;
-  isNewFunctionalities: boolean;
-  setIsNewFunctionalities: React.Dispatch<React.SetStateAction<boolean>>;
+  // isNewFunctionalities: boolean;
+  // setIsNewFunctionalities: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface ApiMessage {
@@ -37,7 +37,7 @@ interface AwaitingDeepResponseType {
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isNewFunctionalities, setIsNewFunctionalities] = useState<boolean>(false);
+  // const [isNewFunctionalities, setIsNewFunctionalities] = useState<boolean>(false);
   const [companyInfoAdm, setCompanyInfoAdm] = useState<CompanyInfoAdm | null>(null);
   const [restrictedRoutes, setRestrictedRoutes] = useState<string[]>([]);
   const [awaitingDeepResponse, setAwaitingDeepResponse] = useState<AwaitingDeepResponseType | null>(null);
@@ -87,9 +87,9 @@ export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, [awaitingDeepResponse]);
 
-  useEffect(() => {
-    if (!isNewFunctionalities) return;
-  }, [isNewFunctionalities]);
+  // useEffect(() => {
+  //   if (!isNewFunctionalities) return;
+  // }, [isNewFunctionalities]);
 
   return (
     <GlobalContext.Provider 
@@ -99,8 +99,8 @@ export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setRestrictedRoutes,
         awaitingDeepResponse, 
         setAwaitingDeepResponse,
-        isNewFunctionalities,
-        setIsNewFunctionalities 
+        // isNewFunctionalities,
+        // setIsNewFunctionalities 
       }}>
       {children}
     </GlobalContext.Provider>

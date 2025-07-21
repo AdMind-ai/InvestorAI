@@ -116,9 +116,9 @@ const Login: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <Link to="/forgot-password" style={styles.recover}>
+          {/* <Link to="/forgot-password" style={styles.recover}>
             Forgot password?
-          </Link>
+          </Link> */}
 
           <button style={styles.button}>
             {loading ? <CircularProgress size={22} color="inherit" /> : "Login"}

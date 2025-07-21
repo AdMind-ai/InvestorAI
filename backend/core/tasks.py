@@ -6,7 +6,7 @@ from azure.storage.blob import BlobServiceClient
 from core.utils.deepl_translation import DeeplTranslation
 import logging
 import os
-from core.utils.get_company_info import get_competitors, get_ceos
+from core.utils.get_company_info import get_competitors
 from core.models.company_info.company_info import CompanyInfo
 from core.models.market_article_model import MarketNewsArticle
 import re
@@ -590,6 +590,11 @@ def generate_company_quarterly_report(quarter: str, year: int):
 
 
 logger = logging.getLogger(__name__)
+
+
+def get_ceos():
+    from core.models.company_info import CEO
+    return CEO.objects.all()
 
 
 @shared_task

@@ -8,11 +8,13 @@ class MarketNewsArticle(models.Model):
         ('competitors', 'Competitors'),
     ]
 
-    company = models.ForeignKey(
+    company = models.CharField(max_length=255)
+    company_fk = models.ForeignKey(
         CompanyInfo,
-        on_delete=models.CASCADE,
-        related_name='market_articles',
-        # null=False, # Uncomment if you want to enforce a company association
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="market_articles_fk"
     )
     type = models.CharField(max_length=12, choices=TYPE_CHOICES)
     title = models.CharField(max_length=255)

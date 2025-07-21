@@ -82,12 +82,12 @@ const menuItemsExtra = [
 ]
 
 const admItems = [
-  { title: 'Finance', path: '/usage', icon: FinanceIcon, activeIcon: FinanceIconActive },
+  // { title: 'Finance', path: '/usage', icon: FinanceIcon, activeIcon: FinanceIconActive },
   { title: 'Adm', path: '/access', icon: SecurityIcon, activeIcon: SecurityIconActive },
 ]
 
 const Sidebar: React.FC = () => {
-  const { isNewFunctionalities } = useGlobal()
+  // const { isNewFunctionalities } = useGlobal()
   const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
@@ -205,7 +205,7 @@ const Sidebar: React.FC = () => {
               </ListItem>
             )
           })}
-          {isNewFunctionalities && (
+          {/* {isNewFunctionalities && (
             <>
               {menuItemsExtra.map((item) => {
                 const isActive = activePath === item.path
@@ -253,7 +253,7 @@ const Sidebar: React.FC = () => {
                 )
               })}
             </>
-          )}
+          )} */}
         </List>
       </Box>
 
