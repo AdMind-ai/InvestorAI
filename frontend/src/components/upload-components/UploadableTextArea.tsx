@@ -173,6 +173,11 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
                     height: textAreaHeight,
                     overflowY: 'auto',
                     borderRadius: '2vh',
+                    '& fieldset': {
+                      borderColor: '#ccc',
+                      borderWidth: '1px',
+                      borderRadius: '2vh'
+                    }
                   },
                   '& .MuiOutlinedInput-input': {
                     overflowY: 'auto',
