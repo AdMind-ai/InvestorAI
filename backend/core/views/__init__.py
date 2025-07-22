@@ -42,6 +42,8 @@ from .stocks_view import (
 from .smartscan import SmartScanExtractView, SmartScanChatView
 from .quickdoc_view import QuickDocGenerateView
 
+from .competitor import CompetitorView
+
 __all__ = [
     'MasterRouteListUpdateView',
     'CompanyInfoViewAdm',
@@ -78,4 +80,5 @@ __all__ = [
     'SmartScanExtractView',
     'SmartScanChatView',
     'QuickDocGenerateView',
+    'CompetitorView',
 ]

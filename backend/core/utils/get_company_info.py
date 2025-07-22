@@ -21,4 +21,4 @@ def get_competitors(user):
     company = get_user_company(user)
     if not company:
         return []
-    return company.competitors_of.all()
+    return company.competitors

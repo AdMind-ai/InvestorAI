@@ -17,6 +17,8 @@ urlpatterns = [
          CompanyInfoViewAdm.as_view(), name='company-info-adm'),
     path('company-route-restriction/',
          CompanyRouteRestrictionView.as_view(), name='company-route-restriction'),
+    path('competitor/',
+         CompetitorView.as_view(), name='company-info-adm'),
     path('perplexity/deep-search/',
          PerplexityDeepSearchView.as_view(), name='deep-search'),
     path('perplexity/esg-news/', PerplexityESGNewsView.as_view(),
