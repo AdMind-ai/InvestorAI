@@ -15,6 +15,8 @@ from core.models.market_article_model import MarketNewsArticle
 from django.db.models import Q
 from core.models.market_company_report import CompanyMarketReport
 from core.utils.get_company_info import get_user_company
+from core.utils.marketNews.create_pdf import create_pdf_with_header_footer
+from core.utils.quickdoc import upload_to_blob_storage
 
 
 SYSTEM_MESSAGE = (
@@ -177,3 +179,29 @@ class MonthlyMarketReportView(APIView):
             })
 
         return Response(report_list, status=200)
+
+
+class GeneratePDFMonthlyMarketReportView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    parser_classes = [FormParser, MultiPartParser, JSONParser]
+    
+    def post(self, request):
+        report = request.data.get('report')
+        
+        if not report:
+            return Response(
+                {"error": "The report field cannot be empty."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        company = get_user_company(request.user)
+        month_year = datetime.now().strftime("%B_%Y")
+        short_name = company.short_name.replace(" ", "_")
+        
+        file_name = f"reports/{short_name}_performance_report_{month_year}.pdf"
+        
+        pdf = create_pdf_with_header_footer(report, '', company.website)
+        url_pdf = upload_to_blob_storage(pdf, file_name)
+
+        return Response({ "url": url_pdf })

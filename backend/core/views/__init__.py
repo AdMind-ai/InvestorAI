@@ -10,6 +10,7 @@ from .perplexity import PerplexityDeepSearchView
 from .perplexity import PerplexityESGNewsView
 from .perplexity import PerplexityCEONewsView
 from .perplexity import MonthlyMarketReportView
+from .perplexity import GeneratePDFMonthlyMarketReportView
 
 from .deepl import DeeplTranslateFileView
 from .deepl import DeeplTranslateTextView
@@ -53,6 +54,7 @@ __all__ = [
     'PerplexityESGNewsView',
     'PerplexityCEONewsView',
     'MonthlyMarketReportView',
+    'GeneratePDFMonthlyMarketReportView',
     'DeeplTranslateFileView',
     'DeeplTranslateTextView',
     'DeeplTranslateFileViewAsync',

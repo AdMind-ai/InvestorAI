@@ -64,6 +64,7 @@ export async function fetchMarketNews(): Promise<Article[]> {
 // 7. Buscar market overview report
 export async function fetchMarketOverview(): Promise<{ report: string, citations: string[] }> {
   const response = await api.get('/perplexity/market-report/', { params: { recent: true } });
+  console.log(response)
   return {
     report: response.data.report ?? '',
     citations: response.data.citations ?? []

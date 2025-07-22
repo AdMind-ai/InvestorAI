@@ -27,6 +27,8 @@ urlpatterns = [
          name='perplexity-ceo-news'),
     path('perplexity/market-report/', MonthlyMarketReportView.as_view(),
          name='monthly-market-report'),
+    path('perplexity/market-report/generate-pdf', GeneratePDFMonthlyMarketReportView.as_view(),
+         name='generate-pdf-monthly-market-report'),
     path('deepl-sync/file/', DeeplTranslateFileView.as_view(), name='translate-file'),
     path('deepl/text/', DeeplTranslateTextView.as_view(), name='translate-text'),
     path('deepl/file/', DeeplTranslateFileViewAsync.as_view(),

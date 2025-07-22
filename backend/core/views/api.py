@@ -40,6 +40,7 @@ class APIRootView(APIView):
                     "esg-news": request.build_absolute_uri(reverse("perplexity-esg-news")),
                     "ceo-news": request.build_absolute_uri(reverse("perplexity-ceo-news")),
                     "market-report": request.build_absolute_uri(reverse("monthly-market-report")),
+                    "generate-pdf-market-report": request.build_absolute_uri(reverse("generate-pdf-monthly-market-report")),
                 },
                 "deepl": {
                     "file": request.build_absolute_uri(reverse("translate-file")),
