@@ -182,7 +182,7 @@ const MarketCompetitors = () => {
             }}
             onMouseEnter={() => setHoverIndex(index)}
             onMouseLeave={() => setHoverIndex(null)}
-          // onClick={() => window.open(company.website, '_blank')}
+            onClick={() => window.open(company.website, '_blank')}
           >
             <Box
               sx={{
@@ -203,7 +203,10 @@ const MarketCompetitors = () => {
             >
               <IconButton
                 className="remove-icon"
-                onClick={() => handleOpenModalDeleteCompetitor(company.competitor)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenModalDeleteCompetitor(company.competitor)}
+                }
                 sx={{
                   position: 'absolute',
                   top: 0,
