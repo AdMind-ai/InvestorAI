@@ -14,6 +14,7 @@ from core.serializers.market_news_serializer import MarketNewsRequestSerializer
 from core.utils.get_company_info import get_user_company, get_competitors
 from core.utils.cron.market_news import fetch_news_thenewsapi, fetch_news_currentsapi, fetch_news_mediastack
 from rest_framework import status
+from django.db.models import Q
 
 NEWS_API_KEY = os.environ.get("NEWSAPI_KEY")
 CURR_NEWSAPI_KEY = os.environ.get("CURR_NEWSAPI_KEY")
@@ -122,13 +123,23 @@ class NewsApiMarketNewsView(APIView):
         }, status=200)
 
     def get(self, request):
-        company_name = request.query_params.get('company')
         news_type = request.query_params.get('type')
 
         queryset = MarketNewsArticle.objects.all()
 
-        if company_name:
-            queryset = queryset.filter(company__iexact=company_name)
+        company = get_user_company(request.user)
+        if not company:
+            return Response(
+                {"error": "No company assigned to user."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        company_short = company.short_name
+        company_long = company.long_name
+        
+        if company_short or company_long:
+            queryset = queryset.filter(
+                Q(company__iexact=company_short) | Q(company__iexact=company_long)
+            )
 
         if news_type:
             queryset = queryset.filter(type=news_type)
