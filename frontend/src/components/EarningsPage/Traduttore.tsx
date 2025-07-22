@@ -96,6 +96,7 @@ const Traduttore = () => {
       return;
     }
 
+    setDocumentsTranslated([])
     setIsLoading(true); 
     try {
       if (files.length > 0) { 
