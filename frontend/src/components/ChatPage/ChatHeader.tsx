@@ -112,8 +112,16 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   };
 
   const handleSaveChat = async () => {
-    if (!newChatName.trim() || chats.some(chat => chat.name === newChatName)) {
-      alert("Nome inválido ou já existe. Escolha outro.");
+    if (!newChatName.trim()) {
+      toast.warning("Il nome del chat è obbligatorio.");
+      return;
+    }
+    if (newChatName.trim().toLowerCase() === "new chat") {
+      toast.warning('Non puoi usare "New Chat" come nome di chat.');
+      return;
+    }
+    if (chats.some(chat => chat.name === newChatName.trim())) {
+      toast.warning("Il nome del chat esiste già. Scegline un altro.");
       return;
     }
   
@@ -207,7 +215,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         setChats(chatList);
 
         // Filtrar chats com o nome 'New Chat'
-        const chatsToRemove = chatList.filter((chat) => chat.name === 'New Chat');
+        const chatsToRemove = chatList.filter((chat) => chat.name.trim().toLowerCase() === "new chat");
 
         // Remover esses chats do backend
         for (const chat of chatsToRemove) {
