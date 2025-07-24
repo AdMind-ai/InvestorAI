@@ -8,6 +8,7 @@ import DocumentList from "../upload-components/DocumentListUploaded";
 import { api } from '../../api/api'
 import { toast } from "react-toastify";
 import CircularProgress from '@mui/material/CircularProgress';
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 
 interface PendingTask {
   task_id: string;
@@ -45,6 +46,7 @@ const Traduttore = () => {
   
   // Files
   const [files, setFiles] = useState<File[]>([]);
+  const [resetFilesFlag, setResetFilesFlag] = useState(false);
   const [isFileTranslated, setIsFileTranslated] = useState<boolean>(false);
   const [documentsTranslated, setDocumentsTranslated] = useState<Document[]>([]);
   
@@ -152,6 +154,21 @@ const Traduttore = () => {
   };
 
 
+  // Clean
+  const handleClean = () => {
+    setText('');
+    setIsTranslated(false);
+    setTranslatedText('');
+    setFiles([]);
+    setIsFileTranslated(false);
+    setDocumentsTranslated([]);
+    setPendingTasks([]);
+    setResetFilesFlag(flag => !flag);
+    // setSelectedLanguageOriginal('');
+    // setSelectedLanguageTarget('');
+  };
+
+
   useEffect(() => {
     if (pendingTasks.length === 0) {
       setIsLoading(false);
@@ -225,7 +242,7 @@ const Traduttore = () => {
           {/* Dropdown Lingua originale */}
           <SimpleDropdown title="Lingua originale" options={filteredOriginalLanguages} onSelect={setSelectedLanguageOriginal} selectedValue={selectedLanguageOriginal}/>
           {/* Upload Area */}
-          <UploadableTextArea text={text} setText={setText} onFileUpload={handleFileUpload} placeholder='Scrivi il tuo testo qui' documentPlaceHolder='Carica un file o trascinalo qui'/>
+          <UploadableTextArea text={text} setText={setText} onFileUpload={handleFileUpload} placeholder='Scrivi il tuo testo qui' documentPlaceHolder='Carica un file o trascinalo qui' resetFilesFlag={resetFilesFlag}/>
         </Box>
         <Box
           sx={{
@@ -257,21 +274,40 @@ const Traduttore = () => {
                 height='44vh' 
                 isDisabled 
               /> 
-          )
-        }
+            )
+          }
         </Box>
       </Box>
 
       {/* Generate Button */}
-      <Button
-        variant="contained"
-        color="primary"
-        disabled={!isButtonEnabled || isLoading}
-        onClick={handleTranslation}
-        sx={{ borderRadius: '6px', padding: '6px 16px', textTransform: 'none', width: 'calc(9.5vw)', fontSize: '17px', marginTop: '2vw' }}
-      >
-        {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Traduci'}
-      </Button>
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, marginTop: '2vw', width: '100%', justifyContent: 'center' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={!isButtonEnabled || isLoading}
+          onClick={handleTranslation}
+          sx={{ borderRadius: '6px', padding: '6px 16px', textTransform: 'none', width: 'calc(9.5vw)', fontSize: '17px' }}
+        >
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Traduci'}
+        </Button>
+        { isFileTranslated && (
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleClean}
+            startIcon={<CleaningServicesIcon />}
+            sx={{
+              borderRadius: '6px',
+              padding: '6px 16px',
+              textTransform: 'none',
+              width: 'calc(9.5vw)',
+              fontSize: '17px'
+            }}
+          >
+            Pulisci
+          </Button>
+        )}
+      </Box>
     </Box>
     
   )

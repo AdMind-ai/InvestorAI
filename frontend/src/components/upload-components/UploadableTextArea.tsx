@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, TextField, Typography, Button } from '@mui/material';
 import DocumentList from '../DocumentList';
 
@@ -9,6 +9,7 @@ interface UploadableTextAreaProps {
   placeholder: string;
   documentPlaceHolder: string;
   textAreaHeight?: string;
+  resetFilesFlag?: boolean;
 }
 
 interface Document {
@@ -21,9 +22,13 @@ const ACCEPTED_FILE_EXTENSIONS = [
   '.docx', '.doc', '.pptx', '.xlsx', '.pdf', '.txt', '.html', '.htm', '.xlf', '.xliff', '.srt'
 ];
 
-const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder='Scrivi il tuo testo qui', documentPlaceHolder='Carica un file o trascinalo qui', textAreaHeight='29vh' }) => {
+const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder='Scrivi il tuo testo qui', documentPlaceHolder='Carica un file o trascinalo qui', textAreaHeight='29vh', resetFilesFlag=false  }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dragOver, setDragOver] = useState<boolean>(false);
+
+  useEffect(() => {
+    setDocuments([]);
+  }, [resetFilesFlag]);
 
   const handleFileUpload = (file: File) => {
     const reader = new FileReader();
