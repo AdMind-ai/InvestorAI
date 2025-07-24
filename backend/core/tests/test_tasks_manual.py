@@ -1,6 +1,7 @@
 from core.tasks import *
 from datetime import datetime
 
+# python manage.py shell
 current_year = datetime.now().year
 
 collect_market_news.delay('sector')
