@@ -8,8 +8,6 @@ from openai import OpenAI
 import os
 from pydantic import BaseModel
 from typing import List
-from rest_framework import serializers
-from datetime import datetime
 from core.models.competitor_model import Competitor, CompetitorSearch
 from django.db.models import Max
 from core.utils.get_company_info import get_user_company, get_competitors
@@ -76,7 +74,6 @@ class OpenAICompetitorSearchView(APIView):
                         "content": "Extract competitor information from the web."},
                     {"role": "user", "content": prompt},
                 ],
-                # Specify list of CompetitorInfo
                 response_format=CompetitorInfoList,
             )
             competitor_info = completion.choices[0].message.parsed.model_dump()
