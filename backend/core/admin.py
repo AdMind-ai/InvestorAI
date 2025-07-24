@@ -181,7 +181,8 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(CompetitorInfo)
 class CompetitorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'stock_symbol', 'sector', 'company')
+    list_display = ('name', 'stock_symbol',
+                    'sectors_competitor', 'company', 'created_at')
 
 
 @admin.register(CEO)

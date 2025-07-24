@@ -49,7 +49,7 @@ class PerplexityDeepSearchView(APIView):
             # name="deepsearch-placeholder"
         )
         # 2. Chama tarefa async (passe o chat/conversation/message ID como referência)
-        company_info = get_user_company(request.user)
+        company_info = get_user_company(user)
         if not company_info:
             return Response(
                 {"error": "No company assigned to user."},
@@ -57,7 +57,7 @@ class PerplexityDeepSearchView(APIView):
             )
         company = company_info.long_name
         deep_search_perplexity_async.delay(
-            conversation.id, waiting_message.id, user.id, company)
+            conversation.id, waiting_message.id, company)
         return Response({
             "conversation_id": conversation.id,
             "waiting_message_id": waiting_message.id,

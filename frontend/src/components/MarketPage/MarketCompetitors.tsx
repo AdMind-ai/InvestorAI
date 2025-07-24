@@ -21,9 +21,10 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import { fetchWithAuth } from "../../api/fetchWithAuth";
 import { toast } from "react-toastify";
+import { fetchCompetitors } from "../../api/marketApi";
 
 const MarketCompetitors = () => {
-  const { competitors } = useMarket();
+  const { competitors, setCompetitors } = useMarket();
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [visibleCompetitorsCount, setVisibleCompetitorsCount] = useState(12);
@@ -64,75 +65,79 @@ const MarketCompetitors = () => {
   }
 
   const handleAddCompetitor = async (event: React.FormEvent) => {
-    setIsLoading(true)
+    setIsLoading(true);
     event.preventDefault();
 
-    const company = await getCurrentCompany();
     const formData = new FormData(event.target as HTMLFormElement);
 
-    const data = {
-      company: company,
-      name: formData.get('company_name'),
-      stock_symbol: formData.get('stock'),
-      sector: sectors.join(','),
-      website: formData.get('website'),
+    // Apenas 'name' é obrigatório!
+    const name = formData.get('company_name')?.toString() ?? '';
+    if (!name.trim()) {
+      toast.error("Il nome della compagnia concorrente è obbligatorio.");
+      setIsLoading(false);
+      return;
+    }
+
+    const data: Record<string, any> = {
+      name,
+      stock_symbol: formData.get('stock')?.toString() ?? '',
+      website: formData.get('website')?.toString() ?? '',
+      sectors: formData.get('sectors')?.toString().split(',').map(s => s.trim()).filter(Boolean) ?? [],
     };
 
     try {
-      const response = await fetchWithAuth('/competitor/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await fetchWithAuth('/openai/competitors-search/', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-      })
+      });
 
-      if (response.status == 201) {
-        toast.success("Competitore aggiunto con successo")
+      if (response.status === 200) {
+        toast.success("Competitor aggiunto/aggiornato con successo!");
+        // Atualiza os concorrentes DEPOIS do add
+        const updated = await fetchCompetitors();
+        setCompetitors(updated);
+        handleCloseModalAddCompetitor();
       } else {
-        toast.error("Errore nell'aggiungere il concorrente")
+        const resp = await response.json();
+        toast.error(resp?.error ?? "Errore nell'aggiungere il concorrente");
       }
+    } catch (e) {
+      toast.error("Errore nell'aggiungere il concorrente");
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
-    catch (e) {
-      toast.error("Errore nell'aggiungere il concorrente")
-      console.log(e)
-    }
-    finally {
-      handleCloseModalAddCompetitor()
-      setIsLoading(false)
-    }
-  }
+  };
 
-  const handleDeleteCompetitor = async (competitor_name: string) => {
+  const handleDeleteCompetitor = async (competitorName: string) => {
+    setIsLoading(true);
     try {
-      const response = await fetchWithAuth('/competitor/', {
+      const response = await fetchWithAuth('/openai/competitors-search/', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: competitor_name })
-      })
+        body: JSON.stringify({ name: competitorName })
+      });
 
-      if (response.status == 200) {
-        toast.success("Competitore eliminato con successo")
+      if (response.status === 200) {
+        toast.success("Competitore eliminato con successo");
+        // Atualiza concorrentes DEPOIS
+        const updated = await fetchCompetitors();
+        setCompetitors(updated);
       } else {
-        const data = response.json()
-        console.log(data)
+        const resp = await response.json();
+        toast.error(resp?.error ?? "Errore nell'eliminazione del concorrente");
       }
-
+    } catch (e) {
+      toast.error("Errore nell'eliminazione del concorrente");
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+      setOpenModalDelete(false);
     }
-    catch (e) {
-      toast.error("Errore nell'eliminazione del concorrente. Riprova")
-      console.log(e)
-    }
-  }
-
-  const getCurrentCompany = async () => {
-    const response = await fetchWithAuth('/company-info')
-    const data = await response.json();
-
-    return data.long_name
-  }
+  };
 
   return (
     <Box sx={{
@@ -285,17 +290,6 @@ const MarketCompetitors = () => {
               mt: 1.5,
               width: 'calc(40vw)'
             }}>
-              {/* <TextField
-                autoFocus
-                required
-                margin="dense"
-                id="company"
-                name="company"
-                label="Company"
-                type="text"
-                fullWidth
-                variant="outlined"
-              /> */}
               <Box sx={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -322,9 +316,7 @@ const MarketCompetitors = () => {
                 />
               </Box>
 
-
               <TextField
-                required
                 margin="dense"
                 id="website"
                 name="website"

@@ -48,11 +48,9 @@ export async function fetchQuarterlyReport(
 
 // 5. Buscar concorrentes
 export async function fetchCompetitors(): Promise<Competitor[]> {
-  const response = await api.get('/openai/competitors-search/', {
-    params: { recent: true }
-  });
-  // Retorna o array (confira o formato conforme uso)
-  return response.data[0]?.competitors ?? [];
+  const response = await api.get('/openai/competitors-search/');
+  // Retorna o array do objeto .competitors
+  return response.data?.competitors ?? [];
 }
 
 // 6. Buscar notícias

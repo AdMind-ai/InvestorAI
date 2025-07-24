@@ -5,7 +5,8 @@ from core.models.company_info import CompanyInfo, CompetitorInfo, CEO
 class CompetitorSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompetitorInfo
-        fields = ['name', 'stock_symbol', 'sector', 'website']
+        fields = ['name', 'stock_symbol',
+                  'sectors_competitor', 'website', 'created_at', 'description', 'logo']
 
 
 class CEOSerializer(serializers.ModelSerializer):

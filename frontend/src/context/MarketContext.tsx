@@ -35,6 +35,7 @@ interface MarketContextType {
   sectorNews: Article[];
   competitorNewsCurrentPage: number;
   competitors: Competitor[];
+  setCompetitors: React.Dispatch<React.SetStateAction<Competitor[]>>;
   overviewReport: string;
   citations: string[];
   // Adicione outros que quiser compartilhar
@@ -156,7 +157,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       selectedQuarter, setSelectedQuarter,
       competitorNews, sectorNews,
       competitorNewsCurrentPage,
-      competitors,
+      competitors, setCompetitors,
       overviewReport, citations
     }}>
       {children}

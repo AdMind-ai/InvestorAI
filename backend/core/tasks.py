@@ -1,4 +1,5 @@
 # core/tasks.py
+from core.models.company_info import CEO
 from django.conf import settings
 import tempfile
 from core.utils.quickdoc.upload_to_blob_storage import upload_to_blob_storage
@@ -125,10 +126,10 @@ def collect_market_news(news_type):
                 obj, created = MarketNewsArticle.objects.get_or_create(
                     company=company,
                     type=news_type,
-                    title=item.get("title"),
+                    url=item.get("url"),
+                    date_published=date_published,
                     defaults={
-                        'url': item.get("url"),
-                        'date_published': date_published,
+                        'title': item.get("title"),
                     }
                 )
                 if created:
@@ -158,6 +159,7 @@ class CompetitorInfo(BaseModel):
     sectors: List[str]
     description: str
     website: str
+    stock_symbol: str
 
 
 class CompetitorInfoList(BaseModel):
@@ -168,7 +170,6 @@ class CompetitorInfoList(BaseModel):
 @shared_task
 def fetch_and_store_competitors():
     results = []
-
     for company in CompanyInfo.objects.all():
         company_name = company.short_name
         competitors = get_competitors(company)
@@ -177,7 +178,7 @@ def fetch_and_store_competitors():
 
         if not company_name:
             results.append(
-                {"company": company_name, "error": "Company name is required."})
+                {"company": company.long_name, "error": "Company name is required."})
             continue
 
         prompt = f"""
@@ -187,6 +188,7 @@ def fetch_and_store_competitors():
         - Business Sectors (e.g., Technology, Finance, etc.)
         - Brief Description
         - Official Website URL
+        - stock_symbol (if exists, else empty)
 
         Include those competitors:
         {competitor_block}
@@ -229,15 +231,25 @@ def fetch_and_store_competitors():
                 })
 
             for competitor in competitor_info['competitors']:
-                CompanyCompetitors.objects.get_or_create(
+                company_kwargs = {
+                    "company": company,
+                    "name": competitor.get('company'),
+                    "stock_symbol": competitor.get('stock_symbol', ''),
+                    "sectors_company": company.sector or '',
+                    "website": competitor.get('website', ''),
+                    "logo": competitor.get('logo', ''),
+                    "sectors_competitor": competitor.get('sectors', []),
+                    "description": competitor.get('description', ''),
+                }
+                obj, created = CompanyCompetitors.objects.get_or_create(
                     company=company,
-                    name=competitor['company'],
-                    defaults={
-                        # "stock_symbol": competitor.get('stock_symbol', ""),
-                        "sector": ", ".join(competitor['sectors']) if isinstance(competitor['sectors'], list) else competitor['sectors'],
-                        "website": competitor['website'],
-                    }
+                    name=company_kwargs['name'],
+                    defaults=company_kwargs
                 )
+                if not created:
+                    for k, v in company_kwargs.items():
+                        setattr(obj, k, v)
+                    obj.save()
 
             results.append({
                 "success": True,
@@ -592,14 +604,9 @@ def generate_company_quarterly_report(quarter: str, year: int):
 logger = logging.getLogger(__name__)
 
 
-def get_ceos():
-    from core.models.company_info import CEO
-    return CEO.objects.all()
-
-
 @shared_task
 def daily_ceo_articles_fetch():
-    ceos = get_ceos()
+    ceos = CEO.objects.all()
     if not ceos:
         logger.info("No CEOs found for fetching news articles.")
         return
@@ -745,7 +752,7 @@ def fetch_all_esg_topics_daily():
 
 
 @shared_task
-def deep_search_perplexity_async(conversation_id, message_id, user_id, company):
+def deep_search_perplexity_async(conversation_id, message_id, company):
     """
     Task assíncrona para consultar Perplexity e atualizar a mensagem do chat.
     """
@@ -811,7 +818,7 @@ def _update_message(message_id, content, citations):
     try:
         message = ChatMessage.objects.get(id=message_id)
         message.content = content
-        message.citations = citations
+        message.citations = citations or []
         message.created_at = timezone.now()
         message.save()
     except Exception as ex:

@@ -43,7 +43,7 @@ from .stocks_view import (
 from .smartscan import SmartScanExtractView, SmartScanChatView
 from .quickdoc_view import QuickDocGenerateView
 
-from .competitor import CompetitorView
+from .competitor_old import CompetitorView
 
 __all__ = [
     'MasterRouteListUpdateView',
