@@ -45,11 +45,11 @@ const Earnings: React.FC = () => {
       content:
         'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
     },
-    {
-      title: 'Social Media',
-      content:
-        'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
-    },
+    // {
+    //   title: 'Social Media',
+    //   content:
+    //     'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
+    // },
   ]
 
   return (
@@ -122,7 +122,7 @@ const Earnings: React.FC = () => {
           {selectedOption === 'Traduttore' && <Traduttore />}
           {selectedOption === 'Crea speech' && <CreaSpeech onChange={setIsButtonEnabled}/>}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
-          {selectedOption === 'Social Media' && <SocialMedia />}
+          {/* {selectedOption === 'Social Media' && <SocialMedia />} */}
           
         </Box>
       </Box>
