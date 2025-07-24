@@ -23,6 +23,13 @@ import { fetchWithAuth } from "../../api/fetchWithAuth";
 import { toast } from "react-toastify";
 import { fetchCompetitors } from "../../api/marketApi";
 
+interface CompetitorPayload {
+  name: string;
+  stock_symbol: string;
+  website: string;
+  sectors: string[];
+}
+
 const MarketCompetitors = () => {
   const { competitors, setCompetitors } = useMarket();
   const [openModalAdd, setOpenModalAdd] = useState(false);
@@ -78,11 +85,11 @@ const MarketCompetitors = () => {
       return;
     }
 
-    const data: Record<string, any> = {
+    const data: CompetitorPayload = {
       name,
       stock_symbol: formData.get('stock')?.toString() ?? '',
       website: formData.get('website')?.toString() ?? '',
-      sectors: formData.get('sectors')?.toString().split(',').map(s => s.trim()).filter(Boolean) ?? [],
+      sectors,
     };
 
     try {
