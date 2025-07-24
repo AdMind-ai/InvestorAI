@@ -125,6 +125,7 @@ def collect_market_news(news_type):
             if date_published:
                 obj, created = MarketNewsArticle.objects.get_or_create(
                     company=company,
+                    company_fk=company,
                     type=news_type,
                     url=item.get("url"),
                     date_published=date_published,
@@ -207,7 +208,6 @@ def fetch_and_store_competitors():
             competitor_info = completion.choices[0].message.parsed.model_dump()
 
             search_record = CompetitorSearch.objects.create(
-                company=company,
                 company_name=company_name,
                 sector=company.sector
             )
@@ -529,7 +529,7 @@ def generate_company_quarterly_report(quarter: str, year: int):
             continue
 
         qreport, _ = CompanyQuarterlyReport.objects.get_or_create(
-            company=company,
+            company=company.long_name,
             quarter=quarter,
             year=year
         )

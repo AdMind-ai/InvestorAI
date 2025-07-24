@@ -16,7 +16,7 @@ class CEOSerializer(serializers.ModelSerializer):
 
 
 class CompanySerializer(serializers.ModelSerializer):
-    competitors = CompetitorSerializer(many=True, source='competitors_of')
+    competitors = CompetitorSerializer(many=True)
     ceos = CEOSerializer(many=True)
 
     class Meta:

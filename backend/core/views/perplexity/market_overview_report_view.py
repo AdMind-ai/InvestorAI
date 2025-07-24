@@ -40,7 +40,7 @@ def safe_eval_list_string(list_string):
 
 
 class MonthlyMarketReportView(APIView):
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
 
@@ -135,6 +135,8 @@ class MonthlyMarketReportView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         company = company_info.short_name
+        long_name = getattr(company_info, "long_name", None)
+
         recent = request.query_params.get('recent', 'false').lower() == 'true'
 
         today = datetime.today()
@@ -142,9 +144,10 @@ class MonthlyMarketReportView(APIView):
 
         report_query = CompanyMarketReport.objects.all()
 
-        if company:
+        if company or long_name:
             report_query = report_query.filter(
-                company__iexact=company)
+                Q(company__iexact=company) | Q(company__iexact=long_name)
+            )
 
         if recent:
             report_query = report_query.filter(created_at__gte=last_month)
@@ -185,23 +188,23 @@ class GeneratePDFMonthlyMarketReportView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [FormParser, MultiPartParser, JSONParser]
-    
+
     def post(self, request):
         report = request.data.get('report')
-        
+
         if not report:
             return Response(
                 {"error": "The report field cannot be empty."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         company = get_user_company(request.user)
         month_year = datetime.now().strftime("%B_%Y")
         short_name = company.short_name.replace(" ", "_")
-        
+
         file_name = f"reports/{short_name}_performance_report_{month_year}.pdf"
-        
+
         pdf = create_pdf_with_header_footer(report, '', company.website)
         url_pdf = upload_to_blob_storage(pdf, file_name)
 
-        return Response({ "url": url_pdf })
+        return Response({"url": url_pdf})

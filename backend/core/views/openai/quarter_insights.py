@@ -11,6 +11,7 @@ import os
 import requests
 from rest_framework import serializers
 from core.utils.get_company_info import get_user_company
+from django.db.models import Q
 
 
 class CompanyQuarterlyReportSerializer(serializers.Serializer):
@@ -136,9 +137,15 @@ class OpenAICompanyQuarterlyReportView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         company = company_info.short_name
+        long_name = getattr(company_info, 'long_name', None)
+
+        # Busca os mesmos para ambos nomes
+        company_query = Q(company__iexact=company)
+        if long_name:
+            company_query |= Q(company__iexact=long_name)
 
         available_reports = CompanyQuarterlyReport.objects.filter(
-            company=company,
+            company_query,
             insight_report__isnull=False
         ).values('quarter', 'year').distinct().order_by('-year', '-quarter')
 
@@ -151,7 +158,7 @@ class OpenAICompanyQuarterlyReportView(APIView):
 
         if quarter and year:
             qreport = CompanyQuarterlyReport.objects.filter(
-                company=company,
+                company_query,
                 quarter=quarter,
                 year=year,
                 insight_report__isnull=False
