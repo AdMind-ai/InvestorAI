@@ -186,16 +186,20 @@ const TeamManagement: React.FC = () => {
     arr.sort((a, b) => {
       const valA = a[orderBy];
       const valB = b[orderBy];
+      // Proteção contra undefined:
+      if (valA === undefined && valB === undefined) return 0;
+      if (valA === undefined) return 1;
+      if (valB === undefined) return -1;
+
       if (orderBy === "createdAt" || orderBy === "modifiedAt") {
-        // Sort by date
-        return (order==="asc" ? 1 : -1) * (valA > valB ? 1 : -1);
+        return (order === "asc" ? 1 : -1) * (valA > valB ? 1 : -1);
       }
       if (typeof valA === "string" && typeof valB === "string") {
-        return (order==="asc" ? 1 : -1) * valA.localeCompare(valB);
+        return (order === "asc" ? 1 : -1) * valA.localeCompare(valB);
       }
       // fallback:
       if (valA === valB) return 0;
-      return (order==="asc" ? 1 : -1) * (valA > valB ? 1 : -1);
+      return (order === "asc" ? 1 : -1) * (valA > valB ? 1 : -1);
     });
     return arr;
   }, [members, orderBy, order]);
