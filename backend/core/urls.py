@@ -27,12 +27,14 @@ urlpatterns = [
          name='monthly-market-report'),
     path('perplexity/market-report/generate-pdf', GeneratePDFMonthlyMarketReportView.as_view(),
          name='generate-pdf-monthly-market-report'),
+    # Translation Deepl
     path('deepl-sync/file/', DeeplTranslateFileView.as_view(), name='translate-file'),
     path('deepl/text/', DeeplTranslateTextView.as_view(), name='translate-text'),
     path('deepl/file/', DeeplTranslateFileViewAsync.as_view(),
          name='deepl-translate-file'),
     path('deepl/file/task_status/', DeeplFileTaskStatusView.as_view(),
          name='deepl-translate-file-status'),
+    # OpenAI
     path('openai/audio-transcription/',
          OpenAiAudioTranscriptView.as_view(), name='audio-transcription'),
     path('openai/esg-news/', OpenAIESGNewsView.as_view(), name='openai-esg-news'),

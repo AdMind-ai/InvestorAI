@@ -13,7 +13,7 @@ import SaveCleanButtons from '../components/SaveCleanButtons'
 import Traduttore from '../components/EarningsPage/Traduttore'
 import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
-import SocialMedia from '../components/EarningsPage/socialMedia/SocialMedia'
+// import SocialMedia from '../components/EarningsPage/socialMedia/SocialMedia'
 
 const Earnings: React.FC = () => {
   const theme = useTheme();

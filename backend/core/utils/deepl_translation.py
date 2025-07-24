@@ -54,9 +54,11 @@ class DeeplTranslation:
     def __init__(self, deepl_key):
         self.key = deepl_key
 
-    def translate_file(self, file, target, origin):
+    def translate_file(self, file, target, origin, original_filename_wo_ext=None):
         file_b = file.read()
         translator = deepl.Translator(self.key)
+
+        # Temp file to store the translated document
         filename_without_extension, extension = os.path.splitext(file.name)
         file_path = os.path.join(settings.MEDIA_ROOT, 'files')
         os.makedirs(file_path, exist_ok=True)
@@ -93,8 +95,14 @@ class DeeplTranslation:
             temp_file.close()
 
             formatted_date = datetime.now().strftime("%d-%m-%H%M")
-            clean_filename = filename_without_extension.replace(
-                "_tradotto", "")
+            clean_filename = ''
+            if original_filename_wo_ext:
+                print(f"original_filename_wo_ext: {original_filename_wo_ext}")
+                clean_filename = clean_filename = original_filename_wo_ext.replace(
+                    "_tradotto", "")
+            else:
+                clean_filename = filename_without_extension.replace(
+                    "_tradotto", "")
             new_filename = f"{clean_filename}_{formatted_date}_tradotto{extension}"
             final_path = os.path.join(file_path, new_filename)
 

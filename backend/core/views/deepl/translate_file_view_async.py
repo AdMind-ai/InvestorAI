@@ -84,33 +84,16 @@ class DeeplTranslateFileViewAsync(APIView):
             file.file, blob_name
         )
 
-        # # Salva o arquivo manualmente em uma pasta conhecida (ex: files/)
-        # filename = f"{uuid.uuid4().hex}_{file.name}"
-        # file_path = os.path.join(settings.MEDIA_ROOT, 'files', filename)
-        # os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        # with open(file_path, 'wb+') as destination:
-        #     for chunk in file.chunks():
-        #         destination.write(chunk)
-
-        # deepl_key = os.getenv('DEEPL_KEY')
-        # task = async_translate_file.delay(
-        #     deepl_key,
-        #     os.path.join(settings.MEDIA_ROOT, 'files'),
-        #     filename,
-        #     target,
-        #     origin
-        # )
-        # return Response(
-        #     {"task_id": task.id, "filename": filename},
-        #     status=status.HTTP_202_ACCEPTED
-        # )
+        filename = file.name         # ex: 'documento.pdf'
+        filename_no_ext, _ = os.path.splitext(filename)
 
         deepl_key = settings.DEEPL_KEY
         task = async_translate_file.delay(
             deepl_key,
             blob_name,
             target,
-            origin
+            origin,
+            filename_no_ext
         )
         return Response(
             {"task_id": task.id, "filename": blob_name},

@@ -826,7 +826,7 @@ def _update_message(message_id, content, citations):
 
 
 @shared_task
-def async_translate_file(deepl_key, blob_name, target, origin):
+def async_translate_file(deepl_key, blob_name, target, origin, filename_no_ext=None):
     # blob_name: ex "usuario/uuid_nomeoriginal.pdf"
     user_folder = os.path.dirname(blob_name)        # "usuario"
     base_name = os.path.basename(blob_name)         # "uuid_nomeoriginal.pdf"
@@ -837,6 +837,7 @@ def async_translate_file(deepl_key, blob_name, target, origin):
         settings.AZURE_CONNECTION_STRING)
     blob_client = blob_service_client.get_blob_client(
         container=settings.AZURE_CONTAINER_NAME, blob=blob_name)
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as temp_file:
         temp_file.write(blob_client.download_blob().readall())
         temp_file.flush()
@@ -846,9 +847,9 @@ def async_translate_file(deepl_key, blob_name, target, origin):
     with open(temp_path, 'rb') as f:
         translation = DeeplTranslation(deepl_key)
         translated_file_path = translation.translate_file(
-            f, target, origin)
+            f, target, origin, filename_no_ext)
 
-    # 3. Criar nome final do arquivo traduzido com extensão
+    # 3. Criar caminho final do arquivo traduzido com extensão
     translated_file_name = os.path.basename(
         translated_file_path)
     translated_blob_name = f"{user_folder}/{translated_file_name}"

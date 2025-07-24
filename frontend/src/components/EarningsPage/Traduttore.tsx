@@ -109,12 +109,16 @@ const Traduttore = () => {
           formData.append('target', languageMap[selectedLanguageTarget!]);
           return api.post('/deepl/file/', formData, {
             headers: { "Content-Type": "multipart/form-data" }
-          }).then(res => ({ 
-            task_id: res.data.task_id, 
-            filename: res.data.filename, 
-            originalName: file.name,
-            originalType: getFileExtension(file.name)
-          }));
+          }).then(res => { 
+            const result = { 
+              task_id: res.data.task_id, 
+              filename: res.data.filename, 
+              originalName: file.name,
+              originalType: getFileExtension(file.name)
+            };
+            console.log("Translation request sent for file:", result.filename, result.originalName);
+            return result;
+          });
         });
 
         toast.info("Attendere un momento, la traduzione potrebbe richiedere alcuni minuti.");
