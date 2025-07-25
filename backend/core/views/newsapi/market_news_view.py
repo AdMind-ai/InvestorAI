@@ -146,16 +146,23 @@ class NewsApiMarketNewsView(APIView):
 
         queryset = queryset.order_by('-created_at')
 
-        articles_data = [
-            {
-                "company": article.company,
-                "type": article.type,
-                "title": article.title,
-                "url": article.url,
-                "date_published": article.date_published,
-                "created_at": article.created_at
-            }
-            for article in queryset
-        ]
+        seen_titles_urls = set()
+        articles_data = []
+
+        for article in queryset:
+            key = (article.title, article.url)
+            if key in seen_titles_urls:
+                continue
+            seen_titles_urls.add(key)
+            
+            articles_data.append(
+                {
+                    "company": article.company,
+                    "type": article.type,
+                    "title": article.title,
+                    "url": article.url,
+                    "date_published": article.date_published,
+                    "created_at": article.created_at
+                })
 
         return Response({"articles": articles_data}, status=200)
