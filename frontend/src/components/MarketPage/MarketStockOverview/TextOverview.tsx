@@ -36,7 +36,7 @@ const TextOverview = () => {
           <Box sx={{ flex: '1 1 50%', pb: 1, pl:2, mt:1 }}>
             <Typography variant="subtitle1">Settore: <b>{companyInfo ? `${companyInfo.industry} / ${companyInfo.sector}` : ''}</b></Typography>
             <Typography variant="subtitle1">Capitalizzazione mercato: <b>{companyInfo ? `€ ${companyInfo.marketCap?.toLocaleString('it-IT')}` : ''}</b></Typography>
-            <Typography variant="subtitle1">Raccomandazione: <b>{companyInfo ? companyInfo.recommendationKey.replace('_', ' ') : ''}</b></Typography>
+            <Typography variant="subtitle1">Raccomandazione: <b>{companyInfo ? companyInfo.recommendationKey?.replace('_', ' ') : ''}</b></Typography>
             <Typography variant="subtitle1">Indice PE: <b>{companyInfo && companyInfo.forwardPE != null ? companyInfo.forwardPE.toFixed(1) : 'N/A'}</b></Typography>
           </Box>
 

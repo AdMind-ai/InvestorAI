@@ -3,7 +3,7 @@ import { api } from './api';
 import { ALL_APP_ROUTES } from "../routes";
 
 export async function fetchRestrictedRoutes(): Promise<string[]> {
-     try {
+    try {
         await api.post("/master-route-list/", { routes: ALL_APP_ROUTES });
     } catch (e) {
         console.error("Error posting master route list:", e);

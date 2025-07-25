@@ -16,6 +16,7 @@ from core.serializers.company_stock_data_serializer import CompanyStockDataSeria
 from rest_framework import serializers
 from core.utils.get_company_info import get_user_company
 from core.utils.yahoo_finance import YahooFinanceService
+from datetime import datetime
 
 
 class CompanyStockInputSerializer(serializers.Serializer):
@@ -177,13 +178,12 @@ class OpenAIInvestingDataScraper(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         company = company_info.short_name
+        long_name = company_info.long_name
 
-        # company = request.query_params.get('company', None)
         start_date = request.query_params.get('start_date', None)
         end_date = request.query_params.get('end_date', None)
 
         filters = Q()
-
         if start_date and end_date:
             filters &= Q(created_at__range=[start_date, end_date])
         elif start_date:
@@ -191,78 +191,154 @@ class OpenAIInvestingDataScraper(APIView):
         elif end_date:
             filters &= Q(created_at__lte=end_date)
 
-        if company:
-            filters &= Q(company__iexact=company)
-            companies = CompanyStockData.objects.filter(filters)
+        filters &= Q(company__iexact=company) | Q(
+            company__iexact=long_name)
+        companies = CompanyStockData.objects.filter(filters)
 
-            if not companies.exists():
-                return Response({"detail": "No data found."}, status=404)
+        if not companies.exists():
+            # 1️⃣ Tenta criar igual ao POST
+            try:
+                instance = generate_and_save_company_stock_data(company_info)
+            except Exception as e:
+                instance = None
 
-            created_at = list(companies.values_list('created_at', flat=True))
-            stock_price_usd = list(companies.values_list(
-                'stock_price_today_usd', flat=True))
-            stock_price_eur = list(companies.values_list(
-                'stock_price_today_eur', flat=True))
-
-            latest_data = companies.order_by('-created_at').first()
-
+            if instance:
+                serializer = CompanyStockDataSerializer(instance)
+                return Response(serializer.data, status=201)
+            # 2️⃣ Se mesmo assim não conseguir, retorna modelo vazio:
+            date = datetime.now().strftime("%B %d, %Y")
             response_data = {
-                "id": latest_data.id,
-                "created_at": created_at,
-                "date": latest_data.date,
-                "company": latest_data.company,
-                "stock_symbol": latest_data.stock_symbol,
-                "stock_exchange": latest_data.stock_exchange,
-                "stock_price_today_usd": stock_price_usd,
-                "stock_price_today_eur": stock_price_eur,
-                "market_cap_usd": latest_data.market_cap_usd,
-                "market_cap_eur": latest_data.market_cap_eur,
-                "pe_ratio": latest_data.pe_ratio,
-                "sector": latest_data.sector,
-                "stock_volatility_level": latest_data.stock_volatility_level,
-                "short_term_forecast": latest_data.short_term_forecast,
-                "possible_risk_factors": latest_data.possible_risk_factors,
-                "latest_news": latest_data.latest_news,
-                "analyst_recommendation": latest_data.analyst_recommendation
+                "id": 0,
+                "created_at": [],
+                "date": str(date),
+                "company": long_name,
+                "stock_symbol": company_info.stock_symbol or '',
+                "stock_exchange": 'eur',
+                "stock_price_today_usd": [],
+                "stock_price_today_eur": [],
+                "market_cap_usd": '',
+                "market_cap_eur": '',
+                "pe_ratio": 0,
+                "sector": company_info.sector or '',
+                "stock_volatility_level": 'none',
+                "short_term_forecast": "Data not available",
+                "possible_risk_factors": "Data not available",
+                "latest_news": "Data not available",
+                "analyst_recommendation": 'none'
             }
             return Response(response_data, status=200)
 
-        else:
-            distinct_companies = CompanyStockData.objects.filter(
-                filters).values_list('company', flat=True).distinct()
-            response_list = []
+        created_at = list(companies.values_list('created_at', flat=True))
+        stock_price_usd = list(companies.values_list(
+            'stock_price_today_usd', flat=True))
+        stock_price_eur = list(companies.values_list(
+            'stock_price_today_eur', flat=True))
 
-            for company_name in distinct_companies:
-                company_data = CompanyStockData.objects.filter(
-                    company=company_name)
-                created_at = list(company_data.values_list(
-                    'created_at', flat=True))
-                stock_price_usd = list(company_data.values_list(
-                    'stock_price_today_usd', flat=True))
-                stock_price_eur = list(company_data.values_list(
-                    'stock_price_today_eur', flat=True))
+        latest_data = companies.order_by('-created_at').first()
 
-                latest_data = company_data.order_by('-created_at').first()
+        response_data = {
+            "id": latest_data.id,
+            "created_at": created_at,
+            "date": latest_data.date,
+            "company": latest_data.company,
+            "stock_symbol": latest_data.stock_symbol,
+            "stock_exchange": latest_data.stock_exchange,
+            "stock_price_today_usd": stock_price_usd,
+            "stock_price_today_eur": stock_price_eur,
+            "market_cap_usd": latest_data.market_cap_usd,
+            "market_cap_eur": latest_data.market_cap_eur,
+            "pe_ratio": latest_data.pe_ratio,
+            "sector": latest_data.sector,
+            "stock_volatility_level": latest_data.stock_volatility_level,
+            "short_term_forecast": latest_data.short_term_forecast,
+            "possible_risk_factors": latest_data.possible_risk_factors,
+            "latest_news": latest_data.latest_news,
+            "analyst_recommendation": latest_data.analyst_recommendation
+        }
+        return Response(response_data, status=200)
 
-                response_data = {
-                    "id": latest_data.id,
-                    "created_at": created_at,
-                    "date": latest_data.date,
-                    "company": latest_data.company,
-                    "stock_symbol": latest_data.stock_symbol,
-                    "stock_exchange": latest_data.stock_exchange,
-                    "stock_price_today_usd": stock_price_usd,
-                    "stock_price_today_eur": stock_price_eur,
-                    "market_cap_usd": latest_data.market_cap_usd,
-                    "market_cap_eur": latest_data.market_cap_eur,
-                    "pe_ratio": latest_data.pe_ratio,
-                    "sector": latest_data.sector,
-                    "stock_volatility_level": latest_data.stock_volatility_level,
-                    "short_term_forecast": latest_data.short_term_forecast,
-                    "possible_risk_factors": latest_data.possible_risk_factors,
-                    "latest_news": latest_data.latest_news,
-                    "analyst_recommendation": latest_data.analyst_recommendation
-                }
-                response_list.append(response_data)
 
-            return Response(response_list, status=200)
+def generate_and_save_company_stock_data(company_info):
+    date_today = datetime.now().strftime("%B %d, %Y")
+
+    stockInfo = get_stock_info(company_info)
+    if not stockInfo:
+        # Ou retorna (None, "erro msg") se quiser identificar falha
+        return None
+
+    prompt = f"""
+        You are a financial consultant specialized in detailed business profiles and market analysis.
+
+        Analyze the current business situation of {company_info.long_name} ({company_info.stock_symbol}).  
+        Base your answer on the provided company and stock data (see context below) and recent, reliable news—using online research.
+
+        **Your report must contain:**
+
+        1. **Latest Relevant News**
+            - Summarize the most important news and market movements about {company_info.long_name} from the past 7 days.
+            - Focus on facts that impact business outlook, reputation, or pricing.
+
+        2. **Short-Term Stock Forecast**
+            - Provide a concise prediction for the probable stock movement in the short term (next few weeks).
+            - Base your assessment on financial data and recent news.
+
+        3. **Potential Risk Factors**
+            - List and briefly explain the top risks or uncertainties that could affect the business or stock price soon.
+            - Use both quantitative (financial data) and qualitative (external news, trends) insights.
+
+        **Guidelines:**
+        - Only use up-to-date, trustworthy sources.
+        - If any data field is missing, try to supplement it using your online search abilities.
+        - Avoid unnecessary repetition—do not copy the context or data fields, synthesize your answer into clear narrative paragraphs.
+        - Maintain a professional, analytical tone.
+
+        **Context for your analysis:**
+        {stockInfo}
+
+        Today's date: {date_today}
+        """
+
+    completion = client.beta.chat.completions.parse(
+        model="gpt-4o-search-preview",
+        messages=[
+            {"role": "system", "content": (
+                "Utilize the provided financial data to complete the request. "
+                "Also, use additional reliable resources online to provide a comprehensive analysis where specific data is missing or needed."
+            )},
+            {"role": "user", "content": prompt},
+        ],
+        response_format=CompanyStockInfo,
+    )
+    content = completion.choices[0].message.parsed
+
+    usd_to_eur = get_usd_to_eur_rate() or 1
+
+    if stockInfo.get('currency') == 'EUR':
+        price_eur = stockInfo.get('previousClose') or 0
+        cap_eur = stockInfo.get('marketCap')
+        price_usd = round(price_eur / usd_to_eur, 4) if price_eur else None
+        cap_usd = round(cap_eur / usd_to_eur, 2) if cap_eur else None
+    else:
+        price_usd = stockInfo.get('previousClose')
+        cap_usd = stockInfo.get('marketCap')
+        price_eur = round(price_usd * usd_to_eur, 4) if price_usd else None
+        cap_eur = round(cap_usd * usd_to_eur, 2) if cap_usd else None
+
+    instance = CompanyStockData.objects.create(
+        date=date_today,
+        company=company_info.short_name,
+        stock_symbol=company_info.stock_symbol,
+        stock_exchange=stockInfo.get('currency'),
+        stock_price_today_usd=price_usd,
+        stock_price_today_eur=price_eur,
+        market_cap_usd=cap_usd,
+        market_cap_eur=cap_eur,
+        pe_ratio=stockInfo.get('forwardPE'),
+        sector=f"{stockInfo.get('industry')},{stockInfo.get('sector')}",
+        stock_volatility_level='none',
+        short_term_forecast=content.short_term_forecast,
+        possible_risk_factors=content.possible_risk_factors,
+        latest_news=content.latest_news,
+        analyst_recommendation=stockInfo.get('recommendationKey')
+    )
+    return instance

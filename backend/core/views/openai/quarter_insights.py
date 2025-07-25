@@ -47,7 +47,7 @@ class OpenAICompanyQuarterlyReportView(APIView):
                 {"error": "No company assigned to user."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        company = company_info.short_name
+        company = company_info.long_name
 
         quarter = serializer.validated_data['quarter']
         year = serializer.validated_data['year']

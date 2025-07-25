@@ -13,5 +13,5 @@ generate_company_quarterly_report.delay("Q1", current_year)
 generate_company_quarterly_report.delay("Q2", current_year)
 generate_company_quarterly_report.delay("Q3", current_year)
 generate_company_quarterly_report.delay("Q4", current_year)
-daily_ceo_articles_fetch.delay()
+daily_ceo_articles_fetch.delay()   # olhar esse aqui com mais detalhes
 fetch_all_esg_topics_daily.delay()

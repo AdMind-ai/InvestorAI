@@ -7,6 +7,7 @@ import type { StockData, HistoryInfo, HistoryDataItem, RawHistoryDataItem, Compa
 // 1. Buscar company info
 export async function fetchCompanyInfo(): Promise<CompanyInfo> {
   const response = await api.get('/stocks/company-info/');
+  console.log("Company Info Stocks:", response.data);
   return response.data;
 }
 

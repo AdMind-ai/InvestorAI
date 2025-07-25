@@ -1,12 +1,12 @@
 from rest_framework.views import APIView
 # ou IsAuthenticated, você escolhe
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from core.models.frontend_master_route_list import MasterRouteList
 
 
 class MasterRouteListUpdateView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         routes = request.data.get('routes', [])

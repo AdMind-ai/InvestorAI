@@ -153,18 +153,26 @@ class MonthlyMarketReportView(APIView):
             report_query = report_query.filter(created_at__gte=last_month)
 
         if company and recent:
-            report_query = report_query.order_by('-created_at').first()
-            if not report_query:
-                return Response({"error": "No report found for this company."}, status=404)
+            report_result = report_query.order_by('-created_at').first()
+            if not report_result:
+                # Tenta criar novo report on-the-fly!
+                report_content, citations, error = generate_monthly_report(
+                    company_info)
+                if error:
+                    return Response({"error": error}, status=500)
+                report_data = {
+                    "company": company,
+                    "created_at": datetime.now(),
+                    "report": report_content,
+                    "citations": citations if isinstance(citations, list) else safe_eval_list_string(citations),
+                }
+                return Response(report_data, status=201)
 
-            print(type(report_query.citations), report_query.citations)
-            citations_list = safe_eval_list_string(report_query.citations)
-
-            print(type(citations_list), citations_list)
+            citations_list = safe_eval_list_string(report_result.citations)
             report_data = {
-                "company": report_query.company,
-                "created_at": report_query.created_at,
-                "report": report_query.report,
+                "company": report_result.company,
+                "created_at": report_result.created_at,
+                "report": report_result.report,
                 "citations": citations_list,
             }
             return Response(report_data, status=200)
@@ -172,8 +180,7 @@ class MonthlyMarketReportView(APIView):
         reports = report_query.order_by('-created_at')
         report_list = []
         for report in reports:
-            citations_list = safe_eval_list_string(
-                report.citations)
+            citations_list = safe_eval_list_string(report.citations)
             report_list.append({
                 "company": report.company,
                 "created_at": report.created_at,
@@ -208,3 +215,57 @@ class GeneratePDFMonthlyMarketReportView(APIView):
         url_pdf = upload_to_blob_storage(pdf, file_name)
 
         return Response({"url": url_pdf})
+
+
+def generate_monthly_report(company_info):
+    company = company_info.short_name
+    today = datetime.today()
+    first_this_month = today.replace(day=1)
+    last_month_end = first_this_month - timedelta(days=1)
+    first_last_month = last_month_end.replace(day=1)
+    month_name = last_month_end.strftime("%B")
+    year = last_month_end.strftime("%Y")
+    message = (
+        f"You need to create a monthly report overview for {company_info.long_name}. "
+        f"specifically for the month of {month_name} {year}. "
+        f"The report should summarize the key events, trends, ups and downs, and important data from the last month. "
+        "Ensure the summary is concise and covers significant points relevant to the company's performance and market position."
+    )
+
+    api_key = os.getenv("PERPLEXITY_KEY")
+    if not api_key:
+        return None, [], "API Key is missing"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    request_body = {
+        "model": "sonar-deep-research",
+        "messages": [
+            {"role": "system", "content": SYSTEM_MESSAGE},
+            {"role": "user", "content": message},
+        ],
+    }
+    try:
+        response = requests.post(
+            "https://api.perplexity.ai/chat/completions",
+            headers=headers,
+            json=request_body
+        )
+        response.raise_for_status()
+        data = response.json()
+        report_content = data.get("choices", [{}])[0].get(
+            "message", {}).get("content", "")
+        citations = data.get("citations", [])
+        if report_content:
+            CompanyMarketReport.objects.create(
+                company=company,
+                report=report_content,
+                citations=citations
+            )
+            return report_content, citations, None
+        else:
+            return None, [], "Failed to generate report."
+    except requests.RequestException as e:
+        return None, [], str(e)
