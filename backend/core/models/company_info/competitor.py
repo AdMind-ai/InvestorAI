@@ -5,7 +5,7 @@ from core.models.company_info import CompanyInfo
 class CompetitorInfo(models.Model):
     company = models.ForeignKey(
         CompanyInfo, related_name='competitors', on_delete=models.CASCADE)
-    sectors_company = models.CharField(max_length=128, blank=True)
+    sectors_company = models.CharField(max_length=255, blank=True)
     name = models.CharField(max_length=255)
     stock_symbol = models.CharField(max_length=32, blank=True)
     website = models.URLField(blank=True, null=True)

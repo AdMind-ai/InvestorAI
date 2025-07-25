@@ -7,7 +7,7 @@ class CompanyInfo(models.Model):
     stock_symbol = models.CharField(max_length=32, blank=True)
     website = models.URLField(blank=True, null=True)
     description = models.TextField(blank=True)
-    sector = models.CharField(max_length=200, blank=True)
+    sector = models.CharField(max_length=255, blank=True)
     country = models.CharField(max_length=64, blank=True)
     state = models.CharField(max_length=64, blank=True)
     city = models.CharField(max_length=64, blank=True)
