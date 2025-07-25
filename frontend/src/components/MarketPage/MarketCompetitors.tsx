@@ -16,7 +16,6 @@ import {
   InputAdornment,
   CircularProgress,
   Pagination,
-  PaginationItem
 } from "@mui/material";
 import type { Competitor } from "../../interfaces/market";
 import AddIcon from '@mui/icons-material/Add';
@@ -58,9 +57,9 @@ const MarketCompetitors = () => {
     }
   };
 
-  const handleCompetitorsExpand = () => {
-    setVisibleCompetitorsCount(visibleCompetitorsCount === 12 ? competitors.length : 12);
-  };
+  // const handleCompetitorsExpand = () => {
+  //   setVisibleCompetitorsCount(visibleCompetitorsCount === 12 ? competitors.length : 12);
+  // };
 
   const handleOpenModalAddCompetitor = () => {
     setOpenModalAdd(true)

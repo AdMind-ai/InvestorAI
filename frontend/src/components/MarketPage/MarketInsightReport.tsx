@@ -8,7 +8,7 @@ const MarketInsightReport = () => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <Box sx={{ position: 'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, pt: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)', maxHeight: expanded ? 'none' : '395px', overflow: 'hidden' }}>
+    <Box sx={{ position: 'relative', border: '1px solid #ddd', borderRadius: 3, px: 3, pt: 2, boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)', maxHeight: expanded ? 'none' : '560px', overflow: 'hidden' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="body2" fontWeight="bold" color="#5072CC">
           Insight Report - Performance Aziendale
