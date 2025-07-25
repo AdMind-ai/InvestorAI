@@ -12,13 +12,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='ceoarticle',
-            name='company',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='ceo_articles', to='core.companyinfo'),
-        ),
-        migrations.AddField(
             model_name='marketnewsarticle',
             name='company_fk',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='market_articles_fk', to='core.companyinfo'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL,
+                                    related_name='market_articles_fk', to='core.companyinfo'),
         ),
     ]
