@@ -158,7 +158,7 @@ const MarketCompetitors = () => {
     <Box sx={{
       position: 'relative',
       // flex: 1, 
-      height: '560px',
+      height: '675px',
       border: '1px solid #ddd',
       borderRadius: 3,
       padding: 3,
