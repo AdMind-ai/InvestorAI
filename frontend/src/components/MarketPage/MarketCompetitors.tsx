@@ -41,7 +41,7 @@ const MarketCompetitors = () => {
 
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
-  const [visibleCompetitorsCount, setVisibleCompetitorsCount] = useState(12);
+  // const [visibleCompetitorsCount, setVisibleCompetitorsCount] = useState(12);
   const [hoverIndex, setHoverIndex] = useState<null | number>(null);
   const [sectorInput, setSectorInput] = useState('');
   const [sectors, setSectors] = useState<string[]>([]);
