@@ -14,7 +14,9 @@ import {
   Chip,
   Autocomplete,
   InputAdornment,
-  CircularProgress
+  CircularProgress,
+  Pagination,
+  PaginationItem
 } from "@mui/material";
 import type { Competitor } from "../../interfaces/market";
 import AddIcon from '@mui/icons-material/Add';
@@ -32,6 +34,12 @@ interface CompetitorPayload {
 
 const MarketCompetitors = () => {
   const { competitors, setCompetitors } = useMarket();
+  // Paginação
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 12;
+  const paginatedCompetitors = competitors.slice((page - 1) * itemsPerPage, (page) * itemsPerPage);
+  const totalPages = Math.ceil(competitors.length / itemsPerPage);
+
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [visibleCompetitorsCount, setVisibleCompetitorsCount] = useState(12);
@@ -150,7 +158,7 @@ const MarketCompetitors = () => {
     <Box sx={{
       position: 'relative',
       // flex: 1, 
-      maxHeight: '760px',
+      height: '560px',
       border: '1px solid #ddd',
       borderRadius: 3,
       padding: 3,
@@ -178,8 +186,10 @@ const MarketCompetitors = () => {
         alignItems: 'center',
         justifyItems: 'center',
         width: '100%',
+        // maxHeight: '91%',
+        // overflowY: visibleCompetitorsCount > 12 ? 'auto' : null
       }}>
-        {competitors.slice(0, visibleCompetitorsCount).map((company: Competitor, index: number) => (
+        {paginatedCompetitors.map((company: Competitor, index: number) => (
           <Box
             key={index}
             sx={{
@@ -217,7 +227,8 @@ const MarketCompetitors = () => {
                 className="remove-icon"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleOpenModalDeleteCompetitor(company.competitor)}
+                  handleOpenModalDeleteCompetitor(company.competitor)
+                }
                 }
                 sx={{
                   position: 'absolute',
@@ -268,7 +279,47 @@ const MarketCompetitors = () => {
         ))}
       </Box>
 
-      <Typography
+
+      <Box sx={{
+        position: 'absolute',
+        bottom: '3vh',
+        left: 0,
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        px: 3
+      }}
+      >
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={(_, newPage) => setPage(newPage)}
+          shape='rounded'
+          variant='outlined'
+          sx={{
+            '& .MuiPaginationItem-root': {
+              color: 'text.primary',
+              borderRadius: '12px',
+              border: '1px solid #ddd',
+              margin: '0 4px',
+              height: '33px',
+              minWidth: '30px',
+              '&.Mui-selected': {
+                backgroundColor: '#f1f1f1',
+                borderColor: '#bbb',
+              },
+              '&:hover': {
+                backgroundColor: '#f1f1f1',
+              },
+              '&.MuiPaginationItem-previousNext': {
+                padding: '0px 12px',
+              },
+            },
+          }}
+        />
+      </Box>
+
+      {/* <Typography
         onClick={handleCompetitorsExpand}
         sx={{
           position: 'absolute',
@@ -282,7 +333,7 @@ const MarketCompetitors = () => {
         }}
       >
         {visibleCompetitorsCount === 12 ? "Espandi" : "Retract"}
-      </Typography>
+      </Typography> */}
 
       {/* Modal para add competitor */}
       <Dialog open={openModalAdd} onClose={handleCloseModalAddCompetitor} maxWidth='lg'>
