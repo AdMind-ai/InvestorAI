@@ -61,6 +61,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   };
 
   const handleFileUploadClick = () => {
+    setSearchWebEnabled(false);
     document.getElementById('file-input')?.click();
   };
 
@@ -187,14 +188,14 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     try {
       const formData = new FormData();
       formData.append('content', text);
-  
+      
       const modelToUse = searchWebEnabled ? 'gpt-4o-search-preview' : modelMapping[selectedModel];
       formData.append('model', modelToUse);
   
       if (file) {
         formData.append('file', file);
       }
-  
+      
       if (selectedChat) {
         formData.append('conversation_id', selectedChat.id.toString());
       } 

@@ -69,6 +69,8 @@ const Chat: React.FC = () => {
   useEffect(() => {
     if (searchWebEnabled) {
       setSelectedModel('GPT-4o');
+    } else {
+      setSelectedModel('GPT-4.1');
     }
   }, [searchWebEnabled]);
 
