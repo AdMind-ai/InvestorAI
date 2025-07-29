@@ -35,7 +35,7 @@ const MarketCompetitors = () => {
   const { competitors, setCompetitors } = useMarket();
   // Paginação
   const [page, setPage] = useState(1);
-  const itemsPerPage = 16;
+  const itemsPerPage = 12;
   const paginatedCompetitors = competitors.slice((page - 1) * itemsPerPage, (page) * itemsPerPage);
   const totalPages = Math.ceil(competitors.length / itemsPerPage);
 
@@ -156,11 +156,13 @@ const MarketCompetitors = () => {
   return (
     <Box sx={{
       position: 'relative',
-      height: '675px',
+      height: 'min(calc(39.8vw), 675px, 90vh)',
+      minHeight: '675px',
       border: '1px solid #ddd',
       borderRadius: 3,
       padding: 3,
-      boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)'
+      boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)',
+      overflow: 'hidden'
     }}>
       <Box sx={{
         display: "flex",
