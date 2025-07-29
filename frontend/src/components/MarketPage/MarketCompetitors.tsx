@@ -35,7 +35,7 @@ const MarketCompetitors = () => {
   const { competitors, setCompetitors } = useMarket();
   // Paginação
   const [page, setPage] = useState(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 16;
   const paginatedCompetitors = competitors.slice((page - 1) * itemsPerPage, (page) * itemsPerPage);
   const totalPages = Math.ceil(competitors.length / itemsPerPage);
 
