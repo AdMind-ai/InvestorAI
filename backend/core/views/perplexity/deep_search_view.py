@@ -37,7 +37,11 @@ class PerplexityDeepSearchView(APIView):
         user = request.user
 
         # 1. Salva placeholder no chat
-        locale.setlocale(locale.LC_TIME, 'it_IT.UTF-8')
+        try:
+            locale.setlocale(locale.LC_TIME, 'it_IT.UTF-8')
+        except locale.Error:
+            locale.setlocale(locale.LC_TIME, '')  # fallback
+            
         tag = datetime.now().strftime("%d %B %Y %H:%M")
         # tag = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         conversation, _ = ChatConversation.objects.get_or_create(

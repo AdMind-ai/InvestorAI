@@ -161,8 +161,7 @@ const MarketCompetitors = () => {
       border: '1px solid #ddd',
       borderRadius: 3,
       padding: 3,
-      boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)',
-      overflow: 'hidden'
+      boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.1)'
     }}>
       <Box sx={{
         display: "flex",
