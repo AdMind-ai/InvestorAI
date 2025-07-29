@@ -340,7 +340,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           <Box sx={{ width: '100%', maxWidth: '75vw', marginBottom: '3vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {ChatTextInputBox()}
 
-            <Box sx={{ mt: 2, display: 'none', gap: 2, flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ mt: 2, display: 'flex', gap: 2, flexDirection: 'column', alignItems: 'center' }}>
               <OutlinedButton icon={<OverviewIcon />} title="Overview del titolo" color={1} onClick={handleOverviewClick} />
               {loading && <CircularProgress />}
             </Box>
