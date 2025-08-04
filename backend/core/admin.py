@@ -69,12 +69,6 @@ class CEOArticleAdminForm(forms.ModelForm):
         model = CEOArticle
         fields = '__all__'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        ceos = CEO.objects.all()
-        self.fields['personality'].widget = forms.Select(
-            choices=[(ceo.name, ceo.name) for ceo in ceos])
-
 
 @admin.register(CEOArticle)
 class CEOArticleAdmin(admin.ModelAdmin):
