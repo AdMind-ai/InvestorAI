@@ -66,6 +66,11 @@ CELERY_TIMEZONE = "Europe/Rome"
 now = datetime.now()
 current_year = now.year
 
+# 'search_competitors_weekly': {
+#     'task': 'core.tasks.fetch_and_store_competitors',
+#     'schedule': crontab(hour=8, minute=0, day_of_month=1),
+#     'args': ()
+# },
 CELERY_BEAT_SCHEDULE = {
     'news_sector_morning': {
         'task': 'core.tasks.collect_market_news',
@@ -86,11 +91,6 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'core.tasks.collect_market_news',
         'schedule': crontab(hour=13, minute=0),
         'args': ('competitors',)
-    },
-    'search_competitors_weekly': {
-        'task': 'core.tasks.fetch_and_store_competitors',
-        'schedule': crontab(hour=8, minute=0, day_of_week=1),
-        'args': ()
     },
     'fetch_and_store_daily_company_stock_data': {
         'task': 'core.tasks.fetch_and_store_daily_company_stock_data',
