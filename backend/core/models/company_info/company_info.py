@@ -14,6 +14,10 @@ class CompanyInfo(models.Model):
     address = models.CharField(max_length=255, blank=True)
     phone = models.CharField(max_length=64, blank=True)
     email = models.EmailField(blank=True)
+    sources = models.TextField(
+        blank=True, null=True,
+        help_text="List of URLs from reliable sources for reports, one per line."
+    )
 
     class Meta:
         verbose_name = "Company - Info"

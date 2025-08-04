@@ -17,9 +17,6 @@ def get_ceos_dict():
     return ceos_dict
 
 
-leaders = get_ceos_dict()
-
-
 def get_sentiment_analysis(person, text):
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -69,6 +66,7 @@ def response_openai_api(personality):
     formattedTwoDaysAgo = two_days_ago.strftime("%d %B %Y")
     formattedDate = today.strftime("%d %B %Y")
 
+    leaders = get_ceos_dict()
     personality_role = leaders.get(personality.lower(), "")
 
     response = client.responses.create(

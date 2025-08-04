@@ -445,10 +445,10 @@ const MarketCompetitors = () => {
               mb: 2,
             }}>
               <DialogActions>
-                <Button onClick={handleCloseModalAddCompetitor} variant="outlined" disabled={isLoading}>Cancellare</Button>
-                <Button type="submit" variant="outlined">
-                  {isLoading ? <CircularProgress size={24} color="primary" /> : 'Aggiungi'}
+                <Button type="submit" variant="contained" color="secondary">
+                  {isLoading ? <CircularProgress size={24} color="primary" /> : 'Confermare'}
                 </Button>
+                <Button onClick={handleCloseModalAddCompetitor} variant="text" disabled={isLoading}>Cancellare</Button>
               </DialogActions>
             </Box>
           </form>

@@ -562,7 +562,7 @@ const TeamManagement: React.FC = () => {
           </DialogTitle>
           <DialogContent>
             <Box sx={{display:'flex', flexDirection:'column', gap:2, pt:1}}>
-              <TextField label="Nome" value={newUser.name} onChange={e=>setNewUser({...newUser, name: e.target.value})} 
+              <TextField label="Username" value={newUser.name} onChange={e=>setNewUser({...newUser, name: e.target.value})} 
                 size="small"
                 sx={{
                     '& .MuiInputBase-input': {

@@ -433,6 +433,16 @@ def generate_monthly_market_report():
             })
             continue
 
+        sources_list = [s for s in (
+            comp.sources or "").splitlines() if s.strip()]
+        if not sources_list:
+            results.append({
+                "success": False,
+                "company": comp.short_name,
+                "error": "No sources registered for this company."
+            })
+            continue
+
         news_titles = MarketNewsArticle.objects.filter(
             company=comp,
             date_published__gte=first_last_month,
@@ -448,9 +458,11 @@ def generate_monthly_market_report():
         #     })
         #     continue
 
+        sources_text = "\n".join(sources_list)
         message = (
             f"You need to create a monthly report overview for {comp.long_name}. "
             f"specifically for the month of {month_name} {year}. "
+            f"Use the following sources as your main reference:\n{sources_text}\n\n"
             f"The report should summarize the key events, trends, ups and downs, and important data from the last month. "
             "Ensure the summary is concise and covers significant points relevant to the company's performance and market position."
         )
@@ -528,16 +540,30 @@ def generate_company_quarterly_report(quarter: str, year: int):
             })
             continue
 
+        sources_list = [s for s in (
+            company.sources or "").splitlines() if s.strip()]
+        if not sources_list:
+            results.append({
+                "success": False,
+                "company": company.short_name,
+                "error": "No sources registered for this company."
+            })
+            continue
+
         qreport, _ = CompanyQuarterlyReport.objects.get_or_create(
             company=company.long_name,
             quarter=quarter,
             year=year
         )
 
+        sources_text = "\n".join(sources_list)
         prompt = f"""
         You are a financial analyst creating a detailed ‘Insight Report - Performance Aziendale’ for {company.short_name} for {qreport.quarter} of {qreport.year}.
 
         Your task is to access the press releases, financial statements, and form 10-K (when necessary) to obtain key financial data (Revenue, EBIT, Profit, EPS, guidance, etc.) for that period.
+        
+        Use the following sources as your main reference:
+        {sources_text}
         
         Additionally, use other reliable recent sources from the period if necessary to complement your analysis with announcements, product launches, investments, or strategic news released by {qreport.company} around that quarter.
 
