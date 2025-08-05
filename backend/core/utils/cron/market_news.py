@@ -10,7 +10,7 @@ def fetch_news_thenewsapi(q, since, api_key):
         'search': q,
         'language': 'en,it',
         'published_after': since,
-        'locale': 'us,it',
+        'locale': 'am,at,by,be,bg,hr,cz,fr,de,gr,ie,it,nl,pl,pt,ro,ru,es,ch,ua,gb',
     }
     r = requests.get(url, params=params)
     if r.status_code != 200:
@@ -37,6 +37,7 @@ def fetch_news_currentsapi(q, since, api_key):
         'apiKey': api_key,
         'keywords': q,
         'start_date': since,
+        'country': 'DE,ES,IT,PL,DK,FR,BE,AT,PT,FI,GR,NL,SE,CZ,HU,SI,EE,LU',
     }
     r = requests.get(url, params=params)
     if r.status_code != 200:
@@ -62,7 +63,7 @@ def fetch_news_mediastack(q, date_range, api_key):
         'access_key': api_key,
         'keywords': q,
         'languages': 'en,it',
-        'countries': 'us,it',
+        'countries': 'at,be,bg,cz,fr,de,gr,hu,ie,it,lv,lt,nl,pl,pt,ro,sk,si,se',
         'date': date_range,
     }
     r = requests.get(url, params=params)

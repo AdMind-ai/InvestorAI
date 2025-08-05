@@ -72,26 +72,26 @@ current_year = now.year
 #     'args': ()
 # },
 CELERY_BEAT_SCHEDULE = {
-    'news_sector_morning': {
-        'task': 'core.tasks.collect_market_news',
-        'schedule': crontab(hour=8, minute=0),
-        'args': ('sector',)
-    },
-    'news_sector_afternoon': {
-        'task': 'core.tasks.collect_market_news',
-        'schedule': crontab(hour=13, minute=0),
-        'args': ('sector',)
-    },
-    'news_competitors_morning': {
-        'task': 'core.tasks.collect_market_news',
-        'schedule': crontab(hour=8, minute=0),
-        'args': ('competitors',)
-    },
-    'news_competitors_afternoon': {
-        'task': 'core.tasks.collect_market_news',
-        'schedule': crontab(hour=13, minute=0),
-        'args': ('competitors',)
-    },
+    # 'news_sector_morning': {
+    #     'task': 'core.tasks.collect_market_news',
+    #     'schedule': crontab(hour=8, minute=0),
+    #     'args': ('sector',)
+    # },
+    # 'news_sector_afternoon': {
+    #     'task': 'core.tasks.collect_market_news',
+    #     'schedule': crontab(hour=13, minute=0),
+    #     'args': ('sector',)
+    # },
+    # 'news_competitors_morning': {
+    #     'task': 'core.tasks.collect_market_news',
+    #     'schedule': crontab(hour=8, minute=0),
+    #     'args': ('competitors',)
+    # },
+    # 'news_competitors_afternoon': {
+    #     'task': 'core.tasks.collect_market_news',
+    #     'schedule': crontab(hour=13, minute=0),
+    #     'args': ('competitors',)
+    # },
     'fetch_and_store_daily_company_stock_data': {
         'task': 'core.tasks.fetch_and_store_daily_company_stock_data',
         'schedule': crontab(hour=8, minute=0),
