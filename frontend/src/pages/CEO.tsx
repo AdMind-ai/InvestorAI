@@ -61,7 +61,7 @@ const CEOPage: React.FC = () => {
   const personalities = createPersonalities(companyInfoAdm);
   const [data, setData] = useState<Record<string, NewsItem[]>>(createInitialData(personalities));
   const [selectedPerson, setSelectedPerson] = useState(() => personalities[0] ?? '');
-  
+
   const [loadingGenerateArticles, setLoadingGenerateArticles] = useState<boolean>(false);
   const [loadingArticlesList, setLoadingArticlesList] = useState<boolean>(false);
   const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('openai');
@@ -70,10 +70,10 @@ const CEOPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<NewsItem | null>(null);
 
-  const MAX_LENGTH = 220; 
-  const getPreviewText = (text:string) => {
+  const MAX_LENGTH = 220;
+  const getPreviewText = (text: string) => {
     if (text.length > MAX_LENGTH) {
-      return text.slice(0, MAX_LENGTH) + '...'; 
+      return text.slice(0, MAX_LENGTH) + '...';
     }
     return text;
   };
@@ -84,7 +84,7 @@ const CEOPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const currentData = data[selectedPerson] || [];
 
-  
+
   // Articles Data
   const sortedData = [...currentData].sort((a, b) =>
     dayjs(b.created_at).diff(dayjs(a.created_at))
@@ -109,31 +109,31 @@ const CEOPage: React.FC = () => {
     // eslint-disable-next-line
   }, [selectedPerson, JSON.stringify(personalities)]);
 
-  
+
 
 
   // Controls how many articles on page based on height
   useEffect(() => {
     const calculateRows = () => {
       if (!containerRef.current) return;
-  
+
       const containerHeight = containerRef.current.clientHeight;
       const firstNewsItem = containerRef.current.querySelector('[data-news-item]');
-  
+
       if (!firstNewsItem) return;
-  
-      const itemHeight = firstNewsItem.clientHeight || 55; 
+
+      const itemHeight = firstNewsItem.clientHeight || 55;
       const paginationHeight = 50;
       const headerHeight = 50;
       const availableHeight = containerHeight - paginationHeight - headerHeight - 20;
-  
+
       const calculatedRows = Math.max(1, Math.floor(availableHeight / itemHeight));
       setRowsPerPage(calculatedRows);
     };
-  
-    calculateRows(); 
+
+    calculateRows();
     window.addEventListener('resize', calculateRows);
-  
+
     return () => {
       window.removeEventListener('resize', calculateRows);
     };
@@ -151,18 +151,18 @@ const CEOPage: React.FC = () => {
   const validSentiments = currentData.filter(item => item.sentiment !== null && item.sentiment !== undefined);
 
   const averageSentiment = validSentiments.length
-  ? Math.round(validSentiments.reduce((acc, cur) => acc + parseFloat(cur.sentiment), 0) / validSentiments.length)
-  : null; 
+    ? Math.round(validSentiments.reduce((acc, cur) => acc + parseFloat(cur.sentiment), 0) / validSentiments.length)
+    : null;
 
-  const sentimentText = 
-    averageSentiment === null ? '--' : 
-    averageSentiment >= 60 ? 'Alto' : 
-    averageSentiment >= 40 ? 'Medio' : 'Basso';
+  const sentimentText =
+    averageSentiment === null ? '--' :
+      averageSentiment >= 60 ? 'Alto' :
+        averageSentiment >= 40 ? 'Medio' : 'Basso';
 
   const colorSentiment =
     averageSentiment === null ? 'grey.500' :
-    averageSentiment >= 60 ? 'success.main' : 
-    averageSentiment >= 40 ? 'warning.main' : 'error.main';
+      averageSentiment >= 60 ? 'success.main' :
+        averageSentiment >= 40 ? 'warning.main' : 'error.main';
 
 
 
@@ -194,51 +194,52 @@ const CEOPage: React.FC = () => {
 
   // Load Articles 
   const loadData = async () => {
-    setSelectedProvider('openai');
+    setLoadingArticlesList(true);
     try {
-      setLoadingArticlesList(true)
-      const res = await api.get<NewsItem[]>("/articles/ceo/");
-      // console.log(res.data)
+      const url = selectedPerson
+        ? `/articles/ceo/?name=${encodeURIComponent(selectedPerson)}`
+        : '/articles/ceo/';
+
+      const res = await api.get<NewsItem[]>(url);
+
       const dynamicPersonalities = createPersonalities(companyInfoAdm);
       const groupedData: Record<string, NewsItem[]> = createInitialData(dynamicPersonalities);
-  
 
       res.data.forEach(article => {
-        if(groupedData[article.personality_name]) {
+        if (groupedData[article.personality_name]) {
           groupedData[article.personality_name].push(article);
         }
       });
 
       setData(groupedData);
-      if (!dynamicPersonalities.includes(selectedPerson)) {
-        setSelectedPerson(dynamicPersonalities[0] ?? '');
-      }
-      setLoadingArticlesList(false)
+      setLoadingArticlesList(false);
     } catch (error) {
-      console.error("Error updating ESG articles:", error);
+      console.error("Error loading CEO articles:", error);
+      setLoadingArticlesList(false);
     }
   };
 
+
   const handleNewsOpen = async (article: NewsItem) => {
-      setModalContent(article);
-      setModalOpen(true);
-      setViewedArticles(prev => new Set([...prev, article.id]));
-  
-      try {
-        await api.put(`/articles/ceo/${article.id}/mark_viewed/`);
-      } catch (error) {
-        console.error("Erro ao marcar artigo como visualizado:", error);
-      }
-    };
+    setModalContent(article);
+    setModalOpen(true);
+    setViewedArticles(prev => new Set([...prev, article.id]));
+
+    try {
+      await api.put(`/articles/ceo/${article.id}/mark_viewed/`);
+    } catch (error) {
+      console.error("Erro ao marcar artigo como visualizado:", error);
+    }
+  };
 
 
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
-        <Box sx={{display:'flex', justifyContent: 'space-between', mr:2}}>
-          <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw'}}>CEO Perception</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}>
+          <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>CEO Perception</Typography>
           {/* Test Component */}
-          <Box sx={{height: 'calc(4.5vh)', ml:40, position: 'relative'}}>
+          <Box sx={{ height: 'calc(4.5vh)', ml: 40, position: 'relative' }}>
             {/* <ToggleButtonGroup
               value={selectedProvider}
               exclusive
@@ -250,11 +251,11 @@ const CEOPage: React.FC = () => {
               <ToggleButton value="perplexity">Perplexity</ToggleButton>
               <ToggleButton value="openai">OpenAI</ToggleButton>
             </ToggleButtonGroup> */}
-            <Button variant='contained' onClick={handleFetchArticles} sx={{display: 'none', height: 'calc(4vh)', position:'absolute', right:0, bottom:10}}>
+            <Button variant='contained' onClick={handleFetchArticles} sx={{ display: 'none', height: 'calc(4vh)', position: 'absolute', right: 0, bottom: 10 }}>
               {loadingGenerateArticles ? <CircularProgress size={24} color="inherit" /> : 'Generate articles'}
             </Button>
           </Box>
-        </Box>  
+        </Box>
         <Divider sx={{ marginBottom: 3 }} />
         <Box
           sx={{
@@ -313,24 +314,24 @@ const CEOPage: React.FC = () => {
                 </Box>
               </Box>
             </Box>
-            
+
             {/* Sentiment */}
             <Paper variant="outlined" sx={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 1, borderRadius: '12px', backgroundColor: 'transparent', border: '1px solid #E4E4E4' }}>
               <Avatar sx={{ bgcolor: 'transparent' }}>
-                <img 
+                <img
                   src={
-                    averageSentiment === null ? NeutralFace : 
-                    averageSentiment >= 60 ? HappyFace : 
-                    averageSentiment >= 40 ? NeutralFace : 
-                    SadFace
-                  } 
-                  alt="Sentiment" 
-                  style={{ width: '40px', height: '40px' }} 
+                    averageSentiment === null ? NeutralFace :
+                      averageSentiment >= 60 ? HappyFace :
+                        averageSentiment >= 40 ? NeutralFace :
+                          SadFace
+                  }
+                  alt="Sentiment"
+                  style={{ width: '40px', height: '40px' }}
                 />
               </Avatar>
               <Box sx={{ padding: 1 }}>
                 <Typography variant="subtitle2">Sentiment medio</Typography>
-                <Typography variant="h4" sx={{ color: colorSentiment, mt:0.5 }}>
+                <Typography variant="h4" sx={{ color: colorSentiment, mt: 0.5 }}>
                   {averageSentiment !== null ? `${averageSentiment}%` : '-- %'} • {sentimentText}
                 </Typography>
               </Box>
@@ -342,7 +343,7 @@ const CEOPage: React.FC = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '53vh' }}>
               <CircularProgress />
             </Box>
-          ) : (     
+          ) : (
             <Paper
               ref={containerRef}
               elevation={1}
@@ -355,7 +356,7 @@ const CEOPage: React.FC = () => {
                 height: '53vh',
                 display: 'flex',
                 flexDirection: 'column',
-                position: 'relative', 
+                position: 'relative',
               }}
             >
               <Box
@@ -380,96 +381,96 @@ const CEOPage: React.FC = () => {
 
               {/* News */}
               <Box sx={{ overflowY: 'auto', flex: 1, mb: 2 }}>
-              {displayedNews.map((news, idx) => {
-                const isNew = !news.viewed && !viewedArticles.has(news.id);
-                
-                return (
-                  <Box
-                    key={idx}
-                    data-news-item
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      paddingY: 0.5,
-                      borderBottom: '1px solid #f0f0f0',
-                    }}
-                  >
-                    {/* News content */}
+                {displayedNews.map((news, idx) => {
+                  const isNew = !news.viewed && !viewedArticles.has(news.id);
+
+                  return (
                     <Box
+                      key={idx}
+                      data-news-item
                       sx={{
                         display: 'flex',
-                        flexDirection: 'row',
                         justifyContent: 'space-between',
-                        width: '70%',
-                        padding: '0px 0px 0px 10px',
-                        // bgcolor:'red'
+                        alignItems: 'center',
+                        paddingY: 0.5,
+                        borderBottom: '1px solid #f0f0f0',
                       }}
-                    >  
-                      <Typography
-                        variant="subtitle2"
+                    >
+                      {/* News content */}
+                      <Box
                         sx={{
-                          width: '88%',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          padding: '0px 10px',
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          width: '70%',
+                          padding: '0px 0px 0px 10px',
+                          // bgcolor:'red'
                         }}
                       >
-                        {getPreviewText(news.content)}
-                      </Typography>
-
-                      {isNew && (
-                        <Box
+                        <Typography
+                          variant="subtitle2"
                           sx={{
-                            bgcolor: theme.palette.secondary.main,
-                            color: '#fff',
-                            padding: '2px 6px',
-                            borderRadius: '8px',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            lineHeight: '1',
-                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
-                            textTransform: 'uppercase',
+                            width: '88%',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                            padding: '0px 10px',
                           }}
                         >
-                          New
-                        </Box>
-                      )}
+                          {getPreviewText(news.content)}
+                        </Typography>
+
+                        {isNew && (
+                          <Box
+                            sx={{
+                              bgcolor: theme.palette.secondary.main,
+                              color: '#fff',
+                              padding: '2px 6px',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              lineHeight: '1',
+                              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            New
+                          </Box>
+                        )}
+                      </Box>
+
+                      {/* News Link */}
+                      <Link
+                        fontSize='16px'
+                        component="button"
+                        onClick={() => handleNewsOpen(news)}
+                        sx={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: theme.palette.secondary.main,
+                          textDecoration: 'underline',
+                        }}
+                      >
+                        Vai all'articolo
+                      </Link>
+
+                      {/* News Sentiment */}
+                      <Typography
+                        variant='h6'
+                        sx={{
+                          color: news.sentiment !== null && news.sentiment !== undefined
+                            ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
+                            : 'grey',
+                          fontWeight: 'bold',
+                          paddingRight: '30px'
+                        }}
+                      >
+                        {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
+                      </Typography>
                     </Box>
-
-                    {/* News Link */}
-                    <Link
-                      fontSize='16px'
-                      component="button"
-                      onClick={() => handleNewsOpen(news)}
-                      sx={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: theme.palette.secondary.main,
-                        textDecoration: 'underline',
-                      }}
-                    >
-                      Vai all'articolo
-                    </Link>
-
-                    {/* News Sentiment */}
-                    <Typography
-                      variant='h6'
-                      sx={{
-                        color: news.sentiment !== null && news.sentiment !== undefined
-                          ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
-                          : 'grey',
-                        fontWeight: 'bold', 
-                        paddingRight: '30px'
-                      }}
-                    >
-                      {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
-                    </Typography>
-                  </Box>
-                )
-              })}
+                  )
+                })}
               </Box>
 
               {/* Pagination */}
@@ -478,8 +479,8 @@ const CEOPage: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'center',
                   py: 1,
-                  position: 'absolute',        
-                  bottom: '8px',              
+                  position: 'absolute',
+                  bottom: '8px',
                   left: 0,
                   right: 0,
                   backgroundColor: 'transparent',
@@ -541,8 +542,8 @@ const CEOPage: React.FC = () => {
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           sentiment={
-            modalContent.sentiment !== null && modalContent.sentiment !== 'none' 
-              ? parseInt(modalContent.sentiment) 
+            modalContent.sentiment !== null && modalContent.sentiment !== 'none'
+              ? parseInt(modalContent.sentiment)
               : null
           }
           title={modalContent.title}

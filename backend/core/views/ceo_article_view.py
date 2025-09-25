@@ -20,8 +20,18 @@ class CEOArticleSerializer(serializers.ModelSerializer):
 class CEOArticleViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    queryset = CEOArticle.objects.all()
     serializer_class = CEOArticleSerializer
+
+    def get_queryset(self):
+        """
+        Retorna todos os artigos ou filtra pelo name do CEO se passado na query string.
+        Ex: /articles/ceo/?name=Elon%20Musk
+        """
+        queryset = CEOArticle.objects.all()
+        ceo_name = self.request.query_params.get('name')
+        if ceo_name:
+            queryset = queryset.filter(personality__name=ceo_name)
+        return queryset
 
     @action(detail=True, methods=['put'])
     def mark_viewed(self, request, pk=None):
