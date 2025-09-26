@@ -52,7 +52,7 @@ const ESGPage: React.FC = () => {
   const theme = useTheme();
   const [loadingGenerateArticles, setLoadingGenerateArticles] = useState<boolean>(false);
   const [loadingArticlesList, setLoadingArticlesList] = useState<boolean>(false);
-  const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('openai');
+  const [selectedProvider] = useState<'perplexity' | 'openai'>('openai');
   const [selectedCategory, setSelectedCategory] = useState<string>(topics[0]);
   const [selectedArticle, setSelectedArticle] = useState<NewsItem | null>(null);
   const [viewedArticles, setViewedArticles] = useState<Set<number>>(new Set());

@@ -64,7 +64,7 @@ const CEOPage: React.FC = () => {
 
   const [loadingGenerateArticles, setLoadingGenerateArticles] = useState<boolean>(false);
   const [loadingArticlesList, setLoadingArticlesList] = useState<boolean>(false);
-  const [selectedProvider, setSelectedProvider] = useState<'perplexity' | 'openai'>('openai');
+  const [selectedProvider] = useState<'perplexity' | 'openai'>('openai');
   const [viewedArticles, setViewedArticles] = useState<Set<number>>(new Set());
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
