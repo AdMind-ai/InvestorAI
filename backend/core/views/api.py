@@ -56,6 +56,8 @@ class APIRootView(APIView):
                     "quarterly-report": request.build_absolute_uri(reverse("openai-quarterly-report")),
                     "chat-conversation": request.build_absolute_uri(reverse("openai-chat-conversation-list")),
                     "chat-send-message": request.build_absolute_uri(reverse("openai-chat-send-message")),
+                    "create-conversation": request.build_absolute_uri(reverse("openai-chat-create-conversation")),
+                    "save-conversation": request.build_absolute_uri(reverse("openai-chat-save-conversation")),
                 },
                 "elevenlabs": {
                     "text-to-speech": request.build_absolute_uri(reverse("text-to-speech")),

@@ -19,6 +19,16 @@ class ESGArticleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = ESGArticle.objects.all()
     serializer_class = ESGArticleSerializer
+    
+    def get_queryset(self):
+        """
+        Retorna todos os artigos ou filtra pelo topico
+        """
+        queryset = ESGArticle.objects.all()
+        topic = self.request.query_params.get('topic')
+        if topic:
+            queryset = queryset.filter(topic=topic)
+        return queryset
 
     @action(detail=True, methods=['put'])
     def mark_viewed(self, request, pk=None):
