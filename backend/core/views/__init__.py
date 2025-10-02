@@ -43,8 +43,6 @@ from .stocks_view import (
 from .smartscan import SmartScanExtractView, SmartScanChatView
 from .quickdoc_view import QuickDocGenerateView
 
-from .openai.tests.news_view import OpenAINewsView, CollectMarketNewsView
-
 __all__ = [
     'MasterRouteListUpdateView',
     'CompanyInfoViewAdm',
@@ -84,6 +82,4 @@ __all__ = [
     'SmartScanExtractView',
     'SmartScanChatView',
     'QuickDocGenerateView',
-    'OpenAINewsView',
-    'CollectMarketNewsView'
 ]

@@ -46,10 +46,6 @@ urlpatterns = [
     path('openai/quarterly-report/', OpenAICompanyQuarterlyReportView.as_view(),
          name='openai-quarterly-report'),
     
-#     path('openai/news/', OpenAINewsView.as_view(), name='openai-news'),
-#     path('openai/news-test/', CollectMarketNewsView.as_view(), name='openai-news-test'),
-#     path('openai/news-test/<str:task_id>/', CollectMarketNewsView.as_view(), name='openai-news-test'),
-    
     # Chat
     path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
          name='openai-chat-send-message'),
