@@ -12,10 +12,8 @@ from core.models.company_info.company_info import CompanyInfo
 from core.models.market_article_model import MarketNewsArticle
 import re
 import requests
-from django.utils import timezone
 from datetime import datetime, timedelta
 from celery import shared_task
-from core.utils.cron.market_news import fetch_news_thenewsapi, fetch_news_currentsapi, fetch_news_mediastack
 
 from openai import OpenAI
 from pydantic import ValidationError
@@ -29,7 +27,6 @@ from core.models.company_stock_data_model import CompanyStockData
 from core.serializers.company_stock_data_serializer import CompanyStockDataSerializer
 from typing import Optional
 
-from django.db.models import Q
 from core.models.market_company_report import CompanyMarketReport
 
 from core.models.company_quarterly_report import CompanyQuarterlyReport
@@ -41,7 +38,10 @@ from core.utils.cron.ceo_news import response_openai_api, get_sentiment_analysis
 from core.models.esg_article_model import ESGArticle
 from core.utils.cron.esg_news import generate_openai_system, generate_openai_prompt
 
-from core.models.openai_chat_models import ChatConversation, ChatMessage
+from core.models.openai_chat_models import ChatMessage
+from core.models.company_info import CompetitorInfo
+
+from core.utils.tasks.collect_market_news import parse_news_date, safe_load_json
 
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 
@@ -51,110 +51,157 @@ def minha_task():
     print("Executando função a cada minuto!")
     return True
 
+@shared_task(bind=True)
+def collect_market_news(self, news_type):
+    assert news_type in ["sector", "competitors"], "Invalid news type."
 
-@shared_task
-def collect_market_news(news_type):
-    NEWS_API_KEY = os.environ.get("NEWSAPI_KEY")
-    CURR_NEWSAPI_KEY = os.environ.get("CURR_NEWSAPI_KEY")
-    MEDIASTACK_NEWSAPI_KEY = os.environ.get("MEDIASTACK_NEWSAPI_KEY")
+    companies = CompanyInfo.objects.all()
+    total_subtasks = 0
+
+    for company in companies:
+        if news_type == "sector":
+            # dispara só por empresa
+            collect_market_news_for_company.delay(company.id, news_type)
+            total_subtasks += 1
+
+        elif news_type == "competitors":
+            # busca competidores dessa empresa
+            competitors = CompetitorInfo.objects.filter(
+                company=company
+            ).exclude(website__isnull=True).exclude(website="")
+
+            if competitors.exists():
+                logger.info(f"[{company.short_name}] Found {competitors.count()} competitors:")
+                for competitor in competitors:
+                    logger.info(f"  - Competitor: {competitor.name}, Website: {competitor.website}")
+                    collect_market_news_for_company.delay(
+                        company.id,
+                        news_type,
+                        competitor_website=competitor.website
+                    )
+                    total_subtasks += 1
+            else:
+                logger.info(f"[{company.short_name}] No competitors with website found.")
+
+    logger.info(f"All companies queued for type {news_type} | Total subtasks: {total_subtasks}")
+
+    return {
+        "success": True,
+        "news_type": news_type,
+        "total_companies": companies.count(),
+        "total_subtasks": total_subtasks,
+        "message": "Subtasks dispatched successfully"
+    }
+
+
+@shared_task(bind=True)
+def collect_market_news_for_company(self, company_id, news_type, competitor_website=None):
     assert news_type in ['sector', 'competitors'], "Invalid news type."
-
-    today = timezone.now().date()
-    seven_days_ago = today - timedelta(days=7)
-    since = seven_days_ago.isoformat()
-    start_date = seven_days_ago.strftime("%Y-%m-%dT00:00:00Z")
-    date_range = f"{seven_days_ago.strftime('%Y-%m-%d')},{today.strftime('%Y-%m-%d')}"
 
     result_all = []
 
-    for company in CompanyInfo.objects.all():
-        company_name = company.short_name
-        company_sector = company.sector
+    company = CompanyInfo.objects.get(id=company_id)
+    company_name = company.short_name
 
-        # Montar a query:
-        q = f'"{company_name}"'
-        if news_type == 'competitors':
-            competitors = get_competitors(company)
-            terms = []
-            for c in competitors:
-                if c.name:
-                    match = re.match(r'^(.+?)\s*\(([^)]+)\)\s*$', c.name)
-                    if match:
-                        name_pure = match.group(1).strip()
-                        nickname = match.group(2).strip()
-                        terms.append(f'"{name_pure}"')
-                        terms.append(f'"{nickname}"')
-                    else:
-                        terms.append(f'"{c.name.strip()}"')
-            if terms:
-                q = " | ".join(terms)
-        elif news_type == 'sector':
-            sectors = [s.strip()
-                       for s in company_sector.split(',') if s.strip()]
-            if sectors:
-                q = ' | '.join(f'"{s}"' for s in sectors)
-            else:
-                q = f'"{company_name}"'
+    # 🔹 Determina qual website usar
+    if news_type == "competitors" and competitor_website:
+        target_name = f"{company_name} -> Competitors"
+        target_website = competitor_website
+    else:
+        target_name = f"{company_name} -> Sector"
+        target_website = company.website
 
-        # BUSCA nas 3 APIs
-        results_thenewsapi = fetch_news_thenewsapi(q, since, NEWS_API_KEY)
-        results_currentsapi = fetch_news_currentsapi(
-            q, start_date, CURR_NEWSAPI_KEY)
-        results_mediastack = fetch_news_mediastack(
-            q, date_range, MEDIASTACK_NEWSAPI_KEY)
-
-        results = []
-        results += results_thenewsapi
-        results += results_currentsapi
-        results += results_mediastack
-
-        count_saved = 0
-        for item in results:
-            date_str = item.get("date_published")
-            date_published = None
-            if date_str:
-                try:
-                    if "T" in date_str:
-                        date_published = datetime.fromisoformat(
-                            date_str.replace("Z", "+00:00")).date()
-                    else:
-                        date_published = datetime.strptime(
-                            date_str[:10], "%Y-%m-%d").date()
-                except Exception:
-                    date_published = None
-            if date_published:
-                obj, created = MarketNewsArticle.objects.get_or_create(
-                    company=company,
-                    company_fk=company,
-                    type=news_type,
-                    url=item.get("url"),
-                    date_published=date_published,
-                    defaults={
-                        'title': item.get("title"),
-                    }
-                )
-                if created:
-                    count_saved += 1
-
+    # Define prompt id 
+    prompt_map = { 
+        "competitors": "pmpt_68b5a08bc1f08195aa76746f6d01a75e093261f8da3ced76", 
+        "sector": "pmpt_68b599d24c7c819795d597fd702235020938a2d476c94ab6", 
+    } 
+    prompt_id = prompt_map[news_type]
+    
+    # Fetch news logic
+    response = client.responses.create(
+        model="gpt-5",
+        prompt={'id': prompt_id},
+        input=target_website,
+        store=True,
+        include=[
+            "reasoning.encrypted_content",
+            "web_search_call.action.sources"
+        ],
+        timeout=600
+    )
+    
+    news = response.output_text
+    logger.info(f"[{target_name}] Fetched news, length={len(news)})")
+    
+    # Extracting informations 
+    response = client.responses.create(
+        model="gpt-5",
+        prompt={'id': 'pmpt_68b5958d764881959cf2c6e192ba4da00eeba3ba887f8827'}, 
+        input=news,
+        store=True,
+        include=[
+            "reasoning.encrypted_content",
+            "web_search_call.action.sources"
+        ],
+        timeout=600
+    )
+    
+    raw_output = response.output_text
+    logger.info(f"[{target_name}] Extraction done, raw length={len(raw_output)})")
+    
+    extracted_info = safe_load_json(raw_output)
+    
+    if not isinstance(extracted_info, list) or extracted_info == []:
+        logger.error(f"[{target_name}] Extraction failed or returned empty list.")
         result_all.append({
-            "success": True,
+            "success": False,
             "company": company_name,
+            "target": target_website,
             "type": news_type,
-            "message": "Process completed successfully",
-            "query": q,
-            "news_found": len(results),
-            "news_saved": count_saved,
-            "details": [
-                {"source": "thenewsapi", "count": len(results_thenewsapi)},
-                {"source": "currentsapi", "count": len(results_currentsapi)},
-                {"source": "mediastack", "count": len(results_mediastack)},
-            ],
+            "message": "Extraction failed or returned empty list.",
+            "news_found": 0,
+            "news_saved": 0,
         })
+        return result_all
+        
+    # 🔹 Lógica de contagem
+    news_found = len(extracted_info)
+    news_saved = 0
+
+    for new in extracted_info:
+        raw_date = new.get("date_published")
+        date_published = parse_news_date(raw_date)
+
+        obj, created = MarketNewsArticle.objects.get_or_create(
+            title=new['title'],
+            url=new['url'],
+            company_fk=company,
+            defaults={
+                "company": company.long_name,
+                "type": news_type,
+                "date_published": date_published,
+            }
+        )
+
+        if created:
+            news_saved += 1
+
+    logger.info(f"[{target_name}] Task finished, saved={news_saved}")
+    result_all.append({
+        "success": True,
+        "company": company_name,
+        "target": target_website,
+        "type": news_type,
+        "message": "Process completed successfully",
+        "news_found": news_found,
+        "news_saved": news_saved,
+    })
 
     return result_all
 
 
-class CompetitorInfo(BaseModel):
+class CompetitorInfoSchema(BaseModel):
     company: str
     logo: str
     sectors: List[str]
@@ -163,9 +210,9 @@ class CompetitorInfo(BaseModel):
     stock_symbol: str
 
 
-class CompetitorInfoList(BaseModel):
+class CompetitorInfoListSchema(BaseModel):
     date: str
-    competitors: List[CompetitorInfo]
+    competitors: List[CompetitorInfoSchema]
 
 
 @shared_task
@@ -203,7 +250,7 @@ def fetch_and_store_competitors():
                         "content": "Extract competitor information from the web."},
                     {"role": "user", "content": prompt},
                 ],
-                response_format=CompetitorInfoList,
+                response_format=CompetitorInfoListSchema,
             )
             competitor_info = completion.choices[0].message.parsed.model_dump()
 
