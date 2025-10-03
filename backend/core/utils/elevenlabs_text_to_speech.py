@@ -1,13 +1,7 @@
 import base64
 import io
-import json
-import tempfile
-from typing import Iterator
-
-from django.conf import settings
-from elevenlabs import VoiceSettings
-from elevenlabs.client import ElevenLabs
-
+import requests
+from typing import Optional
 
 class ElevenlabsTextToSpeech:
 
@@ -66,35 +60,48 @@ class ElevenlabsTextToSpeech:
     ]
 
     def __init__(self, elevenlabs_key):
-        self.client = ElevenLabs(api_key=elevenlabs_key)
+        self.api_key = elevenlabs_key
+        self.base_url = "https://api.elevenlabs.io/v1/text-to-speech"
 
     def send(
         self,
-        send,
-        language,
-        id_voice,
-        stability=0.8,
-        similarity_boost=0.5,
-        style=0.0,
-        use_speaker_boost=True,
-    ):
-        audio = self.client.text_to_speech.convert(
-            voice_id=id_voice,
-            output_format='mp3_22050_32',
-            text=send,
-            model_id='eleven_multilingual_v2',
-            voice_settings=VoiceSettings(
-                stability=stability,
-                similarity_boost=similarity_boost,
-                style=style,
-                use_speaker_boost=use_speaker_boost,
-                speed=0.95,
-            ),
-        )
+        send: str,
+        language: str,
+        id_voice: str,
+        stability: float = 0.8,
+        similarity_boost: float = 0.5,
+        style: float = 0.0,
+        use_speaker_boost: bool = True,
+        timeout: Optional[int] = 600,  # 10 minutos
+    ) -> str:
+        """
+        Faz a requisição ao endpoint /with-timestamps e retorna o áudio em Base64.
+        """
+        url = f"{self.base_url}/{id_voice}/with-timestamps"
 
-        if isinstance(audio, Iterator):
-            audio = b''.join(audio)
+        headers = {
+            "xi-api-key": self.api_key,
+            "Content-Type": "application/json",
+        }
 
-        buffered = io.BytesIO(audio)
-        audio_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        payload = {
+            "text": send,
+            "voice_settings": {
+                "stability": stability,
+                "similarity_boost": similarity_boost,
+                "style": style,
+                "use_speaker_boost": use_speaker_boost,
+                "speed": 0.95
+            }
+        }
+
+        response = requests.post(url, headers=headers, json=payload, timeout=timeout)
+        response.raise_for_status()
+
+        data = response.json()
+        audio_base64 = data.get("audio_base64")
+
+        if not audio_base64:
+            raise RuntimeError("O endpoint não retornou áudio válido")
+
         return audio_base64

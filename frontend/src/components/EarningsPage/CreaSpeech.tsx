@@ -7,10 +7,11 @@ import CustomTextArea from '../CustomTextArea'
 import AudioPlayer from '../AudioPlayer';
 import { api } from '../../api/api';
 import CircularProgress from '@mui/material/CircularProgress';
+import { toast } from 'react-toastify';
 
-interface CreaSpeechProps {
-  onChange: (isEnabled: boolean) => void
-}
+// interface CreaSpeechProps {
+//   onChange: (isEnabled: boolean) => void
+// }
 
 const languageMap: Record<string, string> = {
   'Italiano': 'it',
@@ -31,7 +32,7 @@ const voiceMap: Record<string, string> = {
   'George': 'JBFqnCBsd6RMkjVDRZzb',
 };
 
-const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
+const CreaSpeech: React.FC = () => {
   // const theme = useTheme()
   // const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -43,15 +44,20 @@ const CreaSpeech: React.FC<CreaSpeechProps> = ({ onChange }) => {
   const voiceOptions = Object.keys(voiceMap);
 
   const isButtonEnabled =
-    selectedLanguage !== null && selectedVoice !== null && text.trim().length > 0;
+    selectedLanguage !== null && text.trim().length > 0;
   
   useEffect(() => {
-    onChange(isButtonEnabled);
+    // onChange(isButtonEnabled);
     // Take this off - testing
     setSelectedLanguage('Italiano')
-  }, [isButtonEnabled, onChange]);
+  }, [isButtonEnabled]);
 
   const handleGenerateAudio = async () => {
+    if(selectedVoice == '') {
+      toast.info('Seleziona una voce per lo speaker');
+      return
+    }
+
     setIsLoading(true);
     try {
       const response = await api.post('/elevenlabs/text-to-speech/', {
