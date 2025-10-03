@@ -4,7 +4,7 @@ import Home from './pages/Home'
 import Error404 from './pages/Error404'
 import Login from './pages/Login'
 import Market from './pages/Market'
-import Chat from './pages/Chat'
+import ChatAssistant from './pages/ChatAssistant'
 import CEO from './pages/CEO'
 import ESG from './pages/ESG'
 import Earnings from './pages/Earnings'
@@ -51,7 +51,7 @@ const AppRoutes = () => {
               path="/chat-assistant"
               element={
                 <RestrictedRoute routeName="/chat-assistant">
-                  <Chat />
+                  <ChatAssistant />
                 </RestrictedRoute>
               }
             />

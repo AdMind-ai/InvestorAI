@@ -31,7 +31,7 @@ interface ApiMessage {
 //   messages: ApiMessage[];
 // }
 
-const Chat: React.FC = () => {
+const ChatAssistant: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState('GPT-5')
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false);
@@ -173,4 +173,4 @@ const Chat: React.FC = () => {
   )
 }
 
-export default Chat
+export default ChatAssistant
