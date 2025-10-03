@@ -14,6 +14,12 @@ import {
   Avatar,
   CircularProgress,
   Button,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import Layout from '../layouts/Layout';
 import { useTheme } from '@mui/material/styles';
@@ -21,11 +27,15 @@ import dayjs from 'dayjs';
 import { toast } from 'react-toastify'
 import { api } from '../api/api';
 
+// Icons
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import WarningAmberIcon from '@mui/icons-material/WarningRounded';
 import SadFace from '../assets/icons/sad-face.svg';
 import HappyFace from '../assets/icons/happy-face.svg';
 import NeutralFace from '../assets/icons/neutral-face.svg';
+import CloseIcon from '@mui/icons-material/Close';
 
-import NewsModal from '../components/NewsModal';
+// import NewsModal from '../components/NewsModal';
 
 
 interface NewsItem {
@@ -67,8 +77,8 @@ const CEOPage: React.FC = () => {
   const [selectedProvider] = useState<'perplexity' | 'openai'>('openai');
   const [viewedArticles, setViewedArticles] = useState<Set<number>>(new Set());
 
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [modalContent, setModalContent] = useState<NewsItem | null>(null);
+  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const [articleToDeleteIndex, setArticleToDeleteIndex] = useState<number | null>(null);
 
   const MAX_LENGTH = 220;
   const getPreviewText = (text: string) => {
@@ -221,9 +231,12 @@ const CEOPage: React.FC = () => {
 
 
   const handleNewsOpen = async (article: NewsItem) => {
-    setModalContent(article);
-    setModalOpen(true);
+    // setModalContent(article);
+    // setModalOpen(true);
     setViewedArticles(prev => new Set([...prev, article.id]));
+
+    // Open link in new tab
+    window.open(article.url, '_blank', 'noopener,noreferrer');
 
     try {
       await api.put(`/articles/ceo/${article.id}/mark_viewed/`);
@@ -232,6 +245,47 @@ const CEOPage: React.FC = () => {
     }
   };
 
+  // Delete Article]
+  const handleDeleteArticle = async (articleId: number) => {
+    {
+      if (!window.confirm('Are you sure you want to delete this article?')) return;
+      try {
+        await api.delete(`/articles/ceo/${articleId}/`);
+        toast.success('Article deleted successfully');
+        // Atualiza os dados localmente
+        setData(prevData => ({
+          ...prevData,
+          [selectedPerson]: prevData[selectedPerson].filter(a => a.id !== articleId)
+        }));
+      } catch (error) {
+        console.error('Error deleting article:', error);
+        toast.error('Failed to delete article');
+      }
+    }
+  }
+
+  const confirmDelete = async () => {
+    if (articleToDeleteIndex !== null) {
+      try {
+        await api.delete(`/articles/ceo/${articleToDeleteIndex}/`);
+        toast.success('Article deleted successfully');
+        setData(prevData => ({
+          ...prevData,
+          [selectedPerson]: prevData[selectedPerson].filter(a => a.id !== articleToDeleteIndex),
+        }));
+      } catch (error) {
+        console.error('Error deleting article:', error);
+        toast.error('Failed to delete article');
+      }
+      setArticleToDeleteIndex(null);
+    }
+    setIsModalDeleteOpen(false);
+  };
+
+  const cancelDelete = () => {
+    setArticleToDeleteIndex(null);
+    setIsModalDeleteOpen(false);
+  };
 
   return (
     <Layout>
@@ -308,9 +362,6 @@ const CEOPage: React.FC = () => {
                   <Typography variant="h4">
                     {selectedPerson} <small style={{ color: '#7E7E7E' }} >({currentData.length})</small>
                   </Typography>
-                  <Typography variant="subtitle2" sx={{ mt: 0.8 }}>
-                    Ecco una panoramica di ciò che il web comunica su di te e sulla tua reputazione professionale.
-                  </Typography>
                 </Box>
               </Box>
             </Box>
@@ -371,10 +422,10 @@ const CEOPage: React.FC = () => {
                 <Typography variant='h4' sx={{ width: '70%', paddingX: '10px' }}>
                   Anteprima
                 </Typography>
-                <Typography variant='h4' sx={{ paddingLeft: '40px' }}>
+                <Typography variant='h4' sx={{ paddingRight: '70px' }}>
                   Link
                 </Typography>
-                <Typography variant='h4' sx={{ paddingX: '10px' }}>
+                <Typography variant='h4' sx={{ paddingRight: '80px' }}>
                   Sentiment
                 </Typography>
               </Box>
@@ -404,7 +455,6 @@ const CEOPage: React.FC = () => {
                           justifyContent: 'space-between',
                           width: '70%',
                           padding: '0px 0px 0px 10px',
-                          // bgcolor:'red'
                         }}
                       >
                         <Typography
@@ -463,11 +513,24 @@ const CEOPage: React.FC = () => {
                             ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
                             : 'grey',
                           fontWeight: 'bold',
-                          paddingRight: '30px'
+                          paddingRight: '10px'
                         }}
                       >
                         {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
                       </Typography>
+
+                      {/* Delete Icon */}
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setArticleToDeleteIndex(news.id);
+                          setIsModalDeleteOpen(true);
+                        }}
+                        sx={{ '&:hover': { bgcolor: 'transparent' } }}
+                      >
+                        <DeleteOutlineIcon sx={{ color: '#e53935', cursor: 'pointer', marginLeft: 1 }} />
+                      </IconButton>
+
                     </Box>
                   )
                 })}
@@ -537,7 +600,7 @@ const CEOPage: React.FC = () => {
           )}
         </Box>
       </Box>
-      {modalContent && (
+      {/* {modalContent && (
         <NewsModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
@@ -550,7 +613,53 @@ const CEOPage: React.FC = () => {
           content={modalContent.content}
           originalLink={modalContent.url}
         />
-      )}
+      )} */}
+
+      <Dialog open={isModalDeleteOpen} onClose={cancelDelete}>
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            fontWeight: 'bold',
+            justifyContent: 'center',
+            mt: 2,
+            fontSize: '26px',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <WarningAmberIcon sx={{ color: '#000', mr: 1 }} />
+            Conferma richiesta
+            <WarningAmberIcon sx={{ color: '#000', ml: 1 }} />
+          </Box>
+          <IconButton onClick={cancelDelete} sx={{ position: 'absolute', top: 10, right: 10 }}>
+            <CloseIcon sx={{ color: '#000' }} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText
+            sx={{ color: 'black', textAlign: 'center', fontSize: '20px', my: 0.5, mx: 1 }}
+          >
+            Vuoi davvero eliminare questo articolo?
+            <br />
+            Una volta eliminato, non sarà possibile recuperarlo.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 2.5, mb: 2 }}>
+          <Button
+            variant="contained"
+            onClick={confirmDelete}
+            sx={{
+              bgcolor: '#d32f2f',
+              color: '#fff',
+              py: 2.6,
+              '&:hover': { bgcolor: '#c62828' },
+            }}
+          >
+            Elimina post
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </Layout>
   );
 };
