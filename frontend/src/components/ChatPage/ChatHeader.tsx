@@ -223,7 +223,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
         <Typography variant="h2" sx={{ marginLeft: '1vw' }}>
-          ChatGPT
+          Chat Assistant
         </Typography>
 
         <Box

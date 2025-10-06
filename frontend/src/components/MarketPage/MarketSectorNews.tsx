@@ -6,7 +6,7 @@ import { Box, Typography, Link, Pagination } from "@mui/material";
 const MarketSectorNews = () => {
   const { sectorNews } = useMarket();
   const [sectorPage, setSectorPage] = useState(1);
-  const sectorNewsPerPage = 15;
+  const sectorNewsPerPage = 10;
   
   const paginatedSectorNews = () => {
     const start = (sectorPage - 1) * sectorNewsPerPage;
