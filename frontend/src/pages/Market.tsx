@@ -5,7 +5,6 @@ import '../styles/markdown.css';
 import Layout from '../layouts/Layout'
 
 import { MarketProvider } from "../context/MarketContext";
-import MarketStockOverview from '../components/MarketPage/MarketStockOverview'
 import MarketInsightReport from '../components/MarketPage/MarketInsightReport'
 import MarketCompetitorsNews from '../components/MarketPage/MarketCompetitorsNews'
 import MarketSectorNews from '../components/MarketPage/MarketSectorNews'
