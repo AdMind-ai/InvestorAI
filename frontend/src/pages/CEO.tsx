@@ -245,25 +245,6 @@ const CEOPage: React.FC = () => {
     }
   };
 
-  // Delete Article]
-  const handleDeleteArticle = async (articleId: number) => {
-    {
-      if (!window.confirm('Are you sure you want to delete this article?')) return;
-      try {
-        await api.delete(`/articles/ceo/${articleId}/`);
-        toast.success('Article deleted successfully');
-        // Atualiza os dados localmente
-        setData(prevData => ({
-          ...prevData,
-          [selectedPerson]: prevData[selectedPerson].filter(a => a.id !== articleId)
-        }));
-      } catch (error) {
-        console.error('Error deleting article:', error);
-        toast.error('Failed to delete article');
-      }
-    }
-  }
-
   const confirmDelete = async () => {
     if (articleToDeleteIndex !== null) {
       try {
