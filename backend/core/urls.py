@@ -45,6 +45,7 @@ urlpatterns = [
          name='openai-competitors-search'),
     path('openai/quarterly-report/', OpenAICompanyQuarterlyReportView.as_view(),
          name='openai-quarterly-report'),
+    
     # Chat
     path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
          name='openai-chat-send-message'),
@@ -54,6 +55,12 @@ urlpatterns = [
          ElevenlabsTextToSpeechView.as_view(), name='text-to-speech',),
     path('openai/investing-scraper/', OpenAIInvestingDataScraper.as_view(),
          name='get_investing_data'),
+    path('openai/chat/create-conversation/', ConversationForChatView.as_view(),
+         name='openai-chat-create-conversation'),
+    path('openai/chat/save-conversation/', SaveConversationView.as_view(),
+         name='openai/chat/save-conversation'),
+
+    # Stocks
     path('stocks/company-info/', CompanyInfoView.as_view(), name='company-info'),
     path('stocks/history/', StockDataView.as_view(), name='stock-data'),
     path('stocks/search/', SearchStocksView.as_view(), name='search-stocks'),

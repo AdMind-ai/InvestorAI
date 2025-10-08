@@ -10,6 +10,7 @@ class ChatConversation(models.Model):
     # Não tem nome único, NÀO ALTERAR!
     name = models.CharField(max_length=100, default="New Chat", unique=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_new = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Chat - Conversation"
@@ -20,6 +21,9 @@ class ChatConversation(models.Model):
         # ]
 
     def save(self, *args, **kwargs):
+        if self.pk and self.is_new:
+            self.is_new = False
+            
         if not self.name:
             self.name = str(uuid.uuid4())[:30]
         super().save(*args, **kwargs)
@@ -44,6 +48,7 @@ class ChatMessage(models.Model):
     class Meta:
         verbose_name = "Chat - Message"
         verbose_name_plural = "Chat - Messages"
+        ordering = ['created_at']
 
     def __str__(self):
         return f"Message {self.id} ({'User' if self.is_user else 'AI'})"

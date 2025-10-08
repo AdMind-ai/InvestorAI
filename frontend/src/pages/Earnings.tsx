@@ -8,7 +8,6 @@ import {
 } from '@mui/material'
 import Layout from '../layouts/Layout'
 import { useTheme } from '@mui/material/styles'
-import SaveCleanButtons from '../components/SaveCleanButtons'
 
 import Traduttore from '../components/EarningsPage/Traduttore'
 import CreaSpeech from '../components/EarningsPage/CreaSpeech'
@@ -18,7 +17,6 @@ import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
 const Earnings: React.FC = () => {
   const theme = useTheme();
   const [selectedOption, setSelectedOption] = useState<string>('Traduttore');
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
   const Options = [
     {
@@ -76,10 +74,6 @@ const Earnings: React.FC = () => {
             Earnings Call
           </Typography>
 
-          {/* Save, Clean and Cronologia Buttons */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {isButtonEnabled? <SaveCleanButtons /> : null}
-          </Box>
         </Box>
 
         <Divider />
@@ -120,7 +114,7 @@ const Earnings: React.FC = () => {
           
           {/* Content */}
           {selectedOption === 'Traduttore' && <Traduttore />}
-          {selectedOption === 'Crea speech' && <CreaSpeech onChange={setIsButtonEnabled}/>}
+          {selectedOption === 'Crea speech' && <CreaSpeech/>}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
           {/* {selectedOption === 'Social Media' && <SocialMedia />} */}
           

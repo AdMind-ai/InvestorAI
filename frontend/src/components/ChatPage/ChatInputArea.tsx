@@ -14,16 +14,17 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { toast } from "react-toastify";
 
 interface ChatInputAreaProps {
-  onSend: (content: string, sender: 'user' | 'ai', isStream?: boolean) => void;
+  onSend: (content: string, sender: 'user' | 'ai', isStream?: boolean, fileName?: string) => void;
   selectedModel: string;
-  selectedChat: { id: number | string; name: string } | null;
-  setSelectedChat: React.Dispatch<React.SetStateAction<{ id: number | string; name: string } | null>>;
-  searchWebEnabled: boolean;
-  setSearchWebEnabled: (enabled: boolean) => void;
+  selectedChat: { id: number | string; name: string; thread_id: string | null } | null;
+  setSelectedChat: React.Dispatch<React.SetStateAction<{ id: number | string; name: string; thread_id: string | null } | null>>;
   isEmptyMessages: boolean;
   setCitations?: React.Dispatch<React.SetStateAction<string[]>>;
   setIsOverview: React.Dispatch<React.SetStateAction<boolean>>;
   setIsTyping: React.Dispatch<React.SetStateAction<boolean>>;
+  conversationId: string
+  searchWebEnabled: boolean;
+  setSearchWebEnabled?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -31,22 +32,20 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   selectedModel,
   selectedChat,
   setSelectedChat,
-  searchWebEnabled,
-  setSearchWebEnabled,
   isEmptyMessages,
   setCitations,
   setIsOverview,
-  setIsTyping
+  setIsTyping,
+  conversationId
 }) => {
   const theme = useTheme();
   const { setAwaitingDeepResponse } = useGlobal();
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [isFileAttached, setIsFileAttached] = useState(false);
-  // const [searchWebEnabled, setSearchWebEnabled] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
-
+  const [searchWebEnabled, setSearchWebEnabled] = useState(false);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -57,6 +56,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     if (selectedFile) {
       setFile(selectedFile);
       setIsFileAttached(true);
+      setSearchWebEnabled(false);
     }
   };
 
@@ -69,69 +69,13 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     setSearchWebEnabled(!searchWebEnabled);
   };
 
-  // const handleOverviewClick = async () => {
-  //   setIsOverview(true);
-  //   setLoading(true);
-
-  //   try {
-  //     const response = await fetchWithAuth('/perplexity/deep-search/', {
-  //       method: 'POST'
-  //     });
-
-  //     if (!response.ok || !response.body) {
-  //       onSend('Erro ao conectar.', 'ai');
-  //       setLoading(false);
-  //       return;
-  //     }
-  //     setLoading(false);
-
-  //     const reader = response.body.getReader();
-  //     const decoder = new TextDecoder("utf-8");
-  //     let citationsReceived = false;
-
-  //     while (true) {
-  //       const { done, value } = await reader.read();
-  //       if (done) break;
-
-  //       const chunk = decoder.decode(value, { stream: true });
-
-  //       if (!citationsReceived && chunk.includes('_CITATIONS_START_')) {
-  //         const citationsJson = chunk.substring(
-  //           chunk.indexOf('_CITATIONS_START_') + '_CITATIONS_START_'.length,
-  //           chunk.indexOf('_CITATIONS_END_')
-  //         );
-  //         const citations = JSON.parse(citationsJson).citations;
-  //         setCitations?.(citations);
-  //         citationsReceived = true;
-
-  //         const cleanedChunk = chunk.substring(chunk.indexOf('_CITATIONS_END_') + '_CITATIONS_END_'.length);
-  //         onSend(cleanedChunk, 'ai', true);
-  //         // console.log(cleanedChunk)
-  //       } else {
-  //         onSend(chunk, 'ai', true); 
-  //         // console.log(chunk)
-  //       }
-  //     }
-
-  //   } catch (error) {
-  //     console.error('Erro ao conectar:', error);
-  //     onSend('Erro ao conectar.', 'ai');
-  //   } finally {
-  //     console.log('ACABOU')
-  //     setLoading(false);
-  //     setIsOverview(false);
-  //   }
-  // };
-
   const handleOverviewClick = async () => {
     setIsOverview(true);
     try {
-      const response = await fetchWithAuth('/perplexity/deep-search/', {
-        method: 'POST'
-      });
+      const response = await fetchWithAuth('/perplexity/deep-search/', { method: 'POST' });
       const resData = await response.json();
       if (response.ok && resData.conversation_id && resData.waiting_message_id) {
-        setSelectedChat({ id: resData.conversation_id, name: resData.conversation_name });
+        setSelectedChat({ id: resData.conversation_id, name: resData.conversation_name, thread_id: null });
         onSend("Starting Deep Research...", 'ai', true);
         setLoading(true);
         setAwaitingDeepResponse({
@@ -173,37 +117,33 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     return () => window.removeEventListener("deepResearchReady", handler as EventListener);
   }, [selectedChat, onSend]);
 
-
   const handleSubmit = async () => {
     setIsOverview(false);
     setIsTyping(true);
     setIsFileAttached(false);
     if (!text.trim()) return;
 
-    onSend(text, 'user');
+    if (file) {
+      onSend(file.name, 'user', false, file.name);
+    } else {
+      onSend(text, 'user');
+    }
 
+    const currentText = text; // para enviar no formData
     setText('');
     setFile(null);
 
     try {
       const formData = new FormData();
-      formData.append('content', text);
+      formData.append('content', currentText);
+      formData.append('model', modelMapping[selectedModel]);
+      formData.append('searchWebEnabled', searchWebEnabled ? 'true' : 'false');
 
-      const modelToUse = searchWebEnabled ? 'gpt-4o-search-preview' : modelMapping[selectedModel];
-      formData.append('model', modelToUse);
+      if (file) formData.append('file', file);
+      if (selectedChat) formData.append('conversation_id', selectedChat.thread_id as string);
+      else if (conversationId) formData.append('conversation_id', conversationId);
 
-      if (file) {
-        formData.append('file', file);
-      }
-
-      if (selectedChat) {
-        formData.append('conversation_id', selectedChat.id.toString());
-      }
-
-      const response = await fetchWithAuth('/openai/chat/send-message/', {
-        method: 'POST',
-        body: formData
-      });
+      const response = await fetchWithAuth('/openai/chat/send-message/', { method: 'POST', body: formData });
       setIsTyping(false);
 
       if (!response.ok || !response.body) {
@@ -211,20 +151,14 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         return;
       }
 
-      if (response.ok) {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-
-        let done = false;
-        while (!done) {
-          const { value, done: doneReading } = await reader.read();
-          done = doneReading;
-          const chunkValue = decoder.decode(value, { stream: true });
-          onSend(chunkValue, 'ai', true);
-        }
-      } else {
-        console.error('Erro ao conectar:', response.statusText);
-        onSend('Erro ao gerar resposta.', 'ai');
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let done = false;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value, { stream: true });
+        onSend(chunkValue, 'ai', true);
       }
 
     } catch (error) {
@@ -233,7 +167,6 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       onSend('Erro ao enviar mensagem.', 'ai');
     }
   };
-
 
   const ChatTextInputBox = () => (
     <Box
@@ -311,8 +244,6 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         onClick={() => {
           setFile(null);
           setIsFileAttached(false);
-          setSearchWebEnabled(false);
-
           const fileInput = document.getElementById('file-input') as HTMLInputElement;
           if (fileInput) fileInput.value = '';
         }}

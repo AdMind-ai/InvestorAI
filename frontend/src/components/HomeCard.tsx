@@ -45,7 +45,7 @@ const HomeCard: React.FC<CardProps> = ({ title, description, icon, path }) => {
       </Box>
 
       {/* Descrição */}
-      <Typography variant="subtitle1">{description}</Typography>
+      <Typography variant="subtitle1" sx={{ fontSize: '14px'}}>{description}</Typography>
 
       {/* Botão */}
       <Button variant="contained" sx={{fontSize: '12px', width:'165px', height:'32px', backgroundColor:'#103AB1'}} onClick={() => handleNavigation(path)}>

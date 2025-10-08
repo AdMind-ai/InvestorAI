@@ -36,7 +36,7 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({
         slotProps={{
           htmlInput: { maxLength },
           formHelperText: {
-            sx: { position: 'absolute', right:0, bottom:5 } 
+            sx: { position: 'absolute', right: 15, bottom: 5 } 
           }
         }}
         helperText={hasLimit? `${value.length}/${maxLength} caratteri`: ""}

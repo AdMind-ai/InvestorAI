@@ -14,30 +14,18 @@ const cards = [
   {
     title: 'Market Intelligence',
     description:
-    'Conduce ricerche e analisi sul mercato di riferimento dei principali competitors e sui peers quotati sui capital markets internazionali.',
+      'Conduce ricerche e analisi sul mercato di riferimento dei principali competitors e sui peers quotati sui capital markets internazionali.',
     icon: MarketIcon,
     path: '/market-intelligence',
-  },
-  {
-    title: 'Earnings Call',
-    description:
-    'Traduce in molteplici lingue investor presentation, trascrive webcast, prepara investor speech e crea contenuti social rapidamente grazie all’AI.',
-    icon: EarningsIcon,
-    path: '/earnings',
+    tool: 'intelligence'
   },
   {
     title: 'CEO perception',
     description:
-    'Monitora e analizza la percezione online del CEO e dei key manager aziendali attraverso la potenza dell’AI.',
+      'Monitora e analizza la percezione online del CEO e dei key manager aziendali attraverso la potenza dell’AI.',
     icon: CEOIcon,
     path: '/ceo-perception',
-  },
-  {
-    title: 'Chat Assistant',
-    description:
-      'Assistente virtuale rapido, sicuro e totalmente privato per ottenere risposte immediatamente anche su informazioni price sensitive non ancora pubbliche.',
-    icon: ChatIcon,
-    path: '/chat-assistant',
+    tool: 'intelligence'
   },
   {
     title: 'ESG Monitoring',
@@ -45,6 +33,23 @@ const cards = [
       'Offre una selezione delle notizie più rilevanti in ambito ESG, organizzate in diverse categorie, per garantire aggiornamenti costantei e puntuali.',
     icon: ESGIcon,
     path: '/esg',
+    tool: 'intelligence'
+  },
+  {
+    title: 'Chat Assistant',
+    description:
+      'Assistente virtuale rapido, sicuro e totalmente privato per ottenere risposte immediatamente anche su informazioni price sensitive non ancora pubbliche.',
+    icon: ChatIcon,
+    path: '/chat-assistant',
+    tool: 'operativi'
+  },
+  {
+    title: 'Earnings Call',
+    description:
+      'Traduce in molteplici lingue investor presentation, trascrive webcast, prepara investor speech e crea contenuti social rapidamente grazie all’AI.',
+    icon: EarningsIcon,
+    path: '/earnings',
+    tool: 'operativi'
   },
 ]
 
@@ -52,42 +57,82 @@ const Home: React.FC = () => {
   return (
     <Layout>
       <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'auto',
-        height: '100%',
-        width: '100%',
-      }}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          overflow: 'auto',
+          height: '100%',
+          width: '100%',
+          padding: '2vh 2vw',
+          gap: 6, // espaçamento entre as seções
+        }}
       >
-        <Typography variant="h3" sx={{textAlign: 'center', padding:'0px 0px', paddingTop:'4vh'}}>
-          Cosa vuoi fare oggi?
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            padding: 'calc(2.5vh) calc(3vh) calc(4vh) calc(3vh)',
-            // overflow: 'auto',
-            height: '84%',
-            width: '100%',
-            // backgroundColor: 'blue',
-            gap:0.5,
-          }}
+        {/* Intelligence Section */}
+        <Box sx={{ width: '100%', maxWidth: 1200, mt: 2 }}>
+          <Typography
+            variant="h3"
+            sx={{ textAlign: 'center', mb: 3 }}
           >
-          {cards.map((card, index) => (
-            <Box key={index} sx={{padding:'15px 15px'}}>
-              <HomeCard
-                title={card.title}
-                description={card.description}
-                icon={card.icon}
-                path={card.path}
-                />
-            </Box>
-          ))}
+            Tool Di Intelligence
+          </Typography>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: 8,
+              width: '100%',
+            }}
+          >
+            {cards
+              .filter(card => card.tool === "intelligence")
+              .map((card, index) => (
+                <Box key={index} sx={{ minWidth: 280, maxWidth: 360, flex: '1 1 300px' }}>
+                  <HomeCard
+                    title={card.title}
+                    description={card.description}
+                    icon={card.icon}
+                    path={card.path}
+                  />
+                </Box>
+              ))}
+          </Box>
+        </Box>
+
+        {/* Operativi Section */}
+        <Box sx={{ width: '100%', maxWidth: 1200 }}>
+          <Typography
+            variant="h3"
+            sx={{ textAlign: 'center', mb: 3 }}
+          >
+            Tool Operativi
+          </Typography>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: 8,
+              width: '100%',
+            }}
+          >
+            {cards
+              .filter(card => card.tool === "operativi")
+              .map((card, index) => (
+                <Box key={index} sx={{ minWidth: 280, maxWidth: 360, flex: '1 1 300px' }}>
+                  <HomeCard
+                    title={card.title}
+                    description={card.description}
+                    icon={card.icon}
+                    path={card.path}
+                  />
+                </Box>
+              ))}
+          </Box>
         </Box>
       </Box>
     </Layout>

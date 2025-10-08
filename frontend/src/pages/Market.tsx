@@ -5,7 +5,6 @@ import '../styles/markdown.css';
 import Layout from '../layouts/Layout'
 
 import { MarketProvider } from "../context/MarketContext";
-import MarketStockOverview from '../components/MarketPage/MarketStockOverview'
 import MarketInsightReport from '../components/MarketPage/MarketInsightReport'
 import MarketCompetitorsNews from '../components/MarketPage/MarketCompetitorsNews'
 import MarketSectorNews from '../components/MarketPage/MarketSectorNews'
@@ -40,7 +39,7 @@ const Market: React.FC = () => {
           </Typography>
 
         </Box>
-        <Divider sx={{mx:'calc(3vh)'}}/>
+        <Divider sx={{ mx: 'calc(3vh)' }} />
 
         {/* Main Content */}
         <Box
@@ -57,31 +56,32 @@ const Market: React.FC = () => {
           <MarketProvider>
             {/* Dashboards */}
             <Box sx={{ padding: '3vh', width: '100%', display: 'flex', flexDirection: 'column', gap: '3vh' }}>
-              <Box sx={{ display: 'flex', gap: '3vh'}}>
-                {/* Top Left Column */}
-                  <Box sx={{ display: 'flex', flex: 1.5, flexDirection:'column', gap: '3vh', height:'100%' }}>
+              {/* Center Line */}
+              <Box sx={{ display: 'flex', gap: 3 }}>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
+                  <MarketSectorNews />
+                </Box>
+              </Box>
 
-                    <MarketStockOverview />
-                    <MarketInsightReport/>
-
-                  </Box>
-
-                {/* Top Right Column */}
-                <Box sx={{ display: 'flex', flex: 1, flexDirection:'column', gap: '3vh' }}>
-                  
+              <Box sx={{ display: 'flex', gap: '3vh' }}>
+                {/* Left Column */}
+                <Box sx={{ display: 'flex', flex: 1.5, flexDirection: 'column', gap: '3vh', height: '100%' }}>
                   <MarketCompetitorsNews />
-                  <MarketCompetitors />
+                  {/* <MarketStockOverview /> */}
+                </Box>
 
+                {/* Right Column */}
+                <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: '3vh' }}>
+                  <MarketCompetitors />
                 </Box>
               </Box>
 
               {/* Center Line */}
-              <Box sx={{display:'flex', gap: 3}}>
-                <Box sx={{ flex:1, display:'flex', flexDirection:'column', gap:3, width:'100%'}}>
+              <Box sx={{ display: 'flex', gap: 3 }}>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
 
-                  <MarketSectorNews />
+                  <MarketInsightReport />
                   <MarketOverviewReport />
-
                 </Box>
               </Box>
 

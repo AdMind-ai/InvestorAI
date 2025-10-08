@@ -19,7 +19,7 @@ from .deepl import DeeplTranslateFileViewAsync, DeeplFileTaskStatusView
 from .openai import OpenAiAudioTranscriptView
 from .openai import OpenAIESGNewsView
 from .openai import OpenAICEONewsView
-from .openai import OpenAIConversationViewSet, OpenAISendMessageView
+from .openai import OpenAIConversationViewSet, OpenAISendMessageView, ConversationForChatView, SaveConversationView
 from .openai import OpenAISendAssistantMessageView
 from .openai import OpenAICompetitorSearchView
 from .openai import OpenAIInvestingDataScraper
@@ -43,7 +43,6 @@ from .stocks_view import (
 from .smartscan import SmartScanExtractView, SmartScanChatView
 from .quickdoc_view import QuickDocGenerateView
 
-
 __all__ = [
     'MasterRouteListUpdateView',
     'CompanyInfoViewAdm',
@@ -63,6 +62,8 @@ __all__ = [
     'OpenAICEONewsView',
     'OpenAIConversationViewSet',
     'OpenAISendMessageView',
+    'ConversationForChatView',
+    'SaveConversationView',
     'OpenAIInvestingDataScraper',
     'OpenAICompetitorSearchView',
     'OpenAIMarketNewsView',
