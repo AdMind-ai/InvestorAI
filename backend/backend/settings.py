@@ -39,6 +39,7 @@ AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
 AZURE_CONNECTION_STRING = f"DefaultEndpointsProtocol=https;AccountName={AZURE_ACCOUNT_NAME};AccountKey={AZURE_ACCOUNT_KEY};EndpointSuffix=core.windows.net"
 AZURE_OVERWRITE_FILES = True
 
+# Check for missing environment variables
 keys = [
     'OPENAI_KEY',
     'PERPLEXITY_KEY',
