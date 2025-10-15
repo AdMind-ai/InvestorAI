@@ -17,7 +17,7 @@ import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
 
 const Earnings: React.FC = () => {
   const theme = useTheme();
-  const [selectedOption, setSelectedOption] = useState<string>('LinkedIn post');
+  const [selectedOption, setSelectedOption] = useState<string>('Traduttore');
 
   const Options = [
     {
