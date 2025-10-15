@@ -369,11 +369,14 @@ const CEOPage: React.FC = () => {
                 />
               </Avatar>
               <Box sx={{ padding: 1 }}>
-                <Typography variant="subtitle2">Sentiment medio</Typography>
+                <Typography variant="subtitle2">
+                  Sentiment medio
+                </Typography>
                 <Typography variant="h4" sx={{ color: colorSentiment, mt: 0.5 }}>
                   {averageSentiment !== null ? `${averageSentiment}%` : '-- %'} • {sentimentText}
                 </Typography>
               </Box>
+              <InfoTooltipIcon message="Informação importante" size={18} color="gray" bottom={18}/>
             </Paper>
           </Box>
 

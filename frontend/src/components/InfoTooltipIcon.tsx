@@ -6,12 +6,14 @@ interface InfoTooltipIconProps {
     message: string;
     size?: number;
     color?: string;
+    bottom?: number;
 }
 
 const InfoTooltipIcon: React.FC<InfoTooltipIconProps> = ({
     message,
     size = 24,
     color = '#1976d2',
+    bottom = 0,
 }) => {
     return (
         <Tooltip title={message} arrow>
@@ -22,6 +24,7 @@ const InfoTooltipIcon: React.FC<InfoTooltipIconProps> = ({
                     height: size + 8,
                     backgroundColor: 'none',
                     padding: 0,
+                    bottom: bottom,
                     '&:hover': {
                         backgroundColor: 'none',
                     },
