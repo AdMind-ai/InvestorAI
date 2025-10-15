@@ -13,6 +13,7 @@ import SocialMediaBackground from '../assets/backgrounds/linkedin-background.svg
 import Traduttore from '../components/EarningsPage/Traduttore'
 import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
+import InfoTooltipIcon from '../components/InfoTooltipIcon'
 // import LinkedinPost from '../components/EarningsPage/newSocialMedia/LinkedinPost'
 
 const Earnings: React.FC = () => {
@@ -78,9 +79,12 @@ const Earnings: React.FC = () => {
             marginBottom: '0.2vw',
           }}
         >
-          <Typography variant="h2" sx={{ marginLeft: '1vw' }}>
-            Earnings Call
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
+              Earnings Call
+            </Typography>
+            <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+          </Box>
 
         </Box>
 

@@ -34,6 +34,7 @@ import SadFace from '../assets/icons/sad-face.svg';
 import HappyFace from '../assets/icons/happy-face.svg';
 import NeutralFace from '../assets/icons/neutral-face.svg';
 import CloseIcon from '@mui/icons-material/Close';
+import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 // import NewsModal from '../components/NewsModal';
 
@@ -272,7 +273,13 @@ const CEOPage: React.FC = () => {
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}>
-          <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>CEO Perception</Typography>
+          {/*  Title + Tooltip */}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
+              CEO Perception
+            </Typography>
+            <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+          </Box>
           {/* Test Component */}
           <Box sx={{ height: 'calc(4.5vh)', ml: 40, position: 'relative' }}>
             {/* <ToggleButtonGroup

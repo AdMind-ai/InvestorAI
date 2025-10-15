@@ -27,6 +27,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningRounded';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
+import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 interface NewsItem {
   id: number;
@@ -78,7 +79,7 @@ const ESGPage: React.FC = () => {
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
-  
+
   // Controls how many articles on page based on height
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -86,9 +87,9 @@ const ESGPage: React.FC = () => {
       if (container) {
         const totalHeight = container.clientHeight;
         // console.log(totalHeight)
-        
-        const itemHeight = 45; 
-        const minSpacingRem = 0.8; 
+
+        const itemHeight = 45;
+        const minSpacingRem = 0.8;
         const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
         const minSpacingPx = minSpacingRem * remToPx;
 
@@ -193,9 +194,12 @@ const ESGPage: React.FC = () => {
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
-        <Typography variant="h2" sx={{ marginLeft: '1vw', mb: 2 }}>
-          ESG News
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+          <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
+            ESG News
+          </Typography>
+          <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+        </Box>
         <Divider sx={{ marginBottom: 2.5 }} />
 
         {/* Toggle buttons */}
@@ -254,8 +258,8 @@ const ESGPage: React.FC = () => {
                     rowsPerPage < currentData.length && !isLastPage
                       ? 0
                       : isLastItem
-                      ? 0
-                      : '0.9rem';
+                        ? 0
+                        : '0.9rem';
                   const isNew = !news.viewed && !viewedArticles.has(news.id);
 
                   return (

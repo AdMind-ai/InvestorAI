@@ -20,6 +20,7 @@ import {
   Grow
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import InfoTooltipIcon from '../InfoTooltipIcon';
 
 interface Message {
   sender: 'user' | 'ai'
@@ -172,7 +173,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     const chat = chats.find(chat => chat.name === name);
     if (chat && onChatSelect) {
       onChatSelect(chat.id, chat.name, chat.thread_id);
-      setSelectedChat({ id: chat.id, name: chat.name, thread_id: chat.thread_id});
+      setSelectedChat({ id: chat.id, name: chat.name, thread_id: chat.thread_id });
     }
   };
 
@@ -181,9 +182,9 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       try {
         const chatList = await fetchChatConversations();
 
-        if(chatList){
+        if (chatList) {
           const chatsToRemove = chatList.filter((chat) => chat.name.trim().toLowerCase() === "new chat");
-  
+
           // Remover esses chats do backend
           for (const chat of chatsToRemove) {
             await removeChat(chat.id);
@@ -222,9 +223,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <Typography variant="h2" sx={{ marginLeft: '1vw' }}>
-          Chat Assistant
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+          <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
+            Chat Assistant
+          </Typography>
+          <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+        </Box>
 
         <Box
           sx={{
