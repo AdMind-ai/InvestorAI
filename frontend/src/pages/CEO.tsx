@@ -90,7 +90,7 @@ const CEOPage: React.FC = () => {
   };
 
   const [page, setPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(6);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const currentData = data[selectedPerson] || [];
@@ -119,8 +119,6 @@ const CEOPage: React.FC = () => {
     loadData();
     // eslint-disable-next-line
   }, [selectedPerson, JSON.stringify(personalities)]);
-
-
 
 
   // Controls how many articles on page based on height
@@ -395,7 +393,7 @@ const CEOPage: React.FC = () => {
                 backgroundColor: 'transparent',
                 border: '1px solid #E4E4E4',
                 boxShadow: '0px 3px 8px rgba(0,0,0,0.1)',
-                height: '53vh',
+                minHeight: '54vh',
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
@@ -533,10 +531,6 @@ const CEOPage: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'center',
                   py: 1,
-                  position: 'absolute',
-                  bottom: '8px',
-                  left: 0,
-                  right: 0,
                   backgroundColor: 'transparent',
                 }}
               >
