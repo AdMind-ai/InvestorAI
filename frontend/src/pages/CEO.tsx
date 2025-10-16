@@ -20,6 +20,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  TableContainer,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
 } from '@mui/material';
 import Layout from '../layouts/Layout';
 import { useTheme } from '@mui/material/styles';
@@ -267,6 +273,16 @@ const CEOPage: React.FC = () => {
     setIsModalDeleteOpen(false);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(date);
+  };
+
+
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
@@ -374,7 +390,7 @@ const CEOPage: React.FC = () => {
                   {averageSentiment !== null ? `${averageSentiment}%` : '-- %'} • {sentimentText}
                 </Typography>
               </Box>
-              <InfoTooltipIcon message="Informação importante" size={18} color="gray" bottom={18}/>
+              <InfoTooltipIcon message="Informação importante" size={18} color="gray" bottom={18} />
             </Paper>
           </Box>
 
@@ -399,141 +415,121 @@ const CEOPage: React.FC = () => {
                 position: 'relative',
               }}
             >
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingBottom: 1,
-                  borderBottom: '1px solid #f0f0f0',
-                }}
-              >
-                <Typography variant='h4' sx={{ width: '70%', paddingX: '10px' }}>
-                  Anteprima
-                </Typography>
-                <Typography variant='h4' sx={{ paddingRight: '70px' }}>
-                  Link
-                </Typography>
-                <Typography variant='h4' sx={{ paddingRight: '80px' }}>
-                  Sentiment
-                </Typography>
-              </Box>
+              <TableContainer sx={{ flex: 1, overflowY: 'auto' }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <Typography variant='h4'>Data</Typography>
+                      </TableCell>
+                      <TableCell >
+                        <Typography variant='h4'>Anteprima</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant='h4'>Sentiment</Typography>
+                      </TableCell>
+                      <TableCell />
+                    </TableRow>
+                  </TableHead>
 
-              {/* News */}
-              <Box sx={{ overflowY: 'auto', flex: 1, mb: 2 }}>
-                {displayedNews.map((news, idx) => {
-                  const isNew = !news.viewed && !viewedArticles.has(news.id);
+                  <TableBody>
+                    {displayedNews.map((news, idx) => {
+                      const isNew = !news.viewed && !viewedArticles.has(news.id);
+                      const sentimentColor =
+                        news.sentiment !== null && news.sentiment !== undefined
+                          ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
+                          : 'grey';
 
-                  return (
-                    <Box
-                      key={idx}
-                      data-news-item
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingY: 0.5,
-                        borderBottom: '1px solid #f0f0f0',
-                      }}
-                    >
-                      {/* News content */}
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          width: '70%',
-                          padding: '0px 0px 0px 10px',
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            width: '88%',
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                            textOverflow: 'ellipsis',
-                            padding: '0px 10px',
-                          }}
-                        >
-                          {getPreviewText(news.content)}
-                        </Typography>
+                      return (
+                        <TableRow key={idx} hover>
+                          {/* Date */}
+                          <TableCell>
+                            <Typography variant='body2' sx={{ fontSize: '17px'}}>
+                              {news.date_published ? formatDate(news.date_published) : '--'}
+                            </Typography>
+                          </TableCell>
 
-                        {isNew && (
-                          <Box
-                            sx={{
-                              bgcolor: theme.palette.secondary.main,
-                              color: '#fff',
-                              padding: '2px 6px',
-                              borderRadius: '8px',
-                              fontSize: '12px',
-                              fontWeight: 'bold',
-                              lineHeight: '1',
-                              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            New
-                          </Box>
-                        )}
-                      </Box>
+                          {/* Title + New */}
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, maxWidth: '100%' }}>
+                              <Link
+                                fontSize='16px'
+                                component="button"
+                                onClick={() => handleNewsOpen(news)}
+                                sx={{
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  textOverflow: 'ellipsis',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  color: theme.palette.secondary.main,
+                                  textDecoration: 'underline',
+                                  flexShrink: 1,
+                                  maxWidth: isNew ? 'calc(100% - 60px)' : '100%',
+                                }}
+                              >
+                                {news.title}
+                              </Link>
 
-                      {/* News Link */}
-                      <Link
-                        fontSize='16px'
-                        component="button"
-                        onClick={() => handleNewsOpen(news)}
-                        sx={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: theme.palette.secondary.main,
-                          textDecoration: 'underline',
-                        }}
-                      >
-                        Vai all'articolo
-                      </Link>
+                              {isNew && (
+                                <Box
+                                  sx={{
+                                    bgcolor: theme.palette.secondary.main,
+                                    color: '#fff',
+                                    padding: '2px 6px',
+                                    borderRadius: '8px',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    lineHeight: '1',
+                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                                    textTransform: 'uppercase',
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  New
+                                </Box>
+                              )}
+                            </Box>
+                          </TableCell>
 
-                      {/* News Sentiment */}
-                      <Typography
-                        variant='h6'
-                        sx={{
-                          color: news.sentiment !== null && news.sentiment !== undefined
-                            ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
-                            : 'grey',
-                          fontWeight: 'bold',
-                          paddingRight: '10px'
-                        }}
-                      >
-                        {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
-                      </Typography>
+                          {/* Sentiment */}
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Typography
+                              variant='h6'
+                              sx={{
+                                color: sentimentColor,
+                                fontWeight: 'bold',
+                                display: 'inline-block', 
+                              }}
+                            >
+                              {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
+                            </Typography>
+                          </TableCell>
 
-                      {/* Delete Icon */}
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setArticleToDeleteIndex(news.id);
-                          setIsModalDeleteOpen(true);
-                        }}
-                        sx={{ '&:hover': { bgcolor: 'transparent' } }}
-                      >
-                        <DeleteOutlineIcon sx={{ color: '#e53935', cursor: 'pointer', marginLeft: 1 }} />
-                      </IconButton>
 
-                    </Box>
-                  )
-                })}
-              </Box>
+                          {/* Delete */}
+                          <TableCell>
+                            <IconButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setArticleToDeleteIndex(news.id);
+                                setIsModalDeleteOpen(true);
+                              }}
+                              sx={{ '&:hover': { bgcolor: 'transparent' } }}
+                            >
+                              <DeleteOutlineIcon sx={{ color: '#e53935', cursor: 'pointer' }} />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
               {/* Pagination */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  py: 1,
-                  backgroundColor: 'transparent',
-                }}
-              >
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
                 <Pagination
                   count={Math.ceil(currentData.length / rowsPerPage)}
                   page={page}
@@ -580,7 +576,6 @@ const CEOPage: React.FC = () => {
                   }}
                 />
               </Box>
-
             </Paper>
           )}
         </Box>
