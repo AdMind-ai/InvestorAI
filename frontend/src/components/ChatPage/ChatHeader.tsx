@@ -93,6 +93,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const [newChatName, setNewChatName] = useState('');
   const [hoverModel, setHoverModel] = useState<string | null>(null);
 
+  const messageTooltipTitle = "Chat basata sugli stessi modelli GPT di ultima generazione utilizzati da ChatGPT, ma in ambiente privato e dedicato alla tua azienda. I dati restano nel tuo server: non vengono condivisi né usati per addestrare modelli pubblici. Puoi caricare documenti/immagini, cercare sul web e lavorare con dati sensibili in totale sicurezza."
+
   const handleSaveClick = () => {
     setOpenSaveModal(true);
   };
@@ -227,7 +229,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
             Chat Assistant
           </Typography>
-          <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+          <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
         </Box>
 
         <Box

@@ -52,6 +52,8 @@ const Earnings: React.FC = () => {
     // },
   ]
 
+  const messageTooltipTitle = "Traduce in più lingue presentazioni e testi, trascrive audio/webcast, crea investor speech e genera post social per LinkedIn. Carica file o testo, scegli lingua e formato: ottieni contenuti pronti all’uso in pochi clic."
+
   return (
     <Layout>
       <Box
@@ -83,7 +85,7 @@ const Earnings: React.FC = () => {
             <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
               Earnings Call
             </Typography>
-            <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
           </Box>
 
         </Box>

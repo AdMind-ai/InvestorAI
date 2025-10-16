@@ -44,7 +44,6 @@ import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 // import NewsModal from '../components/NewsModal';
 
-
 interface NewsItem {
   id: number;
   title: string;
@@ -87,20 +86,15 @@ const CEOPage: React.FC = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [articleToDeleteIndex, setArticleToDeleteIndex] = useState<number | null>(null);
 
-  const MAX_LENGTH = 220;
-  const getPreviewText = (text: string) => {
-    if (text.length > MAX_LENGTH) {
-      return text.slice(0, MAX_LENGTH) + '...';
-    }
-    return text;
-  };
-
   const [page, setPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const currentData = data[selectedPerson] || [];
 
+  
+  const messageTooltipTitle = "Raccoglie ogni lunedì mattina le notizie più recenti e pubbliche degli ultimi 90 giorni su CEO e top manager, valutandone il sentiment. Mostra 10 articoli alla volta, senza duplicati ed escludendo il sito aziendale. Clicca il titolo per aprire la fonte."
+  const messageTooltipSentiment = "Valuta il tono linguistico con cui il CEO/manager è descritto nelle notizie, tramite analisi semantica del testo. Misura l’atteggiamento verso la persona (favorevole, neutro, critico), non la “bontà” dell’evento riportato. Punteggio indicativo su scala 0–100; usare come supporto alla lettura, non come giudizio assoluto."
 
   // Articles Data
   const sortedData = [...currentData].sort((a, b) =>
@@ -292,7 +286,7 @@ const CEOPage: React.FC = () => {
             <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
               CEO Perception
             </Typography>
-            <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
           </Box>
           {/* Test Component */}
           <Box sx={{ height: 'calc(4.5vh)', ml: 40, position: 'relative' }}>
@@ -390,7 +384,9 @@ const CEOPage: React.FC = () => {
                   {averageSentiment !== null ? `${averageSentiment}%` : '-- %'} • {sentimentText}
                 </Typography>
               </Box>
-              <InfoTooltipIcon message="Informação importante" size={18} color="gray" bottom={18} />
+              <InfoTooltipIcon message={messageTooltipSentiment}
+                size={18}
+                color="gray" bottom={18} />
             </Paper>
           </Box>
 
@@ -444,7 +440,7 @@ const CEOPage: React.FC = () => {
                         <TableRow key={idx} hover>
                           {/* Date */}
                           <TableCell>
-                            <Typography variant='body2' sx={{ fontSize: '17px'}}>
+                            <Typography variant='body2' sx={{ fontSize: '17px' }}>
                               {news.date_published ? formatDate(news.date_published) : '--'}
                             </Typography>
                           </TableCell>
@@ -500,7 +496,7 @@ const CEOPage: React.FC = () => {
                               sx={{
                                 color: sentimentColor,
                                 fontWeight: 'bold',
-                                display: 'inline-block', 
+                                display: 'inline-block',
                               }}
                             >
                               {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}

@@ -16,7 +16,18 @@ const InfoTooltipIcon: React.FC<InfoTooltipIconProps> = ({
     bottom = 0,
 }) => {
     return (
-        <Tooltip title={message} arrow>
+        <Tooltip
+            title={message}
+            arrow
+            slotProps={{
+                tooltip: {
+                    sx: {
+                        fontSize: '14px', 
+                        maxWidth: 260, 
+                    },
+                },
+            }}
+        >
             <IconButton
                 disableRipple
                 sx={{

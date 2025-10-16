@@ -191,6 +191,8 @@ const ESGPage: React.FC = () => {
     loadData(selectedCategory);
   }, [selectedCategory]);
 
+  const messageTooltipTitle = "Raccoglie le notizie più rilevanti su normativa, governance e rischi reputazionali, organizzate per categoria. Aggiornamento regolare da fonti autorevoli. Sfoglia l’elenco, leggi l’anteprima e apri l’articolo completo dalla fonte."
+
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
@@ -198,7 +200,7 @@ const ESGPage: React.FC = () => {
           <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
             ESG News
           </Typography>
-          <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+          <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
         </Box>
         <Divider sx={{ marginBottom: 2.5 }} />
 

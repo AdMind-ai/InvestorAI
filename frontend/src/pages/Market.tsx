@@ -14,6 +14,7 @@ import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 
 const Market: React.FC = () => {
+  const messageTooltipTitle = "Offre una vista aggiornata del tuo settore: notizie rilevanti, aggiornamenti sui competitor e mappa delle aziende concorrenti. Puoi leggere le fonti originali, confrontare i trend e generare report di sintesi con gli indicatori chiave."
 
   return (
     <Layout>
@@ -39,7 +40,7 @@ const Market: React.FC = () => {
             <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
               Market Intelligence
             </Typography>
-            <InfoTooltipIcon message="Informação importante" size={18} color="gray" />
+            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
           </Box>
 
         </Box>
