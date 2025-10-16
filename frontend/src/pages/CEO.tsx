@@ -92,7 +92,7 @@ const CEOPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const currentData = data[selectedPerson] || [];
 
-  
+
   const messageTooltipTitle = "Raccoglie ogni lunedì mattina le notizie più recenti e pubbliche degli ultimi 90 giorni su CEO e top manager, valutandone il sentiment. Mostra 10 articoli alla volta, senza duplicati ed escludendo il sito aziendale. Clicca il titolo per aprire la fonte."
   const messageTooltipSentiment = "Valuta il tono linguistico con cui il CEO/manager è descritto nelle notizie, tramite analisi semantica del testo. Misura l’atteggiamento verso la persona (favorevole, neutro, critico), non la “bontà” dell’evento riportato. Punteggio indicativo su scala 0–100; usare come supporto alla lettura, non come giudizio assoluto."
 
@@ -462,7 +462,8 @@ const CEOPage: React.FC = () => {
                                   color: theme.palette.secondary.main,
                                   textDecoration: 'underline',
                                   flexShrink: 1,
-                                  maxWidth: isNew ? 'calc(100% - 60px)' : '100%',
+                                  maxWidth: '55vw',
+                                  display: 'inline-block',
                                 }}
                               >
                                 {news.title}
