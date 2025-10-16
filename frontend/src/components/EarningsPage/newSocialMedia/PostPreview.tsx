@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { useRef, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import ProfileLogin from "./ProfileLogin";
 import { useLinkedinPost } from "../../../context/LinkedinPostContext";
 import ScheduleModal from "./ScheduleModal";
 
@@ -39,6 +38,7 @@ Il nostro team ha lavorato duramente per creare una soluzione che aiuta le azien
     const handleFileClick = () => fileInputRef.current?.click();
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(selectedFile)
         const file = event.target.files?.[0];
         if (file) {
             setSelectedFile(file);

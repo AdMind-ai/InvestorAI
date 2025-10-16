@@ -1,4 +1,4 @@
-import { Box, Button, Paper, Typography, Divider, CircularProgress } from '@mui/material'
+import { Box, Button, Paper, Typography, Divider } from '@mui/material'
 import LogoLinkedin from '../../../assets/logos/svg/logo-linkedin.svg'
 // import HubOutlinedIcon from '@mui/icons-material/HubOutlined';
 

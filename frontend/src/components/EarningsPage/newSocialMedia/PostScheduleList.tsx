@@ -56,11 +56,11 @@ const mockPosts: ScheduledPost[] = [
 ];
 
 const PostScheduleList = () => {
-    const { resetFlow  } = useLinkedinPost();
+    const { resetFlow } = useLinkedinPost();
     const [page, setPage] = useState(1);
     const postsPerPage = 3;
 
-    const handleChangePage = (_: any, newPage: number) => {
+    const handleChangePage = (_: unknown, newPage: number) => {
         setPage(newPage);
     };
 

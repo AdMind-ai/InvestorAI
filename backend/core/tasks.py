@@ -97,6 +97,7 @@ def collect_market_news(self, news_type):
     }
 
 
+
 @shared_task(bind=True)
 def collect_market_news_for_company(self, company_id, news_type, competitor_website=None):
     assert news_type in ['sector', 'competitors'], "Invalid news type."
@@ -678,8 +679,6 @@ def generate_company_quarterly_report(quarter: str, year: int):
 
 
 logger = logging.getLogger(__name__)
-
-PROMPT_ID = os.getenv("OPENAI_PROMPT_ID_CEO_NEWS")
 
 @shared_task(bind=True)
 def fetch_ceo_news(self, ceo_name, company_short_name, company_url):

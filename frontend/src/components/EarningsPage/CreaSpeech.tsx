@@ -1,7 +1,6 @@
 // import { useTheme } from '@mui/material/styles'
 // import { useNavigate } from 'react-router-dom'
 import { Box, Button } from '@mui/material'
-import SimpleDropdown from '../SimpleDropdown'
 import LinedDropdown from '../dropdowns/LinedDropdown'
 import { useState, useEffect } from 'react'
 import CustomTextArea from '../CustomTextArea'
