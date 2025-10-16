@@ -1,5 +1,8 @@
 # core/tasks.py
+from core.models.openai_ceo_conversaitons_model import CEOConversation
 from core.models.company_info import CEO
+import time
+from openai import BadRequestError
 from django.conf import settings
 import tempfile
 from core.utils.quickdoc.upload_to_blob_storage import upload_to_blob_storage
@@ -10,9 +13,9 @@ import os
 from core.utils.get_company_info import get_competitors
 from core.models.company_info.company_info import CompanyInfo
 from core.models.market_article_model import MarketNewsArticle
-import re
 import requests
-from datetime import datetime, timedelta
+from django.db import IntegrityError
+from datetime import datetime, timedelta, timezone
 from celery import shared_task
 
 from openai import OpenAI
@@ -21,6 +24,7 @@ from core.models.competitor_model import Competitor, CompetitorSearch
 from core.models.company_info import CompetitorInfo as CompanyCompetitors
 from typing import List
 from pydantic import BaseModel
+from django.db import transaction
 
 from core.utils.cron.stock import get_usd_to_eur_rate, get_stock_info
 from core.models.company_stock_data_model import CompanyStockData
@@ -33,7 +37,7 @@ from core.models.company_quarterly_report import CompanyQuarterlyReport
 
 import json
 from core.models.ceo_article_model import CEOArticle
-from core.utils.cron.ceo_news import response_openai_api, get_sentiment_analysis
+from core.utils.cron.ceo_news import  get_sentiment_analysis
 
 from core.models.esg_article_model import ESGArticle
 from core.utils.cron.esg_news import generate_openai_system, generate_openai_prompt
@@ -44,7 +48,6 @@ from core.models.company_info import CompetitorInfo
 from core.utils.tasks.collect_market_news import parse_news_date, safe_load_json
 
 client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
-
 
 @shared_task
 def minha_task():
@@ -676,94 +679,136 @@ def generate_company_quarterly_report(quarter: str, year: int):
 
 logger = logging.getLogger(__name__)
 
+PROMPT_ID = os.getenv("OPENAI_PROMPT_ID_CEO_NEWS")
 
-@shared_task
-def daily_ceo_articles_fetch():
-    ceos = CEO.objects.all()
-    if not ceos:
-        logger.info("No CEOs found for fetching news articles.")
-        return
+@shared_task(bind=True)
+def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
+    """
+    Busca artigos sobre o CEO utilizando a OpenAI Responses API com prompt_id fixo.
+    """
+    try:
+        logger.info(f"🔍 Buscando notícias para {ceo_name} ({company_url})")
 
-    num_articles_total = 0
-    for ceo in ceos:
-        personality = ceo
-        logger.info(f"Fetching news articles for CEO: {ceo.name}")
+        company_instance = CompanyInfo.objects.filter(short_name=company_short_name).first()
+        if not company_instance:
+            raise ValueError(f"CEO '{ceo_name}' não encontrado.")
+        
+        ceo_instance = CEO.objects.filter(name=ceo_name).first()
+        if not ceo_instance:
+            raise ValueError(f"CEO '{ceo_name}' não encontrado.")
+        
+        ceo_conversation, created = CEOConversation.objects.get_or_create(
+            company=company_instance,
+            ceo=ceo_instance,
+        )
+        
+        # Garante que exista uma conversation_id válida
+        if ceo_conversation.conversation_id:
+            conversation_id = ceo_conversation.conversation_id
+        else:
+            new_conversation = client.conversations.create()
+            conversation_id = new_conversation.id
+            ceo_conversation.conversation_id = conversation_id
+            ceo_conversation.save(update_fields=["conversation_id"])
+            
+        ceoInfos = f""""
+                Name: {ceo_name}
+                Company: {company_short_name}
+                Company website: {company_url}
+                """
+                
+        MAX_RETRIES = 10
+        RETRY_DELAY = 12
 
-        max_retries = 2
-        json_content = {"articles": []}
-        for attempt in range(max_retries + 1):
+        for attempt in range(MAX_RETRIES):
             try:
-                response = response_openai_api(ceo.name)
-                response_text = ''
-                for output in response.output:
-                    if output.type == 'message':
-                        for content in output.content:
-                            if content.type == 'output_text':
-                                response_text = content.text
+                response = client.responses.create(
+                    prompt={"id": "pmpt_68efa0da10588196810d96200a9f2c2e0f34a64f34f6ce35"},
+                    input=ceoInfos,
+                    conversation=conversation_id,
+                    store=True,
+                    timeout=900,
+                )
+                break  # deu certo, sai do loop
 
-                if response_text == '':
-                    response_text = '{"articles":[]}'
+            except BadRequestError as e:
+                if "conversation_locked" in str(e):
+                    logger.warning(f"🕒 Conversa bloqueada (tentativa {attempt+1}/{MAX_RETRIES}), esperando...")
+                    time.sleep(RETRY_DELAY)
+                    continue
+                raise
+            
+        # Extrair o texto JSON da resposta
+        response_text = ""
+        for output in response.output:
+            if output.type == "message":
+                for content in output.content:
+                    if content.type == "output_text":
+                        response_text += content.text
 
-                usage = response.usage
-                logger.info(
-                    f"[{ceo.name}] Tokens: in={usage.input_tokens}, out={usage.output_tokens}")
+        # Garantir JSON válido
+            raw_output = response.output_text
+            
+            logger.info(f"[Search done, raw length={len(raw_output)})")
+            jsonRes = safe_load_json(raw_output)
+
+            # Garante que o formato esteja correto
+            results = jsonRes.get("results", [])
+            logger.info(f"📰 {len(results)} artigos encontrados para {ceo_name}")
+
+            created_count = 0
+        for article in results:
+                sentiment = get_sentiment_analysis(ceo_name, article["content"])
 
                 try:
-                    json_content = json.loads(response_text)
-                except json.JSONDecodeError as e:
-                    logger.error(
-                        f"JSON inválido recebido para {ceo.name}: {response_text}")
-                    break
-
-                if 'articles' not in json_content:
-                    logger.error(
-                        f"[{ceo.name}] Missing 'articles' in OpenAI response: {json_content}")
-                    break
-
-                break
-
-            except Exception as e:
-                logger.error(
-                    f"Erro ao tentar buscar dados para {ceo.name}: {e}")
-                if attempt == max_retries:
-                    logger.error(
-                        f"Falha para {ceo.name} após várias tentativas.")
-
-        created_articles = 0
-        for article_data in json_content.get("articles", []):
-            sentiment_score = get_sentiment_analysis(
-                ceo.name, article_data["content"])
-            article, created = CEOArticle.objects.get_or_create(
-                title=article_data["title"],
-                url=article_data["url"],
-                defaults={
-                    "personality": personality,
-                    "author": article_data.get('author', 'Sconosciuto'),
-                    "content": article_data["content"],
-                    "source": article_data["source"],
-                    "language": article_data["language"],
-                    "date_published": article_data["date_published"],
-                    "sentiment": sentiment_score
-                }
-            )
-            if created:
-                created_articles += 1
-                article.sentiment = sentiment_score
-                article.save()
-
-        num_articles_total += created_articles
-        logger.info(f"{created_articles} articles created for {ceo.name}")
-
-    logger.info(
-        f"Daily CEO articles fetch finalizada! Total artigos criados: {num_articles_total}")
+                    with transaction.atomic():
+                        obj, created = CEOArticle.objects.get_or_create(
+                            title=article["title"],
+                            url=article["source"],
+                            defaults={
+                                "content": article["content"],
+                                "date_published": article["date_published"],
+                                "sentiment": sentiment,
+                                "personality": ceo_instance,
+                            },
+                        )
+                        if created:
+                            created_count += 1
+                except IntegrityError:
+                    logger.info(f"⚠️ Duplicado ignorado: {article['title']}")
 
 
-ESG_TOPICS = [
-    "Evoluzione del contesto normativo",
-    "Reati informativi",
-    "Responsabilità amministratori",
-    "Rischi reputazionali"
-]
+        logger.info(f"✅ {created_count} novos artigos criados para {ceo_name}")
+
+        return {"ceo": ceo_name, "created": created_count}
+
+    except Exception as e:
+        logger.error(f"❌ Erro ao buscar notícias para {ceo_name}: {e}", exc_info=True)
+        return {"ceo": ceo_name, "error": str(e)}
+
+
+@shared_task(bind=True)
+def collect_ceo_news_task(self):
+    """
+    Task semanal — busca notícias de todos os CEOs cadastrados.
+    Retorna uma lista com os IDs das subtasks (uma por CEO).
+    """
+    logger.info("🚀 Iniciando tarefa semanal de busca de notícias de CEOs")
+
+    subtask_ids = []
+
+    try:
+        for company in CompanyInfo.objects.prefetch_related("ceos").all():
+            for ceo in company.ceos.all():
+                task = fetch_ceo_news.delay(ceo.name, company.short_name, company.website)
+                subtask_ids.append(task.id)
+
+        logger.info(f"🏁 Tarefa semanal concluída. Total subtasks: {len(subtask_ids)}")
+        return {"total": len(subtask_ids), "subtasks": subtask_ids}
+
+    except Exception as e:
+        logger.error(f"❌ Erro na task semanal: {e}", exc_info=True)
+        return {"error": str(e), "subtasks": subtask_ids}
 
 
 @shared_task

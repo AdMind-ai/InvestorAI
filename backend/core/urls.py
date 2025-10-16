@@ -11,8 +11,8 @@ router.register(r'openai/chat', OpenAIConversationViewSet,
                 basename='openai-chat-conversation')
 
 urlpatterns = [
-    path('master-route-list/', MasterRouteListUpdateView.as_view(),
-         name='master-route-list-update'),
+    path('master-route-list/', 
+         MasterRouteListUpdateView.as_view(), name='master-route-list-update'),
     path('company-info/',
          CompanyInfoViewAdm.as_view(), name='company-info-adm'),
     path('company-route-restriction/',
@@ -38,14 +38,15 @@ urlpatterns = [
     path('openai/audio-transcription/',
          OpenAiAudioTranscriptView.as_view(), name='audio-transcription'),
     path('openai/esg-news/', OpenAIESGNewsView.as_view(), name='openai-esg-news'),
-    path('openai/ceo-news/', OpenAICEONewsView.as_view(), name='openai-ceo-news'),
     path('openai/market-news/', OpenAIMarketNewsView.as_view(),
          name='openai-market-news'),
     path('openai/competitors-search/', OpenAICompetitorSearchView.as_view(),
          name='openai-competitors-search'),
     path('openai/quarterly-report/', OpenAICompanyQuarterlyReportView.as_view(),
          name='openai-quarterly-report'),
-    
+    path("openai/ceo-news/task", 
+         WeeklyCEONewsTaskView.as_view(), name="collect_ceo_news_task"),
+
     # Chat
     path('openai/chat/send-message/', OpenAISendMessageView.as_view(),
          name='openai-chat-send-message'),
