@@ -20,6 +20,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  TableContainer,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
 } from '@mui/material';
 import Layout from '../layouts/Layout';
 import { useTheme } from '@mui/material/styles';
@@ -34,9 +40,9 @@ import SadFace from '../assets/icons/sad-face.svg';
 import HappyFace from '../assets/icons/happy-face.svg';
 import NeutralFace from '../assets/icons/neutral-face.svg';
 import CloseIcon from '@mui/icons-material/Close';
+import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 // import NewsModal from '../components/NewsModal';
-
 
 interface NewsItem {
   id: number;
@@ -80,20 +86,15 @@ const CEOPage: React.FC = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [articleToDeleteIndex, setArticleToDeleteIndex] = useState<number | null>(null);
 
-  const MAX_LENGTH = 220;
-  const getPreviewText = (text: string) => {
-    if (text.length > MAX_LENGTH) {
-      return text.slice(0, MAX_LENGTH) + '...';
-    }
-    return text;
-  };
-
   const [page, setPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(6);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const currentData = data[selectedPerson] || [];
 
+  
+  const messageTooltipTitle = "Raccoglie ogni lunedì mattina le notizie più recenti e pubbliche degli ultimi 90 giorni su CEO e top manager, valutandone il sentiment. Mostra 10 articoli alla volta, senza duplicati ed escludendo il sito aziendale. Clicca il titolo per aprire la fonte."
+  const messageTooltipSentiment = "Valuta il tono linguistico con cui il CEO/manager è descritto nelle notizie, tramite analisi semantica del testo. Misura l’atteggiamento verso la persona (favorevole, neutro, critico), non la “bontà” dell’evento riportato. Punteggio indicativo su scala 0–100; usare come supporto alla lettura, non come giudizio assoluto."
 
   // Articles Data
   const sortedData = [...currentData].sort((a, b) =>
@@ -118,8 +119,6 @@ const CEOPage: React.FC = () => {
     loadData();
     // eslint-disable-next-line
   }, [selectedPerson, JSON.stringify(personalities)]);
-
-
 
 
   // Controls how many articles on page based on height
@@ -268,11 +267,27 @@ const CEOPage: React.FC = () => {
     setIsModalDeleteOpen(false);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(date);
+  };
+
+
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}>
-          <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>CEO Perception</Typography>
+          {/*  Title + Tooltip */}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
+              CEO Perception
+            </Typography>
+            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
+          </Box>
           {/* Test Component */}
           <Box sx={{ height: 'calc(4.5vh)', ml: 40, position: 'relative' }}>
             {/* <ToggleButtonGroup
@@ -362,11 +377,16 @@ const CEOPage: React.FC = () => {
                 />
               </Avatar>
               <Box sx={{ padding: 1 }}>
-                <Typography variant="subtitle2">Sentiment medio</Typography>
+                <Typography variant="subtitle2">
+                  Sentiment medio
+                </Typography>
                 <Typography variant="h4" sx={{ color: colorSentiment, mt: 0.5 }}>
                   {averageSentiment !== null ? `${averageSentiment}%` : '-- %'} • {sentimentText}
                 </Typography>
               </Box>
+              <InfoTooltipIcon message={messageTooltipSentiment}
+                size={18}
+                color="gray" bottom={18} />
             </Paper>
           </Box>
 
@@ -385,151 +405,127 @@ const CEOPage: React.FC = () => {
                 backgroundColor: 'transparent',
                 border: '1px solid #E4E4E4',
                 boxShadow: '0px 3px 8px rgba(0,0,0,0.1)',
-                height: '53vh',
+                minHeight: '54vh',
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
               }}
             >
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingBottom: 1,
-                  borderBottom: '1px solid #f0f0f0',
-                }}
-              >
-                <Typography variant='h4' sx={{ width: '70%', paddingX: '10px' }}>
-                  Anteprima
-                </Typography>
-                <Typography variant='h4' sx={{ paddingRight: '70px' }}>
-                  Link
-                </Typography>
-                <Typography variant='h4' sx={{ paddingRight: '80px' }}>
-                  Sentiment
-                </Typography>
-              </Box>
+              <TableContainer sx={{ flex: 1, overflowY: 'auto' }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <Typography variant='h4'>Data</Typography>
+                      </TableCell>
+                      <TableCell >
+                        <Typography variant='h4'>Anteprima</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant='h4'>Sentiment</Typography>
+                      </TableCell>
+                      <TableCell />
+                    </TableRow>
+                  </TableHead>
 
-              {/* News */}
-              <Box sx={{ overflowY: 'auto', flex: 1, mb: 2 }}>
-                {displayedNews.map((news, idx) => {
-                  const isNew = !news.viewed && !viewedArticles.has(news.id);
+                  <TableBody>
+                    {displayedNews.map((news, idx) => {
+                      const isNew = !news.viewed && !viewedArticles.has(news.id);
+                      const sentimentColor =
+                        news.sentiment !== null && news.sentiment !== undefined
+                          ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
+                          : 'grey';
 
-                  return (
-                    <Box
-                      key={idx}
-                      data-news-item
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingY: 0.5,
-                        borderBottom: '1px solid #f0f0f0',
-                      }}
-                    >
-                      {/* News content */}
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          width: '70%',
-                          padding: '0px 0px 0px 10px',
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            width: '88%',
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                            textOverflow: 'ellipsis',
-                            padding: '0px 10px',
-                          }}
-                        >
-                          {getPreviewText(news.content)}
-                        </Typography>
+                      return (
+                        <TableRow key={idx} hover>
+                          {/* Date */}
+                          <TableCell>
+                            <Typography variant='body2' sx={{ fontSize: '17px' }}>
+                              {news.date_published ? formatDate(news.date_published) : '--'}
+                            </Typography>
+                          </TableCell>
 
-                        {isNew && (
-                          <Box
-                            sx={{
-                              bgcolor: theme.palette.secondary.main,
-                              color: '#fff',
-                              padding: '2px 6px',
-                              borderRadius: '8px',
-                              fontSize: '12px',
-                              fontWeight: 'bold',
-                              lineHeight: '1',
-                              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            New
-                          </Box>
-                        )}
-                      </Box>
+                          {/* Title + New */}
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, maxWidth: '100%' }}>
+                              <Link
+                                fontSize='16px'
+                                component="button"
+                                onClick={() => handleNewsOpen(news)}
+                                sx={{
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  textOverflow: 'ellipsis',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  color: theme.palette.secondary.main,
+                                  textDecoration: 'underline',
+                                  flexShrink: 1,
+                                  maxWidth: isNew ? 'calc(100% - 60px)' : '100%',
+                                }}
+                              >
+                                {news.title}
+                              </Link>
 
-                      {/* News Link */}
-                      <Link
-                        fontSize='16px'
-                        component="button"
-                        onClick={() => handleNewsOpen(news)}
-                        sx={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: theme.palette.secondary.main,
-                          textDecoration: 'underline',
-                        }}
-                      >
-                        Vai all'articolo
-                      </Link>
+                              {isNew && (
+                                <Box
+                                  sx={{
+                                    bgcolor: theme.palette.secondary.main,
+                                    color: '#fff',
+                                    padding: '2px 6px',
+                                    borderRadius: '8px',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    lineHeight: '1',
+                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                                    textTransform: 'uppercase',
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  New
+                                </Box>
+                              )}
+                            </Box>
+                          </TableCell>
 
-                      {/* News Sentiment */}
-                      <Typography
-                        variant='h6'
-                        sx={{
-                          color: news.sentiment !== null && news.sentiment !== undefined
-                            ? parseInt(news.sentiment) > 60 ? 'green' : parseInt(news.sentiment) > 40 ? 'orange' : 'red'
-                            : 'grey',
-                          fontWeight: 'bold',
-                          paddingRight: '10px'
-                        }}
-                      >
-                        {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
-                      </Typography>
+                          {/* Sentiment */}
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Typography
+                              variant='h6'
+                              sx={{
+                                color: sentimentColor,
+                                fontWeight: 'bold',
+                                display: 'inline-block',
+                              }}
+                            >
+                              {news.sentiment !== null && news.sentiment !== undefined ? `${news.sentiment}%` : '-- %'}
+                            </Typography>
+                          </TableCell>
 
-                      {/* Delete Icon */}
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setArticleToDeleteIndex(news.id);
-                          setIsModalDeleteOpen(true);
-                        }}
-                        sx={{ '&:hover': { bgcolor: 'transparent' } }}
-                      >
-                        <DeleteOutlineIcon sx={{ color: '#e53935', cursor: 'pointer', marginLeft: 1 }} />
-                      </IconButton>
 
-                    </Box>
-                  )
-                })}
-              </Box>
+                          {/* Delete */}
+                          <TableCell>
+                            <IconButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setArticleToDeleteIndex(news.id);
+                                setIsModalDeleteOpen(true);
+                              }}
+                              sx={{ '&:hover': { bgcolor: 'transparent' } }}
+                            >
+                              <DeleteOutlineIcon sx={{ color: '#e53935', cursor: 'pointer' }} />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
               {/* Pagination */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  py: 1,
-                  position: 'absolute',
-                  bottom: '8px',
-                  left: 0,
-                  right: 0,
-                  backgroundColor: 'transparent',
-                }}
-              >
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
                 <Pagination
                   count={Math.ceil(currentData.length / rowsPerPage)}
                   page={page}
@@ -576,7 +572,6 @@ const CEOPage: React.FC = () => {
                   }}
                 />
               </Box>
-
             </Paper>
           )}
         </Box>

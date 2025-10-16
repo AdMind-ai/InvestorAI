@@ -10,9 +10,11 @@ import MarketCompetitorsNews from '../components/MarketPage/MarketCompetitorsNew
 import MarketSectorNews from '../components/MarketPage/MarketSectorNews'
 import MarketCompetitors from '../components/MarketPage/MarketCompetitors'
 import MarketOverviewReport from '../components/MarketPage/MarketOverviewReport'
+import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 
 const Market: React.FC = () => {
+  const messageTooltipTitle = "Offre una vista aggiornata del tuo settore: notizie rilevanti, aggiornamenti sui competitor e mappa delle aziende concorrenti. Puoi leggere le fonti originali, confrontare i trend e generare report di sintesi con gli indicatori chiave."
 
   return (
     <Layout>
@@ -34,9 +36,12 @@ const Market: React.FC = () => {
             padding: 'calc(3vh) calc(3vh) 0 calc(3vh)',
           }}
         >
-          <Typography variant="h2" sx={{ marginLeft: '1vw' }}>
-            Market Intelligence
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
+              Market Intelligence
+            </Typography>
+            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
+          </Box>
 
         </Box>
         <Divider sx={{ mx: 'calc(3vh)' }} />

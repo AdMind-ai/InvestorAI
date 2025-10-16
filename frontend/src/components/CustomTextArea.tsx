@@ -1,5 +1,6 @@
 import { Box, TextField } from '@mui/material';
 import { DotTyping } from './DotTyping';
+import theme from '../styles/theme';
 
 interface CustomTextAreaProps {
   value: string;
@@ -9,19 +10,20 @@ interface CustomTextAreaProps {
   isDisabled?: boolean;
   showTyping?: boolean;
   hasLimit?: boolean;
-  maxLength?: number;
+  limitThreshold?: number;
 }
 
-const CustomTextArea: React.FC<CustomTextAreaProps> = ({ 
-  value, 
-  onChange, 
-  placeholder = "Text here.", 
-  height = '30vh', 
-  isDisabled=false, 
-  showTyping=false,
-  hasLimit=false,
-  maxLength=1000000 
+const CustomTextArea: React.FC<CustomTextAreaProps> = ({
+  value,
+  onChange,
+  placeholder = "Text here.",
+  height = '30vh',
+  isDisabled = false,
+  showTyping = false,
+  hasLimit = false,
+  limitThreshold
 }) => {
+  const isOverLimit = hasLimit && limitThreshold !== undefined && value.length > limitThreshold;
 
   return (
     <Box sx={{ position: 'relative', width: '100%', height, marginTop: '12px' }}>
@@ -33,33 +35,50 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({
         minRows={1}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        slotProps={{
-          htmlInput: { maxLength },
-          formHelperText: {
-            sx: { position: 'absolute', right: 15, bottom: 5 } 
+        placeholder={placeholder}
+        helperText={hasLimit ? `${value.length}/${limitThreshold} caratteri` : ""}
+        FormHelperTextProps={{
+          sx: {
+            textAlign: 'right',
+            margin: 0,
+            paddingRight: '12px',
+            position: 'absolute',
+            bottom: '8px',
+            right: 0,
+            width: '100%',
+            backgroundColor: 'transparent',
+            fontSize: '0.8rem',
+            pointerEvents: 'none',
+            color: isOverLimit ? 'red' : 'gray',
           }
         }}
-        helperText={hasLimit? `${value.length}/${maxLength} caratteri`: ""}
-        placeholder={placeholder}
         sx={{
-          flex: 1,
           height: '100%',
-          fontSize: '10px',
           backgroundColor: 'inherit',
           borderRadius: '2vh',
           boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
           '& .MuiOutlinedInput-root': {
+            height: '100%',
+            borderRadius: '2vh',
             display: 'flex',
             flexDirection: 'column',
-            borderRadius: '2vh',
-            fontSize: '17px',
-            height: '100%',
+            justifyContent: 'flex-start',
+            paddingBottom: '30px',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'gray', 
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: isOverLimit ? 'red' : theme.palette.primary.main, 
+            },
           },
           '& .MuiOutlinedInput-input': {
-            height: '100%!important',
-            overflowY: 'auto!important',
+            overflowY: 'auto',
+            padding: '12px',
+            paddingBottom: '30px',
+            fontSize: '17px',
           },
         }}
+
       />
       {showTyping && !value && (
         <Box sx={{
@@ -69,7 +88,7 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({
           fontSize: '1.2rem',
           pointerEvents: 'none',
         }}>
-          <DotTyping/>
+          <DotTyping />
         </Box>
       )}
     </Box>

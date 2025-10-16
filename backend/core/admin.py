@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db import models
+from core.models.openai_ceo_conversaitons_model import CEOConversation
 from core.models.esg_article_model import ESGArticle
 from core.models.ceo_article_model import CEOArticle
 from core.models.openai_chat_models import ChatConversation, ChatMessage
@@ -182,3 +182,8 @@ class CompetitorAdmin(admin.ModelAdmin):
 @admin.register(CEO)
 class CEOAdmin(admin.ModelAdmin):
     list_display = ('name', 'role', 'company')
+
+
+@admin.register(CEOConversation)
+class CEOConversationAdmin(admin.ModelAdmin):
+    list_display = ('company', 'ceo', 'conversation_id', 'created_at')

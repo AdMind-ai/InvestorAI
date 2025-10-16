@@ -88,6 +88,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=8, minute=0, day_of_week="monday"),
         'args': ('competitors',)
     },
+    'news_ceos_weekly': {
+        'task': 'core.tasks.collect_ceo_news_task',
+        'schedule': crontab(hour=8, minute=0, day_of_week="monday"),
+        'args': ()
+    },
     # 'news_competitors_afternoon': {
     #     'task': 'core.tasks.collect_market_news',
     #     'schedule': crontab(hour=13, minute=0),

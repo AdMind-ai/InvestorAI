@@ -1,8 +1,8 @@
 // import { useTheme } from '@mui/material/styles'
 // import { useNavigate } from 'react-router-dom'
 import { Box, Button } from '@mui/material'
-import SimpleDropdown from '../SimpleDropdown'
-import { useState,useEffect } from 'react'
+import LinedDropdown from '../dropdowns/LinedDropdown'
+import { useState, useEffect } from 'react'
 import CustomTextArea from '../CustomTextArea'
 import AudioPlayer from '../AudioPlayer';
 import { api } from '../../api/api';
@@ -37,15 +37,20 @@ const CreaSpeech: React.FC = () => {
   // const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('Italiano');
-  const [selectedVoice, setSelectedVoice] = useState<string>('');
+  const [selectedVoice, setSelectedVoice] = useState<string>('Roger');
   const [text, setText] = useState<string>('');
   const [isGenerated, setIsGenerated] = useState<boolean>(false);
   const [audioSrc, setAudioSrc] = useState<string>('');
   const voiceOptions = Object.keys(voiceMap);
 
+  const CHARACTER_LIMIT = 10000;
+  const isOverLimit = text.length > CHARACTER_LIMIT;
+
   const isButtonEnabled =
-    selectedLanguage !== null && text.trim().length > 0;
-  
+    selectedLanguage !== null &&
+    text.trim().length > 0 &&
+    !isOverLimit;
+
   useEffect(() => {
     // onChange(isButtonEnabled);
     // Take this off - testing
@@ -53,7 +58,7 @@ const CreaSpeech: React.FC = () => {
   }, [isButtonEnabled]);
 
   const handleGenerateAudio = async () => {
-    if(selectedVoice == '') {
+    if (selectedVoice == '') {
       toast.info('Seleziona una voce per lo speaker');
       return
     }
@@ -91,12 +96,20 @@ const CreaSpeech: React.FC = () => {
         {/* <SimpleDropdown title="Lingua" options={['Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Greco', 'Portoghese', 'Tedesco']} onSelect={setSelectedLanguage} selectedValue={selectedLanguage}/> */}
 
         {/* Dropdown Voce */}
-        <SimpleDropdown title="Voce speaker" options={voiceOptions} onSelect={setSelectedVoice} selectedValue={selectedVoice}/>
+        {/* <SimpleDropdown title="Voce speaker" options={voiceOptions} onSelect={setSelectedVoice} selectedValue={selectedVoice} /> */}
+        <LinedDropdown title="Seleziona speaker" options={voiceOptions} value={selectedVoice} onChange={(newVoice) => setSelectedVoice(newVoice as string)} width={"10vw"}/>
       </Box>
 
       {/* Text Area */}
       <Box sx={{ width: '98%', maxHeight: '45vh' }}>
-        <CustomTextArea value={text} onChange={setText} placeholder="Scrivi il tuo testo qui" height='35vh' hasLimit maxLength={10000} />
+        <CustomTextArea
+          value={text}
+          onChange={setText}
+          placeholder="Scrivi il tuo testo qui"
+          height='35vh'
+          hasLimit
+          limitThreshold={CHARACTER_LIMIT}
+        />
       </Box>
 
       {/* Audio Player */}
@@ -111,7 +124,7 @@ const CreaSpeech: React.FC = () => {
         >
           {/* <AudioPlayer src="/audio/audio-file.wav" audioTitle="audio-file.wav"/>
           {audioSrc} */}
-          <AudioPlayer src={audioSrc} audioTitle="audio-file-true.wav"/>
+          <AudioPlayer src={audioSrc} audioTitle="audio-file-true.wav" />
         </Box>
       )}
 
@@ -126,7 +139,7 @@ const CreaSpeech: React.FC = () => {
         {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Genera'}
       </Button>
     </Box>
-    
+
   )
 }
 

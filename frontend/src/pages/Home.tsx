@@ -14,7 +14,7 @@ const cards = [
   {
     title: 'Market Intelligence',
     description:
-      'Conduce ricerche e analisi sul mercato di riferimento dei principali competitors e sui peers quotati sui capital markets internazionali.',
+      'Analizza mercato e competitors con insight aggiornati.',
     icon: MarketIcon,
     path: '/market-intelligence',
     tool: 'intelligence'
@@ -22,7 +22,7 @@ const cards = [
   {
     title: 'CEO perception',
     description:
-      'Monitora e analizza la percezione online del CEO e dei key manager aziendali attraverso la potenza dell’AI.',
+      'Monitora la percezione online di CEO e top management.',
     icon: CEOIcon,
     path: '/ceo-perception',
     tool: 'intelligence'
@@ -30,7 +30,7 @@ const cards = [
   {
     title: 'ESG Monitoring',
     description:
-      'Offre una selezione delle notizie più rilevanti in ambito ESG, organizzate in diverse categorie, per garantire aggiornamenti costantei e puntuali.',
+      'Notizie ESG selezionate e organizzate per categoria.',
     icon: ESGIcon,
     path: '/esg',
     tool: 'intelligence'
@@ -38,7 +38,7 @@ const cards = [
   {
     title: 'Chat Assistant',
     description:
-      'Assistente virtuale rapido, sicuro e totalmente privato per ottenere risposte immediatamente anche su informazioni price sensitive non ancora pubbliche.',
+      'Assistente privato per risposte rapide e sicure (anche price sensitive).',
     icon: ChatIcon,
     path: '/chat-assistant',
     tool: 'operativi'
@@ -46,7 +46,7 @@ const cards = [
   {
     title: 'Earnings Call',
     description:
-      'Traduce in molteplici lingue investor presentation, trascrive webcast, prepara investor speech e crea contenuti social rapidamente grazie all’AI.',
+      'Traduci, trascrivi, crea post e speech in pochi clic.',
     icon: EarningsIcon,
     path: '/earnings',
     tool: 'operativi'

@@ -8,11 +8,13 @@ import {
 } from '@mui/material'
 import Layout from '../layouts/Layout'
 import { useTheme } from '@mui/material/styles'
+import SocialMediaBackground from '../assets/backgrounds/linkedin-background.svg'
 
 import Traduttore from '../components/EarningsPage/Traduttore'
 import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
-// import SocialMedia from '../components/EarningsPage/socialMedia/SocialMedia'
+import InfoTooltipIcon from '../components/InfoTooltipIcon'
+// import LinkedinPost from '../components/EarningsPage/newSocialMedia/LinkedinPost'
 
 const Earnings: React.FC = () => {
   const theme = useTheme();
@@ -44,11 +46,13 @@ const Earnings: React.FC = () => {
         'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
     },
     // {
-    //   title: 'Social Media',
+    //   title: 'LinkedIn post',
     //   content:
-    //     'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
+    //     ''
     // },
   ]
+
+  const messageTooltipTitle = "Traduce in più lingue presentazioni e testi, trascrive audio/webcast, crea investor speech e genera post social per LinkedIn. Carica file o testo, scegli lingua e formato: ottieni contenuti pronti all’uso in pochi clic."
 
   return (
     <Layout>
@@ -60,6 +64,13 @@ const Earnings: React.FC = () => {
           overflow: 'auto',
           height: '100%',
           width: '100%',
+          backgroundImage: selectedOption === 'LinkedIn post' ? `url(${SocialMediaBackground})` : 'none',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'bottom right',
+          backgroundSize: selectedOption === 'LinkedIn post' ? 'contain' : 'none',
+          backgroundAttachment: 'fixed',
+          backgroundColor: selectedOption === 'LinkedIn post' ? '#fff' : 'transparent',
+          transition: 'background 0.5s ease',
         }}
       >
         {/* Title */}
@@ -70,9 +81,12 @@ const Earnings: React.FC = () => {
             marginBottom: '0.2vw',
           }}
         >
-          <Typography variant="h2" sx={{ marginLeft: '1vw' }}>
-            Earnings Call
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
+              Earnings Call
+            </Typography>
+            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
+          </Box>
 
         </Box>
 
@@ -80,7 +94,7 @@ const Earnings: React.FC = () => {
 
         {/* Main Content */}
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'top', width: '100%', height: '100%', paddingTop: '1.5vw' }} >
-          
+
           {/* Selection Buttons */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <ToggleButtonGroup
@@ -111,13 +125,13 @@ const Earnings: React.FC = () => {
               ))}
             </ToggleButtonGroup>
           </Box>
-          
+
           {/* Content */}
           {selectedOption === 'Traduttore' && <Traduttore />}
-          {selectedOption === 'Crea speech' && <CreaSpeech/>}
+          {selectedOption === 'Crea speech' && <CreaSpeech />}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
-          {/* {selectedOption === 'Social Media' && <SocialMedia />} */}
-          
+          {/* {selectedOption === 'LinkedIn post' && <LinkedinPost />} */}
+
         </Box>
       </Box>
     </Layout>
