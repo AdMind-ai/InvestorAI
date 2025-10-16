@@ -45,11 +45,11 @@ const HomeCard: React.FC<CardProps> = ({ title, description, icon, path }) => {
       </Box>
 
       {/* Descrição */}
-      <Typography variant="subtitle1" sx={{ fontSize: '14px'}}>{description}</Typography>
+      <Typography variant="subtitle1" sx={{ fontSize: '15px'}}>{description}</Typography>
 
       {/* Botão */}
-      <Button variant="contained" sx={{fontSize: '12px', width:'165px', height:'32px', backgroundColor:'#103AB1'}} onClick={() => handleNavigation(path)}>
-        VAI ALLA FUNZIONE
+      <Button variant="contained" sx={{fontSize: '12px', width:'125px', height:'32px', backgroundColor:'#103AB1'}} onClick={() => handleNavigation(path)}>
+        AVVIA
       </Button>
     </Card>
   )
