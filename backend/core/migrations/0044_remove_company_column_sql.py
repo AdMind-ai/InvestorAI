@@ -26,14 +26,20 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(drop_columns_sqlite,
                              reverse_code=migrations.RunPython.noop),
+        
+        # PostgreSQL e afins:
         migrations.RunSQL(
-            [
-                # PostgreSQL e afins:
-                "ALTER TABLE core_ceoarticle DROP CONSTRAINT IF EXISTS core_ceoarticle_company_id_fk;",
-                "ALTER TABLE core_ceoarticle DROP COLUMN IF EXISTS company_id CASCADE;",
-                "ALTER TABLE core_esgarticle DROP CONSTRAINT IF EXISTS core_esgarticle_company_id_fk;",
-                "ALTER TABLE core_esgarticle DROP COLUMN IF EXISTS company_id CASCADE;",
-            ],
-            []
+            """
+            ALTER TABLE core_ceoarticle
+                DROP CONSTRAINT IF EXISTS core_ceoarticle_company_id_fk;
+            ALTER TABLE core_ceoarticle
+                DROP COLUMN IF EXISTS company_id CASCADE;
+
+            ALTER TABLE core_esgarticle
+                DROP CONSTRAINT IF EXISTS core_esgarticle_company_id_fk;
+            ALTER TABLE core_esgarticle
+                DROP COLUMN IF EXISTS company_id CASCADE;
+            """,
+            reverse_sql=migrations.RunSQL.noop,
         ),
     ]
