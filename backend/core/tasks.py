@@ -810,6 +810,13 @@ def collect_ceo_news_task(self):
         return {"error": str(e), "subtasks": subtask_ids}
 
 
+ESG_TOPICS = [
+    "Evoluzione del contesto normativo",
+    "Reati informativi",
+    "Responsabilità amministratori",
+    "Rischi reputazionali"
+]
+
 @shared_task
 def fetch_all_esg_topics_daily():
     total_created = 0
