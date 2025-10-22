@@ -97,10 +97,7 @@ const CEOPage: React.FC = () => {
   const messageTooltipSentiment = "Valuta il tono linguistico con cui il CEO/manager è descritto nelle notizie, tramite analisi semantica del testo. Misura l’atteggiamento verso la persona (favorevole, neutro, critico), non la “bontà” dell’evento riportato. Punteggio indicativo su scala 0–100; usare come supporto alla lettura, non come giudizio assoluto."
 
   // Articles Data
-  const sortedData = [...currentData].sort((a, b) =>
-    dayjs(b.created_at).diff(dayjs(a.created_at))
-  );
-  const displayedNews = sortedData.slice(
+  const displayedNews = currentData.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
@@ -412,7 +409,7 @@ const CEOPage: React.FC = () => {
               }}
             >
               <TableContainer sx={{ flex: 1, overflowY: 'auto' }}>
-                <Table stickyHeader>
+                <Table stickyHeader size='small'>
                   <TableHead>
                     <TableRow>
                       <TableCell>
@@ -449,7 +446,7 @@ const CEOPage: React.FC = () => {
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, maxWidth: '100%' }}>
                               <Link
-                                fontSize='16px'
+                                fontSize='17px'
                                 component="button"
                                 onClick={() => handleNewsOpen(news)}
                                 sx={{

@@ -128,10 +128,10 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=1),
         "args": ("Q4", current_year),
     },
-    "daily_ceo_articles_fetch": {
-        "task": "core.tasks.daily_ceo_articles_fetch",
-        "schedule": crontab(hour=8, minute=0),
-    },
+    # "daily_ceo_articles_fetch": {
+    #     "task": "core.tasks.daily_ceo_articles_fetch",
+    #     "schedule": crontab(hour=8, minute=0),
+    # },
     "fetch_all_esg_topics_daily": {
         "task": "core.tasks.fetch_all_esg_topics_daily",
         "schedule": crontab(hour=17, minute=0),
