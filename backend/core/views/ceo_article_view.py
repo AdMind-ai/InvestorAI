@@ -31,7 +31,7 @@ class CEOArticleViewSet(viewsets.ModelViewSet):
         ceo_name = self.request.query_params.get('name')
         if ceo_name:
             queryset = queryset.filter(personality__name=ceo_name)
-        return queryset
+        return queryset.order_by('-date_published')
 
     @action(detail=True, methods=['put'])
     def mark_viewed(self, request, pk=None):
