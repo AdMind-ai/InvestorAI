@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { HistoryInfo, HistoryDataItem, CompanyInfo, StockData, Article, Competitor } from "../interfaces/market";
 import {
     fetchCompanyInfo,
-    fetchStockHistory,
-    fetchStockData,
+    // fetchStockHistory,
+    // fetchStockData,
     fetchQuarterlyReport,
     fetchMarketNews,
     fetchCompetitors,
@@ -83,17 +83,18 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     fetchCompanyInfo().then(setCompanyInfo);
   }, []);
 
-  useEffect(() => {
-    fetchStockHistory(period, interval).then(({ info, data }) => {
-      setHistoryInfo(info);
-      setHistoryData(data);
-    });
-  }, [period, interval]);
+  // Stock
+  // useEffect(() => {
+  //   fetchStockHistory(period, interval).then(({ info, data }) => {
+  //     setHistoryInfo(info);
+  //     setHistoryData(data);
+  //   });
+  // }, [period, interval]);
 
 
-  useEffect(() => {
-      fetchStockData().then(setStockData);
-  }, []);
+  // useEffect(() => {
+  //     fetchStockData().then(setStockData);
+  // }, []);
 
   useEffect(() => {
     const [quarter, year] = selectedQuarter ? selectedQuarter.split(' ') : [undefined, undefined];
