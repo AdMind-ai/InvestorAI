@@ -80,3 +80,4 @@ urlpatterns = [
 ]
 
 urlpatterns += router.urls
+
