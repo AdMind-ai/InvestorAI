@@ -16,12 +16,16 @@ interface LinkedinPostContextProps {
     setSelectedFile: (f: File | null) => void;
     steps: Step[];
     resetFlow: () => void;
+    flowType: FlowType;
+    setFlowType: (t: FlowType) => void;
 }
 
 interface Step {
     label: string;
     component: React.ReactNode;
 }
+
+type FlowType = "base" | "publish" | "plan";
 
 const LinkedinPostContext = createContext<LinkedinPostContextProps | undefined>(undefined);
 
@@ -31,6 +35,7 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
     const [contentPost, setContentPost] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [steps, setSteps] = useState<Step[]>([]);
+    const [flowType, setFlowType] = useState<FlowType>("base");
 
     // fluxo padrão inicial
     const baseSteps: Step[] = [
@@ -38,7 +43,6 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
         { label: "Visualizza post", component: null },
     ];
 
-    // inicializa o fluxo base ao montar
     React.useEffect(() => {
         setSteps(baseSteps);
     }, []);
@@ -65,8 +69,9 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
             ...baseSteps,
             { label: "Connetti LinkedIn", component: <ProfileLogin /> },
         ]);
-        setStep(baseSteps.length); // vai direto para o novo step
+        setStep(baseSteps.length);
         setMaxStep(baseSteps.length);
+        setFlowType("publish");
     };
 
     const setFlowToPlan = () => {
@@ -76,6 +81,7 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
         ]);
         setStep(baseSteps.length);
         setMaxStep(baseSteps.length);
+        setFlowType("plan");
     };
 
     const resetFlow = () => {
@@ -83,8 +89,9 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
         setMaxStep(0);
         setContentPost("");
         setSelectedFile(null);
-        setSteps(baseSteps); // reinicia com os steps iniciais
-    }
+        setSteps(baseSteps);
+        setFlowType("base");
+    };
 
     return (
         <LinkedinPostContext.Provider
@@ -101,7 +108,9 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
                 selectedFile,
                 setSelectedFile,
                 steps,
-                resetFlow
+                resetFlow,
+                flowType,
+                setFlowType,
             }}
         >
             {children}

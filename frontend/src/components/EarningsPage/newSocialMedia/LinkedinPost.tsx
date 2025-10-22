@@ -1,14 +1,13 @@
-import { Box, Breadcrumbs, Link } from "@mui/material";
+import { Box, Breadcrumbs, Link, Tooltip } from "@mui/material";
 import { LinkedinPostProvider, useLinkedinPost } from "../../../context/LinkedinPostContext";
 import ContentInputCard from "./ContentInputCard";
 import PostPreview from "./PostPreview";
 import ProfileLogin from "./ProfileLogin";
-import PostScheduleList from "./PostScheduleList"; // (novo componente futuro)
+import PostScheduleList from "./PostScheduleList";
 
 const StepRenderer = () => {
-    const { step, steps, goToStep, maxStep, contentPost } = useLinkedinPost();
+    const { step, steps, goToStep, maxStep, contentPost, flowType } = useLinkedinPost();
 
-    // associa os componentes reais às etapas
     const stepsWithComponents = steps.map((s) => {
         switch (s.label) {
             case "Definisci contenuto":
@@ -21,13 +20,7 @@ const StepRenderer = () => {
                 return {
                     ...s,
                     component: (
-                        <Box
-                            sx={{
-                                width: "100%",
-                                maxHeight: "75vh",
-                                px: 1,
-                            }}
-                        >
+                        <Box sx={{ width: "100%", maxHeight: "75vh" }}>
                             <PostScheduleList />
                         </Box>
                     ),
@@ -38,31 +31,58 @@ const StepRenderer = () => {
     });
 
     const currentStepLabel = stepsWithComponents[step]?.label;
-    const hideBreadcrumb = currentStepLabel === "Lista pianificazioni";
 
+    // breadcrumb aparece apenas em "Visualizza post" e "Connetti LinkedIn"
+    const showBreadcrumb = ["Visualizza post", "Connetti LinkedIn"].includes(currentStepLabel);
+
+    // mensagens para o tooltip
+    const tooltipMessages: Record<string, string> = {
+        "Definisci contenuto": currentStepLabel !== 'Definisci contenuto' ? `Ridefinisci il contenuto che l'intelligenza artificiale dovrebbe 
+        generare per il tuo post` : `Definisci il contenuto che l'IA deve generare per il tuo post`,
+        "Visualizza post": "Visualizza in anteprima il tuo post prima di pubblicarlo",
+        "Connetti LinkedIn": "Collega il tuo account LinkedIn per pubblicare il tuo post",
+    };
 
     return (
-        <Box sx={{ width: "92%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            {/* Breadcrumbs dinâmicos */}
-            {!hideBreadcrumb && (
-                <Breadcrumbs separator="›" sx={{ alignSelf: "flex-start", p: 1, fontSize: '14px' }}>
+        <Box
+            sx={{
+                width: flowType === "plan" ? "97.5%" : "92%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                mt: currentStepLabel == 'Definisci contenuto' ? 3 : 0
+            }}
+        >
+            {showBreadcrumb && (
+                <Breadcrumbs separator="›" sx={{ alignSelf: "flex-start", p: 1, fontSize: "14px" }}>
                     {stepsWithComponents.slice(0, maxStep + 1).map((s, index) => (
-                        <Link
+                        <Tooltip
                             key={index}
-                            underline={"hover"}
-                            color={index === step ? "primary" : "text.primary"}
-                            sx={{ cursor: "pointer" }}
-                            onClick={() => goToStep(index)}
+                            title={tooltipMessages[s.label] || ""}
+                            arrow
+                            slotProps={{
+                                tooltip: {
+                                    sx: { fontSize: "13px" }
+                                }
+                            }}
                         >
-                            {s.label}
-                        </Link>
+                            <Link
+                                underline="hover"
+                                color={index === step ? "primary" : "text.primary"}
+                                sx={{ cursor: "pointer" }}
+                                onClick={() => goToStep(index)}
+                            >
+                                {s.label}
+                            </Link>
+                        </Tooltip>
                     ))}
                 </Breadcrumbs>
-            )}
+            )
+            }
 
             {/* Renderiza etapa atual */}
             {stepsWithComponents[step]?.component}
-        </Box>
+        </Box >
     );
 };
 
