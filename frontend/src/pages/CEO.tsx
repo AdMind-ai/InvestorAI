@@ -277,7 +277,7 @@ const CEOPage: React.FC = () => {
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}>
-          {/*  Title + Tooltip */}
+          {/*  Title  */}
           <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
             <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
               CEO Perception

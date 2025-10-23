@@ -22,6 +22,9 @@ import ESGIconActive from '../assets/icons-sidebar/esg-icon-active.svg'
 import SecurityIcon from '../assets/icons-sidebar/access-icon.svg'
 import SecurityIconActive from '../assets/icons-sidebar/access-icon-active.svg'
 
+import AvatarIcon from '../assets/icons-sidebar/avatar.svg'
+import AvatarIconActive from '../assets/icons-sidebar/avatar-active.svg'
+
 // Extras
 // import ScanIcon from '../assets/icons-sidebar/scan.svg'
 // import ScanIconActive from '../assets/icons-sidebar/scan-active.svg'
@@ -63,6 +66,12 @@ const menuItems = [
     path: '/esg',
     icon: ESGIcon,
     activeIcon: ESGIconActive,
+  },
+  {
+    title: 'Avatar AI',
+    path: '/avatar',
+    icon: AvatarIcon,
+    activeIcon: AvatarIconActive,
   },
 ]
 
