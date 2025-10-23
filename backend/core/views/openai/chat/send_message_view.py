@@ -114,6 +114,7 @@ class OpenAISendMessageView(APIView):
                 print(f"Debug 6: {assistant_thread.thread_id}")
                 response = client.responses.create(
                     model=model,
+                    reasoning={"effort": "low"},
                     input=[
                         {
                             "role": "user",
