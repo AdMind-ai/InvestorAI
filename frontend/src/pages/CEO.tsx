@@ -92,7 +92,7 @@ const CEOPage: React.FC = () => {
   const currentData = data[selectedPerson] || [];
 
 
-  const messageTooltipTitle = "Raccoglie ogni lunedì mattina le notizie più recenti e pubbliche degli ultimi 90 giorni su CEO e top manager, valutandone il sentiment. Mostra 10 articoli alla volta, senza duplicati ed escludendo il sito aziendale. Clicca il titolo per aprire la fonte."
+  const messageOfDescription = "Raccoglie ogni lunedì mattina le notizie più recenti e pubbliche degli ultimi 90 giorni su CEO e top manager, valutandone il sentiment. Mostra 10 articoli alla volta, senza duplicati ed escludendo il sito aziendale. Clicca il titolo per aprire la fonte."
   const messageTooltipSentiment = "Valuta il tono linguistico con cui il CEO/manager è descritto nelle notizie, tramite analisi semantica del testo. Misura l’atteggiamento verso la persona (favorevole, neutro, critico), non la “bontà” dell’evento riportato. Punteggio indicativo su scala 0–100; usare come supporto alla lettura, non come giudizio assoluto."
 
   // Articles Data
@@ -282,32 +282,25 @@ const CEOPage: React.FC = () => {
             <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
               CEO Perception
             </Typography>
-            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
           </Box>
-          {/* Test Component */}
+
           <Box sx={{ height: 'calc(4.5vh)', ml: 40, position: 'relative' }}>
-            {/* <ToggleButtonGroup
-              value={selectedProvider}
-              exclusive
-              onChange={(_, newProvider) => {
-                if (newProvider) setSelectedProvider(newProvider);
-              }}
-              sx={{height: 'calc(4vh)', mr:1.5 }}
-            >
-              <ToggleButton value="perplexity">Perplexity</ToggleButton>
-              <ToggleButton value="openai">OpenAI</ToggleButton>
-            </ToggleButtonGroup> */}
             <Button variant='contained' onClick={handleFetchArticles} sx={{ display: 'none', height: 'calc(4vh)', position: 'absolute', right: 0, bottom: 10 }}>
               {loadingGenerateArticles ? <CircularProgress size={24} color="inherit" /> : 'Generate articles'}
             </Button>
           </Box>
         </Box>
-        <Divider sx={{ marginBottom: 3 }} />
+
+        <Typography variant='subtitle1' sx={{ px: 2, fontSize: '14px' }}>
+          {messageOfDescription}
+        </Typography>
+
         <Box
           sx={{
             display: 'flex',
             flexDirection: 'column',
             padding: '0 2vh',
+            mt: 2
           }}
         >
           <Box
