@@ -90,7 +90,7 @@ const PostPreview: React.FC = () => {
 
             // after success, switch to plan flow (lista)
             setFlowToPlan();
-        } catch (err: any) {
+        } catch (err) {
             console.error("scheduling error", err);
         }
     };

@@ -36,6 +36,14 @@ interface ScheduledPost {
   time: string;
 }
 
+interface BackendScheduledPost {
+  id: number;
+  image?: string | null;
+  image_base64?: string | null;
+  text: string;
+  scheduled_at?: string | null;
+}
+
 const PostScheduleList = () => {
   const { resetFlow } = useLinkedinPost();
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
@@ -56,19 +64,29 @@ const PostScheduleList = () => {
       setLoading(true);
       try {
         const { api } = await import("../../../api/api");
-        const res = await api.get("/openai/linkedin-scheduled/");
-        // map backend response to ScheduledPost interface
-        const data = res.data.map((p: any) => ({
+
+        // 🔹 Tipamos explicitamente a resposta da API
+        const res = await api.get<BackendScheduledPost[]>("/openai/linkedin-scheduled/");
+
+        // 🔹 Fazemos o mapeamento para ScheduledPost
+        const data: ScheduledPost[] = res.data.map((p) => ({
           id: p.id,
-          // prefer base64-embedded image if backend returned it
-          image: p.image_base64 || p.image,
+          image: p.image_base64 || p.image || "",
           title: "",
           description: p.text,
-          date: p.scheduled_at ? new Date(p.scheduled_at).toLocaleDateString() : "",
-          time: p.scheduled_at ? new Date(p.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
+          date: p.scheduled_at
+            ? new Date(p.scheduled_at).toLocaleDateString()
+            : "",
+          time: p.scheduled_at
+            ? new Date(p.scheduled_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+            : "",
         }));
+
         setPosts(data);
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
@@ -77,6 +95,7 @@ const PostScheduleList = () => {
 
     fetchPosts();
   }, []);
+
 
   const currentPosts = posts.slice((page - 1) * postsPerPage, page * postsPerPage);
 
@@ -120,7 +139,7 @@ const PostScheduleList = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
-        mt: 2
+        mt: 1
       }}
     >
       {/* Header */}

@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import {
   Box,
-  Divider,
-  Link,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -14,14 +12,13 @@ import SocialMediaBackground from '../assets/backgrounds/linkedin-background.svg
 import Traduttore from '../components/EarningsPage/Traduttore'
 import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
-import InfoTooltipIcon from '../components/InfoTooltipIcon'
 import LinkedinPost from '../components/EarningsPage/newSocialMedia/LinkedinPost'
 import { LinkedinPostProvider, useLinkedinPost } from '../context/LinkedinPostContext'
 
 const EarningsContent: React.FC = () => {
   const theme = useTheme();
   const [selectedOption, setSelectedOption] = useState<string>('Traduttore');
-  const { flowType, setFlowToPlan } = useLinkedinPost();
+  const { flowType } = useLinkedinPost();
 
   const Options = [
     { title: 'Traduttore', content: '...' },

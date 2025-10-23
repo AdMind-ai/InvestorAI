@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '@mui/material/styles';
 import {
   Box,
-  Divider,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -27,7 +26,6 @@ import WarningAmberIcon from '@mui/icons-material/WarningRounded';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
-import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 interface NewsItem {
   id: number;

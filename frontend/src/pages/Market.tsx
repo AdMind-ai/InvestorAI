@@ -1,6 +1,5 @@
 import React from 'react';
-// import { useTheme } from '@mui/material/styles'
-import { Box, Typography, Divider } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import '../styles/markdown.css';
 import Layout from '../layouts/Layout'
 
@@ -10,7 +9,6 @@ import MarketCompetitorsNews from '../components/MarketPage/MarketCompetitorsNew
 import MarketSectorNews from '../components/MarketPage/MarketSectorNews'
 import MarketCompetitors from '../components/MarketPage/MarketCompetitors'
 import MarketOverviewReport from '../components/MarketPage/MarketOverviewReport'
-import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 
 const Market: React.FC = () => {

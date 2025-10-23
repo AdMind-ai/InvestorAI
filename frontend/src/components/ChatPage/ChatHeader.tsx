@@ -20,7 +20,6 @@ import {
   Grow
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import InfoTooltipIcon from '../InfoTooltipIcon';
 
 interface Message {
   sender: 'user' | 'ai'

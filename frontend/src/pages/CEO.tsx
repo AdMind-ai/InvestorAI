@@ -3,7 +3,6 @@ import { useGlobal } from "../context/GlobalContext";
 import type { CompanyInfoAdm } from "../interfaces/companyInfoInterface";
 import {
   Box,
-  Divider,
   ToggleButton,
   ToggleButtonGroup,
   Typography,

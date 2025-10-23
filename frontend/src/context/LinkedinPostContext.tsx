@@ -134,8 +134,8 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
             setContentPost(finalText);
 
             return finalText;
-        } catch (err: any) {
-            const message = err?.response?.data || err?.message || "Errore nella generazione del post";
+        } catch (err) {
+            const message = "Errore nella generazione del post";
             setError(typeof message === "string" ? message : JSON.stringify(message));
             return Promise.reject(err);
         } finally {
