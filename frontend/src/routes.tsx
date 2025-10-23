@@ -15,7 +15,6 @@ import TeamManagement from './pages/TeamManagement'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 import RestrictedRoute from './components/RestrictedRoute'
-
 export const ALL_APP_ROUTES: string[] = [
   "/market-intelligence",
   "/chat-assistant",

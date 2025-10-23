@@ -9,36 +9,23 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { useLinkedinPost } from "../../../context/LinkedinPostContext";
 import ScheduleModal from "./ScheduleModal";
 
-interface PostPreviewProps {
-    post: string;
-}
-
-const PostPreview: React.FC<PostPreviewProps> = ({ post }) => {
-    const { setFlowToPublish, setFlowToPlan } = useLinkedinPost();
+const PostPreview: React.FC = () => {
+    const { setFlowToPublish, setFlowToPlan, contentPost, setContentPost, selectedFile, setSelectedFile } = useLinkedinPost();
     const [showScheduleModal, setShowScheduleModal] = useState(false);
 
-    // Texto padrão se nenhum post for passado
-    if (!post)
-        post = `🚀 Ecco un esempio di post LinkedIn:
-Oggi abbiamo fatto un passo importante verso l’innovazione! 💡
-Il nostro team ha lavorato duramente per creare una soluzione che aiuta le aziende a connettersi meglio con i propri clienti.
-👉 Scopri di più sul nostro sito: www.azienda.it
-#Innovazione #TeamWork #Crescita`;
 
-    const [postContent, setPostContent] = useState<string>(post);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [postContent, setPostContent] = useState<string>(contentPost);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileClick = () => fileInputRef.current?.click();
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(selectedFile)
         const file = event.target.files?.[0];
         if (file) {
             setSelectedFile(file);
@@ -69,11 +56,57 @@ Il nostro team ha lavorato duramente per creare una soluzione che aiuta le azien
     //     }
     // }
 
-    const handleScheduleConfirm = (date: string, time: string) => {
-        // Aqui você pode salvar a data/hora no contexto se quiser
-        console.log("Agendado para:", date, time);
-        setFlowToPlan(); // redireciona para PostScheduleList
+    const handleScheduleConfirm = async (date: string, time: string) => {
+        // validate
+        if (!date || !time) {
+            return;
+        }
+
+        try {
+            // build ISO datetime (local) - backend should handle timezone as needed
+            const scheduledAt = new Date(`${date}T${time}`);
+            const scheduledIso = scheduledAt.toISOString();
+
+            const form = new FormData();
+            // prefer context contentPost when available
+            form.append("text", contentPost || postContent || "");
+            if (selectedFile) {
+                // convert file to base64 string and send as image_base64
+                const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+                const b64 = await toBase64(selectedFile as File);
+                form.append("image_base64", b64);
+            }
+            form.append("scheduled_at", scheduledIso);
+
+            const { api } = await import("../../../api/api");
+            await api.post("/openai/linkedin-scheduled/", form, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            // after success, switch to plan flow (lista)
+            setFlowToPlan();
+        } catch (err: any) {
+            console.error("scheduling error", err);
+        }
     };
+
+    // keep context content in sync when user edits
+    const onPostContentChange = (v: string) => {
+        setPostContent(v);
+        setContentPost(v);
+    };
+
+    // when contentPost in context changes (e.g. after generatePost), update the local textarea
+    useEffect(() => {
+        if (contentPost && contentPost.trim() !== "") {
+            setPostContent(contentPost);
+        }
+    }, [contentPost]);
 
     return (
         <>
@@ -89,7 +122,7 @@ Il nostro team ha lavorato duramente per creare una soluzione che aiuta le azien
             >
                 <CardContent sx={{ p: 1, width: "100%" }}>
                     <Typography variant="h4" sx={{ fontWeight: 600, mb: 2 }}>
-                        Anteprima del tuo post LinkedIn
+                        Anteprima LinkedIn
                     </Typography>
 
                     <Box
@@ -102,19 +135,20 @@ Il nostro team ha lavorato duramente per creare una soluzione che aiuta le azien
                         {/* Campo de texto à esquerda */}
                         <TextField
                             multiline
-                            minRows={11}
+                            fullWidth
+                            rows={11}
                             variant="outlined"
                             placeholder="Scrivi qui il tuo testo..."
                             value={postContent}
-                            onChange={(e) => setPostContent(e.target.value)}
+                            onChange={(e) => onPostContentChange(e.target.value)}
                             sx={{
-                                width: "70%",
+                                width: '71%',
                                 backgroundColor: "#f9f9f9",
                                 borderRadius: 2,
                                 "& .MuiOutlinedInput-root": {
-                                    "& fieldset": { borderColor: "#5072CC" },
-                                    "&:hover fieldset": { borderColor: "#5072CC" },
-                                    "&.Mui-focused fieldset": { borderColor: "#5072CC" },
+                                    "& fieldset": { borderColor: "#ccc" },
+                                    "&:hover fieldset": { borderColor: "#ccc" },
+                                    "&.Mui-focused fieldset": { borderColor: "#ccc" },
                                 },
                             }}
                         />
@@ -143,7 +177,7 @@ Il nostro team ha lavorato duramente per creare una soluzione che aiuta le azien
                                             color: "#000",
                                         }}
                                     >
-                                        Vuoi aggiungere un’immagine?
+                                        Aggiungi un’immagine: caricala o trascinala qui
                                     </Typography>
 
                                     <Link
@@ -210,15 +244,21 @@ Il nostro team ha lavorato duramente per creare una soluzione che aiuta le azien
 
                     <Divider sx={{ mt: 2 }} />
 
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 1 }}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1, gap: 1 }}>
                         <Button
                             variant="contained"
                             onClick={setFlowToPublish}
+                            sx={{ height: '3vw' }}
                         >
-                            Pubblica subito
+                            Pubblica ora
                         </Button>
-                        <Button variant="contained" color="secondary" onClick={() => setShowScheduleModal(true)}>
-                            Pianifica post
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => setShowScheduleModal(true)}
+                            sx={{ height: '3vw', fontSize: '15px' }}
+                        >
+                            Programma il post
                         </Button>
                     </Box>
                 </CardContent>

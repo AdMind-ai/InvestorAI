@@ -6,16 +6,26 @@ import {
   IconButton,
   Pagination,
   Typography,
-  Link,
+  // Link,
   PaginationItem,
+  Link,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+} from "@mui/material";
+import PostEditModal from "./PostEditModal";
 import { useLinkedinPost } from "../../../context/LinkedinPostContext";
 
-// Ícones
+// Icons
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ImageIcon from "@mui/icons-material/Image";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import CloseIcon from '@mui/icons-material/Close';
 
 interface ScheduledPost {
   id: number;
@@ -26,55 +36,82 @@ interface ScheduledPost {
   time: string;
 }
 
-const mockPosts: ScheduledPost[] = [
-  {
-    id: 1,
-    title: "",
-    description:
-      "La Sostenibilità Non È Più Un'opzione, Ma Una Responsabilità. Le Normative Esg (Environmental, Social, Governance)...",
-    date: "23 Settembre 2024",
-    time: "11:30",
-  },
-  {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1601933471668-0e7e1a2b6a49?auto=format&fit=crop&w=800&q=80",
-    title:
-      "La Sostenibilità Non È Più Un'opzione, Ma Una Responsabilità. Le Normative Esg (Environmental, Social, Governance)...",
-    description:
-      "Le Normative Esg Stanno Ridefinendo Il Modo In Cui Le Aziende Operano A Livello Globale...",
-    date: "23 Settembre 2024",
-    time: "11:30",
-  },
-  {
-    id: 3,
-    title:
-      "La Sostenibilità Non È Più Un'opzione, Ma Una Responsabilità. Le Normative Esg (Environmental, Social, Governance)...",
-    description:
-      "Le Normative Esg Stanno Ridefinendo Il Modo In Cui Le Aziende Operano A Livello Globale...",
-    date: "23 Settembre 2024",
-    time: "11:30",
-  },
-  {
-    id: 4,
-    title:
-      "La Sostenibilità Non È Più Un'opzione, Ma Una Responsabilità. Le Normative Esg (Environmental, Social, Governance)...",
-    description:
-      "Le Normative Esg Stanno Ridefinendo Il Modo In Cui Le Aziende Operano A Livello Globale...",
-    date: "23 Settembre 2024",
-    time: "11:30",
-  },
-];
-
 const PostScheduleList = () => {
   const { resetFlow } = useLinkedinPost();
+  const [posts, setPosts] = useState<ScheduledPost[]>([]);
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const postsPerPage = 3;
+  const [editingPostId, setEditingPostId] = useState<number | null>(null);
+  const [editingDate, setEditingDate] = useState<string>("");
+  const [editingTime, setEditingTime] = useState<string>("");
+  const [editingText, setEditingText] = useState<string>("");
+  const [editingImage, setEditingImage] = useState<string | null>(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const currentPosts = mockPosts.slice(
-    (page - 1) * postsPerPage,
-    page * postsPerPage
-  );
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        const { api } = await import("../../../api/api");
+        const res = await api.get("/openai/linkedin-scheduled/");
+        // map backend response to ScheduledPost interface
+        const data = res.data.map((p: any) => ({
+          id: p.id,
+          // prefer base64-embedded image if backend returned it
+          image: p.image_base64 || p.image,
+          title: "",
+          description: p.text,
+          date: p.scheduled_at ? new Date(p.scheduled_at).toLocaleDateString() : "",
+          time: p.scheduled_at ? new Date(p.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
+        }));
+        setPosts(data);
+      } catch (err: any) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const currentPosts = posts.slice((page - 1) * postsPerPage, page * postsPerPage);
+
+  const handleDelete = async (id: number) => {
+    try {
+      const { api } = await import("../../../api/api");
+      await api.delete(`/openai/linkedin-scheduled/`, { data: { id } });
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error("delete error", err);
+    }
+  };
+
+  // Update scheduled post via API and update local state
+  const updateScheduledPost = async (id: number, text: string, image_base64?: string | null) => {
+    try {
+      const { api } = await import("../../../api/api");
+      const form = new FormData();
+      form.append("id", String(id));
+      form.append("text", text || "");
+      if (image_base64) form.append("image_base64", image_base64);
+      const res = await api.put(`/openai/linkedin-scheduled/`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      // update local posts state
+      setPosts((prev) => prev.map((p) => p.id === id ? {
+        ...p,
+        description: res.data.text,
+        image: res.data.image_base64 || res.data.image,
+      } : p));
+    } catch (err) {
+      console.error("update error", err);
+      throw err;
+    }
+  };
 
   return (
     <Box
@@ -83,6 +120,7 @@ const PostScheduleList = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
+        mt: 2
       }}
     >
       {/* Header */}
@@ -96,7 +134,7 @@ const PostScheduleList = () => {
         }}
       >
         <Typography variant="h6" fontWeight={600}>
-          I tuoi post programmati
+          Post programmati
         </Typography>
         <Button
           onClick={() => resetFlow()}
@@ -114,6 +152,17 @@ const PostScheduleList = () => {
         </Button>
       </Box>
 
+      <PostEditModal
+        open={editingPostId !== null}
+        id={editingPostId ?? 0}
+        initialText={editingText}
+        initialImage={editingImage ?? undefined}
+        date={editingDate}
+        time={editingTime}
+        onClose={() => setEditingPostId(null)}
+        onSave={async ({ id, text, image_base64 }) => updateScheduledPost(id, text, image_base64)}
+      />
+
       {/* Lista de posts */}
       <Box
         sx={{
@@ -124,7 +173,9 @@ const PostScheduleList = () => {
           gap: 2,
         }}
       >
-        {currentPosts.length === 0 ? (
+        {loading ? (
+          <Typography sx={{ color: '#666' }}>Caricamento...</Typography>
+        ) : currentPosts.length === 0 ? (
           <Box
             sx={{
               display: "flex",
@@ -259,10 +310,11 @@ const PostScheduleList = () => {
                   justifyContent: "space-between",
                   alignItems: "flex-end",
                   p: 1.5,
+                  gap: 2,
                   height: "100%",
                 }}
               >
-                <IconButton color="error" size="small">
+                <IconButton color="error" size="small" onClick={() => { setDeletingId(post.id); setOpenDeleteModal(true); }}>
                   <DeleteOutlineIcon sx={{ fontSize: 18 }} />
                 </IconButton>
 
@@ -271,11 +323,18 @@ const PostScheduleList = () => {
                   component="button"
                   underline="always"
                   sx={{
-                    fontSize: "0.8rem",
+                    fontSize: "15px",
                     ":hover": { color: "#ccc" },
                   }}
+                  onClick={() => {
+                    setEditingPostId(post.id);
+                    setEditingText(post.description);
+                    setEditingImage(post.image || null);
+                    setEditingDate(post.date);
+                    setEditingTime(post.time);
+                  }}
                 >
-                  Modifica post
+                  Modifica
                 </Link>
               </Box>
             </Card>
@@ -283,53 +342,115 @@ const PostScheduleList = () => {
         )}
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center", py: 1, width: "100%", mt: 2 }}>
-        <Pagination
-          count={Math.ceil(mockPosts.length / postsPerPage)}
-          page={page}
-          onChange={(_, newPage) => setPage(newPage)}
-          shape="rounded"
-          variant="outlined"
-          renderItem={(item) => (
-            <PaginationItem
-              components={{ previous: Typography, next: Typography }}
-              slots={{
-                previous: () => (
-                  <Typography sx={{ textTransform: "none", fontSize: "16px" }}>
-                    ← Precedente
-                  </Typography>
-                ),
-                next: () => (
-                  <Typography sx={{ textTransform: "none", fontSize: "16px" }}>
-                    Successivo →
-                  </Typography>
-                ),
-              }}
-              {...item}
-            />
-          )}
-          sx={{
-            "& .MuiPaginationItem-root": {
-              color: "text.primary",
-              borderRadius: "12px",
-              border: "1px solid #ddd",
-              margin: "0 4px",
-              height: "40px",
-              minWidth: "40px",
-              "&.Mui-selected": {
-                backgroundColor: "#f1f1f1",
-                borderColor: "#bbb",
+      {currentPosts.length > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 1, width: "100%" }}>
+          <Pagination
+            count={Math.ceil(posts.length / postsPerPage) || 1}
+            page={page}
+            onChange={(_, newPage) => setPage(newPage)}
+            shape="rounded"
+            variant="outlined"
+            renderItem={(item) => (
+              <PaginationItem
+                components={{ previous: Typography, next: Typography }}
+                slots={{
+                  previous: () => (
+                    <Typography sx={{ textTransform: "none", fontSize: "16px" }}>
+                      ← Precedente
+                    </Typography>
+                  ),
+                  next: () => (
+                    <Typography sx={{ textTransform: "none", fontSize: "16px" }}>
+                      Successivo →
+                    </Typography>
+                  ),
+                }}
+                {...item}
+              />
+            )}
+            sx={{
+              "& .MuiPaginationItem-root": {
+                color: "text.primary",
+                borderRadius: "12px",
+                border: "1px solid #ddd",
+                margin: "0 4px",
+                height: "40px",
+                minWidth: "40px",
+                "&.Mui-selected": {
+                  backgroundColor: "#f1f1f1",
+                  borderColor: "#bbb",
+                },
+                "&:hover": {
+                  backgroundColor: "#f1f1f1",
+                },
+                "&.MuiPaginationItem-previousNext": {
+                  padding: "0px 12px",
+                },
               },
-              "&:hover": {
-                backgroundColor: "#f1f1f1",
+            }}
+          />
+        </Box>
+      )}
+
+      <Dialog
+        open={openDeleteModal}
+        onClose={() => { if (!isDeleting) setOpenDeleteModal(false); }}
+        fullWidth
+        maxWidth='xs'
+      >
+        <DialogTitle variant="h5" sx={{ textAlign: 'center', position: 'relative' }}>
+          Conferma richiesta
+          <IconButton
+            aria-label="close"
+            onClick={() => setOpenDeleteModal(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+            disabled={isDeleting} // desabilita enquanto deleta
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent>
+          <Typography variant="body2" sx={{ textAlign: 'center' }}>
+            Vuoi davvero eliminare questo post?
+            <br />Una volta eliminato, non sarà possibile recuperarlo.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 1, mt: 1 }}>
+          <Button
+            onClick={async () => {
+              if (!deletingId) return;
+              try {
+                setIsDeleting(true);
+                await handleDelete(deletingId);
+                setOpenDeleteModal(false);
+                setDeletingId(null);
+              } catch (err) {
+                console.error('delete error', err);
+              } finally {
+                setIsDeleting(false);
+              }
+            }}
+            variant="contained"
+            sx={{
+              backgroundColor: 'red',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: 'red',
               },
-              "&.MuiPaginationItem-previousNext": {
-                padding: "0px 12px",
-              },
-            },
-          }}
-        />
-      </Box>
+            }}
+          >
+            {isDeleting ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Elimina post'}
+          </Button>
+
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

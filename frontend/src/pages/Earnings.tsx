@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import {
   Box,
   Divider,
+  Link,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -20,13 +21,13 @@ import { LinkedinPostProvider, useLinkedinPost } from '../context/LinkedinPostCo
 const EarningsContent: React.FC = () => {
   const theme = useTheme();
   const [selectedOption, setSelectedOption] = useState<string>('Traduttore');
-  const { flowType } = useLinkedinPost();
+  const { flowType, setFlowToPlan } = useLinkedinPost();
 
   const Options = [
     { title: 'Traduttore', content: '...' },
     { title: 'Crea speech', content: '...' },
     { title: 'Trascrizione audio', content: '...' },
-    { title: 'LinkedIn post', content: '' },
+    { title: 'Post LinkedIn', content: '' },
   ];
 
   const messageTooltipTitle = "Traduce in più lingue presentazioni e testi...";
@@ -42,16 +43,16 @@ const EarningsContent: React.FC = () => {
           height: '100%',
           width: '100%',
           backgroundImage:
-            selectedOption === 'LinkedIn post' && flowType === 'plan'
+            selectedOption === 'Post LinkedIn' && flowType !== 'plan'
               ? `url(${SocialMediaBackground})`
               : 'none',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'bottom right',
           backgroundSize:
-            selectedOption === 'LinkedIn post' ? 'contain' : 'none',
+            selectedOption === 'Post LinkedIn' ? 'contain' : 'none',
           backgroundAttachment: 'fixed',
           backgroundColor:
-            selectedOption === 'LinkedIn post' ? '#fff' : 'transparent',
+            selectedOption === 'Post LinkedIn' ? '#fff' : 'transparent',
           transition: 'background 0.5s ease',
         }}
       >
@@ -109,7 +110,7 @@ const EarningsContent: React.FC = () => {
           {selectedOption === 'Traduttore' && <Traduttore />}
           {selectedOption === 'Crea speech' && <CreaSpeech />}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
-          {selectedOption === 'LinkedIn post' && <LinkedinPost />}
+          {selectedOption === 'Post LinkedIn' && <LinkedinPost />}
         </Box>
       </Box>
     </Layout>

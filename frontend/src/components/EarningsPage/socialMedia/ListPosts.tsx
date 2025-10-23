@@ -80,7 +80,7 @@ const PostLine = ({
             </Box>
             
             <Typography onClick={()=>{editPost(post)}}  sx={{position:'absolute', bottom:10, right:15, fontSize:'11pt', color:'#a7a6a6', textDecoration:'underline', cursor:'pointer'}} >
-                    Modifica post
+                    Modifica
             </Typography>
         </Box>)
 }
@@ -113,7 +113,7 @@ const ListPosts =  ({states}: {states: AyrshareInterface}) => {
                 <Box sx={{display: 'flex', flexDirection: 'row', justifyContent:'space-between', alignItems: 'flex-end',textAlign: 'center'}}>
                 
                     <Typography variant="h4">
-                        I tuoi post programmati
+                        Post programmati
                     </Typography>
                     <Box>
                         <Button 

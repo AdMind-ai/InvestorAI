@@ -29,7 +29,7 @@ AYRSHARE_KEY = os.environ['AYRSHARE_KEY']
 ALPHA_VANTAGE_API_KEY = os.environ['ALPHA_VANTAGE_API_KEY']
 NEWSAPI_KEY = os.environ['NEWSAPI_KEY']
 CURR_NEWSAPI_KEY = os.environ['CURR_NEWSAPI_KEY']
-MEDIASTACK_NEWSAPI_KEY = os.environ['MEDIASTACK_NEWSAPI_KEY']
+OPENAI_PROMPT_ID_LINKEDIN_POST = os.environ['OPENAI_PROMPT_ID_LINKEDIN_POST']
 
 
 # Azure Storage
@@ -51,7 +51,7 @@ keys = [
     'ALPHA_VANTAGE_API_KEY',
     'NEWSAPI_KEY',
     'CURR_NEWSAPI_KEY',
-    # 'MEDIASTACK_NEWSAPI_KEY'
+    'OPENAI_PROMPT_ID_LINKEDIN_POST',
 ]
 
 missing_keys = [key for key in keys if not os.getenv(key)]
