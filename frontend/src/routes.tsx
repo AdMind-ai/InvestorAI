@@ -15,7 +15,7 @@ import TeamManagement from './pages/TeamManagement'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 import RestrictedRoute from './components/RestrictedRoute'
-
+import Avatar from './pages/Avatar'
 export const ALL_APP_ROUTES: string[] = [
   "/market-intelligence",
   "/chat-assistant",
@@ -24,6 +24,7 @@ export const ALL_APP_ROUTES: string[] = [
   "/esg",
   "/smart-scan",
   "/doc-creator",
+  "/avatar",
   "/usage",
   "/access",
   // ...Add other routes as needed
@@ -40,12 +41,12 @@ const AppRoutes = () => {
           {/* Rotas privadas */}
           <Route element={<PrivateRoute />}>
             <Route path="/" element={<Home />} />
-            <Route path="/market-intelligence" 
+            <Route path="/market-intelligence"
               element={
                 <RestrictedRoute routeName="/market-intelligence">
                   <Market />
                 </RestrictedRoute>
-              } 
+              }
             />
             <Route
               path="/chat-assistant"
@@ -95,6 +96,15 @@ const AppRoutes = () => {
                 </RestrictedRoute>
               }
             />
+            <Route
+              path="/avatar"
+              element={
+                <RestrictedRoute routeName="/avatar">
+                  <Avatar />
+                </RestrictedRoute>
+              }
+            />
+
             <Route
               path="/usage"
               element={

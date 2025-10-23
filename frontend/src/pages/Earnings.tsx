@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import {
   Box,
-  Divider,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -13,46 +12,22 @@ import SocialMediaBackground from '../assets/backgrounds/linkedin-background.svg
 import Traduttore from '../components/EarningsPage/Traduttore'
 import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
-import InfoTooltipIcon from '../components/InfoTooltipIcon'
-// import LinkedinPost from '../components/EarningsPage/newSocialMedia/LinkedinPost'
+import LinkedinPost from '../components/EarningsPage/newSocialMedia/LinkedinPost'
+import { LinkedinPostProvider, useLinkedinPost } from '../context/LinkedinPostContext'
 
-const Earnings: React.FC = () => {
+const EarningsContent: React.FC = () => {
   const theme = useTheme();
   const [selectedOption, setSelectedOption] = useState<string>('Traduttore');
+  const { flowType } = useLinkedinPost();
 
   const Options = [
-    {
-      title: 'Traduttore',
-      content:
-        'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
-    },
-    {
-      title: 'Crea speech',
-      content: [
-        'The speech must be in [English].',
-        'You must control the attached file.',
-        'From [slide 1 to slide 5, Mario Rossi, the CEO], speaks.',
-        'From [slide 6 to slide 8, Anna Bianchi, the CFO], speaks.',
-        'From [slide 9 to the end, Mario Rossi, the CEO], speaks again.',
-        'The speech concludes with:',
-        '"Operator, we are now ready to answer any questions from the audience.',
-        'Thank you all for your attention.',
-        'This presentation’s speech was created with the help of artificial intelligence, reproducing my voice in multiple languages."',
-      ],
-    },
-    {
-      title: 'Trascrizione audio',
-      content:
-        'Lorem ipsum dolor sit amet, consect adipiscing elit, sed do eiusmod tempor incididunt aliqua.',
-    },
-    // {
-    //   title: 'LinkedIn post',
-    //   content:
-    //     ''
-    // },
-  ]
+    { title: 'Traduttore', content: '...' },
+    { title: 'Crea speech', content: '...' },
+    { title: 'Trascrizione audio', content: '...' },
+    { title: 'Post LinkedIn', content: '' },
+  ];
 
-  const messageTooltipTitle = "Traduce in più lingue presentazioni e testi, trascrive audio/webcast, crea investor speech e genera post social per LinkedIn. Carica file o testo, scegli lingua e formato: ottieni contenuti pronti all’uso in pochi clic."
+  const messageOfDescription = "Traduce in più lingue presentazioni e testi, trascrive audio/webcast, crea investor speech e genera post social per LinkedIn. Carica file o testo, scegli lingua e formato: ottieni contenuti pronti all’uso in pochi clic.";
 
   return (
     <Layout>
@@ -60,20 +35,25 @@ const Earnings: React.FC = () => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          padding: '3vh ',
+          padding: '3vh',
           overflow: 'auto',
           height: '100%',
           width: '100%',
-          backgroundImage: selectedOption === 'LinkedIn post' ? `url(${SocialMediaBackground})` : 'none',
+          backgroundImage:
+            selectedOption === 'Post LinkedIn' && flowType !== 'plan'
+              ? `url(${SocialMediaBackground})`
+              : 'none',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'bottom right',
-          backgroundSize: selectedOption === 'LinkedIn post' ? 'contain' : 'none',
+          backgroundSize:
+            selectedOption === 'Post LinkedIn' ? 'contain' : 'none',
           backgroundAttachment: 'fixed',
-          backgroundColor: selectedOption === 'LinkedIn post' ? '#fff' : 'transparent',
+          backgroundColor:
+            selectedOption === 'Post LinkedIn' ? '#fff' : 'transparent',
           transition: 'background 0.5s ease',
         }}
       >
-        {/* Title */}
+        {/* Título */}
         <Box
           sx={{
             display: 'flex',
@@ -85,23 +65,21 @@ const Earnings: React.FC = () => {
             <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
               Earnings Call
             </Typography>
-            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
           </Box>
-
         </Box>
 
-        <Divider />
+        <Typography variant='subtitle1' sx={{ px: 2, fontSize: '14px' }}>
+          {messageOfDescription}
+        </Typography>
 
-        {/* Main Content */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'top', width: '100%', height: '100%', paddingTop: '1.5vw' }} >
-
-          {/* Selection Buttons */}
+        {/* Conteúdo principal */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', paddingTop: '1.5vw' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <ToggleButtonGroup
               value={selectedOption}
               exclusive
               onChange={(_, newValue) => newValue && setSelectedOption(newValue)}
-              sx={{ display: 'flex', gap: 2, borderRadius: '12px', overflow: 'visible', width: '98%' }}
+              sx={{ display: 'flex', gap: 2, borderRadius: '12px', width: '98%' }}
             >
               {Options.map((option) => (
                 <ToggleButton
@@ -110,7 +88,8 @@ const Earnings: React.FC = () => {
                   sx={{
                     borderRadius: '10px !important',
                     padding: '8px 16px',
-                    fontWeight: selectedOption === option.title ? 'bold' : 'regular',
+                    fontWeight:
+                      selectedOption === option.title ? 'bold' : 'regular',
                     height: 'calc(5.3vh)',
                     color: theme.palette.text.primary,
                     border: `1px solid ${theme.palette.grey[300]} !important`,
@@ -126,16 +105,20 @@ const Earnings: React.FC = () => {
             </ToggleButtonGroup>
           </Box>
 
-          {/* Content */}
           {selectedOption === 'Traduttore' && <Traduttore />}
           {selectedOption === 'Crea speech' && <CreaSpeech />}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
-          {/* {selectedOption === 'LinkedIn post' && <LinkedinPost />} */}
-
+          {selectedOption === 'Post LinkedIn' && <LinkedinPost />}
         </Box>
       </Box>
     </Layout>
   );
 };
+
+const Earnings: React.FC = () => (
+  <LinkedinPostProvider>
+    <EarningsContent />
+  </LinkedinPostProvider>
+);
 
 export default Earnings;

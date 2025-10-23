@@ -1,5 +1,5 @@
 import { useLinkedinPost } from "../../../context/LinkedinPostContext";
-import { Box, Card, CardContent, Typography, Link, TextField, IconButton, Button } from "@mui/material";
+import { Box, Card, CardContent, Typography, Link, TextField, IconButton, Button, CircularProgress } from "@mui/material";
 import { useRef, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -7,9 +7,9 @@ import ImageIcon from "@mui/icons-material/Image";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 const ContentInputCard = () => {
-    const { setContentPost, selectedFile, setSelectedFile, nextStep } = useLinkedinPost();
+    const { selectedFile, setSelectedFile, nextStep, generatePost, loading } = useLinkedinPost();
     const [enableTextField, setEnableTextField] = useState(false);
-    const [localPost, setLocalPost] = useState("");
+    const [localPost, setLocalPost] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,16 +17,24 @@ const ContentInputCard = () => {
         if (file) setSelectedFile(file);
     };
 
-    const handleSubmit = () => {
-        setContentPost(localPost);
-        nextStep(); // vai para PostPreview
+    const handleSubmit = async () => {
+        try {
+            // call backend to generate post if needed; if user already wrote something
+            // we still send it so the model can refine it. If no text but a file exists,
+            // backend will use the file.
+            await generatePost(localPost, selectedFile);
+            nextStep(); // vai para PostPreview
+        } catch (e) {
+            // error is surfaced via context.error; nothing else to do here
+            console.error("generatePost failed", e);
+        }
     };
 
     return (
         <Card elevation={2} sx={{ width: "100%", height: "28vw", borderRadius: "calc(2vh)" }}>
             <CardContent sx={{ p: 1 }}>
                 <Typography variant="h4" sx={{ fontWeight: 600, mb: 2 }}>
-                    Definisci il contenuto del post che vuoi generare
+                    Scrivi il contenuto del post
                 </Typography>
 
                 {/* Text input */}
@@ -52,7 +60,7 @@ const ContentInputCard = () => {
                             sx={{ fontSize: "17px", ":hover": { color: "#000" } }}
                             onClick={() => setEnableTextField(true)}
                         >
-                            Scrivi qui il tuo testo
+                            Scrivi qui il testo del post
                         </Link>
                     ) : (
                         <Box sx={{ position: "relative", width: "100%" }}>
@@ -90,7 +98,7 @@ const ContentInputCard = () => {
                         type="file"
                         ref={fileInputRef}
                         style={{ display: "none" }}
-                        accept=".pdf,image/*"
+                        accept=".pdf"
                         onChange={handleFileChange}
                     />
                     {!selectedFile ? (
@@ -101,7 +109,7 @@ const ContentInputCard = () => {
                             sx={{ fontSize: "17px", ":hover": { color: "#000" }, mt: 2 }}
                             onClick={() => fileInputRef.current?.click()}
                         >
-                            Carica un comunicato stampa o trascinalo qui
+                            Carica un documento di riferimento (o trascinalo qui)
                         </Link>
                     ) : (
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 2 }}>
@@ -116,7 +124,7 @@ const ContentInputCard = () => {
 
                 <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
                     <Button variant="contained" color="secondary" onClick={handleSubmit}>
-                        Salva e Procedi
+                        {loading ? <CircularProgress sx={{ color: 'white', p: 1 }} /> : "Genera anteprima"}
                     </Button>
                 </Box>
             </CardContent>

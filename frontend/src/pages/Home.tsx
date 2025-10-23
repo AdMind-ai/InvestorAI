@@ -50,7 +50,7 @@ const cards = [
     icon: EarningsIcon,
     path: '/earnings',
     tool: 'operativi'
-  },
+  }
 ]
 
 const Home: React.FC = () => {

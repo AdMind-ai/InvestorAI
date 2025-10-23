@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '@mui/material/styles';
 import {
   Box,
-  Divider,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -27,7 +26,6 @@ import WarningAmberIcon from '@mui/icons-material/WarningRounded';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
-import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 interface NewsItem {
   id: number;
@@ -191,7 +189,7 @@ const ESGPage: React.FC = () => {
     loadData(selectedCategory);
   }, [selectedCategory]);
 
-  const messageTooltipTitle = "Raccoglie le notizie più rilevanti su normativa, governance e rischi reputazionali, organizzate per categoria. Aggiornamento regolare da fonti autorevoli. Sfoglia l’elenco, leggi l’anteprima e apri l’articolo completo dalla fonte."
+  const messageOfDescription = "Raccoglie le notizie più rilevanti su normativa, governance e rischi reputazionali, organizzate per categoria. Aggiornamento regolare da fonti autorevoli. Sfoglia l’elenco, leggi l’anteprima e apri l’articolo completo dalla fonte."
 
   return (
     <Layout>
@@ -200,9 +198,11 @@ const ESGPage: React.FC = () => {
           <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
             ESG News
           </Typography>
-          <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
         </Box>
-        <Divider sx={{ marginBottom: 2.5 }} />
+
+        <Typography variant='subtitle1' sx={{ px: 2, fontSize: '14px', width: '82vw' }}>
+          {messageOfDescription}
+        </Typography>
 
         {/* Toggle buttons */}
         <ToggleButtonGroup
@@ -214,7 +214,7 @@ const ESGPage: React.FC = () => {
               setPage(1);
             }
           }}
-          sx={{ display: 'flex', gap: 2, borderRadius: '12px', width: '100%', mb: 2 }}
+          sx={{ display: 'flex', gap: 2, borderRadius: '12px', width: '100%', mb: 2, mt: 2 }}
         >
           {topics.map((name) => (
             <ToggleButton

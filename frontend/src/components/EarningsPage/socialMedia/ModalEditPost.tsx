@@ -81,7 +81,7 @@ const ModalEditPost = ({
             >
               <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                 <Typography variant="h4" sx={{ marginRight: '10px' }}>
-                  Anteprima del tuo post linkedin
+                  Anteprima linkedin
                 </Typography>
                 {states.aiSubmit.value ? <CircularProgress size={20} /> : <></>}
               </Box>
@@ -161,7 +161,7 @@ const ModalEditPost = ({
                   marginRight: '10px',
                 }}
               >
-                Pubblica subito
+                Pubblica ora
               </Button>
               <Button
                 onClick={() => setOpenDialog(true)}
@@ -174,7 +174,7 @@ const ModalEditPost = ({
                   width: '155px',
                 }}
               >
-                Pianifica post
+                Programma il post
               </Button>
             </Box>
             {}
@@ -190,7 +190,7 @@ const ModalEditPost = ({
                 setOpenDialog(false)
               }}
               datetimeState={states.postPublishSchedule}
-              textConfirmButton="Pianifica post"
+              textConfirmButton="Programma il postpost"
             />
           </Box>
         </Box>

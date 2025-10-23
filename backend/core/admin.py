@@ -12,6 +12,7 @@ from core.models.company_info import CompanyInfo, CEO, CompetitorInfo
 from core.models.company_info.company_route_restriction import CompanyRouteRestriction
 from core.models.frontend_master_route_list import MasterRouteList
 from django import forms
+from core.models.linkedin_scheduled_post import LinkedinScheduledPost
 # Register your models here.
 
 
@@ -187,3 +188,11 @@ class CEOAdmin(admin.ModelAdmin):
 @admin.register(CEOConversation)
 class CEOConversationAdmin(admin.ModelAdmin):
     list_display = ('company', 'ceo', 'conversation_id', 'created_at')
+
+
+@admin.register(LinkedinScheduledPost)
+class LinkedinScheduledPostAdmin(admin.ModelAdmin):
+    list_display = ('id', 'company', 'created_by', 'scheduled_at', 'created_at')
+    search_fields = ('text', 'company__long_name', 'created_by__username')
+    list_filter = ('company',)
+    readonly_fields = ('created_at', 'updated_at')

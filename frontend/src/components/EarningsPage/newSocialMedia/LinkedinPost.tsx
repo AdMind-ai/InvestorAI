@@ -1,33 +1,28 @@
-import { Box, Breadcrumbs, Link } from "@mui/material";
-import { LinkedinPostProvider, useLinkedinPost } from "../../../context/LinkedinPostContext";
+import { Box, Breadcrumbs, Button, Dialog, DialogActions, DialogContent, DialogTitle, Link, Tooltip, Typography } from "@mui/material";
+import { useLinkedinPost } from "../../../context/LinkedinPostContext";
 import ContentInputCard from "./ContentInputCard";
 import PostPreview from "./PostPreview";
 import ProfileLogin from "./ProfileLogin";
-import PostScheduleList from "./PostScheduleList"; // (novo componente futuro)
+import PostScheduleList from "./PostScheduleList";
+import { useState } from "react";
 
 const StepRenderer = () => {
-    const { step, steps, goToStep, maxStep, contentPost } = useLinkedinPost();
+    const { step, steps, goToStep, maxStep, flowType } = useLinkedinPost();
+    const [openModalResetContent, setOpenModalResetContent] = useState<boolean>(false)
 
-    // associa os componentes reais às etapas
     const stepsWithComponents = steps.map((s) => {
         switch (s.label) {
-            case "Definisci contenuto":
+            case "Contenuto":
                 return { ...s, component: <ContentInputCard /> };
             case "Visualizza post":
-                return { ...s, component: <PostPreview post={contentPost} /> };
+                return { ...s, component: <PostPreview /> };
             case "Connetti LinkedIn":
                 return { ...s, component: <ProfileLogin /> };
             case "Lista pianificazioni":
                 return {
                     ...s,
                     component: (
-                        <Box
-                            sx={{
-                                width: "100%",
-                                maxHeight: "75vh",
-                                px: 1,
-                            }}
-                        >
+                        <Box sx={{ width: "100%", maxHeight: "75vh" }}>
                             <PostScheduleList />
                         </Box>
                     ),
@@ -38,49 +33,124 @@ const StepRenderer = () => {
     });
 
     const currentStepLabel = stepsWithComponents[step]?.label;
-    const hideBreadcrumb = currentStepLabel === "Lista pianificazioni";
 
+    // breadcrumb aparece apenas em "Visualizza post" e "Connetti LinkedIn"
+    const showBreadcrumb = ["Visualizza post", "Connetti LinkedIn"].includes(currentStepLabel);
+
+    // mensagens para o tooltip
+    const tooltipMessages: Record<string, string> = {
+        "Contenuto": currentStepLabel !== 'Contenuto' ? `Ridefinisci il contenuto che l'intelligenza artificiale dovrebbe 
+        generare per il tuo post` : `Definisci il contenuto che l'IA deve generare per il tuo post`,
+        "Visualizza post": "Visualizza in anteprima il tuo post prima di pubblicarlo",
+        "Connetti LinkedIn": "Collega il tuo account LinkedIn per pubblicare il tuo post",
+    };
 
     return (
-        <Box sx={{ width: "92%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            {/* Breadcrumbs dinâmicos */}
-            {!hideBreadcrumb && (
-                <Breadcrumbs separator="›" sx={{ alignSelf: "flex-start", p: 1, fontSize: '14px' }}>
+        <Box
+            sx={{
+                width: flowType === "plan" ? "97.5%" : "92%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                mt: currentStepLabel == 'Contenuto' ? 3 : 0
+            }}
+        >
+            {showBreadcrumb && (
+                <Breadcrumbs separator="›" sx={{ alignSelf: "flex-start", p: 1, fontSize: "14px" }}>
                     {stepsWithComponents.slice(0, maxStep + 1).map((s, index) => (
-                        <Link
+                        <Tooltip
                             key={index}
-                            underline={"hover"}
-                            color={index === step ? "primary" : "text.primary"}
-                            sx={{ cursor: "pointer" }}
-                            onClick={() => goToStep(index)}
+                            title={tooltipMessages[s.label] || ""}
+                            arrow
+                            slotProps={{
+                                tooltip: {
+                                    sx: { fontSize: "13px" }
+                                }
+                            }}
                         >
-                            {s.label}
-                        </Link>
+                            <Link
+                                underline="hover"
+                                color={index === step ? "primary" : "text.primary"}
+                                sx={{ cursor: "pointer" }}
+                                onClick={() => {
+                                    if (s.label === 'Contenuto') {
+                                        setOpenModalResetContent(true);
+                                    } else {
+                                        goToStep(index);
+                                    }
+                                }}
+                            >
+                                {s.label}
+                            </Link>
+                        </Tooltip>
                     ))}
                 </Breadcrumbs>
-            )}
+            )
+            }
 
             {/* Renderiza etapa atual */}
             {stepsWithComponents[step]?.component}
-        </Box>
+
+            <Dialog
+                open={openModalResetContent}
+                fullWidth
+                maxWidth='sm'
+            >
+                <DialogTitle variant="h5" sx={{ textAlign: 'center', position: 'relative' }}>
+                    Conferma il ripristino del contenuto
+                </DialogTitle>
+
+                <DialogContent>
+                    <Typography variant="body2" sx={{ textAlign: 'center' }}>
+                        Se confermi, perderai sicuramente il contenuto che hai creato.
+                    </Typography>
+                </DialogContent>
+
+                <DialogActions sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 1, mt: 1 }}>
+                    <Button
+                        onClick={() => setOpenModalResetContent(false)}
+                        variant="outlined"
+                        sx={{
+                            '&:hover': {
+                                backgroundColor: 'red',
+                            },
+                        }}
+                    >
+                        Anulla
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            goToStep(0);
+                            setOpenModalResetContent(false);
+                        }}
+                        variant="contained"
+                        sx={{
+                            color: 'white',
+                        }}
+                    >
+                        Conferma
+                    </Button>
+
+
+                </DialogActions>
+            </Dialog>
+        </Box >
     );
 };
 
 const LinkedinPost = () => (
-    <LinkedinPostProvider>
-        <Box
-            sx={{
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                mt: 2,
-                flexDirection: "column",
-            }}
-        >
-            <StepRenderer />
-        </Box>
-    </LinkedinPostProvider>
+    <Box
+        sx={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mt: 2,
+            flexDirection: "column",
+        }}
+    >
+        <StepRenderer />
+    </Box>
 );
 
 export default LinkedinPost;

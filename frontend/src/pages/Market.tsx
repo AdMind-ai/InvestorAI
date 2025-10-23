@@ -1,6 +1,5 @@
 import React from 'react';
-// import { useTheme } from '@mui/material/styles'
-import { Box, Typography, Divider } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import '../styles/markdown.css';
 import Layout from '../layouts/Layout'
 
@@ -10,11 +9,10 @@ import MarketCompetitorsNews from '../components/MarketPage/MarketCompetitorsNew
 import MarketSectorNews from '../components/MarketPage/MarketSectorNews'
 import MarketCompetitors from '../components/MarketPage/MarketCompetitors'
 import MarketOverviewReport from '../components/MarketPage/MarketOverviewReport'
-import InfoTooltipIcon from '../components/InfoTooltipIcon';
 
 
 const Market: React.FC = () => {
-  const messageTooltipTitle = "Offre una vista aggiornata del tuo settore: notizie rilevanti, aggiornamenti sui competitor e mappa delle aziende concorrenti. Puoi leggere le fonti originali, confrontare i trend e generare report di sintesi con gli indicatori chiave."
+  const messageOfDescription = "Offre una vista aggiornata del tuo settore: notizie rilevanti, aggiornamenti sui competitor e mappa delle aziende concorrenti. Puoi leggere le fonti originali, confrontare i trend e generare report di sintesi con gli indicatori chiave."
 
   return (
     <Layout>
@@ -40,11 +38,13 @@ const Market: React.FC = () => {
             <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
               Market Intelligence
             </Typography>
-            <InfoTooltipIcon message={messageTooltipTitle} size={18} color="gray" />
           </Box>
 
         </Box>
-        <Divider sx={{ mx: 'calc(3vh)' }} />
+
+        <Typography variant='subtitle1' sx={{ px: 4.8, fontSize: '14px' }}>
+          {messageOfDescription}
+        </Typography>
 
         {/* Main Content */}
         <Box

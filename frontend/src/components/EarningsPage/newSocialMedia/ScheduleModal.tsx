@@ -13,21 +13,30 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ open, onClose, onConfirm 
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Seleziona data e orario</DialogTitle>
-      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+      <DialogTitle>Seleziona data e ora</DialogTitle>
+      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <TextField
           label="Data"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{
+            inputLabel: {
+              shrink: true
+            }
+          }}
+          sx={{ mt: 1 }}
         />
         <TextField
-          label="Orario"
+          label="Ora"
           type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{
+            inputLabel: {
+              shrink: true
+            }
+          }}
         />
       </DialogContent>
       <DialogActions>
