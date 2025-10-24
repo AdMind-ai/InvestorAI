@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import ProfileLogin from "../components/EarningsPage/newSocialMedia/ProfileLogin";
 import PostScheduleList from "../components/EarningsPage/newSocialMedia/PostScheduleList";
+import { toast } from "react-toastify";
 
 interface LinkedinPostContextProps {
     step: number;
@@ -111,6 +112,7 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
 
         try {
             setLoading(true);
+            toast.info("Contenuto generato dall'intelligenza artificiale");
 
             const formData = new FormData();
             if (text) formData.append("text", text);
@@ -133,9 +135,10 @@ export const LinkedinPostProvider = ({ children }: { children: ReactNode }) => {
 
             setContentPost(finalText);
 
+            toast.success("Contenuto generato con successo!");
             return finalText;
         } catch (err) {
-            const message = "Errore nella generazione del post";
+            const message = "Errore nella generazione del contenuto";
             setError(typeof message === "string" ? message : JSON.stringify(message));
             return Promise.reject(err);
         } finally {

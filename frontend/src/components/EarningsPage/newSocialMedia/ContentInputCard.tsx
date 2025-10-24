@@ -1,20 +1,63 @@
 import { useLinkedinPost } from "../../../context/LinkedinPostContext";
-import { Box, Card, CardContent, Typography, Link, TextField, IconButton, Button, CircularProgress } from "@mui/material";
+import { Box, Card, CardContent, Typography, Link, TextField, IconButton, Button, CircularProgress, Snackbar, Alert } from "@mui/material";
 import { useRef, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ImageIcon from "@mui/icons-material/Image";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { toast } from "react-toastify";
 
 const ContentInputCard = () => {
     const { selectedFile, setSelectedFile, nextStep, generatePost, loading } = useLinkedinPost();
     const [enableTextField, setEnableTextField] = useState(false);
     const [localPost, setLocalPost] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isDragActive, setIsDragActive] = useState(false);
+
+    const isPdfFile = (file: File | undefined | null) => {
+        if (!file) return false;
+        const mimeOk = file.type === "application/pdf";
+        const extOk = file.name?.toLowerCase().endsWith(".pdf");
+        return mimeOk || extOk;
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) setSelectedFile(file);
+        if (file) {
+            if (isPdfFile(file)) {
+                setSelectedFile(file);
+            } else {
+                // reset input so user can try again
+                (e.target as HTMLInputElement).value = "";
+                toast.info("Formato file non valido. Aggiungi un .pdf")
+            }
+        }
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+        const file = e.dataTransfer?.files?.[0];
+        if (file) {
+            if (isPdfFile(file)) {
+                setSelectedFile(file);
+            } else {
+                toast.info("Formato file non valido. Aggiungi un .pdf")
+            }
+        }
     };
 
     const handleSubmit = async () => {
@@ -39,10 +82,15 @@ const ContentInputCard = () => {
 
                 {/* Text input */}
                 <Box
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
                     sx={{
                         width: '76vw',
                         minHeight: "17vw",
-                        border: "2px solid #5071cc59",
+                        border: `2px solid ${isDragActive ? '#5071cc' : '#5071cc59'}`,
+                        backgroundColor: isDragActive ? '#f0f6ff' : 'transparent',
                         borderRadius: 1.5,
                         display: "flex",
                         flexDirection: "column",

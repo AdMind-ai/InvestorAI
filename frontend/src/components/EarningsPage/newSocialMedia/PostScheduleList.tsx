@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import PostEditModal from "./PostEditModal";
 import { useLinkedinPost } from "../../../context/LinkedinPostContext";
+import { toast } from "react-toastify";
 
 // Icons
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -103,7 +104,18 @@ const PostScheduleList = () => {
     try {
       const { api } = await import("../../../api/api");
       await api.delete(`/openai/linkedin-scheduled/`, { data: { id } });
-      setPosts((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Post eliminato con successo")
+      // Atualiza a lista localmente e ajusta a paginação se necessário.
+      setPosts((prev) => {
+        const newPosts = prev.filter((p) => p.id !== id);
+        const totalPages = Math.ceil(newPosts.length / postsPerPage) || 1;
+        // Se a página atual ficar vazia (ex.: estávamos na pagina 2 e removemos o último item dessa pagina),
+        // navegar para a primeira página conforme comportamento desejado.
+        if (page > totalPages || (page > 1 && (newPosts.slice((page - 1) * postsPerPage, page * postsPerPage).length === 0))) {
+          setPage(1);
+        }
+        return newPosts;
+      });
     } catch (err) {
       console.error("delete error", err);
     }
@@ -121,6 +133,7 @@ const PostScheduleList = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       // update local posts state
+      toast.success("Post aggiornato con successo")
       setPosts((prev) => prev.map((p) => p.id === id ? {
         ...p,
         description: res.data.text,
