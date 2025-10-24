@@ -18,11 +18,10 @@ import { toast } from "react-toastify";
 const PostPreview: React.FC = () => {
     const { setFlowToPublish, setFlowToPlan, contentPost, setContentPost, selectedFile, setSelectedFile } = useLinkedinPost();
     const [showScheduleModal, setShowScheduleModal] = useState(false);
-
-
     const [postContent, setPostContent] = useState<string>(contentPost);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isDragActive, setIsDragActive] = useState(false);
 
     const handleFileClick = () => fileInputRef.current?.click();
 
@@ -111,6 +110,59 @@ const PostPreview: React.FC = () => {
         }
     }, [contentPost]);
 
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+    };
+
+    // helper to detect image files
+    const isImageFile = (file: File | undefined | null) => {
+        if (!file) return false;
+        return file.type.startsWith("image/") || /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(file.name || "");
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+        const file = e.dataTransfer?.files?.[0];
+        if (file) {
+            if (isImageFile(file)) {
+                setSelectedFile(file);
+                // create preview for dropped image
+                try {
+                    const previewUrl = URL.createObjectURL(file);
+                    setImagePreview(previewUrl);
+                } catch (err) {
+                    // fallback: no preview available
+                    console.error("Could not create image preview", err);
+                }
+            } else {
+                toast.info("Formato file non valido. Aggiungi un'immagine");
+            }
+        }
+    };
+
+    // revoke object URL when preview changes/unmount to avoid memory leaks
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                try {
+                    URL.revokeObjectURL(imagePreview);
+                } catch (err) {
+                    console.error(err)
+                }
+            }
+        };
+    }, [imagePreview]);
+
     return (
         <>
             <Card
@@ -159,7 +211,8 @@ const PostPreview: React.FC = () => {
                         {/* Box da imagem / upload à direita */}
                         <Box
                             sx={{
-                                backgroundColor: "#f5f5f5",
+                                border: `2px solid ${isDragActive ? '#5071cc' : 'transparent'}`,
+                                backgroundColor: isDragActive ? '#f0f6ff' : '#f5f5f5',
                                 width: "30%",
                                 borderRadius: 2,
                                 display: "flex",
@@ -173,6 +226,10 @@ const PostPreview: React.FC = () => {
                         >
                             {!imagePreview ? (
                                 <Box
+                                    onDragOver={handleDragOver}
+                                    onDragEnter={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
                                     sx={{
                                         position: 'relative',
                                         width: '100%',
@@ -242,7 +299,7 @@ const PostPreview: React.FC = () => {
                                             position: 'relative',
                                             width: '100%',
                                             height: 'auto', // se ajusta ao tamanho da imagem
-                                            maxHeight: 400,
+                                            maxHeight: 270,
                                             borderRadius: 2,
                                             overflow: 'hidden',
                                             backgroundColor: '#f5f5f5',
@@ -257,7 +314,7 @@ const PostPreview: React.FC = () => {
                                             alt="Anteprima immagine"
                                             sx={{
                                                 maxWidth: '100%',
-                                                maxHeight: 400,
+                                                maxHeight: '100%',
                                                 objectFit: 'contain',
                                                 display: 'block',
                                             }}
