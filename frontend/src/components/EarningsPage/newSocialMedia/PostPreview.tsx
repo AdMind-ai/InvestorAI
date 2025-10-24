@@ -13,6 +13,7 @@ import React, { useRef, useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { useLinkedinPost } from "../../../context/LinkedinPostContext";
 import ScheduleModal from "./ScheduleModal";
+import { toast } from "react-toastify";
 
 const PostPreview: React.FC = () => {
     const { setFlowToPublish, setFlowToPlan, contentPost, setContentPost, selectedFile, setSelectedFile } = useLinkedinPost();
@@ -89,9 +90,11 @@ const PostPreview: React.FC = () => {
             });
 
             // after success, switch to plan flow (lista)
+            toast.success("Post programmato con successo")
             setFlowToPlan();
         } catch (err) {
             console.error("scheduling error", err);
+            toast.error("Errore nella pianificazione del post")
         }
     };
 
@@ -156,7 +159,7 @@ const PostPreview: React.FC = () => {
                         {/* Box da imagem / upload à direita */}
                         <Box
                             sx={{
-                                backgroundColor: "#F2F2F2",
+                                backgroundColor: "#f5f5f5",
                                 width: "30%",
                                 borderRadius: 2,
                                 display: "flex",
@@ -169,14 +172,24 @@ const PostPreview: React.FC = () => {
                             }}
                         >
                             {!imagePreview ? (
-                                <>
-                                    <Typography
-                                        sx={{
-                                            fontSize: "17px",
-                                            mb: 1,
-                                            color: "#000",
-                                        }}
-                                    >
+                                <Box
+                                    sx={{
+                                        position: 'relative',
+                                        width: '100%',
+                                        height: 200,
+                                        borderRadius: 2,
+                                        backgroundColor: '#f5f5f5',
+                                        border: 'none',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        textAlign: 'center',
+                                        p: 2,
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    <Typography sx={{ fontSize: 17, mb: 1, color: '#000' }}>
                                         Aggiungi un’immagine: caricala o trascinala qui
                                     </Typography>
 
@@ -185,12 +198,12 @@ const PostPreview: React.FC = () => {
                                         underline="always"
                                         onClick={handleFileClick}
                                         sx={{
-                                            color: "#000",
-                                            fontSize: "17px",
-                                            textDecorationColor: "#000",
-                                            ":hover": {
-                                                color: "#00000090",
-                                                textDecorationColor: "#00000090",
+                                            color: '#000',
+                                            fontSize: 17,
+                                            textDecorationColor: '#000',
+                                            ':hover': {
+                                                color: '#00000090',
+                                                textDecorationColor: '#00000090',
                                             },
                                         }}
                                     >
@@ -201,42 +214,55 @@ const PostPreview: React.FC = () => {
                                         type="file"
                                         accept="image/*"
                                         ref={fileInputRef}
-                                        style={{ display: "none" }}
+                                        style={{ display: 'none' }}
                                         onChange={handleFileChange}
                                         multiple={false}
                                     />
-                                </>
+                                </Box>
                             ) : (
                                 <>
-                                    {/* Preview da imagem */}
-                                    <Box
-                                        component="img"
-                                        src={imagePreview}
-                                        alt="Anteprima immagine"
-                                        sx={{
-                                            width: "auto",
-                                            height: "auto",
-                                            objectFit: "cover",
-                                            borderRadius: 2,
-                                        }}
-                                    />
-
-                                    {/* Botão para remover a imagem */}
                                     <IconButton
                                         onClick={handleRemoveImage}
                                         sx={{
-                                            position: "absolute",
+                                            position: 'absolute',
                                             top: 8,
                                             right: 8,
-                                            backgroundColor: "#fff",
-                                            color: "#d32f2f",
-                                            "&:hover": {
-                                                backgroundColor: "#fdecea",
+                                            backgroundColor: '#fff',
+                                            color: '#d32f2f',
+                                            zIndex: 2,
+                                            '&:hover': {
+                                                backgroundColor: '#fdecea',
                                             },
                                         }}
                                     >
                                         <CloseIcon />
                                     </IconButton>
+                                    <Box
+                                        sx={{
+                                            position: 'relative',
+                                            width: '100%',
+                                            height: 'auto', // se ajusta ao tamanho da imagem
+                                            maxHeight: 400,
+                                            borderRadius: 2,
+                                            overflow: 'hidden',
+                                            backgroundColor: '#f5f5f5',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <Box
+                                            component="img"
+                                            src={imagePreview}
+                                            alt="Anteprima immagine"
+                                            sx={{
+                                                maxWidth: '100%',
+                                                maxHeight: 400,
+                                                objectFit: 'contain',
+                                                display: 'block',
+                                            }}
+                                        />
+                                    </Box>
                                 </>
                             )}
                         </Box>
