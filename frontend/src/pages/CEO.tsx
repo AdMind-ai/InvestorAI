@@ -91,7 +91,7 @@ const CEOPage: React.FC = () => {
   const currentData = data[selectedPerson] || [];
 
 
-  const messageOfDescription = "Raccoglie ogni lunedì mattina le notizie più recenti e pubbliche degli ultimi 90 giorni su CEO e top manager, valutandone il sentiment. Mostra 10 articoli alla volta, senza duplicati ed escludendo il sito aziendale. Clicca il titolo per aprire la fonte."
+  const messageOfDescription = "CEO Perception monitora la reputazione online dei vostri manager chiave, analizzando il sentiment delle notizie. Capire se la percezione pubblica è favorevole, neutra o critica permette di reagire in modo tempestivo. Questo non è solo monitoraggio: è protezione e valorizzazione del capitale umano della vostra impresa."
   const messageTooltipSentiment = "Valuta il tono linguistico con cui il CEO/manager è descritto nelle notizie, tramite analisi semantica del testo. Misura l’atteggiamento verso la persona (favorevole, neutro, critico), non la “bontà” dell’evento riportato. Punteggio indicativo su scala 0–100; usare come supporto alla lettura, non come giudizio assoluto."
 
   // Articles Data

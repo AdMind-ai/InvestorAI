@@ -27,7 +27,7 @@ const EarningsContent: React.FC = () => {
     { title: 'Post LinkedIn', content: '' },
   ];
 
-  const messageOfDescription = "Traduce in più lingue presentazioni e testi, trascrive audio/webcast, crea investor speech e genera post social per LinkedIn. Carica file o testo, scegli lingua e formato: ottieni contenuti pronti all’uso in pochi clic.";
+  const messageOfDescription = "È uno strumento pensato per farvi parlare al mondo, senza barriere linguistiche e in modo coerente e professionale. Traduce in più lingue presentazioni e testi, trascrive audio/webcast, crea investor speech e genera post social per LinkedIn. Carica file o testo, scegli lingua e formato: ottieni contenuti pronti all’uso in pochi clic.";
 
   return (
     <Layout>
