@@ -189,7 +189,7 @@ const ESGPage: React.FC = () => {
     loadData(selectedCategory);
   }, [selectedCategory]);
 
-  const messageOfDescription = "Raccoglie le notizie più rilevanti su normativa, governance e rischi reputazionali, organizzate per categoria. Aggiornamento regolare da fonti autorevoli. Sfoglia l’elenco, leggi l’anteprima e apri l’articolo completo dalla fonte."
+  const messageOfDescription = "ESG Monitoring fornisce informazioni mirate e tempestive per guidare decisioni strategiche e dimostrare impegno concreto verso la sostenibilità e la trasparenza ESG."
 
   return (
     <Layout>
