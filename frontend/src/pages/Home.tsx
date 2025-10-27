@@ -56,20 +56,16 @@ const modalText = `
 
 “Investor AI” propone:
 
-**3 tool di intelligence** per restare sempre aggiornati su 3 leve di difesa del valore aziendale:
+**3 tool di intelligence** per restare sempre aggiornati su 3 leve di difesa del valore aziendale:  
+  - il posizionamento competitivo, mediante monitoraggio continuo dell’evoluzione del mercato di riferimento e delle azioni poste in campo dai principali competitor (*Market Intelligence*);
+  - la difesa del capitale umano mediante il monitoraggio della reputazione della squadra manageriale (*CEO Perception*);
+  - l’implementazione di strategie di sostenibilità e la relativa rendicontazione e comunicazione (*ESG Monitoring*).
 
-- il posizionamento competitivo, mediante monitoraggio continuo dell’evoluzione del mercato di riferimento e delle azioni poste in campo dai principali competitor (Market Intelligence);
-- la difesa del capitale umano mediante il monitoraggio della reputazione della squadra manageriale (CEO Perception);
-- l’implementazione di strategie di sostenibilità e la relativa rendicontazione e comunicazione (ESG Monitoring).
+**2 tool operativi** per comunicare come una grande azienda:  
+  - un ambiente protetto in cui interrogare rapidamente documenti e report, ottenere risposte precise e preparare materiali pronti all’uso, anche su informazioni price sensitive non ancora rese note al mercato (*Chat Assistant*);
+  - strumenti per realizzare documenti e speech in molteplici lingue ampliando il target di potenziali investitori a livello internazionale (*Earnings Call*).  
 
-**2 tool operativi**
-per comunicare come una grande azienda:
-
-- un ambiente protetto in cui interrogare rapidamente documenti e report, ottenere risposte precise e preparare materiali pronti all’uso, anche su informazioni price sensitive non ancora rese note al mercato (Chat Assistant);
-- strumenti per realizzare documenti e speech in molteplici lingue ampliando il target di potenziali investitori a livello internazionale (Earnings Call).
-
-In sintesi, i tool di intelligence vi danno la conoscenza strategica, i tool operativi vi permettono di trasformarla in comunicazione efficace.
-
+In sintesi, i tool di intelligence vi danno la conoscenza strategica, i tool operativi vi permettono di trasformarla in comunicazione efficace.  
 “Investor AI” non è solo un software: è il vostro alleato per crescere, competere e fare la differenza nel mercato dei capitali. È il ponte tra la vostra ambizione e le possibilità che il mercato può offrirvi.
 `
 
@@ -94,7 +90,6 @@ const Home: React.FC = () => {
             position: 'absolute',
             top: '50%',
             left: '50%',
-            border: 'none',
             transform: 'translate(-50%, -50%)',
             width: { xs: '90%', md: '60%' },
             maxHeight: '80vh',
@@ -103,8 +98,11 @@ const Home: React.FC = () => {
             boxShadow: 24,
             p: 3,
             overflowY: 'auto',
+            border: 'none',
+            outline: 'none',
           }}
         >
+
           <IconButton
             aria-label="close"
             onClick={() => setOpenModal(false)}
@@ -114,7 +112,11 @@ const Home: React.FC = () => {
             <CloseIcon />
           </IconButton>
 
-          <Box sx={{ mt: 3 }}>
+          <Box
+            sx={{
+              mt: 3,
+            }}
+          >
             <ReactMarkdown
               components={{
                 p: ({ ...props }) => (
@@ -124,7 +126,7 @@ const Home: React.FC = () => {
                   <Typography component="span" fontWeight="bold" sx={{ fontSize: '18px' }} {...props} />
                 ),
                 em: ({ ...props }) => (
-                  <Typography component="span" fontStyle="italic" {...props} />
+                  <Typography component="span" fontStyle="italic" sx={{ fontSize: '16px' }} {...props} />
                 ),
                 ul: ({ ...props }) => (
                   <List sx={{ listStyleType: 'disc', pl: 3, fontSize: '16px' }} {...props} />
