@@ -38,7 +38,7 @@ const cards = [
   {
     title: 'Chat Assistant',
     description:
-      'Assistente privato per risposte rapide e sicure (anche price sensitive).',
+      'Assistente privato per risposte rapide e sicure (anche per informazioni price sensitive).',
     icon: ChatIcon,
     path: '/chat-assistant',
     tool: 'operativi'

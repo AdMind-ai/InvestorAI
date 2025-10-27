@@ -41,7 +41,7 @@ const ChatAssistant: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<{ id: number | string; name: string; thread_id: string | null } | null>(null);
   const [conversationId, setConversationId] = useState<string>('');
 
-  const messageOfDescription = "Assistente privato per risposte rapide e sicure (anche per informazioni price sensitive). \n Chat basata su modelli GPT di ultima generazione, in ambiente privato dedicato alla tua azienda. I dati restano sul tuo server: non vengono condivisi né usati per addestrare modelli pubblici. Modalità prudente con parametri conservativi e controlli di coerenza: quando non è certa l’AI lo dichiara e non inventa dati, riducendo le allucinazioni al minimo. Supporta upload di documenti/immagini e, con ricerca web, mostra le fonti."
+  const messageOfDescription = "Chat basata su modelli GPT di ultima generazione, in ambiente privato dedicato alla tua azienda. I dati restano sul tuo server: non vengono condivisi né usati per addestrare modelli pubblici. Modalità prudente con parametri conservativi e controlli di coerenza: quando non è certa l’AI lo dichiara e non inventa dati, riducendo le allucinazioni al minimo. Supporta upload di documenti/immagini e, con ricerca web, mostra le fonti."
 
 
   useEffect(() => {
