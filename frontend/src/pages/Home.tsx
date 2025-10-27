@@ -129,11 +129,11 @@ const Home: React.FC = () => {
                   <Typography component="span" fontStyle="italic" sx={{ fontSize: '16px' }} {...props} />
                 ),
                 ul: ({ ...props }) => (
-                  <List sx={{ listStyleType: 'disc', pl: 3, fontSize: '16px' }} {...props} />
+                  <List sx={{ listStyleType: 'disc', pl: 5, fontSize: '16px', mb: 2 }} {...props} />
                 ),
                 li: ({ ...props }) => (
                   <ListItem
-                    sx={{ display: 'list-item', py: 0.2, fontSize: '16px' }}
+                    sx={{ display: 'list-item', py: 0.3, fontSize: '16px' }}
                     {...props}
                   />
                 ),
