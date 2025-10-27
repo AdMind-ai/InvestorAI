@@ -4,6 +4,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  Link,
 } from '@mui/material'
 import Layout from '../layouts/Layout'
 import { useTheme } from '@mui/material/styles'
@@ -18,7 +19,7 @@ import { LinkedinPostProvider, useLinkedinPost } from '../context/LinkedinPostCo
 const EarningsContent: React.FC = () => {
   const theme = useTheme();
   const [selectedOption, setSelectedOption] = useState<string>('Traduttore');
-  const { flowType } = useLinkedinPost();
+  const { flowType, setFlowToPlan } = useLinkedinPost();
 
   const Options = [
     { title: 'Traduttore', content: '...' },
@@ -75,34 +76,50 @@ const EarningsContent: React.FC = () => {
         {/* Conteúdo principal */}
         <Box sx={{ display: 'flex', flexDirection: 'column', paddingTop: '1.5vw' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <ToggleButtonGroup
-              value={selectedOption}
-              exclusive
-              onChange={(_, newValue) => newValue && setSelectedOption(newValue)}
-              sx={{ display: 'flex', gap: 2, borderRadius: '12px', width: '98%' }}
-            >
-              {Options.map((option) => (
-                <ToggleButton
-                  key={option.title}
-                  value={option.title}
-                  sx={{
-                    borderRadius: '10px !important',
-                    padding: '8px 16px',
-                    fontWeight:
-                      selectedOption === option.title ? 'bold' : 'regular',
-                    height: 'calc(5.3vh)',
-                    color: theme.palette.text.primary,
-                    border: `1px solid ${theme.palette.grey[300]} !important`,
-                    '&.Mui-selected': {
-                      backgroundColor: theme.palette.primary.light,
-                      borderColor: `${theme.palette.primary.main} !important`,
-                    },
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '98%', gap: 2 }}>
+              <ToggleButtonGroup
+                value={selectedOption}
+                exclusive
+                onChange={(_, newValue) => newValue && setSelectedOption(newValue)}
+                sx={{ flex: 1, display: 'flex', gap: 2, borderRadius: '12px' }}
+              >
+                {Options.map((option) => (
+                  <ToggleButton
+                    key={option.title}
+                    value={option.title}
+                    sx={{
+                      borderRadius: '10px !important',
+                      padding: '8px 16px',
+                      fontWeight:
+                        selectedOption === option.title ? 'bold' : 'regular',
+                      height: 'calc(5.3vh)',
+                      color: theme.palette.text.primary,
+                      border: `1px solid ${theme.palette.grey[300]} !important`,
+                      '&.Mui-selected': {
+                        backgroundColor: theme.palette.primary.light,
+                        borderColor: `${theme.palette.primary.main} !important`,
+                      },
+                    }}
+                  >
+                    {option.title}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+
+              {/* Right-aligned link that opens the scheduled posts flow */}
+              {selectedOption === 'Post LinkedIn' && flowType !== 'plan' && (
+                <Link
+                  component="button"
+                  onClick={() => {
+                    setSelectedOption('Post LinkedIn');
+                    setFlowToPlan();
                   }}
+                  sx={{ px: 6, fontSize: '14px', textTransform: 'none' }}
                 >
-                  {option.title}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
+                  Post programmati
+                </Link>
+              )}
+            </Box>
           </Box>
 
           {selectedOption === 'Traduttore' && <Traduttore />}

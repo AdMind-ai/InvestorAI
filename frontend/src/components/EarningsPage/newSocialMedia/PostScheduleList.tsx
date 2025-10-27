@@ -199,14 +199,14 @@ const PostScheduleList = () => {
       <Box
         sx={{
           width: "100%",
-          height: "24vw",
+          minHeight: "22vw",
           display: "flex",
           flexDirection: "column",
           gap: 2,
         }}
       >
         {loading ? (
-          <Typography sx={{ color: '#666' }}>Caricamento...</Typography>
+          <CircularProgress size={24} sx={{ alignSelf: "center", mt: 10 }} />
         ) : currentPosts.length === 0 ? (
           <Box
             sx={{
@@ -375,7 +375,7 @@ const PostScheduleList = () => {
       </Box>
 
       {currentPosts.length > 0 && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 1, width: "100%" }}>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 2, width: "100%" }}>
           <Pagination
             count={Math.ceil(posts.length / postsPerPage) || 1}
             page={page}
