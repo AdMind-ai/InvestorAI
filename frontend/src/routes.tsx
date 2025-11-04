@@ -16,6 +16,7 @@ import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 import RestrictedRoute from './components/RestrictedRoute'
 import Avatar from './pages/Avatar'
+import MarketIntelligence from './pages/MarketIntelligence'
 export const ALL_APP_ROUTES: string[] = [
   "/market-intelligence",
   "/chat-assistant",
@@ -44,7 +45,7 @@ const AppRoutes = () => {
             <Route path="/market-intelligence"
               element={
                 <RestrictedRoute routeName="/market-intelligence">
-                  <Market />
+                  <MarketIntelligence />
                 </RestrictedRoute>
               }
             />

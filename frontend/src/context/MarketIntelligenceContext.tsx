@@ -1,4 +1,8 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { fetchWithAuth } from "../api/fetchWithAuth";
+import { toast } from "react-toastify";
+import { RelatedCompany } from "../interfaces/market";
+import { fetchCompetitors } from "../api/marketApi";
 
 type Company = {
   name: string;
@@ -8,9 +12,15 @@ type Company = {
 };
 
 type CompaniesShape = {
-  competitors: Company[];
-  clients: Company[];
-  fornitori: Company[];
+  competitors: RelatedCompany[];
+  clients: RelatedCompany[];
+  fornitori: RelatedCompany[];
+};
+
+const KIND_MAP: Record<string, string> = {
+  competitors: "competitor",
+  clients: "client",
+  fornitori: "fornitori"
 };
 
 type Preference = { enabled: boolean; relevance: "high" | "medium" | "low" };
@@ -34,7 +44,7 @@ type MarketIntelligenceState = {
   setEmail: (v: string) => void;
   setPreferences: (p: Preferences) => void;
   addCompany: (category: keyof CompaniesShape, company: Company) => boolean; // returns true if added
-  removeCompany: (category: keyof CompaniesShape, index: number) => void;
+  removeCompany: (companyName: string | null, category: keyof CompaniesShape) => void;
   totalCompanies: () => number;
 };
 
@@ -50,13 +60,13 @@ const defaultState: MarketIntelligenceState = {
     fornitori: { enabled: true, relevance: 'high' },
   },
   email: "",
-  setSectorDescription: () => {},
-  setKeywords: () => {},
-  setLinks: () => {},
-  setEmail: () => {},
-  setPreferences: () => {},
+  setSectorDescription: () => { },
+  setKeywords: () => { },
+  setLinks: () => { },
+  setEmail: () => { },
+  setPreferences: () => { },
   addCompany: () => false,
-  removeCompany: () => {},
+  removeCompany: () => { },
   totalCompanies: () => 0,
 };
 
@@ -77,15 +87,93 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
 
   const totalCompanies = () => companies.competitors.length + companies.clients.length + companies.fornitori.length;
 
+  const fetchRalatedCompanies = async () => {
+    const companies = await fetchCompetitors();
+
+    const companiesByKind: {
+      competitors: RelatedCompany[];
+      clients: RelatedCompany[];
+      fornitori: RelatedCompany[];
+    } = {
+      competitors: [],
+      clients: [],
+      fornitori: [],
+    };
+
+    companies.forEach((c) => {
+      if (c.kind === "competitor") companiesByKind.competitors.push(c);
+      else if (c.kind === "client") companiesByKind.clients.push(c);
+      else if (c.kind === "fornitori") companiesByKind.fornitori.push(c);
+    });
+
+    setCompanies(companiesByKind);
+  };
+
   const addCompany = (category: keyof CompaniesShape, company: Company) => {
     if (!company?.name || totalCompanies() >= 20) return false;
-    setCompanies((prev) => ({ ...prev, [category]: [...prev[category], company] }));
+
+    try {
+      const formData = new FormData();
+      formData.append('name', company.name);
+      if (company.stock) formData.append('stock_symbol', company.stock);
+      if (company.website) formData.append('website', company.website);
+      if (company.sectors) formData.append('sectors', JSON.stringify(company.sectors));
+      formData.append('kind', KIND_MAP[category]);
+
+      fetchWithAuth('/openai/competitors-search/', {
+        method: 'POST',
+        body: formData,
+      }).then(async (response) => {
+        if (response.status === 200) {
+          toast.success("Competitor aggiunto/aggiornato con successo!");
+          fetchRalatedCompanies();
+
+        } else {
+          const resp = await response.json();
+          toast.error(resp?.error ?? "Errore nell'aggiungere il concorrente");
+          return false;
+        }
+      });
+
+    } catch (e) {
+      toast.error("Errore nell'aggiungere il concorrente");
+      console.error(e);
+      return false;
+    }
+
     return true;
   };
 
-  const removeCompany = (category: keyof CompaniesShape, index: number) => {
-    setCompanies((prev) => ({ ...prev, [category]: prev[category].filter((_, i) => i !== index) }));
+  const removeCompany = async (companyName: string | null, category: keyof CompaniesShape) => {
+    if (!companyName) return;
+
+    try {
+      const response = await fetchWithAuth("/openai/competitors-search/", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: companyName,
+          kind: KIND_MAP[category],
+        }),
+      });
+
+      if (response.status === 200) {
+        toast.success(`${category.slice(0, -1)} "${companyName}" eliminato con successo!`);
+        fetchRalatedCompanies(); // atualiza lista
+      } else {
+        const resp = await response.json();
+        toast.error(resp?.error ?? "Errore nella cancellazione");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Errore nella cancellazione");
+    } finally {
+    }
   };
+
+  useEffect(() => {
+    fetchRalatedCompanies();
+  }, []);
 
   return (
     <MarketIntelligenceContext.Provider

@@ -8,6 +8,14 @@ class CompanyInfo(models.Model):
     website = models.URLField(blank=True, null=True)
     description = models.TextField(blank=True)
     sector = models.CharField(max_length=255, blank=True)
+    sector_keywords = models.JSONField(
+        blank=True, null=True, default=list,
+        help_text="List of keywords describing the company's sector."
+    )
+    sector_websites = models.JSONField(
+        blank=True, null=True, default=list,
+        help_text="List of custom URLs provided by the user for sector intelligence."
+    )
     country = models.CharField(max_length=64, blank=True)
     state = models.CharField(max_length=64, blank=True)
     city = models.CharField(max_length=64, blank=True)

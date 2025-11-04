@@ -1,15 +1,18 @@
 import React from 'react';
-import { Box, Typography, Table, TableHead, TableRow, TableCell, TableBody, Stack, Paper, Pagination, Button, Menu, MenuItem, IconButton, PaginationItem } from "@mui/material";
+import { Box, Typography, Table, TableHead, TableRow, TableCell, TableBody, Stack, Paper, Pagination, Menu, MenuItem, IconButton, PaginationItem } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CheckIcon from '@mui/icons-material/Check';
 
 type Article = {
-    id: number;
-    date: string; // ISO
+    id?: number;
+    company?: string;
+    type?: string;
     title: string;
-    relevance: 'high' | 'medium' | 'low';
-    category: string;
     url?: string;
+    category: string;
+    relevance: 'high' | 'medium' | 'low' | '';
+    date_published: string; // ISO
+    created_at?: string;
 };
 
 function format(d: Date) {
@@ -24,6 +27,7 @@ function RelevanceChip({ r, cellFontSize = '14px' }: { r: Article['relevance']; 
         high: { label: 'Alta', color: '#D32F2F' },
         medium: { label: 'Media', color: '#F57C00' },
         low: { label: 'Bassa', color: '#0288D1' },
+        '': { label: 'N/A', color: '#757575' },
     };
     const m = map[r];
     return (
@@ -91,7 +95,7 @@ const NewsTable: React.FC<Props> = ({ articles, page, onPageChange, pageCount = 
                 <TableBody>
                     {articles.map((a) => (
                         <TableRow key={a.id} hover sx={{ backgroundColor: '#fff' }}>
-                            <TableCell sx={{ verticalAlign: 'middle', fontSize: cellFontSize }}>{format(new Date(a.date))}</TableCell>
+                            <TableCell sx={{ verticalAlign: 'middle', fontSize: cellFontSize }}>{format(new Date(a.date_published))}</TableCell>
                             <TableCell>
                                 <a href={a.url || '#'} style={{ color: '#1976d2', textDecoration: 'underline', fontSize: cellFontSize as any }}>{a.title}</a>
                             </TableCell>
@@ -102,7 +106,7 @@ const NewsTable: React.FC<Props> = ({ articles, page, onPageChange, pageCount = 
                 </TableBody>
             </Table>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Pagination
                     count={pageCount}
                     page={page}

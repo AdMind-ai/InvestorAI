@@ -10,7 +10,6 @@ from azure.storage.blob import BlobServiceClient
 from core.utils.deepl_translation import DeeplTranslation
 import logging
 import os
-from core.utils.get_company_info import get_competitors
 from core.models.company_info.company_info import CompanyInfo
 from core.models.market_article_model import MarketNewsArticle
 import requests
@@ -19,10 +18,6 @@ from datetime import datetime, timedelta, timezone
 from celery import shared_task
 
 from openai import OpenAI
-from pydantic import ValidationError
-from core.models.competitor_model import Competitor, CompetitorSearch
-from core.models.company_info import CompetitorInfo as CompanyCompetitors
-from typing import List
 from pydantic import BaseModel
 from django.db import transaction
 
@@ -43,7 +38,6 @@ from core.models.esg_article_model import ESGArticle
 from core.utils.cron.esg_news import generate_openai_system, generate_openai_prompt
 
 from core.models.openai_chat_models import ChatMessage
-from core.models.company_info import CompetitorInfo
 
 from core.utils.tasks.collect_market_news import parse_news_date, safe_load_json
 
@@ -54,47 +48,47 @@ def minha_task():
     print("Executando função a cada minuto!")
     return True
 
-@shared_task(bind=True)
-def collect_market_news(self, news_type):
-    assert news_type in ["sector", "competitors"], "Invalid news type."
+# @shared_task(bind=True)
+# def collect_market_news(self, news_type):
+#     assert news_type in ["sector", "competitors"], "Invalid news type."
 
-    companies = CompanyInfo.objects.all()
-    total_subtasks = 0
+#     companies = CompanyInfo.objects.all()
+#     total_subtasks = 0
 
-    for company in companies:
-        if news_type == "sector":
-            # dispara só por empresa
-            collect_market_news_for_company.delay(company.id, news_type)
-            total_subtasks += 1
+#     for company in companies:
+#         if news_type == "sector":
+#             # dispara só por empresa
+#             collect_market_news_for_company.delay(company.id, news_type)
+#             total_subtasks += 1
 
-        elif news_type == "competitors":
-            # busca competidores dessa empresa
-            competitors = CompetitorInfo.objects.filter(
-                company=company
-            ).exclude(website__isnull=True).exclude(website="")
+#         elif news_type == "competitors":
+#             # busca competidores dessa empresa
+#             competitors = CompetitorInfo.objects.filter(
+#                 company=company
+#             ).exclude(website__isnull=True).exclude(website="")
 
-            if competitors.exists():
-                logger.info(f"[{company.short_name}] Found {competitors.count()} competitors:")
-                for competitor in competitors:
-                    logger.info(f"  - Competitor: {competitor.name}, Website: {competitor.website}")
-                    collect_market_news_for_company.delay(
-                        company.id,
-                        news_type,
-                        competitor_website=competitor.website
-                    )
-                    total_subtasks += 1
-            else:
-                logger.info(f"[{company.short_name}] No competitors with website found.")
+#             if competitors.exists():
+#                 logger.info(f"[{company.short_name}] Found {competitors.count()} competitors:")
+#                 for competitor in competitors:
+#                     logger.info(f"  - Competitor: {competitor.name}, Website: {competitor.website}")
+#                     collect_market_news_for_company.delay(
+#                         company.id,
+#                         news_type,
+#                         competitor_website=competitor.website
+#                     )
+#                     total_subtasks += 1
+#             else:
+#                 logger.info(f"[{company.short_name}] No competitors with website found.")
 
-    logger.info(f"All companies queued for type {news_type} | Total subtasks: {total_subtasks}")
+#     logger.info(f"All companies queued for type {news_type} | Total subtasks: {total_subtasks}")
 
-    return {
-        "success": True,
-        "news_type": news_type,
-        "total_companies": companies.count(),
-        "total_subtasks": total_subtasks,
-        "message": "Subtasks dispatched successfully"
-    }
+#     return {
+#         "success": True,
+#         "news_type": news_type,
+#         "total_companies": companies.count(),
+#         "total_subtasks": total_subtasks,
+#         "message": "Subtasks dispatched successfully"
+#     }
 
 
 
@@ -203,122 +197,6 @@ def collect_market_news_for_company(self, company_id, news_type, competitor_webs
     })
 
     return result_all
-
-
-class CompetitorInfoSchema(BaseModel):
-    company: str
-    logo: str
-    sectors: List[str]
-    description: str
-    website: str
-    stock_symbol: str
-
-
-class CompetitorInfoListSchema(BaseModel):
-    date: str
-    competitors: List[CompetitorInfoSchema]
-
-
-@shared_task
-def fetch_and_store_competitors():
-    results = []
-    for company in CompanyInfo.objects.all():
-        company_name = company.short_name
-        competitors = get_competitors(company)
-        competitor_names = [c.name for c in competitors if c.name]
-        competitor_block = "\n".join(competitor_names)
-
-        if not company_name:
-            results.append(
-                {"company": company.long_name, "error": "Company name is required."})
-            continue
-
-        prompt = f"""
-        Identify at least 3 and max of 20 major competitors of {company_name}. For each competitor, provide:
-        - Company Name
-        - Official Logo URL (format: "https://logo.clearbit.com/companydomain.com")
-        - Business Sectors (e.g., Technology, Finance, etc.)
-        - Brief Description
-        - Official Website URL
-        - stock_symbol (if exists, else empty)
-
-        Include those competitors:
-        {competitor_block}
-        """
-
-        try:
-            completion = client.beta.chat.completions.parse(
-                model="gpt-4o-search-preview",
-                messages=[
-                    {"role": "system",
-                        "content": "Extract competitor information from the web."},
-                    {"role": "user", "content": prompt},
-                ],
-                response_format=CompetitorInfoListSchema,
-            )
-            competitor_info = completion.choices[0].message.parsed.model_dump()
-
-            search_record = CompetitorSearch.objects.create(
-                company_name=company_name,
-                sector=company.sector
-            )
-
-            competitors_returned = []
-            for competitor in competitor_info['competitors']:
-                comp_instance = Competitor.objects.create(
-                    search=search_record,
-                    competitor=competitor['company'],
-                    logo=competitor['logo'],
-                    sectors=competitor['sectors'],
-                    description=competitor['description'],
-                    website=competitor['website'],
-                )
-                competitors_returned.append({
-                    "company": comp_instance.competitor,
-                    "logo": comp_instance.logo,
-                    "sectors": comp_instance.sectors,
-                    "description": comp_instance.description,
-                    "website": comp_instance.website,
-                })
-
-            for competitor in competitor_info['competitors']:
-                company_kwargs = {
-                    "company": company,
-                    "name": competitor.get('company'),
-                    "stock_symbol": competitor.get('stock_symbol', ''),
-                    "sectors_company": company.sector or '',
-                    "website": competitor.get('website', ''),
-                    "logo": competitor.get('logo', ''),
-                    "sectors_competitor": competitor.get('sectors', []),
-                    "description": competitor.get('description', ''),
-                }
-                obj, created = CompanyCompetitors.objects.get_or_create(
-                    company=company,
-                    name=company_kwargs['name'],
-                    defaults=company_kwargs
-                )
-                if not created:
-                    for k, v in company_kwargs.items():
-                        setattr(obj, k, v)
-                    obj.save()
-
-            results.append({
-                "success": True,
-                "company": company_name,
-                "date": search_record.search_date.isoformat(),
-                "competitors": competitors_returned,
-                "message": "Competitor search completed successfully."
-            })
-
-        except ValidationError as e:
-            results.append(
-                {"success": False, "company": company_name, "error": str(e)})
-        except Exception as e:
-            results.append(
-                {"success": False, "company": company_name, "error": str(e)})
-
-    return results
-
 
 class CompanyStockInfo(BaseModel):
     short_term_forecast: Optional[str]

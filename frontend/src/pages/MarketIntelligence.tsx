@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MarketIntelligenceProvider } from "../context/MarketIntelligenceContext";
 import WelcomeModal from "../components/MarketIntelligence/WelcomeModal";
 import CustomizeSectorModal from "../components/MarketIntelligence/CustomizeSectorModal";
@@ -9,14 +9,18 @@ import MarketIntelligenceResults from "../components/MarketIntelligence/MarketIn
 import Layout from "../layouts/Layout";
 
 const MarketIntelligence = () => {
-    // step: 0=welcome,1=customize,2=companies,3=email,4=loading,5=results,6=closed
+    // step: 0=welcome,1=customize,2=companies,3=email,4=loading,5=results
     const [step, setStep] = useState<number>(0);
     const [open, setOpen] = useState<boolean>(true);
 
-    const closeAll = () => {
-        setOpen(false);
-        setStep(6);
-    };
+    // const closeAll = () => {
+    //     setOpen(false);
+    //     setStep(6);
+    // };
+
+    useEffect(() => {
+        setStep(5)
+    }, []);
 
     return (
         <Layout>

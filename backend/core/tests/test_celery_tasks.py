@@ -1,4 +1,4 @@
-from core.tasks import (
+from backend.core.tasks.tasks import (
     collect_market_news,
     fetch_and_store_competitors,
     fetch_and_store_daily_company_stock_data,

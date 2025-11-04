@@ -1,7 +1,7 @@
 // src/api/marketApi.ts
 
 import { api } from './api';
-import type { StockData, HistoryInfo, HistoryDataItem, RawHistoryDataItem, CompanyInfo, Article, Competitor } from '../interfaces/market';
+import type { StockData, HistoryInfo, HistoryDataItem, RawHistoryDataItem, CompanyInfo, Article, RelatedCompany } from '../interfaces/market';
 
 
 // 1. Buscar company info
@@ -48,10 +48,10 @@ export async function fetchQuarterlyReport(
 }
 
 // 5. Buscar concorrentes
-export async function fetchCompetitors(): Promise<Competitor[]> {
+export async function fetchCompetitors(): Promise<RelatedCompany[]> {
   const response = await api.get('/openai/competitors-search/');
-  // Retorna o array do objeto .competitors
-  return response.data?.competitors ?? [];
+  // Retorna o array do objeto
+  return response.data?.related_companies ?? [];
 }
 
 // 6. Buscar notícias

@@ -8,7 +8,7 @@ from core.models.market_article_model import MarketNewsArticle
 from core.models.market_company_report import CompanyMarketReport
 from core.models.company_stock_data_model import CompanyStockData
 from core.models.company_quarterly_report import CompanyQuarterlyReport
-from core.models.company_info import CompanyInfo, CEO, CompetitorInfo
+from core.models.company_info import CompanyInfo, CEO, RelatedCompany
 from core.models.company_info.company_route_restriction import CompanyRouteRestriction
 from core.models.frontend_master_route_list import MasterRouteList
 from django import forms
@@ -159,7 +159,7 @@ class CompanyQuarterlyReportAdmin(admin.ModelAdmin):
 
 
 class CompetitorInline(admin.TabularInline):
-    model = CompetitorInfo
+    model = RelatedCompany
     extra = 0
 
 
@@ -174,10 +174,9 @@ class CompanyAdmin(admin.ModelAdmin):
     inlines = [CompetitorInline, CEOInline]
 
 
-@admin.register(CompetitorInfo)
+@admin.register(RelatedCompany)
 class CompetitorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'stock_symbol',
-                    'sectors_competitor', 'company', 'created_at')
+    list_display = ('name', 'kind', 'stock_symbol', 'sectors', 'company', 'created_at')
 
 
 @admin.register(CEO)
