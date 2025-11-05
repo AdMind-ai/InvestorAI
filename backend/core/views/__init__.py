@@ -9,6 +9,7 @@ from .newsapi import NewsApiMarketNewsView
 from .market_news_setup_view import MarketNewsSetupView
 from .market_sector_news_view import MarketSectorNewsTriggerView, MarketSectorNewsAllTriggerView, MarketSectorNewsStatusView
 from .market_competitors_news_view import MarketCompetitorsNewsTriggerView, MarketCompetitorsNewsAllTriggerView, MarketCompetitorsNewsStatusView
+from .market_report_monthly_view import MarketMonthlyReportTriggerView, MarketMonthlyReportStatusView, MarketMonthlyReportLatestView
 
 from .perplexity import PerplexityDeepSearchView
 from .perplexity import PerplexityESGNewsView
@@ -61,6 +62,9 @@ __all__ = [
     'MarketCompetitorsNewsTriggerView',
     'MarketCompetitorsNewsAllTriggerView',
     'MarketCompetitorsNewsStatusView',
+    'MarketMonthlyReportTriggerView',
+    'MarketMonthlyReportStatusView',
+    'MarketMonthlyReportLatestView',
     
     'NewsApiMarketNewsView',
     'PerplexityDeepSearchView',

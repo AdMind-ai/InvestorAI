@@ -5,6 +5,7 @@ from .views import *
 from .views.summary_news_view import SummaryNewsListView
 from .views.openai.linkedin_post_view import LinkedinPostView
 from .views.openai.linkedin_scheduled_post_view import LinkedinScheduledPostView
+from .views.market_news_alert_preference_view import MarketNewsAlertPreferenceView
 
 router = DefaultRouter()
 router.register(r'articles', CombinedArticleViewSet, basename='articles')
@@ -27,6 +28,7 @@ urlpatterns = [
      path("company-info/marketing-setup/", 
           MarketNewsSetupView.as_view(), name="marketing-setup"),
      
+     # Market Intelligence - Sector News
      path('market-sector-news/company/', 
           MarketSectorNewsTriggerView.as_view(),
           name='market-sector-news-company'),
@@ -37,6 +39,7 @@ urlpatterns = [
           MarketSectorNewsStatusView.as_view(), 
           name='market-sector-news-status'),
      
+     # Market Intelligence - Competitors News
      path('market-competitors-news/company/', 
           MarketCompetitorsNewsTriggerView.as_view(),
           name='market-competitors-news-company'),
@@ -46,6 +49,29 @@ urlpatterns = [
      path('market-competitors-news/status/<str:task_id>/', 
           MarketCompetitorsNewsStatusView.as_view(), 
           name='market-competitors-news-status'),
+     
+     # Market Intelligence - Summary
+     path('market-summary-news/', SummaryNewsListView.as_view(), name='market-summary-news'),
+
+     # Market Intelligence - Task Monthly Report
+     path('market-monthly-report/company/', 
+          MarketMonthlyReportTriggerView.as_view(),
+          name='market-monthly-report-company'),
+     path('market-monthly-report/status/<str:task_id>/', 
+          MarketMonthlyReportStatusView.as_view(), 
+          name='market-monthly-report-status'),
+     
+     # Market Intelligence - Monthly Report
+     path('market-monthly-report/task/', 
+          MarketMonthlyReportTriggerView.as_view(), name='market-monthly-report-task'),
+     path('market-monthly-report/status/<str:task_id>/', 
+          MarketMonthlyReportStatusView.as_view(), name='market-monthly-report-status'),
+     path('market-monthly-report/latest/', 
+          MarketMonthlyReportLatestView.as_view(), name='market-monthly-report-latest'),
+     
+     # Market Intelligence - Alert Preferences (email + categories)
+     path('market-alert-preferences/', MarketNewsAlertPreferenceView.as_view(),
+          name='market-alert-preferences'),
 
     
      path('perplexity/deep-search/',
@@ -93,10 +119,7 @@ urlpatterns = [
           name='openai-chat-create-conversation'),
      path('openai/chat/save-conversation/', SaveConversationView.as_view(),
           name='openai/chat/save-conversation'),
-
-     # Market Intelligence - Summary
-     path('market-summary-news/', SummaryNewsListView.as_view(), name='market-summary-news'),
-
+     
      # Stocks
      path('stocks/company-info/', CompanyInfoView.as_view(), name='company-info'),
      path('stocks/history/', StockDataView.as_view(), name='stock-data'),

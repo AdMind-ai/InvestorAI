@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django import forms
 from core.models.openai_ceo_conversaitons_model import CEOConversation
 from core.models.esg_article_model import ESGArticle
 from core.models.ceo_article_model import CEOArticle
@@ -12,8 +13,8 @@ from core.models.company_info import CompanyInfo, CEO, RelatedCompany
 from core.models.company_info.company_route_restriction import CompanyRouteRestriction
 from core.models.frontend_master_route_list import MasterRouteList
 from core.models.summary_news_model import SummaryNewsArticle
-from django import forms
 from core.models.linkedin_scheduled_post import LinkedinScheduledPost
+from core.models.market_news_alert_preference import MarketNewsAlertPreference
 # Register your models here.
 
 
@@ -208,3 +209,12 @@ class SummaryNewsArticleAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
     list_per_page = 25
+    
+@admin.register(MarketNewsAlertPreference)
+class MarketNewsAlertPreferenceAdmin(admin.ModelAdmin):
+    list_display = ('company', 'email', 'category', 'enabled', 'relevance', 'created_at')
+    search_fields = ('email', 'company__long_name')
+    list_filter = ('category', 'enabled', 'relevance', 'company')
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)
+    list_per_page = 10

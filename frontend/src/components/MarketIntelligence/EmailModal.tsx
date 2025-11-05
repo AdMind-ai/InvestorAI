@@ -17,17 +17,18 @@ const style = {
 };
 
 export default function EmailModal({ open, onClose, onNext, onBack }: Props) {
-    const { email, setEmail, preferences, setPreferences } = useMarketIntelligence();
+    const { email, preferences, saveAlertPreferences } = useMarketIntelligence();
     const [localEmail, setLocalEmail] = useState<string>(email || "");
     const [error, setError] = useState<string | null>(null);
     const [localPrefs, setLocalPrefs] = useState(preferences);
+    const [saving, setSaving] = useState(false);
 
     const validateEmail = (e: string) => {
         // simple email regex
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!localEmail) {
             setError("Inserisci un'email valida");
             return;
@@ -36,9 +37,10 @@ export default function EmailModal({ open, onClose, onNext, onBack }: Props) {
             setError("Formato email non valido");
             return;
         }
-        setPreferences(localPrefs);
-        setEmail(localEmail);
-        onNext();
+        setSaving(true);
+        const ok = await saveAlertPreferences(localEmail, localPrefs);
+        setSaving(false);
+        if (ok) onNext();
     };
 
     const onToggleCategory = (cat: keyof typeof localPrefs) => {
@@ -68,7 +70,7 @@ export default function EmailModal({ open, onClose, onNext, onBack }: Props) {
                     </Box>
 
                     <Stack spacing={1} sx={{ mt: 3 }}>
-                        {(['sector', 'competitors', 'clients', 'fornitori'] as const).map((cat) => (
+                        {(['sector', 'competitor', 'client', 'fornitori'] as const).map((cat) => (
                             <Box key={cat}>
                                 <Stack direction="row" alignItems="center" spacing={2}>
                                     <FormControlLabel
@@ -147,7 +149,7 @@ export default function EmailModal({ open, onClose, onNext, onBack }: Props) {
 
                 <Stack direction="row" spacing={2} justifyContent="center">
                     <Button variant="outlined" onClick={() => (onBack ? onBack() : onClose())}>Annulla</Button>
-                    <Button variant="contained" onClick={handleSubmit}>Inizia</Button>
+                    <Button variant="contained" onClick={handleSubmit} disabled={saving}>{saving ? 'Salvando...' : 'Inizia'}</Button>
                 </Stack>
             </Box>
         </Modal>

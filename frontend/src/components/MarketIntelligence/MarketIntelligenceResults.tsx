@@ -23,7 +23,7 @@ export default function MarketIntelligenceResults() {
 
     const {
         summaries, summariesLoading, loadSummaries, summariesTotal, summariesPageSize,
-        newsArticles, newsLoading, loadNews
+        newsArticles, newsLoading, loadNews, overviewReport
     } = useMarketIntelligence();
     const [error, setError] = useState<string | null>(null);
 
@@ -264,7 +264,7 @@ export default function MarketIntelligenceResults() {
 
 
             <Box sx={{ display: "flex", p: 4 }}>
-                <MarketOverviewReport />
+                <MarketOverviewReport overviewReport={overviewReport}/>
             </Box>
         </Box>
     );

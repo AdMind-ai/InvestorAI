@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import '../../styles/markdown.css';
 
 type Props = {
   overviewReport?: string;
@@ -29,6 +31,7 @@ const MarketOverviewReport = ({ overviewReport = "", onExport }: Props) => {
         </Typography>
         <Button
           variant="outlined"
+          disabled={!onExport || isLoadingExport}
           startIcon={isLoadingExport ? null : <OpenInNewIcon />}
           onClick={handleExportReport}
           sx={{
@@ -50,9 +53,11 @@ const MarketOverviewReport = ({ overviewReport = "", onExport }: Props) => {
         </Button>
       </Box>
 
-      <Box sx={{ mt: 1, overflow: 'auto'}}>
+      <Box sx={{ mt: 1, overflow: 'auto' }}>
         <div className="markdown-body">
-          <ReactMarkdown>{overviewReport || "Nessun report disponibile al momento."}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {overviewReport || "- Nessun rapporto disponibile."}
+          </ReactMarkdown>
         </div>
       </Box>
     </Box>
