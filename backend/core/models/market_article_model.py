@@ -33,8 +33,8 @@ class MarketNewsArticle(models.Model):
     relevance = models.CharField(max_length=6, choices=RELEVANCE_CHOICES, null=True, blank=True)
 
     class Meta:
-        verbose_name = "Article - Market News"
-        verbose_name_plural = "Articles - Market News"
+        verbose_name = "Market News - Article"
+        verbose_name_plural = "Market News - Articles"
 
     def __str__(self):
         return self.title

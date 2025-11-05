@@ -1,24 +1,17 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Stack, ToggleButton, ToggleButtonGroup, Tabs, Tab, CircularProgress } from "@mui/material";
+import { Box, Typography, Stack, ToggleButton, ToggleButtonGroup, CircularProgress, Pagination } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import MarketOverviewReport from "./MarketOverviewReport";
 import NewsTable from "./Results/NewsTable";
-import { fetchWithAuth } from "../../api/fetchWithAuth";
+import { useMarketIntelligence } from "../../context/MarketIntelligenceContext";
+import SummaryCard from "./Summary/SummaryCard";
+import LinksModal from "../common/LinksModal";
 
-type Article = {
-    id?: number;
-    company?: string;
-    type?: string;
-    title: string;
-    url?: string;
-    category: string;
-    relevance: 'high' | 'medium' | 'low' | '';
-    date_published: string; // ISO
-    created_at?: string;
-};
+type Category = 'Settore' | 'Competitors' | 'Clienti' | 'Fornitori';
 
 const CATEGORY_MAP: Record<string, string> = {
     "Settore": "sector",
-    "Competitors": "competitor",
+    "Competitors": "competitor", // model values are singular
     "Clienti": "client",
     "Fornitori": "fornitori"
 };
@@ -27,49 +20,30 @@ export default function MarketIntelligenceResults() {
     const messageOfDescription =
         "Market Intelligence raccoglie le notizie più rilevanti del settore e dei competitor e propone report sintetici con indicatori chiave. Una guida efficace per individuare trend emergenti, opportunità e rischi e prendere decisioni strategiche tempestive.";
 
-    const [articles, setArticles] = useState<Article[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const {
+        summaries, summariesLoading, loadSummaries, summariesTotal, summariesPageSize,
+        newsArticles, newsLoading, loadNews
+    } = useMarketIntelligence();
     const [error, setError] = useState<string | null>(null);
 
-    const [category, setCategory] = useState<string>("Settore");
-    const [tab, setTab] = useState<number>(1);
+    const [category, setCategory] = useState<Category>("Settore");
+    type TabKey = 'summary' | 'news' | 'overview';
+    const [tab, setTab] = useState<TabKey>('news');
     const [page, setPage] = useState<number>(1);
     const [columnCategoryFilter, setColumnCategoryFilter] = useState<string>("Tutte");
 
     const itemsPerPage = 9;
     const categories = ["Settore", "Competitors", "Clienti", "Fornitori"];
 
-    // 🧠 Busca inicial de notícias
+    // 🧠 Busca inicial de notícias e resumos via contexto
     useEffect(() => {
-        const fetchArticles = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const params = new URLSearchParams({
-                    type: CATEGORY_MAP[category],
-                });
-                const response = await fetchWithAuth(`/newsapi/market-news/?${params}`, {
-                    method: "GET"
-                });
-
-                if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
-                const data = await response.json();
-
-                setArticles(data.articles || []);
-            } catch (err: any) {
-                if (err.name !== "AbortError") {
-                    console.error("Erro ao buscar notícias:", err);
-                    setError("Erro ao carregar notícias.");
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchArticles();
+        setError(null);
+        loadNews(category);
+        loadSummaries({ type: CATEGORY_MAP[category] as any, page: 1, pageSize: 8 });
+        setPage(1);
     }, [category]);
 
-    const handleCategory = (_: React.MouseEvent<HTMLElement>, val: string | null) => {
+    const handleCategory = (_: React.MouseEvent<HTMLElement>, val: Category | null) => {
         if (val) {
             setCategory(val);
             setPage(1);
@@ -77,12 +51,12 @@ export default function MarketIntelligenceResults() {
         }
     };
 
-    const handleTab = (_: React.SyntheticEvent, v: number) => {
-        setTab(v);
+    const handleTab = (_: React.MouseEvent<HTMLElement>, v: TabKey | null) => {
+        if (v) setTab(v);
     };
 
     // 🔎 Filtros (cliente-side)
-    const filteredByTop = articles.filter((m) =>
+    const filteredByTop = newsArticles.filter((m) =>
         category === "Settore"
             ? true
             : m.type?.toLowerCase() === CATEGORY_MAP[category]?.toLowerCase()
@@ -101,6 +75,15 @@ export default function MarketIntelligenceResults() {
     }, [totalPages]);
 
     const pagedArticles = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+    // Summary pagination uses backend totals
+    const summaryTotalPages = Math.max(1, Math.ceil((summariesTotal || 0) / summariesPageSize));
+    const handleSummaryPageChange = (_: React.ChangeEvent<unknown>, p: number) => {
+        setPage(p);
+        loadSummaries({ type: CATEGORY_MAP[category] as any, page: p, pageSize: summariesPageSize });
+    };
+
+    const [linksModal, setLinksModal] = useState<{ open: boolean; links: string[]; title?: string }>({ open: false, links: [] });
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", overflow: "auto", height: "100%", width: "100%" }}>
@@ -149,58 +132,125 @@ export default function MarketIntelligenceResults() {
                 </ToggleButtonGroup>
             </Box>
 
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 4 }}>
+            {/* Tabs-like segmented control + content box */}
+            <Box sx={{ px: 4, mt: 1 }}>
                 <Stack direction="row" alignItems="center">
-                    <Tabs value={tab} onChange={handleTab} aria-label="mi-tabs">
-                        <Tab label="Riassunti" />
-                        <Tab label="Notizie" />
-                        <Tab label="Overview" />
-                    </Tabs>
+                    <ToggleButtonGroup
+                        value={tab}
+                        exclusive
+                        onChange={handleTab}
+                        size="small"
+                        sx={{
+                            bgcolor: "transparent",
+                            gap: 2,
+                            '& .MuiToggleButtonGroup-grouped': {
+                                borderRadius: 2,
+                                border: 'none',
+                                textTransform: 'none',
+                                padding: '8px 18px',
+                                fontSize: '16px',
+                                backgroundColor: '#FFFFFF',
+                                '&.Mui-selected': {
+                                    border: '1px solid #E5E7EB',
+                                    backgroundColor: '#FFFFFF',
+                                    borderBottomColor: 'transparent',
+                                    position: 'relative',
+                                    zIndex: 1,
+                                    '&::after': {
+                                        content: '""',
+                                        position: 'absolute',
+                                        // Extend slightly beyond the button edges to cover any anti-aliasing gaps
+                                        left: -3,
+                                        right: -3,
+                                        bottom: -1,
+                                        height: 7,
+                                        // Round the bottom corners to blend into the panel's top edge
+                                        borderBottomLeftRadius: 12,
+                                        borderBottomRightRadius: 12,
+                                        backgroundColor: '#FFFFFF',
+                                        pointerEvents: 'none'
+                                    }
+                                },
+                            },
+                        }}
+                    >
+                        <ToggleButton value="summary">Riassunti</ToggleButton>
+                        <ToggleButton value="news">Notizie</ToggleButton>
+                        <ToggleButton value="overview">Overview</ToggleButton>
+                    </ToggleButtonGroup>
                 </Stack>
-            </Box>
 
-            {loading &&
+                {/* Content box visually attached to the selected tab */}
                 <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    mt: 5
+                    border: '1px solid #E5E7EB',
+                    borderRadius: 3,
+                    borderTopLeftRadius: 0,
+                    borderTopRightRadius: 0,
+                    p: 2,
+                    bgcolor: '#fff',
+                    position: 'relative',
+                    mt: -1,
                 }}>
-                    <CircularProgress></CircularProgress>
-                </Box>
-            }
+                    {(newsLoading || summariesLoading) && (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 3 }}>
+                            <CircularProgress />
+                        </Box>
+                    )}
 
-            {tab === 1 && (
-                <Box sx={{ px: 4, width: "100%" }}>
-                    {error && <Typography color="error">{error}</Typography>}
-                    {!loading && !error && (
-                        <NewsTable
-                            articles={pagedArticles}
-                            page={page}
-                            onPageChange={(v) => setPage(v)}
-                            pageCount={totalPages}
-                            categories={distinctCategories}
-                            columnFilter={columnCategoryFilter}
-                            onColumnFilterChange={(v) => {
-                                setColumnCategoryFilter(v);
-                                setPage(1);
-                            }}
-                            cellFontSize={"17px"}
-                        />
+                    {tab === 'summary' && (
+                        <Box sx={{ p: 2, width: "100%" }}>
+                            <Grid container spacing={2}>
+                                {summaries.map((s) => (
+                                    <Grid key={s.id} size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 4 }}>
+                                        <SummaryCard
+                                            title={s.title}
+                                            description={s.description}
+                                            relevance={s.relevance}
+                                            onRead={() => { /* optional: expand or route */ }}
+                                            onViewLinks={() => setLinksModal({ open: true, links: s.sources || [], title: s.title })}
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+
+                            <Stack direction="row" justifyContent="center" sx={{ mt: 2 }}>
+                                <Pagination color="primary" page={page} onChange={handleSummaryPageChange} count={summaryTotalPages} />
+                            </Stack>
+
+                            <LinksModal open={linksModal.open} onClose={() => setLinksModal({ open: false, links: [] })} title={linksModal.title} links={linksModal.links} />
+                        </Box>
+                    )}
+
+                    {tab === 'news' && (
+                        <Box sx={{ px: 2, width: "100%" }}>
+                            {error && <Typography color="error">{error}</Typography>}
+                            {!newsLoading && !error && (
+                                <NewsTable
+                                    articles={pagedArticles}
+                                    page={page}
+                                    onPageChange={(v) => setPage(v)}
+                                    pageCount={totalPages}
+                                    categories={distinctCategories}
+                                    columnFilter={columnCategoryFilter}
+                                    onColumnFilterChange={(v) => {
+                                        setColumnCategoryFilter(v);
+                                        setPage(1);
+                                    }}
+                                    cellFontSize={"17px"}
+                                />
+                            )}
+                        </Box>
+                    )}
+
+                    {tab === 'overview' && (
+                        <Box sx={{ px: 2, width: "100%" }}>
+                            <p>development overview</p>
+                        </Box>
                     )}
                 </Box>
-            )}
+            </Box>
 
-            {tab === 0 && (
-                <Box sx={{ px: 4, width: "100%" }}>
-                    <p>development summary</p>
-                </Box>
-            )}
-            {tab === 2 && (
-                <Box sx={{ px: 4, width: "100%" }}>
-                    <p>development overview</p>
-                </Box>
-            )}
+
 
             <Box sx={{ display: "flex", p: 4 }}>
                 <MarketOverviewReport />

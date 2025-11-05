@@ -5,6 +5,7 @@ from openai import OpenAI
 import os
 from core.models.market_article_model import MarketNewsArticle, MarketNewsSetup
 from core.utils.tasks.collect_market_news import parse_news_date, safe_load_json
+from core.tasks.market_summary_news_tasks import fetch_market_summary_new
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,7 @@ def fetch_market_sector_news_task(self, company_id=None):
             # 🔹 Lógica de contagem e salvamento
             news_found = len(extracted_info)
             news_saved = 0
+            session_news_items = []
 
             for new in extracted_info:
                 try:
@@ -111,6 +113,14 @@ def fetch_market_sector_news_task(self, company_id=None):
 
                     if created:
                         news_saved += 1
+                        # Coleta item salvo nesta execução para envio ao resumo
+                        session_news_items.append({
+                            "news_title": new.get("news_title", ""),
+                            "news_date": raw_date,
+                            "news_link": new.get("news_link"),
+                            "news_relevance": new.get("news_relevance", ""),
+                            "news_category": new.get("news_category", ""),
+                        })
                     else:
                         logger.info(f"→ Notícia já existente: {obj.title}")
 
@@ -119,6 +129,16 @@ def fetch_market_sector_news_task(self, company_id=None):
                     continue
 
             logger.info(f"[{company.long_name}] Task finished, found={news_found}, saved={news_saved}")
+
+            # Dispara task de resumo (MI03) com as notícias salvas nesta execução
+            try:
+                if session_news_items:
+                    fetch_market_summary_new.delay(company.id, 'sector', session_news_items)
+                    logger.info(f"[{company.long_name}] Summary task dispatched with {len(session_news_items)} items.")
+                else:
+                    logger.info(f"[{company.long_name}] Nada novo salvo; resumo não disparado.")
+            except Exception as e:
+                logger.exception(f"Erro ao despachar summary task: {e}")
 
             result_all.append({
                 "success": True,

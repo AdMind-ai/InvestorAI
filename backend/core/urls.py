@@ -2,6 +2,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import *
+from .views.summary_news_view import SummaryNewsListView
 from .views.openai.linkedin_post_view import LinkedinPostView
 from .views.openai.linkedin_scheduled_post_view import LinkedinScheduledPostView
 
@@ -92,6 +93,9 @@ urlpatterns = [
           name='openai-chat-create-conversation'),
      path('openai/chat/save-conversation/', SaveConversationView.as_view(),
           name='openai/chat/save-conversation'),
+
+     # Market Intelligence - Summary
+     path('market-summary-news/', SummaryNewsListView.as_view(), name='market-summary-news'),
 
      # Stocks
      path('stocks/company-info/', CompanyInfoView.as_view(), name='company-info'),

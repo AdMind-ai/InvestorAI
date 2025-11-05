@@ -11,6 +11,7 @@ from core.models.company_quarterly_report import CompanyQuarterlyReport
 from core.models.company_info import CompanyInfo, CEO, RelatedCompany
 from core.models.company_info.company_route_restriction import CompanyRouteRestriction
 from core.models.frontend_master_route_list import MasterRouteList
+from core.models.summary_news_model import SummaryNewsArticle
 from django import forms
 from core.models.linkedin_scheduled_post import LinkedinScheduledPost
 # Register your models here.
@@ -195,3 +196,15 @@ class LinkedinScheduledPostAdmin(admin.ModelAdmin):
     search_fields = ('text', 'company__long_name', 'created_by__username')
     list_filter = ('company',)
     readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(SummaryNewsArticle)
+class SummaryNewsArticleAdmin(admin.ModelAdmin):
+    list_display = (
+        'title', 'company', 'type', 'category', 'relevance', 'created_at'
+    )
+    list_filter = ('type', 'category', 'relevance', 'created_at', 'company_fk')
+    search_fields = ('title', 'description', 'company')
+    date_hierarchy = 'created_at'
+    ordering = ('-created_at',)
+    list_per_page = 25

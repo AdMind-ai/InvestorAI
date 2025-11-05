@@ -2,7 +2,7 @@ import { createContext, useContext, useState, ReactNode, useEffect } from "react
 import { fetchWithAuth } from "../api/fetchWithAuth";
 import { toast } from "react-toastify";
 import { RelatedCompany } from "../interfaces/market";
-import { fetchCompetitors } from "../api/marketApi";
+import { fetchCompetitors, fetchMarketSummaries, SummaryItem } from "../api/marketApi";
 
 type Company = {
   name: string;
@@ -46,6 +46,19 @@ type MarketIntelligenceState = {
   addCompany: (category: keyof CompaniesShape, company: Company) => boolean; // returns true if added
   removeCompany: (companyName: string | null, category: keyof CompaniesShape) => void;
   totalCompanies: () => number;
+  // Summaries state
+  summaries: SummaryItem[];
+  summariesTotal: number;
+  summariesPage: number;
+  summariesPageSize: number;
+  summariesLoading: boolean;
+  loadSummaries: (params?: { type?: keyof CompaniesShape | 'sector'; page?: number; pageSize?: number; category?: string; relevance?: 'high'|'medium'|'low' }) => Promise<void>;
+  // News state (moved here)
+  newsArticles: Array<{ title: string; url?: string; type?: string; category: string; relevance: 'high'|'medium'|'low'|''; date_published: string; created_at?: string; }>; 
+  newsLoading: boolean;
+  setNews: React.Dispatch<React.SetStateAction<MarketIntelligenceState['newsArticles']>>;
+  setNewsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  loadNews: (category: 'Settore'|'Competitors'|'Clienti'|'Fornitori') => Promise<void>;
 };
 
 const defaultState: MarketIntelligenceState = {
@@ -68,6 +81,17 @@ const defaultState: MarketIntelligenceState = {
   addCompany: () => false,
   removeCompany: () => { },
   totalCompanies: () => 0,
+  summaries: [],
+  summariesTotal: 0,
+  summariesPage: 1,
+  summariesPageSize: 8,
+  summariesLoading: false,
+  loadSummaries: async () => { },
+  newsArticles: [],
+  newsLoading: false,
+  setNews: () => { },
+  setNewsLoading: () => { },
+  loadNews: async () => { },
 };
 
 const MarketIntelligenceContext = createContext<MarketIntelligenceState>(defaultState);
@@ -84,6 +108,15 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     fornitori: { enabled: true, relevance: 'high' },
   });
   const [email, setEmail] = useState<string>("");
+  // Summaries
+  const [summaries, setSummaries] = useState<SummaryItem[]>([]);
+  const [summariesTotal, setSummariesTotal] = useState<number>(0);
+  const [summariesPage, setSummariesPage] = useState<number>(1);
+  const [summariesPageSize, setSummariesPageSize] = useState<number>(8);
+  const [summariesLoading, setSummariesLoading] = useState<boolean>(false);
+  // News
+  const [newsArticles, setNews] = useState<MarketIntelligenceState['newsArticles']>([]);
+  const [newsLoading, setNewsLoading] = useState<boolean>(false);
 
   const totalCompanies = () => companies.competitors.length + companies.clients.length + companies.fornitori.length;
 
@@ -175,6 +208,53 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     fetchRalatedCompanies();
   }, []);
 
+  const loadSummaries: MarketIntelligenceState['loadSummaries'] = async (params) => {
+    try {
+      setSummariesLoading(true);
+      const apiParams = {
+        type: params?.type === 'sector' ? 'sector' : (params?.type ? String(params.type) as any : undefined),
+        page: params?.page ?? summariesPage,
+        page_size: params?.pageSize ?? summariesPageSize,
+        category: params?.category,
+        relevance: params?.relevance,
+      };
+      const res = await fetchMarketSummaries(apiParams);
+      setSummaries(res.results);
+      setSummariesTotal(res.total);
+      setSummariesPage(res.page);
+      setSummariesPageSize(res.page_size);
+    } catch (e) {
+      console.error('Erro ao carregar summaries', e);
+      setSummaries([]);
+      setSummariesTotal(0);
+    } finally {
+      setSummariesLoading(false);
+    }
+  };
+
+  const CATEGORY_MAP: Record<string, string> = {
+    "Settore": "sector",
+    "Competitors": "competitor", // model values are singular for news
+    "Clienti": "client",
+    "Fornitori": "fornitori",
+  };
+
+  const loadNews: MarketIntelligenceState['loadNews'] = async (category) => {
+    setNewsLoading(true);
+    try {
+      const params = new URLSearchParams({ type: CATEGORY_MAP[category] });
+      const response = await fetchWithAuth(`/newsapi/market-news/?${params}`, { method: 'GET' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      setNews(data.articles || []);
+    } catch (e) {
+      console.error('Erro ao carregar notícias', e);
+      setNews([]);
+    } finally {
+      setNewsLoading(false);
+    }
+  };
+
   return (
     <MarketIntelligenceContext.Provider
       value={{
@@ -192,6 +272,17 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         addCompany,
         removeCompany,
         totalCompanies,
+        summaries,
+        summariesTotal,
+        summariesPage,
+        summariesPageSize,
+        summariesLoading,
+        loadSummaries,
+        newsArticles,
+        newsLoading,
+        setNews,
+        setNewsLoading,
+        loadNews,
       }}
     >
       {children}
