@@ -9,7 +9,7 @@ export type SummaryItem = {
   type: 'sector' | 'competitor' | 'client' | 'fornitori';
   title: string;
   description: string;
-  category?: string;
+  category: string;
   relevance?: 'high' | 'medium' | 'low';
   created_at: string; // ISO
   sources: string[];

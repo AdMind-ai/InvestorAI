@@ -1,7 +1,8 @@
 import React from 'react';
-import { Box, Typography, Table, TableHead, TableRow, TableCell, TableBody, Stack, Paper, Pagination, Menu, MenuItem, IconButton, PaginationItem } from "@mui/material";
+import { Box, Typography, Table, TableHead, TableRow, TableCell, TableBody, Stack, Paper, Menu, MenuItem, IconButton } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CheckIcon from '@mui/icons-material/Check';
+import PaginationControls from '../../common/PaginationControls';
 
 type Article = {
     id?: number;
@@ -106,53 +107,11 @@ const NewsTable: React.FC<Props> = ({ articles, page, onPageChange, pageCount = 
                 </TableBody>
             </Table>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                <Pagination
-                    count={pageCount}
-                    page={page}
-                    onChange={(_, v) => onPageChange(v)}
-                    shape='rounded'
-                    variant='outlined'
-                    renderItem={(item) => (
-                        <PaginationItem
-                            components={{ previous: Typography, next: Typography }}
-                            slots={{
-                                previous: () => (
-                                    <Typography sx={{ textTransform: 'none', fontSize: '16px' }}>
-                                        ← Precedente
-                                    </Typography>
-                                ),
-                                next: () => (
-                                    <Typography sx={{ textTransform: 'none', fontSize: '16px' }}>
-                                        Successivo →
-                                    </Typography>
-                                ),
-                            }}
-                            {...item}
-                        />
-                    )}
-                    sx={{
-                        '& .MuiPaginationItem-root': {
-                            color: 'text.primary',
-                            borderRadius: '12px',
-                            border: '1px solid #ddd',
-                            margin: '0 4px',
-                            height: '40px',
-                            minWidth: '40px',
-                            '&.Mui-selected': {
-                                backgroundColor: '#f1f1f1',
-                                borderColor: '#bbb',
-                            },
-                            '&:hover': {
-                                backgroundColor: '#f1f1f1',
-                            },
-                            '&.MuiPaginationItem-previousNext': {
-                                padding: '0px 12px',
-                            },
-                        },
-                    }}
-                />
-            </Box>
+            <PaginationControls
+                count={pageCount}
+                page={page}
+                onChange={onPageChange}
+            />
         </Paper>
     );
 };

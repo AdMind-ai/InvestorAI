@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Stack, ToggleButton, ToggleButtonGroup, CircularProgress, Pagination } from "@mui/material";
+import { Box, Typography, Stack, ToggleButton, ToggleButtonGroup, CircularProgress } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import MarketOverviewReport from "./MarketOverviewReport";
 import NewsTable from "./Results/NewsTable";
 import { useMarketIntelligence } from "../../context/MarketIntelligenceContext";
 import SummaryCard from "./Summary/SummaryCard";
-import LinksModal from "../common/LinksModal";
+import SummaryDetailsModal from "./SummaryDetailsModal";
+import PaginationControls from "../common/PaginationControls";
 
 type Category = 'Settore' | 'Competitors' | 'Clienti' | 'Fornitori';
 
@@ -28,7 +29,7 @@ export default function MarketIntelligenceResults() {
 
     const [category, setCategory] = useState<Category>("Settore");
     type TabKey = 'summary' | 'news' | 'overview';
-    const [tab, setTab] = useState<TabKey>('news');
+    const [tab, setTab] = useState<TabKey>('summary');
     const [page, setPage] = useState<number>(1);
     const [columnCategoryFilter, setColumnCategoryFilter] = useState<string>("Tutte");
 
@@ -78,12 +79,12 @@ export default function MarketIntelligenceResults() {
 
     // Summary pagination uses backend totals
     const summaryTotalPages = Math.max(1, Math.ceil((summariesTotal || 0) / summariesPageSize));
-    const handleSummaryPageChange = (_: React.ChangeEvent<unknown>, p: number) => {
+    const handleSummaryPageChange = (p: number) => {
         setPage(p);
         loadSummaries({ type: CATEGORY_MAP[category] as any, page: p, pageSize: summariesPageSize });
     };
 
-    const [linksModal, setLinksModal] = useState<{ open: boolean; links: string[]; title?: string }>({ open: false, links: [] });
+    const [summaryModal, setSummaryModal] = useState<{ open: boolean; title?: string; description?: string; category?: string; links: string[] }>({ open: false, links: [] });
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", overflow: "auto", height: "100%", width: "100%" }}>
@@ -206,18 +207,28 @@ export default function MarketIntelligenceResults() {
                                             title={s.title}
                                             description={s.description}
                                             relevance={s.relevance}
-                                            onRead={() => { /* optional: expand or route */ }}
-                                            onViewLinks={() => setLinksModal({ open: true, links: s.sources || [], title: s.title })}
+                                            category={s.category}
+                                            onViewLinks={() => setSummaryModal({ open: true, links: s.sources || [], title: s.title, description: s.description, category: s.category })}
                                         />
                                     </Grid>
                                 ))}
                             </Grid>
 
-                            <Stack direction="row" justifyContent="center" sx={{ mt: 2 }}>
-                                <Pagination color="primary" page={page} onChange={handleSummaryPageChange} count={summaryTotalPages} />
-                            </Stack>
+                            <PaginationControls
+                                count={summaryTotalPages}
+                                page={page}
+                                onChange={handleSummaryPageChange}
+                                containerSx={{ mt: 3 }}
+                            />
 
-                            <LinksModal open={linksModal.open} onClose={() => setLinksModal({ open: false, links: [] })} title={linksModal.title} links={linksModal.links} />
+                            <SummaryDetailsModal
+                                open={summaryModal.open}
+                                onClose={() => setSummaryModal({ open: false, links: [] })}
+                                title={summaryModal.title || ""}
+                                description={summaryModal.description || ""}
+                                category={summaryModal.category || ""}
+                                links={summaryModal.links}
+                            />
                         </Box>
                     )}
 
