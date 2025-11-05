@@ -11,9 +11,9 @@ class MarketNewsAlertPreference(models.Model):
     ]
 
     RELEVANCE_CHOICES = [
-        ("high", "Alta"),
-        ("medium", "Media"),
-        ("low", "Bassa"),
+        ("high", "High"),
+        ("medium", "Medium"),
+        ("low", "Low"),
     ]
 
     company = models.ForeignKey(

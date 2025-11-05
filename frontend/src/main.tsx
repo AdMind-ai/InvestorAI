@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
+import { MarketIntelligenceProvider } from './context/MarketIntelligenceContext'
 import { ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import theme from './styles/theme'
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App />
+      <MarketIntelligenceProvider>
+        <App />
+      </MarketIntelligenceProvider>
       <ToastContainer position='top-right' autoClose={5000}/>
     </ThemeProvider>
   </StrictMode>

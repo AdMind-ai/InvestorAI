@@ -12,6 +12,7 @@ type Props = {
 
 const MarketOverviewReport = ({ overviewReport = "", onExport }: Props) => {
   const [isLoadingExport, setIsLoadingExport] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const handleExportReport = async () => {
     if (!onExport) return;
@@ -53,12 +54,63 @@ const MarketOverviewReport = ({ overviewReport = "", onExport }: Props) => {
         </Button>
       </Box>
 
-      <Box sx={{ mt: 1, overflow: 'auto' }}>
-        <div className="markdown-body">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {overviewReport || "- Nessun rapporto disponibile."}
-          </ReactMarkdown>
-        </div>
+      <Box sx={{ mt: 1, position: 'relative' }}>
+        {/* Content container with collapsible height */}
+        <Box
+          sx={{
+            maxHeight: expanded ? 'none' : '500px',
+            overflow: expanded ? 'auto' : 'hidden',
+            pr: expanded ? 0 : 0, // avoid layout shift
+          }}
+        >
+          <div className="markdown-body">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {overviewReport || "- Nessun rapporto disponibile."}
+            </ReactMarkdown>
+          </div>
+        </Box>
+
+        {/* Gradient + expand button when collapsed */}
+        {!expanded && (
+          <Box
+            sx={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 72,
+              background:
+                'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 60%)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'flex-end',
+              pb: 0.5,
+            }}
+          >
+            <Button
+              size="small"
+              variant="text"
+              onClick={() => setExpanded(true)}
+              sx={{ textTransform: 'none', color: '#6B7280' }}
+            >
+              Espandi
+            </Button>
+          </Box>
+        )}
+
+        {/* Collapse control when expanded */}
+        {expanded && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+            <Button
+              size="small"
+              variant="text"
+              onClick={() => setExpanded(false)}
+              sx={{ textTransform: 'none', color: '#6B7280' }}
+            >
+              Riduci
+            </Button>
+          </Box>
+        )}
       </Box>
     </Box>
   );

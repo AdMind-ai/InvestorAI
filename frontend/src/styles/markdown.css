@@ -69,6 +69,9 @@
 .markdown-body td {
   border: 1px solid #E4E4E4;
   padding: 8px 10px;
+  /* Force left alignment for all table cells regardless of markdown alignment markers */
+  text-align: left !important;
+  vertical-align: top;
 }
 .markdown-body th {
   background: #F5F5F5;

@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models.company_info import CompanyInfo
-from core.serializers.company_info import CompanySerializer
+from core.serializers.company_info.company_sector_update_serializer import CompanySectorUpdateSerializer
 from core.utils.get_company_info import get_user_company
 
 
@@ -36,7 +36,7 @@ class CompanyInfoSectorView(APIView):
 
             company_obj.save()
 
-            serializer = CompanySerializer(company_obj)
+            serializer = CompanySectorUpdateSerializer(company_obj)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except CompanyInfo.DoesNotExist:

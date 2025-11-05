@@ -32,6 +32,12 @@ type Preferences = {
 };
 
 type MarketIntelligenceState = {
+  // UI flow control across navigation
+  step: number;
+  open: boolean;
+  setStep: (s: number) => void;
+  setOpen: (v: boolean) => void;
+  initializingStep: boolean;
   sectorDescription: string;
   keywords: string[];
   links: string[];
@@ -47,6 +53,10 @@ type MarketIntelligenceState = {
   addCompany: (category: keyof CompaniesShape, company: Company) => boolean; // returns true if added
   removeCompany: (companyName: string | null, category: keyof CompaniesShape) => void;
   totalCompanies: () => number;
+  // Orchestrated setup/tasks
+  updateCompanySector: () => Promise<boolean>;
+  startMarketTasksAndWait: () => Promise<{ sectorStatus: string; competitorsStatus: string }>;
+  runPostEmailFlow: () => Promise<boolean>;
   // Summaries state
   summaries: SummaryItem[];
   summariesTotal: number;
@@ -66,6 +76,11 @@ type MarketIntelligenceState = {
 };
 
 const defaultState: MarketIntelligenceState = {
+  step: 0,
+  open: true,
+  setStep: () => { },
+  setOpen: () => { },
+  initializingStep: true,
   sectorDescription: "",
   keywords: [],
   links: [],
@@ -86,10 +101,13 @@ const defaultState: MarketIntelligenceState = {
   addCompany: () => false,
   removeCompany: () => { },
   totalCompanies: () => 0,
+  updateCompanySector: async () => false,
+  startMarketTasksAndWait: async () => ({ sectorStatus: 'PENDING', competitorsStatus: 'PENDING' }),
+  runPostEmailFlow: async () => false,
   summaries: [],
   summariesTotal: 0,
   summariesPage: 1,
-  summariesPageSize: 8,
+  summariesPageSize: 4,
   summariesLoading: false,
   loadSummaries: async () => { },
   newsArticles: [],
@@ -104,6 +122,9 @@ const defaultState: MarketIntelligenceState = {
 const MarketIntelligenceContext = createContext<MarketIntelligenceState>(defaultState);
 
 export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }) => {
+  const [step, setStep] = useState<number>(0);
+  const [open, setOpen] = useState<boolean>(true);
+  const [initializingStep, setInitializingStep] = useState<boolean>(true);
   const [sectorDescription, setSectorDescription] = useState<string>("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [links, setLinks] = useState<string[]>([]);
@@ -119,7 +140,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   const [summaries, setSummaries] = useState<SummaryItem[]>([]);
   const [summariesTotal, setSummariesTotal] = useState<number>(0);
   const [summariesPage, setSummariesPage] = useState<number>(1);
-  const [summariesPageSize, setSummariesPageSize] = useState<number>(8);
+  const [summariesPageSize, setSummariesPageSize] = useState<number>(4);
   const [summariesLoading, setSummariesLoading] = useState<boolean>(false);
   // News
   const [newsArticles, setNews] = useState<MarketIntelligenceState['newsArticles']>([]);
@@ -227,6 +248,24 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   }
 
   useEffect(() => {
+    // Decide initial step based on backend setup flag
+    (async () => {
+      try {
+        const res = await fetchWithAuth('/company-info/marketing-setup/', { method: 'GET' });
+        if (res.ok) {
+          const data = await res.json();
+          const configured = Boolean((data && (data.is_configured ?? data.isConfigured)) || false);
+          setStep(configured ? 5 : 0);
+        } else {
+          setStep(0);
+        }
+      } catch {
+        setStep(0);
+      } finally {
+        setInitializingStep(false);
+      }
+    })();
+
     fetchRalatedCompanies();
     fetchMarketOverview().then(({ report, citations }) => {
       const thinkTagMatch = /<think>[\s\S]*?<\/think>/g;
@@ -307,9 +346,135 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     }
   };
 
+  // helper to register that the setup is configured (or revert on error)
+  const registerMarketingSetup = async (configured: boolean) => {
+    try {
+      const res = await fetchWithAuth('/company-info/marketing-setup/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_configured: configured }),
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Erro ao registrar setup de marketing', e);
+      return false;
+    }
+  };
+
+  // --- New: Update company sector info on backend ---
+  const updateCompanySector: MarketIntelligenceState['updateCompanySector'] = async () => {
+    try {
+      const res = await fetchWithAuth('/company-info/sector/', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: sectorDescription,
+          sector_keywords: keywords,
+          sector_websites: links,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({} as any));
+        toast.error(err?.detail || 'Erro ao atualizar informações de setor');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao atualizar informações de setor');
+      return false;
+    }
+  };
+
+  // --- New: Trigger Celery tasks and wait for completion ---
+  const triggerTask = async (url: string): Promise<string> => {
+    const r = await fetchWithAuth(url, { method: 'POST' });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({} as any));
+      throw new Error(err?.detail || `Falha ao iniciar task em ${url}`);
+    }
+    const data = await r.json();
+    if (!data?.task_id) throw new Error('task_id não retornado');
+    return data.task_id as string;
+  };
+
+  const pollTaskStatus = async (statusUrl: string, { intervalMs = 3000, maxWaitMs = 3 * 60 * 1000 } = {}) => {
+    const start = Date.now();
+    // Keep polling until SUCCESS/FAILURE/REVOKED or timeout
+    while (true) {
+      const r = await fetchWithAuth(statusUrl, { method: 'GET' });
+      if (r.ok) {
+        const data = await r.json();
+        const st = String(data?.status || '').toUpperCase();
+        if (['SUCCESS', 'FAILURE', 'REVOKED'].includes(st)) return st;
+      }
+      if (Date.now() - start >= maxWaitMs) return 'TIMEOUT';
+      await new Promise(res => setTimeout(res, intervalMs));
+    }
+  };
+
+  const startMarketTasksAndWait: MarketIntelligenceState['startMarketTasksAndWait'] = async () => {
+    try {
+      const [sectorTaskId, competitorsTaskId] = await Promise.all([
+        triggerTask('/market-sector-news/company/'),
+        triggerTask('/market-competitors-news/company/'),
+      ]);
+
+      const [sectorStatus, competitorsStatus] = await Promise.all([
+        pollTaskStatus(`/market-sector-news/status/${sectorTaskId}/`),
+        pollTaskStatus(`/market-competitors-news/status/${competitorsTaskId}/`),
+      ]);
+      return { sectorStatus, competitorsStatus };
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao iniciar tarefas de coleta de notícias');
+      return { sectorStatus: 'ERROR', competitorsStatus: 'ERROR' } as any;
+    }
+  };
+
+  // --- New: Full flow after email preferences are saved ---
+  const runPostEmailFlow: MarketIntelligenceState['runPostEmailFlow'] = async () => {
+    // 0) mark setup as configured before starting tasks
+    await registerMarketingSetup(true);
+    try {
+      // move UI to loading and persist
+      setStep(4);
+      // 1) Update company sector info
+      const updated = await updateCompanySector();
+      if (!updated) throw new Error('Falha ao atualizar setor');
+
+      // 2) Trigger tasks and wait
+      const { sectorStatus, competitorsStatus } = await startMarketTasksAndWait();
+
+      // If any task clearly failed, mark as not configured
+      const success = sectorStatus === 'SUCCESS' && competitorsStatus === 'SUCCESS';
+      if (!success) {
+        await registerMarketingSetup(false);
+      } else {
+        toast.info('Coleta iniciada. Os resultados aparecerão assim que prontos.');
+        // Preload summaries so the results page has data
+        try { await loadSummaries(); } catch (_) { /* ignore */ }
+        setStep(5);
+        return true;
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Falha ao iniciar a coleta de notícias');
+      await registerMarketingSetup(false);
+      setStep(3);
+      return false;
+    }
+    return false;
+  };
+
   return (
     <MarketIntelligenceContext.Provider
       value={{
+        step,
+        open,
+        setStep,
+        setOpen,
+        initializingStep,
         sectorDescription,
         keywords,
         links,
@@ -322,6 +487,9 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         setEmail,
         setPreferences,
         saveAlertPreferences,
+        updateCompanySector,
+        startMarketTasksAndWait,
+        runPostEmailFlow,
         addCompany,
         removeCompany,
         totalCompanies,

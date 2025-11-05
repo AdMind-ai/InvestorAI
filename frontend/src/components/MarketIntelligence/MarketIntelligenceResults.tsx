@@ -40,7 +40,7 @@ export default function MarketIntelligenceResults() {
     useEffect(() => {
         setError(null);
         loadNews(category);
-        loadSummaries({ type: CATEGORY_MAP[category] as any, page: 1, pageSize: 8 });
+        loadSummaries({ type: CATEGORY_MAP[category] as any, page: 1, pageSize: 4 });
         setPage(1);
     }, [category]);
 
@@ -255,7 +255,7 @@ export default function MarketIntelligenceResults() {
 
                     {tab === 'overview' && (
                         <Box sx={{ px: 2, width: "100%" }}>
-                            <p>development overview</p>
+                            <p>...</p>
                         </Box>
                     )}
                 </Box>

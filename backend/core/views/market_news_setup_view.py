@@ -29,16 +29,22 @@ class MarketNewsSetupView(APIView):
 
     def post(self, request):
         """
-        Mark the company as configured (or update the status).
+        Mark the company setup status. By default sets is_configured=True, but
+        accepts an optional payload to explicitly set the status:
+
+        Body (optional): { "is_configured": true|false }
         """
         try:
             company = get_user_company(request.user)
         except CompanyInfo.DoesNotExist:
             return Response({"detail": "Company not found."}, status=404)
 
+        # Default to True if not provided, allowing callers to set False on errors
+        is_configured = request.data.get("is_configured", True) if isinstance(request.data, dict) else True
+
         setup, _ = MarketNewsSetup.objects.update_or_create(
             company=company,
-            defaults={"is_configured": True}
+            defaults={"is_configured": bool(is_configured)}
         )
 
         serializer = MarketingNewsSetupSerializer(setup)

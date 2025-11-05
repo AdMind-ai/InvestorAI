@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 
-type Props = { open: boolean; onComplete: () => void };
+type Props = { open: boolean; onComplete: () => void; auto?: boolean };
 
-export default function MarketIntelligenceLoading({ open, onComplete }: Props) {
+export default function MarketIntelligenceLoading({ open, onComplete, auto = true }: Props) {
     useEffect(() => {
-        if (!open) return;
+        if (!open || !auto) return;
         const t = setTimeout(() => onComplete(), 2400);
         return () => clearTimeout(t);
-    }, [open, onComplete]);
+    }, [open, auto, onComplete]);
 
     if (!open) return null;
 

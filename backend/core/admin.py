@@ -5,7 +5,7 @@ from core.models.esg_article_model import ESGArticle
 from core.models.ceo_article_model import CEOArticle
 from core.models.openai_chat_models import ChatConversation, ChatMessage
 from core.models.competitor_model import CompetitorSearch, Competitor
-from core.models.market_article_model import MarketNewsArticle
+from core.models.market_article_model import MarketNewsArticle, MarketNewsSetup
 from core.models.market_company_report import CompanyMarketReport
 from core.models.company_stock_data_model import CompanyStockData
 from core.models.company_quarterly_report import CompanyQuarterlyReport
@@ -218,3 +218,10 @@ class MarketNewsAlertPreferenceAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
     ordering = ('-created_at',)
     list_per_page = 10
+    
+@admin.register(MarketNewsSetup)
+class MarketNewsSetupAdmin(admin.ModelAdmin):
+    list_display = ('company', 'is_configured', 'configured_at')
+    search_fields = ('company__long_name',)
+    list_filter = ('is_configured', 'configured_at')
+    ordering = ('-configured_at',)

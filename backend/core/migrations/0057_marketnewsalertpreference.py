@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254)),
                 ('category', models.CharField(choices=[('sector', 'Sector'), ('competitors', 'Competitors'), ('clients', 'Clients'), ('fornitori', 'Fornitori')], max_length=16)),
                 ('enabled', models.BooleanField(default=True)),
-                ('relevance', models.CharField(choices=[('high', 'Alta'), ('medium', 'Media'), ('low', 'Bassa')], default='high', max_length=6)),
+                ('relevance', models.CharField(choices=[('high', 'High'), ('medium', 'Medium'), ('low', 'Low')], default='high', max_length=6)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='alert_preferences', to='core.companyinfo')),
             ],
