@@ -301,7 +301,7 @@ export default function CompaniesModal({ open, onClose, onNext, onBack }: Props)
                                         {numbersOfCompanies < 20 && (
                                             <Stack direction="row" spacing={2} alignItems="flex-start">
                                                 <IconButton
-                                                    onClick={() => handleOpenAdd(cat as any)}
+                                                    onClick={() => handleOpenAdd(cat)}
                                                     sx={{
                                                         backgroundColor: "#ccc",
                                                         borderRadius: 2,

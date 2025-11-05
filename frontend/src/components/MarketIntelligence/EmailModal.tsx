@@ -62,8 +62,11 @@ export default function EmailModal({ open, onClose, onNext, onBack }: Props) {
                         <FormLabel component="legend" sx={{ fontSize: '18px' }}>Seleziona le categorie di cui vuoi ricevere alert e la rilevanza</FormLabel>
                         <Link component="button" variant="subtitle2" onClick={() => setLocalPrefs((p) => {
                             const allOn = Object.values(p).every((x) => x.enabled);
-                            const next = Object.keys(p).reduce((acc, k) => ({ ...acc, [k]: { ...p[k as keyof typeof p], enabled: !allOn } }), {} as any);
-                            return next as typeof p;
+                            const next: typeof p = { ...p };
+                            (Object.keys(next) as Array<keyof typeof next>).forEach((k) => {
+                                next[k] = { ...next[k], enabled: !allOn };
+                            });
+                            return next;
                         })}>
                             Seleziona tutto
                         </Link>

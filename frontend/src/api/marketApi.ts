@@ -92,7 +92,8 @@ export async function fetchMarketSummaries(params: {
   const response = await api.get('/market-summary-news/', { params });
   const data = response.data ?? { results: [], total: 0, page: 1, page_size: 8 };
   // Normalize sources array defensively
-  const results: SummaryItem[] = (data.results || []).map((r: any) => ({
+  type ApiSummaryItem = Omit<SummaryItem, 'sources'> & { sources?: unknown };
+  const results: SummaryItem[] = (data.results || []).map((r: ApiSummaryItem) => ({
     id: r.id,
     company: r.company,
     type: r.type,
@@ -101,7 +102,7 @@ export async function fetchMarketSummaries(params: {
     category: r.category,
     relevance: r.relevance,
     created_at: r.created_at,
-    sources: Array.isArray(r.sources) ? r.sources : ([] as string[]),
+    sources: Array.isArray(r.sources) ? r.sources : [],
   }));
   return { results, total: data.total ?? results.length, page: data.page ?? 1, page_size: data.page_size ?? params.page_size ?? 8 };
 }

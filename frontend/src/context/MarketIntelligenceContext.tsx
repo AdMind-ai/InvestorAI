@@ -63,7 +63,7 @@ type MarketIntelligenceState = {
   summariesPage: number;
   summariesPageSize: number;
   summariesLoading: boolean;
-  loadSummaries: (params?: { type?: keyof CompaniesShape | 'sector'; page?: number; pageSize?: number; category?: string; relevance?: 'high' | 'medium' | 'low' }) => Promise<void>;
+  loadSummaries: (params?: { type?: 'sector' | 'competitor' | 'client' | 'fornitori'; page?: number; pageSize?: number; category?: string; relevance?: 'high' | 'medium' | 'low' }) => Promise<void>;
   // News state (moved here)
   newsArticles: Array<{ title: string; url?: string; type?: string; category: string; relevance: 'high' | 'medium' | 'low' | ''; date_published: string; created_at?: string; }>;
   newsLoading: boolean;
@@ -232,7 +232,6 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     } catch (e) {
       console.error(e);
       toast.error("Errore nella cancellazione");
-    } finally {
     }
   };
 
@@ -281,7 +280,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     try {
       setSummariesLoading(true);
       const apiParams = {
-        type: params?.type === 'sector' ? 'sector' : (params?.type ? String(params.type) as any : undefined),
+        type: params?.type,
         page: params?.page ?? summariesPage,
         page_size: params?.pageSize ?? summariesPageSize,
         category: params?.category,
@@ -331,7 +330,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         body: JSON.stringify({ email: emailToSave, preferences: prefsToSave }),
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({} as any));
+        const err = await res.json().catch(() => ({} as Record<string, unknown>));
         toast.error(err?.detail || 'Errore durante il salvataggio delle preferenze');
         return false;
       }
@@ -373,7 +372,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         }),
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({} as any));
+        const err = await res.json().catch(() => ({} as Record<string, unknown>));
         toast.error(err?.detail || "Errore durante l'aggiornamento delle informazioni di settore");
         return false;
       }
@@ -389,7 +388,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   const triggerTask = async (url: string): Promise<string> => {
     const r = await fetchWithAuth(url, { method: 'POST' });
     if (!r.ok) {
-      const err = await r.json().catch(() => ({} as any));
+      const err = await r.json().catch(() => ({} as Record<string, unknown>));
       throw new Error(err?.detail || `Falha ao iniciar task em ${url}`);
     }
     const data = await r.json();
@@ -426,7 +425,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     } catch (e) {
       console.error(e);
       toast.error("Errore durante l'avvio delle attività di raccolta notizie.");
-      return { sectorStatus: 'ERROR', competitorsStatus: 'ERROR' } as any;
+      return { sectorStatus: 'ERROR', competitorsStatus: 'ERROR' };
     }
   };
 
@@ -451,7 +450,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         await registerMarketingSetup(false);
       } else {
         // Preload summaries so the results page has data
-        try { await loadSummaries(); } catch (_) { /* ignore */ }
+  try { await loadSummaries(); } catch { /* ignore */ }
         setStep(5);
         toast.success('Raccolta di notizie completata con successo.');
         return true;

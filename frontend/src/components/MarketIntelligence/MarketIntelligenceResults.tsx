@@ -5,7 +5,7 @@ import MarketOverviewReport from "./MarketOverviewReport";
 import NewsTable from "./Results/NewsTable";
 import { useMarketIntelligence } from "../../context/MarketIntelligenceContext";
 import SummaryCard from "./Summary/SummaryCard";
-import SummaryDetailsModal from "./SummaryDetailsModal";
+import SummaryDetailsModal from "./Summary/SummaryDetailsModal";
 import PaginationControls from "../common/PaginationControls";
 
 type Category = 'Settore' | 'Competitors' | 'Clienti' | 'Fornitori';
@@ -39,8 +39,8 @@ export default function MarketIntelligenceResults() {
     // 🧠 Busca inicial de notícias e resumos via contexto
     useEffect(() => {
         setError(null);
-        loadNews(category);
-        loadSummaries({ type: CATEGORY_MAP[category] as any, page: 1, pageSize: 4 });
+    loadNews(category);
+    loadSummaries({ type: CATEGORY_MAP[category] as 'sector' | 'competitor' | 'client' | 'fornitori', page: 1, pageSize: 4 });
         setPage(1);
     }, [category]);
 
@@ -80,8 +80,8 @@ export default function MarketIntelligenceResults() {
     // Summary pagination uses backend totals
     const summaryTotalPages = Math.max(1, Math.ceil((summariesTotal || 0) / summariesPageSize));
     const handleSummaryPageChange = (p: number) => {
-        setPage(p);
-        loadSummaries({ type: CATEGORY_MAP[category] as any, page: p, pageSize: summariesPageSize });
+    setPage(p);
+    loadSummaries({ type: CATEGORY_MAP[category] as 'sector' | 'competitor' | 'client' | 'fornitori', page: p, pageSize: summariesPageSize });
     };
 
     const [summaryModal, setSummaryModal] = useState<{ open: boolean; title?: string; description?: string; category?: string; links: string[] }>({ open: false, links: [] });

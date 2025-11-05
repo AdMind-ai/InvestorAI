@@ -98,7 +98,7 @@ const NewsTable: React.FC<Props> = ({ articles, page, onPageChange, pageCount = 
                         <TableRow key={a.id} hover sx={{ backgroundColor: '#fff' }}>
                             <TableCell sx={{ verticalAlign: 'middle', fontSize: cellFontSize }}>{format(new Date(a.date_published))}</TableCell>
                             <TableCell>
-                                <a href={a.url || '#'} style={{ color: '#1976d2', textDecoration: 'underline', fontSize: cellFontSize as any }}>{a.title}</a>
+                                <a href={a.url || '#'} style={{ color: '#1976d2', textDecoration: 'underline', fontSize: cellFontSize }}>{a.title}</a>
                             </TableCell>
                             <TableCell><RelevanceChip r={a.relevance} cellFontSize={cellFontSize} /></TableCell>
                             <TableCell sx={{ fontSize: cellFontSize }}>{a.category}</TableCell>

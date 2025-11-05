@@ -13,7 +13,7 @@ export type SummaryDetailsModalProps = {
 // Normalize incoming links to ensure only clean URLs are displayed,
 // even if a single string contains a list representation with quotes/brackets/newlines.
 function normalizeLinks(rawLinks: string[] = []): string[] {
-    const URL_REGEX = /(https?:\/\/[^\s'"\]\[]+)/g;
+    const URL_REGEX = /(https?:\/\/[^\s'"\][]+)/g;
 
     const out: string[] = [];
     for (const raw of rawLinks) {
@@ -26,7 +26,7 @@ function normalizeLinks(rawLinks: string[] = []): string[] {
         // Fallback: strip wrapping quotes/brackets/spaces/commas
         const cleaned = raw
             .trim()
-            .replace(/^\s*[\["']+/, "")
+            .replace(/^\s*["[]+/, "")
             .replace(/[\]"']+\s*$/, "")
             .replace(/,$/, "");
         if (cleaned) out.push(cleaned);

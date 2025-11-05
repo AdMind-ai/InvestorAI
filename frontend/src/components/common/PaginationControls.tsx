@@ -10,7 +10,7 @@ export type PaginationControlsProps = {
 
 export default function PaginationControls({ count, page, onChange, containerSx, paginationSx }: PaginationControlsProps) {
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, ...(containerSx as any) }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, ...(containerSx as unknown as Record<string, unknown> || {}) }}>
       <Pagination
         count={count}
         page={page}
@@ -54,7 +54,7 @@ export default function PaginationControls({ count, page, onChange, containerSx,
               padding: '0px 12px',
             },
           },
-          ...(paginationSx as any),
+          ...(paginationSx as unknown as Record<string, unknown> || {}),
         }}
       />
     </Box>
