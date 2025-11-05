@@ -14,7 +14,7 @@ from core.serializers.translate_file_serializer import TranslateFileSerializer
 from core.utils.deepl_translation import DeeplTranslation
 from core.utils.quickdoc.upload_to_blob_storage import upload_to_blob_storage
 
-from core.tasks import async_translate_file
+from core.tasks.tasks import async_translate_file
 from core.utils.quickdoc.upload_to_blob_storage import generate_sas_token
 from azure.storage.blob import BlobServiceClient
 

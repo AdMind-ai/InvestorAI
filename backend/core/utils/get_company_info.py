@@ -1,4 +1,4 @@
-from core.models.company_info import CompanyInfo, CEO, CompetitorInfo
+from core.models.company_info import CompanyInfo, CEO
 
 
 def get_user_company(user):
@@ -17,12 +17,12 @@ def get_ceos(user_or_company):
     return company.ceos.all()
 
 
-def get_competitors(user_or_company):
-    # user_or_company pode ser um usuário, geralmente, ou a company diretamente
-    if isinstance(user_or_company, CompanyInfo):
-        company = user_or_company
-    else:
-        company = get_user_company(user_or_company)
-    if not company:
-        return CompetitorInfo.objects.none()
-    return company.competitors.all()
+# def get_competitors(user_or_company):
+#     # user_or_company pode ser um usuário, geralmente, ou a company diretamente
+#     if isinstance(user_or_company, CompanyInfo):
+#         company = user_or_company
+#     else:
+#         company = get_user_company(user_or_company)
+#     if not company:
+#         return CompetitorInfo.objects.none()
+#     return company.competitors.all()

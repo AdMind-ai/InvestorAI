@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import Error404 from './pages/Error404'
 import Login from './pages/Login'
-import Market from './pages/Market'
 import ChatAssistant from './pages/ChatAssistant'
 import CEO from './pages/CEO'
 import ESG from './pages/ESG'
@@ -16,6 +15,7 @@ import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 import RestrictedRoute from './components/RestrictedRoute'
 import Avatar from './pages/Avatar'
+import MarketIntelligence from './pages/MarketIntelligence'
 export const ALL_APP_ROUTES: string[] = [
   "/market-intelligence",
   "/chat-assistant",
@@ -44,7 +44,7 @@ const AppRoutes = () => {
             <Route path="/market-intelligence"
               element={
                 <RestrictedRoute routeName="/market-intelligence">
-                  <Market />
+                  <MarketIntelligence />
                 </RestrictedRoute>
               }
             />

@@ -1,14 +1,15 @@
-export interface Competitor {
-    competitor: string;
-    logo?: string;
-    sectors?: string[];
-    description?: string;
-    website?: string;
-    stock_symbol?: string;
+export interface RelatedCompany {
+    name: string;
+    stock_symbol: string;
+    website: string;
+    sectors: string[];
+    logo: string;
+    description: string;
+    kind: "competitor" | "client" | "fornitori";
 }
 
 export interface CompanyCompetitors {
     date: string;
     company: string;
-    competitors: Competitor[];
+    competitors: RelatedCompany[];
 }

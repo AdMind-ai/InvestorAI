@@ -3,8 +3,13 @@ from .example_view import ExampleView
 
 from .frontend_master_route_list_view import MasterRouteListUpdateView
 from .company_info import CompanyInfoView as CompanyInfoViewAdm
+from .company_info_sector import CompanyInfoSectorView
 from .company_route_restriction_view import CompanyRouteRestrictionView
 from .newsapi import NewsApiMarketNewsView
+from .market_news_setup_view import MarketNewsSetupView
+from .market_sector_news_view import MarketSectorNewsTriggerView, MarketSectorNewsAllTriggerView, MarketSectorNewsStatusView
+from .market_competitors_news_view import MarketCompetitorsNewsTriggerView, MarketCompetitorsNewsAllTriggerView, MarketCompetitorsNewsStatusView
+from .market_report_monthly_view import MarketMonthlyReportTriggerView, MarketMonthlyReportStatusView, MarketMonthlyReportLatestView
 
 from .perplexity import PerplexityDeepSearchView
 from .perplexity import PerplexityESGNewsView
@@ -47,6 +52,20 @@ __all__ = [
     'MasterRouteListUpdateView',
     'CompanyInfoViewAdm',
     'CompanyRouteRestrictionView',
+    
+    'CompanyInfoSectorView',
+    'MarketNewsSetupView',
+    'MarketSectorNewsTriggerView',
+    'MarketSectorNewsAllTriggerView',
+    'MarketSectorNewsStatusView',
+    
+    'MarketCompetitorsNewsTriggerView',
+    'MarketCompetitorsNewsAllTriggerView',
+    'MarketCompetitorsNewsStatusView',
+    'MarketMonthlyReportTriggerView',
+    'MarketMonthlyReportStatusView',
+    'MarketMonthlyReportLatestView',
+    
     'NewsApiMarketNewsView',
     'PerplexityDeepSearchView',
     'PerplexityESGNewsView',

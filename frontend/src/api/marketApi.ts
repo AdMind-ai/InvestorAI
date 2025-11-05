@@ -1,7 +1,19 @@
 // src/api/marketApi.ts
 
 import { api } from './api';
-import type { StockData, HistoryInfo, HistoryDataItem, RawHistoryDataItem, CompanyInfo, Article, Competitor } from '../interfaces/market';
+import type { StockData, HistoryInfo, HistoryDataItem, RawHistoryDataItem, CompanyInfo, Article, RelatedCompany } from '../interfaces/market';
+
+export type SummaryItem = {
+  id: number;
+  company: string;
+  type: 'sector' | 'competitor' | 'client' | 'fornitori';
+  title: string;
+  description: string;
+  category: string;
+  relevance?: 'high' | 'medium' | 'low';
+  created_at: string; // ISO
+  sources: string[];
+};
 
 
 // 1. Buscar company info
@@ -48,10 +60,10 @@ export async function fetchQuarterlyReport(
 }
 
 // 5. Buscar concorrentes
-export async function fetchCompetitors(): Promise<Competitor[]> {
+export async function fetchCompetitors(): Promise<RelatedCompany[]> {
   const response = await api.get('/openai/competitors-search/');
-  // Retorna o array do objeto .competitors
-  return response.data?.competitors ?? [];
+  // Retorna o array do objeto
+  return response.data?.related_companies ?? [];
 }
 
 // 6. Buscar notícias
@@ -62,10 +74,35 @@ export async function fetchMarketNews(): Promise<Article[]> {
 
 // 7. Buscar market overview report
 export async function fetchMarketOverview(): Promise<{ report: string, citations: string[] }> {
-  const response = await api.get('/perplexity/market-report/', { params: { recent: true } });
-  console.log(response)
+  const response = await api.get('/market-monthly-report/latest/');
   return {
-    report: response.data.report ?? '',
-    citations: response.data.citations ?? []
+    report: response.data?.report ?? '',
+    citations: (response.data?.citations as string[] | undefined) ?? []
   };
+}
+
+// 8. Buscar resumos (SummaryNewsArticle list)
+export async function fetchMarketSummaries(params: {
+  type?: 'competitor' | 'sector' | 'client' | 'fornitori';
+  page?: number;
+  page_size?: number;
+  category?: string;
+  relevance?: 'high' | 'medium' | 'low';
+}): Promise<{ results: SummaryItem[]; total: number; page: number; page_size: number }>{
+  const response = await api.get('/market-summary-news/', { params });
+  const data = response.data ?? { results: [], total: 0, page: 1, page_size: 8 };
+  // Normalize sources array defensively
+  type ApiSummaryItem = Omit<SummaryItem, 'sources'> & { sources?: unknown };
+  const results: SummaryItem[] = (data.results || []).map((r: ApiSummaryItem) => ({
+    id: r.id,
+    company: r.company,
+    type: r.type,
+    title: r.title,
+    description: r.description,
+    category: r.category,
+    relevance: r.relevance,
+    created_at: r.created_at,
+    sources: Array.isArray(r.sources) ? r.sources : [],
+  }));
+  return { results, total: data.total ?? results.length, page: data.page ?? 1, page_size: data.page_size ?? params.page_size ?? 8 };
 }

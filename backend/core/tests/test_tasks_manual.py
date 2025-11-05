@@ -1,5 +1,5 @@
 # python manage.py shell
-from core.tasks import *
+from backend.core.tasks.tasks import *
 from datetime import datetime
 
 current_year = datetime.now().year

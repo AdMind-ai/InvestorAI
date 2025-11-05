@@ -1,18 +1,20 @@
 from django.contrib import admin
+from django import forms
 from core.models.openai_ceo_conversaitons_model import CEOConversation
 from core.models.esg_article_model import ESGArticle
 from core.models.ceo_article_model import CEOArticle
 from core.models.openai_chat_models import ChatConversation, ChatMessage
 from core.models.competitor_model import CompetitorSearch, Competitor
-from core.models.market_article_model import MarketNewsArticle
+from core.models.market_article_model import MarketNewsArticle, MarketNewsSetup
 from core.models.market_company_report import CompanyMarketReport
 from core.models.company_stock_data_model import CompanyStockData
 from core.models.company_quarterly_report import CompanyQuarterlyReport
-from core.models.company_info import CompanyInfo, CEO, CompetitorInfo
+from core.models.company_info import CompanyInfo, CEO, RelatedCompany
 from core.models.company_info.company_route_restriction import CompanyRouteRestriction
 from core.models.frontend_master_route_list import MasterRouteList
-from django import forms
+from core.models.summary_news_model import SummaryNewsArticle
 from core.models.linkedin_scheduled_post import LinkedinScheduledPost
+from core.models.market_news_alert_preference import MarketNewsAlertPreference
 # Register your models here.
 
 
@@ -159,7 +161,7 @@ class CompanyQuarterlyReportAdmin(admin.ModelAdmin):
 
 
 class CompetitorInline(admin.TabularInline):
-    model = CompetitorInfo
+    model = RelatedCompany
     extra = 0
 
 
@@ -174,10 +176,9 @@ class CompanyAdmin(admin.ModelAdmin):
     inlines = [CompetitorInline, CEOInline]
 
 
-@admin.register(CompetitorInfo)
+@admin.register(RelatedCompany)
 class CompetitorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'stock_symbol',
-                    'sectors_competitor', 'company', 'created_at')
+    list_display = ('name', 'kind', 'stock_symbol', 'sectors', 'company', 'created_at')
 
 
 @admin.register(CEO)
@@ -196,3 +197,31 @@ class LinkedinScheduledPostAdmin(admin.ModelAdmin):
     search_fields = ('text', 'company__long_name', 'created_by__username')
     list_filter = ('company',)
     readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(SummaryNewsArticle)
+class SummaryNewsArticleAdmin(admin.ModelAdmin):
+    list_display = (
+        'title', 'company', 'type', 'category', 'relevance', 'created_at'
+    )
+    list_filter = ('type', 'category', 'relevance', 'created_at', 'company_fk')
+    search_fields = ('title', 'description', 'company')
+    date_hierarchy = 'created_at'
+    ordering = ('-created_at',)
+    list_per_page = 25
+    
+@admin.register(MarketNewsAlertPreference)
+class MarketNewsAlertPreferenceAdmin(admin.ModelAdmin):
+    list_display = ('company', 'email', 'category', 'enabled', 'relevance', 'created_at')
+    search_fields = ('email', 'company__long_name')
+    list_filter = ('category', 'enabled', 'relevance', 'company')
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)
+    list_per_page = 10
+    
+@admin.register(MarketNewsSetup)
+class MarketNewsSetupAdmin(admin.ModelAdmin):
+    list_display = ('company', 'is_configured', 'configured_at')
+    search_fields = ('company__long_name',)
+    list_filter = ('is_configured', 'configured_at')
+    ordering = ('-configured_at',)

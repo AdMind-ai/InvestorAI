@@ -11,7 +11,7 @@ from datetime import datetime
 import locale
 from core.serializers.perplexity_serializer import PerplexityRequestSerializer
 from core.models.openai_chat_models import ChatConversation, ChatMessage
-from core.tasks import deep_search_perplexity_async
+from core.tasks.tasks import deep_search_perplexity_async
 from core.utils.get_company_info import get_user_company
 
 
