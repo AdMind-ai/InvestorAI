@@ -332,16 +332,15 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({} as any));
-        toast.error(err?.detail || 'Erro ao salvar preferenze');
+        toast.error(err?.detail || 'Errore durante il salvataggio delle preferenze');
         return false;
       }
-      toast.success('Preferenze salvate');
       setEmail(emailToSave);
       setPreferences(prefsToSave);
       return true;
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao salvar preferenze');
+      toast.error('Errore durante il salvataggio delle preferenze');
       return false;
     }
   };
@@ -375,13 +374,13 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({} as any));
-        toast.error(err?.detail || 'Erro ao atualizar informações de setor');
+        toast.error(err?.detail || "Errore durante l'aggiornamento delle informazioni di settore");
         return false;
       }
       return true;
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao atualizar informações de setor');
+      toast.error("Errore durante l'aggiornamento delle informazioni di settore");
       return false;
     }
   };
@@ -415,19 +414,18 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
 
   const startMarketTasksAndWait: MarketIntelligenceState['startMarketTasksAndWait'] = async () => {
     try {
-      const [sectorTaskId, competitorsTaskId] = await Promise.all([
-        triggerTask('/market-sector-news/company/'),
-        triggerTask('/market-competitors-news/company/'),
-      ]);
+      // 1) Sector first
+      const sectorTaskId = await triggerTask('/market-sector-news/company/');
+      const sectorStatus = await pollTaskStatus(`/market-sector-news/status/${sectorTaskId}/`);
 
-      const [sectorStatus, competitorsStatus] = await Promise.all([
-        pollTaskStatus(`/market-sector-news/status/${sectorTaskId}/`),
-        pollTaskStatus(`/market-competitors-news/status/${competitorsTaskId}/`),
-      ]);
+      // 2) Then competitors, only after sector finished (regardless of success)
+      const competitorsTaskId = await triggerTask('/market-competitors-news/company/');
+      const competitorsStatus = await pollTaskStatus(`/market-competitors-news/status/${competitorsTaskId}/`);
+
       return { sectorStatus, competitorsStatus };
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao iniciar tarefas de coleta de notícias');
+      toast.error("Errore durante l'avvio delle attività di raccolta notizie.");
       return { sectorStatus: 'ERROR', competitorsStatus: 'ERROR' } as any;
     }
   };
@@ -437,6 +435,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     // 0) mark setup as configured before starting tasks
     await registerMarketingSetup(true);
     try {
+      toast.info('Inizio raccolta notizie...');
       // move UI to loading and persist
       setStep(4);
       // 1) Update company sector info
@@ -451,15 +450,15 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       if (!success) {
         await registerMarketingSetup(false);
       } else {
-        toast.info('Coleta iniciada. Os resultados aparecerão assim que prontos.');
         // Preload summaries so the results page has data
         try { await loadSummaries(); } catch (_) { /* ignore */ }
         setStep(5);
+        toast.success('Raccolta di notizie completata con successo.');
         return true;
       }
     } catch (e) {
       console.error(e);
-      toast.error('Falha ao iniciar a coleta de notícias');
+      toast.error('Impossibile avviare la raccolta delle notizie.');
       await registerMarketingSetup(false);
       setStep(3);
       return false;

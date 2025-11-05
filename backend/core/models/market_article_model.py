@@ -51,6 +51,14 @@ class MarketNewsSetup(models.Model):
     )
     is_configured = models.BooleanField(default=False)
     configured_at = models.DateTimeField(auto_now=True)
+    
+    # Criar campos para conversation_id da openai 
+    # Será usado para guardar o contexto da conversa dos chats: 
+    # MI01, MI02, MI03, MI04
+    conversation_id_mi01 = models.CharField(max_length=255, null=True, blank=True)
+    conversation_id_mi02 = models.CharField(max_length=255, null=True, blank=True)
+    conversation_id_mi03 = models.CharField(max_length=255, null=True, blank=True)
+    conversation_id_mi04 = models.CharField(max_length=255, null=True, blank=True)  
 
     class Meta:
         verbose_name = "Marketing News Setup"

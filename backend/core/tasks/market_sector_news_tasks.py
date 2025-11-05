@@ -62,6 +62,7 @@ def fetch_market_sector_news_task(self, company_id=None):
             response = client.responses.create(
                 prompt={ 'id': os.getenv('OPENAI_PROMPT_ID_MI01') },
                 input=input,
+                conversation=setup.conversation_id_mi01,
                 store=True,
                 include=[
                     "reasoning.encrypted_content",

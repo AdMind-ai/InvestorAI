@@ -2,9 +2,13 @@ from celery import shared_task
 from core.models.company_info import CompanyInfo
 import logging
 from openai import OpenAI
+from openai import BadRequestError
 import os
+import time
+import random
 import json
 from core.models.summary_news_model import SummaryNewsArticle
+from core.models.market_article_model import MarketNewsSetup
 from core.utils.tasks.collect_market_news import safe_load_json
 
 logger = logging.getLogger(__name__)
@@ -15,7 +19,7 @@ client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 # Task para gerar resumo das notícias do setor e competidores (MI03)
 # ================================================================
 @shared_task(bind=True)
-def fetch_market_summary_new(self, company_id, type, news):
+def fetch_market_summary_new(self, company_id, type, news, entity_name):
     """
     Gera resumos (clusters) a partir de uma lista de notícias recém-salvas e persiste
     em SummaryNewsArticle.
@@ -68,16 +72,42 @@ def fetch_market_summary_new(self, company_id, type, news):
 
         logger.info(f"[Summary] company={company.long_name} type={type} news_json_length={len(news_json)}")
 
-        response = client.responses.create(
-            prompt={'id': os.getenv('OPENAI_PROMPT_ID_MI03')},
-            input=news_json,
-            store=True,
-            include=[
-                "reasoning.encrypted_content",
-                "web_search_call.action.sources"
-            ],
-            timeout=600
-        )
+        # Fetch conversation id for MI03 from setup to keep context across calls
+        setup = MarketNewsSetup.objects.filter(company=company).first()
+        conversation_id = setup.conversation_id_mi03 if setup else None
+
+        # Call OpenAI with retry/backoff if conversation is locked by another process
+        max_attempts = 20
+        backoff = 0.8
+        attempt = 0
+        while True:
+            try:
+                response = client.responses.create(
+                    prompt={'id': os.getenv('OPENAI_PROMPT_ID_MI03')},
+                    input=news_json,
+                    conversation=conversation_id,
+                    store=True,
+                    include=[
+                        "reasoning.encrypted_content",
+                        "web_search_call.action.sources"
+                    ],
+                    timeout=600
+                )
+                break
+            
+            except BadRequestError as e:
+                # conversation_locked is returned when two requests hit the same conversation concurrently
+                if "conversation_locked" in str(e) and attempt < max_attempts - 1:
+                    sleep_s = backoff * (2 ** attempt) + random.uniform(0, 0.5)
+                    logger.warning(
+                        f"[MI03] Conversation locked for company={company.long_name}, type={type}, entity={entity_name | 'n/a'}. "
+                        f"Retrying in {sleep_s:.2f}s (attempt {attempt+1}/{max_attempts})."
+                    )
+                    time.sleep(sleep_s)
+                    attempt += 1
+                    continue
+                else:
+                    raise
 
         raw_output = response.output_text
         logger.info(f"[Summary MI03] company={company.long_name} type={type} raw_length={len(raw_output)}")

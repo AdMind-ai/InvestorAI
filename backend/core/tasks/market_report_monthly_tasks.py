@@ -10,6 +10,7 @@ from openai import OpenAI
 
 from core.models.company_info import CompanyInfo
 from core.models.summary_news_model import SummaryNewsArticle
+from core.models.market_article_model import MarketNewsSetup
 from core.models.market_company_report import CompanyMarketReport
 from core.utils.tasks.collect_market_news import safe_load_json
 
@@ -151,9 +152,15 @@ def generate_market_monthly_report(self, company_id):
 
 		logger.info(f"[MI04] company={company.long_name} period={period_label} summaries={len(summaries_payload)}")
 
+
+		# Use conversation id (MI04) from setup to maintain chat context
+		setup = MarketNewsSetup.objects.filter(company=company).first()
+		conversation_id = setup.conversation_id_mi04 if setup else None
+
 		response = client.responses.create(
 			prompt={"id": os.getenv("OPENAI_PROMPT_ID_MI04")},
 			input=input_json,
+			conversation=conversation_id,
 			store=True,
 			include=[
 				"reasoning.encrypted_content"
