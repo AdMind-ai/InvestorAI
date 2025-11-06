@@ -100,7 +100,7 @@ def fetch_market_summary_new(self, company_id, type, news, entity_name):
                 if "conversation_locked" in str(e) and attempt < max_attempts - 1:
                     sleep_s = backoff * (2 ** attempt) + random.uniform(0, 0.5)
                     logger.warning(
-                        f"[MI03] Conversation locked for company={company.long_name}, type={type}, entity={entity_name | 'n/a'}. "
+                        f"[MI03] Conversation locked for company={company.long_name}, type={type}. "
                         f"Retrying in {sleep_s:.2f}s (attempt {attempt+1}/{max_attempts})."
                     )
                     time.sleep(sleep_s)

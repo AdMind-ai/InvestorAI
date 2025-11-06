@@ -96,7 +96,7 @@ CELERY_BEAT_SCHEDULE = {
     'news_ceos_weekly': {
         'task': 'core.tasks.tasks.collect_ceo_news_task',
         'schedule': crontab(hour=8, minute=0, day_of_week="monday"),
-        'args': ()
+        'args': () 
     },
     # 'fetch_and_store_daily_company_stock_data': {
     #     'task': 'core.tasks.tasks.fetch_and_store_daily_company_stock_data',
