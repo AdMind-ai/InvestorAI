@@ -134,8 +134,17 @@ def fetch_market_sector_news_task(self, company_id=None):
             # Dispara task de resumo (MI03) com as notícias salvas nesta execução
             try:
                 if session_news_items:
-                    fetch_market_summary_new.delay(company.id, 'sector', session_news_items)
+                    # Aguarda o término do resumo para garantir que SUCCESS
+                    # da task de setor represente também a conclusão do MI03.
+                    timeout_s = 900  # até 15 minutos
+                    summary_res = fetch_market_summary_new.delay(company.id, 'sector', session_news_items)
                     logger.info(f"[{company.long_name}] Summary task dispatched with {len(session_news_items)} items.")
+                    try:
+                        _ = summary_res.get(timeout=timeout_s, propagate=False)
+                    except Exception as e:
+                        logger.warning(
+                            f"[{company.long_name}] Falha ao aguardar summary de setor: {e}. Prosseguindo."
+                        )
                 else:
                     logger.info(f"[{company.long_name}] Nada novo salvo; resumo não disparado.")
             except Exception as e:

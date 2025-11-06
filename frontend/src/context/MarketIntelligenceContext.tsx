@@ -107,7 +107,7 @@ const defaultState: MarketIntelligenceState = {
   summaries: [],
   summariesTotal: 0,
   summariesPage: 1,
-  summariesPageSize: 4,
+  summariesPageSize: 6,
   summariesLoading: false,
   loadSummaries: async () => { },
   newsArticles: [],
@@ -445,6 +445,20 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       toast.info('Inizio raccolta notizie...');
       // move UI to loading and persist
       setStep(4);
+      
+      // 0.5) Capture current summaries baseline to ensure we wait for NEW summaries
+      const getTotal = async (type: 'sector' | 'competitor') => {
+        try {
+          const res = await fetchMarketSummaries({ type, page: 1, page_size: 1 });
+          return Number(res?.total || 0);
+        } catch {
+          return 0;
+        }
+      };
+      const baseline = {
+        sector: await getTotal('sector'),
+        competitor: await getTotal('competitor'),
+      };
       // 1) Update company sector info
       const updated = await updateCompanySector();
       if (!updated) throw new Error('Falha ao atualizar setor');
@@ -457,8 +471,31 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       if (!success) {
         await registerMarketingSetup(false);
       } else {
+        // 3) Wait for summaries (MI03) to be persisted after MI01/MI02
+        // We'll poll for increases over the baseline for both sector and competitor.
+        const deadline = Date.now() + 60 * 60 * 1000; // up to 1 hour
+        const intervalMs = 4000;
+        let sectorOk = false;
+        let competitorOk = false;
+
+        while (Date.now() < deadline) {
+          try {
+            const [nowSector, nowCompetitor] = await Promise.all([
+              fetchMarketSummaries({ type: 'sector', page: 1, page_size: 1 }).then(r => Number(r?.total || 0)).catch(() => 0),
+              fetchMarketSummaries({ type: 'competitor', page: 1, page_size: 1 }).then(r => Number(r?.total || 0)).catch(() => 0),
+            ]);
+
+            sectorOk = nowSector > baseline.sector || baseline.sector > 0; // if there were already summaries, consider OK
+            competitorOk = nowCompetitor > baseline.competitor || baseline.competitor > 0;
+
+            if (sectorOk && competitorOk) break;
+          } catch {/* ignore single failures */}
+          await new Promise(res => setTimeout(res, intervalMs));
+        }
+
         // Preload summaries so the results page has data
-  try { await loadSummaries(); } catch { /* ignore */ }
+        try { await loadSummaries(); } catch { /* ignore */ }
+
         setStep(5);
         toast.success('Raccolta di notizie completata con successo.');
         return true;

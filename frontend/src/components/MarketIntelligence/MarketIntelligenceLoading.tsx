@@ -17,7 +17,7 @@ export default function MarketIntelligenceLoading({ open, onComplete, auto = tru
             <Box sx={{ textAlign: 'center', maxWidth: 720, width: '90%', p: 4 }}>
                 <CircularProgress size={64} color="warning" sx={{ mb: 3 }} />
                 <Typography variant="h6" gutterBottom fontWeight={600}>Stiamo elaborando tutte le informazioni per te...</Typography>
-                <Typography variant="body2" color="text.secondary">Puoi uscire tranquillamente da questa pagina: ti invieremo una mail appena il processo sarà completato (ci vorranno un paio d'ore).</Typography>
+                {/* <Typography variant="body2" color="text.secondary">Puoi uscire tranquillamente da questa pagina: ti invieremo una mail appena il processo sarà completato (ci vorranno un paio d'ore).</Typography> */}
             </Box>
         </Box>
     );

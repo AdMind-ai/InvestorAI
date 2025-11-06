@@ -216,10 +216,19 @@ def fetch_market_competitor_news_task(self, company_id, competitor_id):
         # Dispara task de resumo (MI03) com as notícias salvas nesta execução para este competidor
         try:
             if session_news_items:
-                fetch_market_summary_new.delay(company.id, entity.kind, session_news_items)
+                # Aguarda o término do resumo para garantir que SUCCESS do competidor
+                # represente também a conclusão do MI03.
+                timeout_s = 900  # até 15 minutos
+                summary_res = fetch_market_summary_new.delay(company.id, entity.kind, session_news_items)
                 logger.info(
                     f"[{company.long_name}] Summary task dispatched with {len(session_news_items)} item(s) for competitor {entity.name}."
                 )
+                try:
+                    _ = summary_res.get(timeout=timeout_s, propagate=False)
+                except Exception as e:
+                    logger.warning(
+                        f"[{company.long_name}] Falha ao aguardar summary para {entity.name}: {e}. Prosseguindo."
+                    )
             else:
                 logger.info(f"[{company.long_name}] Nada novo salvo para {entity.name}; resumo não disparado.")
         except Exception as e:
