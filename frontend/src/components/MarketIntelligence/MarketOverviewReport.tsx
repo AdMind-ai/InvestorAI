@@ -32,7 +32,6 @@ const MarketOverviewReport = ({ overviewReport = "", onExport }: Props) => {
         </Typography>
         <Button
           variant="outlined"
-          disabled={!onExport || isLoadingExport}
           startIcon={isLoadingExport ? null : <OpenInNewIcon />}
           onClick={handleExportReport}
           sx={{
