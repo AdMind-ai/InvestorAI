@@ -14,7 +14,6 @@ const FlowContent = () => {
     const { step, initializingStep, setStep, open, setOpen, runPostEmailFlow } = useMarketIntelligence();
 
     useEffect(() => {
-        setStep(5);
         if (Number.isNaN(step)) setStep(0);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
