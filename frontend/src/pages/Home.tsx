@@ -11,6 +11,7 @@ import CEOIcon from '../assets/icons-sidebar/ceo-icon.svg'
 import MarketIcon from '../assets/icons-sidebar/market-icon.svg'
 import EarningsIcon from '../assets/icons-sidebar/earnings-icon.svg'
 import ESGIcon from '../assets/icons-sidebar/esg-icon.svg'
+import AvatarIcon from '../assets/icons-sidebar/avatar.svg'
 
 const cards = [
   {
@@ -47,6 +48,13 @@ const cards = [
     description: 'Traduci, trascrivi, crea post e speech in pochi clic.',
     icon: EarningsIcon,
     path: '/earnings',
+    tool: 'operativi'
+  },
+  {
+    title: 'Avatar AI',
+    description: 'Il tuo ambasciatore digitale, che parla per te nel mondo.',
+    icon: AvatarIcon,
+    path: '/avatar',
     tool: 'operativi'
   }
 ]
