@@ -36,6 +36,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     localStorage.removeItem("user");
+    // Clear home modal flag so it shows again on next login
+    localStorage.removeItem('homeModalShown');
     navigate("/login"); 
   };
 
@@ -49,6 +51,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const userData: User = { name: username };
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
+        // Reset home modal flag on successful login so it shows once
+        localStorage.removeItem('homeModalShown');
         return true; 
       } else {
         return false; 

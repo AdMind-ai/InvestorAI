@@ -32,7 +32,7 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({
         disabled={isDisabled}
         fullWidth
         multiline
-        minRows={1}
+        rows={14}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -71,11 +71,9 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({
               borderColor: isOverLimit ? 'red' : theme.palette.primary.main, 
             },
           },
-          '& .MuiOutlinedInput-input': {
+          '& .MuiInputBase-inputMultiline, & .MuiOutlinedInput-inputMultiline': {
+            height: '100%',
             overflowY: 'auto',
-            padding: '12px',
-            paddingBottom: '30px',
-            fontSize: '17px',
           },
         }}
 

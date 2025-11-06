@@ -11,6 +11,7 @@ import CEOIcon from '../assets/icons-sidebar/ceo-icon.svg'
 import MarketIcon from '../assets/icons-sidebar/market-icon.svg'
 import EarningsIcon from '../assets/icons-sidebar/earnings-icon.svg'
 import ESGIcon from '../assets/icons-sidebar/esg-icon.svg'
+import AvatarIcon from '../assets/icons-sidebar/avatar.svg'
 
 const cards = [
   {
@@ -21,7 +22,7 @@ const cards = [
     tool: 'intelligence'
   },
   {
-    title: 'CEO perception',
+    title: 'CEO Perception',
     description: 'Monitora la percezione online di CEO e top management.',
     icon: CEOIcon,
     path: '/ceo-perception',
@@ -48,6 +49,13 @@ const cards = [
     icon: EarningsIcon,
     path: '/earnings',
     tool: 'operativi'
+  },
+  {
+    title: 'Avatar AI',
+    description: 'Il tuo ambasciatore digitale, che parla per te nel mondo.',
+    icon: AvatarIcon,
+    path: '/avatar',
+    tool: 'operativi'
   }
 ]
 
@@ -72,8 +80,14 @@ In sintesi, i tool di intelligence vi danno la conoscenza strategica, i tool ope
 const Home: React.FC = () => {
   const [openModal, setOpenModal] = useState(false)
 
+  // Show the intro modal only once per login session
   useEffect(() => {
-    setOpenModal(true)
+    const STORAGE_KEY = 'homeModalShown'
+    const alreadyShown = localStorage.getItem(STORAGE_KEY)
+    if (alreadyShown !== 'true') {
+      setOpenModal(true)
+      localStorage.setItem(STORAGE_KEY, 'true')
+    }
   }, [])
 
   return (

@@ -19,7 +19,7 @@ export default function SummaryCard({ title, description, relevance, category, o
     const rel = relevance ? relevanceMap[relevance] : undefined;
     return (
         <Box sx={{
-            height: '17vw',
+            height: '18vw',
             border: '1px solid #E5E7EB',
             borderRadius: 2,
             p: 2,
@@ -27,13 +27,13 @@ export default function SummaryCard({ title, description, relevance, category, o
             flexDirection: 'column',
             gap: 1.5,
             backgroundColor: '#fff',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.16)'
         }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, textTransform: 'uppercase' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, textTransform: 'uppercase', lineHeight: 1.4, fontSize: '18px' }}>
                 {title}
             </Typography>
             <Typography sx={{
-                fontSize: '16px',
+                fontSize: '17px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 display: '-webkit-box',
@@ -52,11 +52,11 @@ export default function SummaryCard({ title, description, relevance, category, o
                         variant="outlined"
                         label={category?.toUpperCase()}
                         sx={{
+                            backgroundColor: '#E6F0FF',
                             minWidth: '9vw',
                             borderRadius: 2,
-                            color: '#7E7E7E',
-                            borderColor: '#7E7E7E',
-                            '&:hover': { borderColor: '#7E7E7E', backgroundColor: 'transparent' },
+                            color: '#0B5FFF',
+                            borderColor: '#0B5FFF',
                             '& .MuiChip-label': {
                                 width: '100%',
                                 textTransform: 'none',
@@ -68,7 +68,12 @@ export default function SummaryCard({ title, description, relevance, category, o
                         }}
                     />
                     {rel && (
-                        <Chip label={rel.label} size="small" sx={{ color: rel.color, backgroundColor: rel.bg }} />
+                        <Chip label={rel.label} size="medium" sx={{ 
+                            color: rel.color, 
+                            backgroundColor: rel.bg, 
+                            fontSize: '15px',
+                            borderRadius: 2,
+                        }} />
                     )}
                 </Stack>
                 <Button

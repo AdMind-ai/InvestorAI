@@ -8,6 +8,7 @@ import theme from './styles/theme'
 import 'highlight.js/styles/a11y-dark.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './styles/global.css';
 import './styles/custom-toast.css';
 
 createRoot(document.getElementById('root')!).render(

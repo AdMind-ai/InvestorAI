@@ -85,7 +85,7 @@ const CEOPage: React.FC = () => {
   const [articleToDeleteIndex, setArticleToDeleteIndex] = useState<number | null>(null);
 
   const [page, setPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(20);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const currentData = data[selectedPerson] || [];

@@ -16,8 +16,9 @@ class CEOSerializer(serializers.ModelSerializer):
 
 
 class CompanySerializer(serializers.ModelSerializer):
-    competitors = CompetitorSerializer(many=True)
-    ceos = CEOSerializer(many=True)
+    # Filter only related_companies with kind='competitor'
+    competitors = serializers.SerializerMethodField()
+    ceos = CEOSerializer(many=True, read_only=True)
 
     class Meta:
         model = CompanyInfo
@@ -36,8 +37,15 @@ class CompanySerializer(serializers.ModelSerializer):
             'address',
             'phone',
             'email',
+            'sources',
             'competitors',
-            'ceos',
-            'sources'
+            'ceos'
         ]
+
+    def get_competitors(self, obj):
+        # Use prefetched list when available to avoid extra queries
+        comps = getattr(obj, 'prefetched_competitors', None)
+        if comps is None:
+            comps = obj.related_companies.filter(kind='competitor')
+        return CompetitorSerializer(comps, many=True).data
 

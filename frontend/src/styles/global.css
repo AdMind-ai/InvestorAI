@@ -1,0 +1,17 @@
+/* Hide default password reveal/clear icons in Edge/IE to prevent double eye icon */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+	display: none;
+}
+
+/* For Chromium-based Edge, fallback: hide any built-in buttons if present */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-contact-auto-fill-button {
+	visibility: hidden;
+	display: none;
+}
+
+/* Ensure our custom button doesn't overlap built-ins even if they render */
+.password-input-wrapper {
+	position: relative;
+}

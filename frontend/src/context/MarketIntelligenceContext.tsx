@@ -247,6 +247,14 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   }
 
   useEffect(() => {
+    // Skip any authenticated calls if there's no access token (e.g., on login page)
+    const access = localStorage.getItem('access');
+    if (!access) {
+      setStep(0);
+      setInitializingStep(false);
+      return;
+    }
+
     // Decide initial step based on backend setup flag
     (async () => {
       try {

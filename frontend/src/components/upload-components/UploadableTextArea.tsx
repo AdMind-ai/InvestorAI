@@ -22,7 +22,7 @@ const ACCEPTED_FILE_EXTENSIONS = [
   '.docx', '.doc', '.pptx', '.xlsx', '.pdf', '.txt', '.html', '.htm', '.xlf', '.xliff', '.srt'
 ];
 
-const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder='Scrivi il tuo testo qui', documentPlaceHolder='Carica un file o trascinalo qui', textAreaHeight='29vh', resetFilesFlag=false  }) => {
+const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, onFileUpload, placeholder = 'Scrivi il tuo testo qui', documentPlaceHolder = 'Carica un file o trascinalo qui', textAreaHeight = '29vh', resetFilesFlag = false }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dragOver, setDragOver] = useState<boolean>(false);
 
@@ -35,7 +35,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const fileContent = e.target?.result as string;
       console.log('Conteúdo do arquivo:', fileContent);
-  
+
       const newDocument: Document = {
         id: Date.now() + Math.random(),
         name: file.name,
@@ -46,13 +46,13 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
     };
     reader.readAsText(file);
   };
-  
+
   const handleMultipleFilesUpload = (files: FileList) => {
     const filesArr = Array.from(files);
-  
+
     filesArr.forEach((file) => {
       const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
-        
+
       if (ACCEPTED_FILE_EXTENSIONS.includes(fileExtension)) {
         handleFileUpload(file);
       } else {
@@ -65,7 +65,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
     e.preventDefault();
     e.stopPropagation();
     setDragOver(false);
-  
+
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       handleMultipleFilesUpload(files);
@@ -82,7 +82,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
     fileInput.accept = ACCEPTED_FILE_EXTENSIONS.join(',');
     fileInput.multiple = true;
     fileInput.style.display = 'none';
-  
+
     fileInput.onchange = (event) => {
       const target = event.target as HTMLInputElement;
       const files = target.files;
@@ -90,7 +90,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
         handleMultipleFilesUpload(files);
       }
     };
-  
+
     document.body.appendChild(fileInput);
     fileInput.click();
     document.body.removeChild(fileInput);
@@ -143,7 +143,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
             <>
               <Box onClick={openFileSelector}>
                 <Typography sx={{ fontSize: '16px', color: '#666' }}>
-                  
+
                 </Typography>
                 <Typography
                   sx={{
@@ -161,7 +161,7 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
                 variant="outlined"
                 fullWidth
                 multiline
-                minRows={2}
+                rows={10}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder={placeholder}
@@ -184,7 +184,8 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
                       borderRadius: '2vh'
                     }
                   },
-                  '& .MuiOutlinedInput-input': {
+                  '& .MuiInputBase-inputMultiline, & .MuiOutlinedInput-inputMultiline': {
+                    height: '100%',
                     overflowY: 'auto',
                   },
                 }}
@@ -193,8 +194,8 @@ const UploadableTextArea: React.FC<UploadableTextAreaProps> = ({ text, setText, 
           )}
 
           {documents.length > 0 && (
-            <Box sx={{ height:'98%', marginTop: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between'}}>
-              <DocumentList documents={documents} onDelete={handleDeleteDocument}/>
+            <Box sx={{ height: '98%', marginTop: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
+              <DocumentList documents={documents} onDelete={handleDeleteDocument} />
               <Button
                 variant="contained"
                 color="secondary"
