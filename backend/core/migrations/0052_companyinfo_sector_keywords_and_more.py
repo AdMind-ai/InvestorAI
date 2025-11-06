@@ -20,10 +20,5 @@ class Migration(migrations.Migration):
             model_name='companyinfo',
             name='sector_websites',
             field=models.JSONField(blank=True, default=list, help_text='List of custom URLs provided by the user for sector intelligence.', null=True),
-        ),
-        migrations.AddField(
-            model_name='companyinfo',
-            name='sources',
-            field=models.TextField(blank=True, help_text='List of URLs from reliable sources for reports, one per line.', null=True),
         )
     ]
