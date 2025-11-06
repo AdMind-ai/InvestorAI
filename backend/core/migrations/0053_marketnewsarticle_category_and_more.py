@@ -16,10 +16,17 @@ class Migration(migrations.Migration):
             name='category',
             field=models.CharField(blank=True, max_length=64),
         ),
-        migrations.AddField(
-            model_name='marketnewsarticle',
-            name='company_fk',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='market_articles_fk', to='core.companyinfo'),
+        # Column core_marketnewsarticle.company_fk_id was already added in migration 0045 via raw SQL.
+        # To avoid "column already exists" in prod, adjust state only and skip DB write here.
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.AddField(
+                    model_name='marketnewsarticle',
+                    name='company_fk',
+                    field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='market_articles_fk', to='core.companyinfo'),
+                )
+            ]
         ),
         migrations.AddField(
             model_name='marketnewsarticle',
