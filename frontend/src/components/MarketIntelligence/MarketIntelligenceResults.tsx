@@ -33,14 +33,14 @@ export default function MarketIntelligenceResults() {
     const [page, setPage] = useState<number>(1);
     const [columnCategoryFilter, setColumnCategoryFilter] = useState<string>("Tutte");
 
-    const itemsPerPage = 9;
+    const itemsPerPage = 20;
     const categories = ["Settore", "Competitors", "Clienti", "Fornitori"];
 
     // 🧠 Busca inicial de notícias e resumos via contexto
     useEffect(() => {
         setError(null);
-    loadNews(category);
-    loadSummaries({ type: CATEGORY_MAP[category] as 'sector' | 'competitor' | 'client' | 'fornitori', page: 1, pageSize: 4 });
+        loadNews(category);
+        loadSummaries({ type: CATEGORY_MAP[category] as 'sector' | 'competitor' | 'client' | 'fornitori', page: 1, pageSize: 4 });
         setPage(1);
     }, [category]);
 
@@ -63,7 +63,6 @@ export default function MarketIntelligenceResults() {
             : m.type?.toLowerCase() === CATEGORY_MAP[category]?.toLowerCase()
     );
 
-
     const filtered = filteredByTop.filter((m) =>
         columnCategoryFilter === "Tutte" ? true : m.category === columnCategoryFilter
     );
@@ -80,8 +79,8 @@ export default function MarketIntelligenceResults() {
     // Summary pagination uses backend totals
     const summaryTotalPages = Math.max(1, Math.ceil((summariesTotal || 0) / summariesPageSize));
     const handleSummaryPageChange = (p: number) => {
-    setPage(p);
-    loadSummaries({ type: CATEGORY_MAP[category] as 'sector' | 'competitor' | 'client' | 'fornitori', page: p, pageSize: summariesPageSize });
+        setPage(p);
+        loadSummaries({ type: CATEGORY_MAP[category] as 'sector' | 'competitor' | 'client' | 'fornitori', page: p, pageSize: summariesPageSize });
     };
 
     const [summaryModal, setSummaryModal] = useState<{ open: boolean; title?: string; description?: string; category?: string; links: string[] }>({ open: false, links: [] });
@@ -134,7 +133,10 @@ export default function MarketIntelligenceResults() {
             </Box>
 
             {/* Tabs-like segmented control + content box */}
-            <Box sx={{ px: 4, mt: 1 }}>
+            <Box sx={{
+                px: 4,
+                mt: 1,
+            }}>
                 <Stack direction="row" alignItems="center">
                     <ToggleButtonGroup
                         value={tab}
@@ -177,7 +179,7 @@ export default function MarketIntelligenceResults() {
                     >
                         <ToggleButton value="summary">Riassunti</ToggleButton>
                         <ToggleButton value="news">Notizie</ToggleButton>
-                        <ToggleButton value="overview">Overview</ToggleButton>
+                        {/* <ToggleButton value="overview">Overview</ToggleButton> */}
                     </ToggleButtonGroup>
                 </Stack>
 
@@ -191,6 +193,7 @@ export default function MarketIntelligenceResults() {
                     bgcolor: '#fff',
                     position: 'relative',
                     mt: -1,
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.16)'
                 }}>
                     {(newsLoading || summariesLoading) && (
                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 3 }}>
@@ -253,18 +256,18 @@ export default function MarketIntelligenceResults() {
                         </Box>
                     )}
 
-                    {tab === 'overview' && (
+                    {/* {tab === 'overview' && (
                         <Box sx={{ px: 2, width: "100%" }}>
                             <p>...</p>
                         </Box>
-                    )}
+                    )} */}
                 </Box>
             </Box>
 
 
 
             <Box sx={{ display: "flex", p: 4 }}>
-                <MarketOverviewReport overviewReport={overviewReport}/>
+                <MarketOverviewReport overviewReport={overviewReport} />
             </Box>
         </Box>
     );

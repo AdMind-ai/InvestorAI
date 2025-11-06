@@ -43,7 +43,7 @@ export default function SummaryDetailsModal({ open, onClose, title, description,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                fontSize: '18px',
+                fontSize: '22px',
                 fontWeight: '600'
             }}>
                 {title}
@@ -57,7 +57,7 @@ export default function SummaryDetailsModal({ open, onClose, title, description,
 
                     {/* Description */}
                     {description && (
-                        <Typography variant="body2" sx={{ lineHeight: 1.6, fontSize: '17px' }}>
+                        <Typography variant="body2" sx={{ lineHeight: 1.6, fontSize: '20px' }}>
                             {description}
                         </Typography>
                     )}
@@ -66,21 +66,21 @@ export default function SummaryDetailsModal({ open, onClose, title, description,
                         <Chip
                             variant="outlined"
                             label={category}
-                            sx={{ alignSelf: 'flex-start', color: '#555', borderColor: '#ccc', borderRadius: 1.5 }}
-                            size="small"
+                            sx={{ alignSelf: 'flex-start', color: '#0B5FFF', borderColor: '#0B5FFF', borderRadius: 1.5, fontSize: '16px', backgroundColor: '#E6F0FF' }}
+                            size="medium"
                         />
                     )}
 
                     {/* Links */}
                     <Divider />
                     <div>
-                        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1.5 }}>
-                            Questi sono i link agli articoli di notizie utilizzati per generare questo riepilogo:
+                        <Typography variant="body2" sx={{ mb: 1.5, fontSize: '17px' }}>
+                            Notizie utilizzate per generare questo riepilogo:
                         </Typography>
                         {normalized?.length ? (
-                            <List>
+                            <List dense disablePadding>
                                 {normalized.map((href, idx) => (
-                                    <ListItem key={idx} disableGutters>
+                                    <ListItem key={idx} disableGutters sx={{ py: 0.4 }}>
                                         <ListItemText
                                             primary={
                                                 <Typography
@@ -95,7 +95,8 @@ export default function SummaryDetailsModal({ open, onClose, title, description,
                                                         whiteSpace: 'nowrap',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
-                                                        textDecoration: 'underline'
+                                                        textDecoration: 'underline',
+                                                        py: 0
                                                     }}
                                                 >
                                                     {href}
