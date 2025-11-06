@@ -19,7 +19,7 @@ client = OpenAI(api_key=os.getenv('OPENAI_KEY'))
 # Task para gerar resumo das notícias do setor e competidores (MI03)
 # ================================================================
 @shared_task(bind=True)
-def fetch_market_summary_new(self, company_id, type, news, entity_name):
+def fetch_market_summary_new(self, company_id, type, news):
     """
     Gera resumos (clusters) a partir de uma lista de notícias recém-salvas e persiste
     em SummaryNewsArticle.
@@ -100,7 +100,7 @@ def fetch_market_summary_new(self, company_id, type, news, entity_name):
                 if "conversation_locked" in str(e) and attempt < max_attempts - 1:
                     sleep_s = backoff * (2 ** attempt) + random.uniform(0, 0.5)
                     logger.warning(
-                        f"[MI03] Conversation locked for company={company.long_name}, type={type}, entity={entity_name | 'n/a'}. "
+                        f"[MI03] Conversation locked for company={company.long_name}, type={type}. "
                         f"Retrying in {sleep_s:.2f}s (attempt {attempt+1}/{max_attempts})."
                     )
                     time.sleep(sleep_s)
@@ -125,6 +125,22 @@ def fetch_market_summary_new(self, company_id, type, news, entity_name):
                 category = (s.get("summary_category") or "").strip().lower()
                 relevance = (s.get("summary_relevance") or "").strip().lower()
                 source_links = s.get("summary_links") or ""
+
+                # Enforce model max lengths to avoid DB errors
+                if len(title) > 255:
+                    title = title[:255]
+                if len(category) > 64:
+                    category = category[:64]
+
+                # Normalize links: allow list or string; store as JSON string when list
+                if isinstance(source_links, list):
+                    try:
+                        source_links = json.dumps(source_links, ensure_ascii=False)
+                    except Exception:
+                        # Fallback to newline-joined string
+                        source_links = "\n".join([str(it) for it in source_links])
+                elif not isinstance(source_links, str):
+                    source_links = str(source_links)
 
                 if not title or not description:
                     continue

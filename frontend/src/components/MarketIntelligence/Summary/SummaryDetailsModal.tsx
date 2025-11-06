@@ -7,30 +7,45 @@ export type SummaryDetailsModalProps = {
     title: string;
     description: string;
     category: string;
-    links: string[];
+    // Accept either an array (preferred) or a single string (JSON, CSV, newline, or plain URL)
+    links?: string | string[];
 };
 
-// Normalize incoming links to ensure only clean URLs are displayed,
-// even if a single string contains a list representation with quotes/brackets/newlines.
-function normalizeLinks(rawLinks: string[] = []): string[] {
-    const URL_REGEX = /(https?:\/\/[^\s'"\][]+)/g;
+// Normalize incoming links to a clean array of URLs.
+function normalizeLinks(rawLinks?: string | string[]): string[] {
+    const URL_REGEX = /(https?:\/\/[^\s'"\]\[]+)/g;
+
+    // Prepare a list of raw string segments to scan
+    let segments: string[] = [];
+    if (!rawLinks) {
+        segments = [];
+    } else if (Array.isArray(rawLinks)) {
+        segments = rawLinks.filter(Boolean);
+    } else if (typeof rawLinks === 'string') {
+        const s = rawLinks.trim();
+        // Try to parse JSON arrays like ["url1","url2"]
+        if (s.startsWith('[') && s.endsWith(']')) {
+            try {
+                const arr = JSON.parse(s);
+                if (Array.isArray(arr)) segments = arr.map(String);
+                else segments = [s];
+            } catch {
+                segments = [s];
+            }
+        } else {
+            // Split by newlines or commas as a best-effort
+            segments = s.split(/\r?\n|,\s*/g).filter(Boolean);
+        }
+    }
 
     const out: string[] = [];
-    for (const raw of rawLinks) {
-        if (!raw) continue;
-        const matches = raw.match(URL_REGEX);
+    for (const raw of segments) {
+        const matches = String(raw).match(URL_REGEX);
         if (matches && matches.length) {
             out.push(...matches);
-            continue;
         }
-        // Fallback: strip wrapping quotes/brackets/spaces/commas
-        const cleaned = raw
-            .trim()
-            .replace(/^\s*["[]+/, "")
-            .replace(/[\]"']+\s*$/, "")
-            .replace(/,$/, "");
-        if (cleaned) out.push(cleaned);
     }
+
     // Dedupe while preserving order
     return Array.from(new Set(out));
 }
