@@ -31,6 +31,10 @@ export const fetchWithAuth = async (endpoint: string, options: FetchOptions = {}
       };
       return fetch(`${baseURL}${endpoint}`, { ...options, headers: retryHeaders });
     } else {
+      // Clear tokens to avoid repeated unauthorized requests and let app route to login cleanly
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      localStorage.removeItem("user");
       window.location.href = "/login"; 
     }
   }

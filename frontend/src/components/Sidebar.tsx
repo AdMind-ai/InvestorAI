@@ -36,42 +36,48 @@ import InvestorLogo from '../assets/logos/svg/NOPAYOFF_LEFT_POSITIVE.svg'
 
 // Menu com links e ícones
 const menuItems = [
-  { title: 'Home', path: '/', icon: HomeIcon, activeIcon: HomeIconActive },
+  { title: 'Home', path: '/', icon: HomeIcon, activeIcon: HomeIconActive, tool: '' },
   {
     title: 'Market',
     path: '/market-intelligence',
     icon: MarketIcon,
     activeIcon: MarketIconActive,
-  },
-  {
-    title: 'Earnings',
-    path: '/earnings',
-    icon: EarningsIcon,
-    activeIcon: EarningsIconActive,
+    tool: 'intelligence'
   },
   {
     title: 'CEO Perception',
     path: '/ceo-perception',
     icon: CEOIcon,
     activeIcon: CEOIconActive,
-  },
-  {
-    title: 'Chat',
-    path: '/chat-assistant',
-    icon: ChatIcon,
-    activeIcon: ChatIconActive,
+    tool: 'intelligence'
   },
   {
     title: 'ESG',
     path: '/esg',
     icon: ESGIcon,
     activeIcon: ESGIconActive,
+    tool: 'intelligence'
+  },
+  {
+    title: 'Chat',
+    path: '/chat-assistant',
+    icon: ChatIcon,
+    activeIcon: ChatIconActive,
+    tool: 'operativi'
+  },
+  {
+    title: 'Earnings',
+    path: '/earnings',
+    icon: EarningsIcon,
+    activeIcon: EarningsIconActive,
+    tool: 'operativi'
   },
   {
     title: 'Avatar AI',
     path: '/avatar',
     icon: AvatarIcon,
     activeIcon: AvatarIconActive,
+    tool: 'operativi'
   },
 ]
 
@@ -169,8 +175,9 @@ const Sidebar: React.FC = () => {
             gap: 'calc(0.5vw)',
           }}
         >
-          {menuItems.map((item) => {
+          {menuItems.map((item, index) => {
             const isActive = activePath === item.path
+            const isGroupStart = index > 0 && menuItems[index - 1].tool !== item.tool
             return (
               <ListItem
                 key={item.title}
@@ -182,6 +189,8 @@ const Sidebar: React.FC = () => {
                   width: 'calc(4vw)',
                   height: 'calc(3.6vw)',
                   cursor: 'pointer',
+                  // Extra gap when the tool group changes
+                  mt: isGroupStart ? 4 : 0,
                   backgroundColor: isActive
                     ? theme.palette.primary.main
                     : 'transparent',

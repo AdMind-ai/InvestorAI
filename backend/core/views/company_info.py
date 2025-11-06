@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from core.models.company_info import CompanyInfo
+from core.models.company_info import CompanyInfo, RelatedCompany
 from core.serializers.company_info import CompanySerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.utils.get_company_info import get_user_company
+from django.db.models import Prefetch
 
 
 class CompanyInfoView(APIView):
@@ -28,7 +29,13 @@ class CompanyInfoView(APIView):
 
             try:
                 company_obj = CompanyInfo.objects.prefetch_related(
-                    'competitors', 'ceos').get(pk=company.pk)
+                    Prefetch(
+                        'related_companies',
+                        queryset=RelatedCompany.objects.filter(kind='competitor'),
+                        to_attr='prefetched_competitors'
+                    ),
+                    'ceos'
+                ).get(pk=company.pk)
                 print(f"Fetched CompanyInfo: {company_obj}")
             except Exception as e:
                 print(f"Exception fetching CompanyInfo with prefetch: {e}")

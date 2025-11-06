@@ -22,7 +22,7 @@ const cards = [
     tool: 'intelligence'
   },
   {
-    title: 'CEO perception',
+    title: 'CEO Perception',
     description: 'Monitora la percezione online di CEO e top management.',
     icon: CEOIcon,
     path: '/ceo-perception',
@@ -80,8 +80,14 @@ In sintesi, i tool di intelligence vi danno la conoscenza strategica, i tool ope
 const Home: React.FC = () => {
   const [openModal, setOpenModal] = useState(false)
 
+  // Show the intro modal only once per login session
   useEffect(() => {
-    setOpenModal(true)
+    const STORAGE_KEY = 'homeModalShown'
+    const alreadyShown = localStorage.getItem(STORAGE_KEY)
+    if (alreadyShown !== 'true') {
+      setOpenModal(true)
+      localStorage.setItem(STORAGE_KEY, 'true')
+    }
   }, [])
 
   return (
