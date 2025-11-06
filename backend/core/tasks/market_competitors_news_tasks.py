@@ -216,7 +216,7 @@ def fetch_market_competitor_news_task(self, company_id, competitor_id):
         # Dispara task de resumo (MI03) com as notícias salvas nesta execução para este competidor
         try:
             if session_news_items:
-                fetch_market_summary_new.delay(company.id, entity.kind, session_news_items, entity.name)
+                fetch_market_summary_new.delay(company.id, entity.kind, session_news_items)
                 logger.info(
                     f"[{company.long_name}] Summary task dispatched with {len(session_news_items)} item(s) for competitor {entity.name}."
                 )

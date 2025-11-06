@@ -31,7 +31,7 @@ class SummaryNewsArticle(models.Model):
     # relevance assigned by classification / user preference mapping
     relevance = models.CharField(max_length=6, choices=RELEVANCE_CHOICES, null=True, blank=True)
 
-    sources_urls = models.URLField(default=list, blank=True)
+    sources_urls = models.TextField(blank=True, default="")
     
     class Meta:
         verbose_name = "Market News - Summary Article"

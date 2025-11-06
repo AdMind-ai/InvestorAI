@@ -74,22 +74,22 @@ current_year = now.year
 # },
 CELERY_BEAT_SCHEDULE = {
     'news_sector_morning': {
-        'task': 'core.tasks.tasks.collect_market_news',
+        'task': 'core.tasks.market_sector_news_tasks.fetch_market_sector_news_task',
         'schedule': crontab(hour=6, minute=0),
         'args': ()
     },
     'news_sector_afternoon': {
-        'task': 'core.tasks.tasks.collect_market_news',
+        'task': 'core.tasks.market_sector_news_tasks.fetch_market_sector_news_task',
         'schedule': crontab(hour=18, minute=0),
         'args': ()
     },
     'news_competitors_morning': {
-        'task': 'core.tasks.tasks.collect_market_news',
+        'task': 'core.tasks.market_competitors_news_tasks.fetch_market_competitors_dispatcher',
         'schedule': crontab(hour=6, minute=0),
         'args': ()
     },
     'news_competitors_afternoon': {
-        'task': 'core.tasks.tasks.collect_market_news',
+        'task': 'core.tasks.market_competitors_news_tasks.fetch_market_competitors_dispatcher',
         'schedule': crontab(hour=18, minute=0),
         'args': ()
     },
