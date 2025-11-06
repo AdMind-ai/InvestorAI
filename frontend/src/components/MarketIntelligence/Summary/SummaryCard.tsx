@@ -29,7 +29,7 @@ export default function SummaryCard({ title, description, relevance, category, o
             backgroundColor: '#fff',
             boxShadow: '0 2px 6px rgba(0, 0, 0, 0.16)'
         }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, textTransform: 'uppercase', lineHeight: 1.4, fontSize: '18px' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, lineHeight: 1.4, fontSize: '18px' }}>
                 {title}
             </Typography>
             <Typography sx={{
