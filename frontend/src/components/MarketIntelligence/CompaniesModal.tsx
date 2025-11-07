@@ -135,7 +135,13 @@ export default function CompaniesModal({ open, onClose, onNext, onBack }: Props)
 
     return (
         <>
-            <Modal open={open} onClose={onClose}>
+            <Modal
+                open={open}
+                disableEscapeKeyDown
+                onClose={(_event, reason) => {
+                    if (reason !== 'backdropClick') onClose();
+                }}
+            >
                 <Box
                     sx={{
                         position: "absolute" as const,
@@ -323,7 +329,14 @@ export default function CompaniesModal({ open, onClose, onNext, onBack }: Props)
                     </Box>
 
                     {/* --- Dialog para adicionar nova empresa --- */}
-                    <Dialog open={openAdd} onClose={handleCloseAdd} maxWidth="lg">
+                    <Dialog
+                        open={openAdd}
+                        disableEscapeKeyDown
+                        onClose={(_event, reason) => {
+                            if (reason !== 'backdropClick') handleCloseAdd();
+                        }}
+                        maxWidth="lg"
+                    >
                         <DialogTitle>{`Aggiungi ${category ? category.slice(0, -1) : ""}`}</DialogTitle>
                         <DialogContent sx={{ paddingBottom: 0 }}>
                             <Typography variant="subtitle2" color="textDisabled">
@@ -447,7 +460,15 @@ export default function CompaniesModal({ open, onClose, onNext, onBack }: Props)
             </Modal>
 
             {/* Modal para deletar competidor */}
-            <Dialog open={openModalDelete} onClose={() => setOpenModalDelete(false)} fullWidth={true} maxWidth='xs'>
+            <Dialog
+                open={openModalDelete}
+                disableEscapeKeyDown
+                onClose={(_event, reason) => {
+                    if (reason !== 'backdropClick') setOpenModalDelete(false);
+                }}
+                fullWidth={true}
+                maxWidth='xs'
+            >
                 <DialogTitle variant="h4">Confirm Deletion</DialogTitle>
                 <DialogContent>
                     <Typography variant="subtitle2">

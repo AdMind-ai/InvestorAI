@@ -19,7 +19,8 @@ class MarketNewsArticle(models.Model):
     )
     type = models.CharField(max_length=12, choices=TYPE_CHOICES)
     title = models.CharField(max_length=255)
-    url = models.URLField()
+    # Some sources provide very long tracking URLs; default 200 can overflow in Postgres
+    url = models.URLField(max_length=1000)
     date_published = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=64, blank=True)

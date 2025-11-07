@@ -52,7 +52,13 @@ export default function EmailModal({ open, onClose, onNext, onBack }: Props) {
     };
 
     return (
-        <Modal open={open} onClose={onClose}>
+        <Modal
+            open={open}
+            disableEscapeKeyDown
+            onClose={(_event, reason) => {
+                if (reason !== 'backdropClick') onClose();
+            }}
+        >
             <Box sx={style}>
                 <Typography variant="h6" align="center" gutterBottom fontWeight={600}>
                     Vuoi ricevere le nuove notizie via mail?

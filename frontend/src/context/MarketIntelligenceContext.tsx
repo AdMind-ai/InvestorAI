@@ -262,7 +262,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         if (res.ok) {
           const data = await res.json();
           const configured = Boolean((data && (data.is_configured ?? data.isConfigured)) || false);
-          setStep(configured ? 5 : 0);
+          setStep(configured ? 1 : 0);
         } else {
           setStep(0);
         }
