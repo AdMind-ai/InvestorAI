@@ -25,7 +25,13 @@ export default function CustomizeSectorModal({ open, onClose, onNext, onBack }: 
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      disableEscapeKeyDown
+      onClose={(_event, reason) => {
+        if (reason !== 'backdropClick') onClose();
+      }}
+    >
       <Box sx={{
           position: 'absolute' as const,
           top: '50%',
