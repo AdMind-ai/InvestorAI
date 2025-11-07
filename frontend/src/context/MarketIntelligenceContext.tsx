@@ -292,7 +292,9 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
 
   const loadSummaries: MarketIntelligenceState['loadSummaries'] = async (params) => {
     try {
+      // indicate loading and clear previous summaries immediately so UI doesn't show stale data
       setSummariesLoading(true);
+      setSummaries([]);
       const apiParams = {
         type: params?.type,
         page: params?.page ?? summariesPage,
@@ -322,7 +324,9 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   };
 
   const loadNews: MarketIntelligenceState['loadNews'] = async (category) => {
+    // indicate loading and clear previous news immediately to avoid showing stale articles
     setNewsLoading(true);
+    setNews([]);
     try {
       const params = new URLSearchParams({ type: CATEGORY_MAP[category] });
       const response = await fetchWithAuth(`/newsapi/market-news/?${params}`, { method: 'GET' });
@@ -448,16 +452,18 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     // 0) mark setup as configured before starting tasks
     const registeredSetup = await registerMarketingSetup(true);
 
-    if(reconfigureMode && registeredSetup){
-      toast.success('Riconfigurazione completata con successo.');
-      return true;
-    }
-
     try {
-      toast.info('Inizio raccolta notizie...');
+      if (reconfigureMode && registeredSetup) {
+        toast.success('Configurazioni aggiornate. Le notizie si aggiorneranno a breve secondo le preferenze scelte.');
+      } else {
+        toast.info('Inizio raccolta notizie...');
+      }
+
       // move UI to loading and persist
-      setStep(4);
-      
+      if (!reconfigureMode) {
+        setStep(4);
+      }
+
       // 0.5) Capture current summaries baseline to ensure we wait for NEW summaries
       const getTotal = async (type: 'sector' | 'competitor') => {
         try {
@@ -501,7 +507,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
             competitorOk = nowCompetitor > baseline.competitor || baseline.competitor > 0;
 
             if (sectorOk && competitorOk) break;
-          } catch {/* ignore single failures */}
+          } catch {/* ignore single failures */ }
           await new Promise(res => setTimeout(res, intervalMs));
         }
 
@@ -514,9 +520,12 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       }
     } catch (e) {
       console.error(e);
-      toast.error('Impossibile avviare la raccolta delle notizie.');
-      await registerMarketingSetup(false);
-      setStep(3);
+      if(!reconfigureMode){
+        await registerMarketingSetup(false);
+        setStep(3);
+        toast.error('Impossibile avviare la raccolta delle notizie.');
+      }
+
       return false;
     }
     return false;

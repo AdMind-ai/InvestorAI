@@ -52,24 +52,19 @@ const FlowContent = () => {
                 onNext={async () => {
                     // Go to loading and run the full flow (update sector + trigger tasks + wait)
                     
-                    // Reconfiguration flow
-                    if (reconfigureMode) {
-                        const ok = await runPostEmailFlow();
-                        if (ok) {
-                            setStep(5);
-                            return
-                        }
-                    }    
-                    
                     // Normal flow
-                    setOpen(true);
-                    setStep(4);
+                    if(!reconfigureMode){
+                        setOpen(true);
+                        setStep(4);
+                    } else {
+                        setStep(5);
+                    }
                     const ok = await runPostEmailFlow();
                     if (ok) {
                         setOpen(true);
                         setReconfigureMode(false);
                         setStep(5);
-                    } else {
+                    } else if(!reconfigureMode) {
                         // On any error: return to step 3
                         setOpen(true);
                         setStep(3);
