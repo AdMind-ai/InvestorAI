@@ -76,6 +76,9 @@ type MarketIntelligenceState = {
   // Overview Report
   overviewReport?: string;
   citations: string[];
+  // Loaders (used when reconfiguring to prefill forms)
+  loadCompanySectorInfo?: () => Promise<void>;
+  loadAlertPreferencesFromDB?: () => Promise<void>;
 };
 
 const defaultState: MarketIntelligenceState = {
@@ -122,6 +125,8 @@ const defaultState: MarketIntelligenceState = {
   loadNews: async () => { },
   overviewReport: "",
   citations: [],
+  loadCompanySectorInfo: async () => { },
+  loadAlertPreferencesFromDB: async () => { },
 };
 
 const MarketIntelligenceContext = createContext<MarketIntelligenceState>(defaultState);
@@ -338,6 +343,45 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       setNews([]);
     } finally {
       setNewsLoading(false);
+    }
+  };
+
+  // --- New: Load existing company sector info (for reconfiguration prefilling) ---
+  const loadCompanySectorInfo = async () => {
+    try {
+      const res = await fetchWithAuth('/company-info/sector/', { method: 'GET' });
+      if (!res.ok) return;
+      const data = await res.json();
+      // Serializer should expose these keys
+      if (typeof data?.description === 'string') setSectorDescription(data.description);
+      if (Array.isArray(data?.sector_keywords)) setKeywords(data.sector_keywords as string[]);
+      if (Array.isArray(data?.sector_websites)) setLinks(data.sector_websites as string[]);
+    } catch (e) {
+      console.error('Erro ao carregar informações de setor', e);
+    }
+  };
+
+  // --- New: Load saved alert preferences + email (for reconfiguration prefilling) ---
+  const loadAlertPreferencesFromDB = async () => {
+    try {
+      const res = await fetchWithAuth('/market-alert-preferences/', { method: 'GET' });
+      if (!res.ok) return;
+      const data = await res.json();
+      // API returns a list grouped by email or a single object if email filter provided
+      const entry = Array.isArray(data) ? (data[0] || null) : (data ?? null);
+      if (!entry) return;
+      if (typeof entry.email === 'string') setEmail(entry.email);
+      const prefs = entry.preferences;
+      if (prefs && typeof prefs === 'object') {
+        setPreferences((prev) => ({
+          sector: { enabled: Boolean(prefs.sector?.enabled ?? prev.sector.enabled), relevance: (prefs.sector?.relevance ?? prev.sector.relevance) as any },
+          competitor: { enabled: Boolean(prefs.competitor?.enabled ?? prev.competitor.enabled), relevance: (prefs.competitor?.relevance ?? prev.competitor.relevance) as any },
+          client: { enabled: Boolean(prefs.client?.enabled ?? prev.client.enabled), relevance: (prefs.client?.relevance ?? prev.client.relevance) as any },
+          fornitori: { enabled: Boolean(prefs.fornitori?.enabled ?? prev.fornitori.enabled), relevance: (prefs.fornitori?.relevance ?? prev.fornitori.relevance) as any },
+        }));
+      }
+    } catch (e) {
+      console.error('Erro ao carregar preferências de alerta', e);
     }
   };
 
@@ -572,6 +616,8 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         loadNews,
         overviewReport,
         citations,
+        loadCompanySectorInfo,
+        loadAlertPreferencesFromDB,
       }}
     >
       {children}
