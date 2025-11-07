@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Stack, ToggleButton, ToggleButtonGroup, CircularProgress } from "@mui/material";
+import { Box, Typography, Stack, ToggleButton, ToggleButtonGroup, CircularProgress, Button } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import MarketOverviewReport from "./MarketOverviewReport";
 import NewsTable from "./Results/NewsTable";
@@ -7,6 +7,7 @@ import { useMarketIntelligence } from "../../context/MarketIntelligenceContext";
 import SummaryCard from "./Summary/SummaryCard";
 import SummaryDetailsModal from "./Summary/SummaryDetailsModal";
 import PaginationControls from "../common/PaginationControls";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 type Category = 'Settore' | 'Competitors' | 'Clienti' | 'Fornitori';
 
@@ -23,7 +24,8 @@ export default function MarketIntelligenceResults() {
 
     const {
         summaries, summariesLoading, loadSummaries, summariesTotal, summariesPageSize,
-        newsArticles, newsLoading, loadNews, overviewReport
+        newsArticles, newsLoading, loadNews, overviewReport,
+        setOpen, setStep, reconfigureMode, setReconfigureMode
     } = useMarketIntelligence();
     const [error, setError] = useState<string | null>(null);
 
@@ -137,7 +139,7 @@ export default function MarketIntelligenceResults() {
                 px: 4,
                 mt: 1,
             }}>
-                <Stack direction="row" alignItems="center">
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <ToggleButtonGroup
                         value={tab}
                         exclusive
@@ -181,6 +183,26 @@ export default function MarketIntelligenceResults() {
                         <ToggleButton value="news">Notizie</ToggleButton>
                         {/* <ToggleButton value="overview">Overview</ToggleButton> */}
                     </ToggleButtonGroup>
+                    <Button variant="outlined"
+                        sx={{
+                            textTransform: "none",
+                            borderRadius: 2,
+                            mb: 3,
+                            color: "#7E7E7E",
+                            borderColor: "#7E7E7E",
+                            gap: 1,
+                            width: '12vw'
+                        }}
+                        onClick={() => {
+                            // Open the configuration wizard starting from the first config step while keeping results visible
+                            setReconfigureMode(true);
+                            setOpen(true);
+                            setStep(1); // step 1 = CustomizeSectorModal
+                        }}
+                    >
+                        <SettingsOutlinedIcon fontSize="small" sx={{ color: '#7E7E7E' }} />
+                        Impostazioni
+                    </Button>
                 </Stack>
 
                 {/* Content box visually attached to the selected tab */}

@@ -37,6 +37,9 @@ type MarketIntelligenceState = {
   open: boolean;
   setStep: (s: number) => void;
   setOpen: (v: boolean) => void;
+  // When true, user is re-running the configuration while keeping results visible
+  reconfigureMode: boolean;
+  setReconfigureMode: (v: boolean) => void;
   initializingStep: boolean;
   sectorDescription: string;
   keywords: string[];
@@ -80,6 +83,8 @@ const defaultState: MarketIntelligenceState = {
   open: true,
   setStep: () => { },
   setOpen: () => { },
+  reconfigureMode: false,
+  setReconfigureMode: () => { },
   initializingStep: true,
   sectorDescription: "",
   keywords: [],
@@ -124,6 +129,7 @@ const MarketIntelligenceContext = createContext<MarketIntelligenceState>(default
 export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }) => {
   const [step, setStep] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(true);
+  const [reconfigureMode, setReconfigureMode] = useState<boolean>(false);
   const [initializingStep, setInitializingStep] = useState<boolean>(true);
   const [sectorDescription, setSectorDescription] = useState<string>("");
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -440,7 +446,13 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   // --- New: Full flow after email preferences are saved ---
   const runPostEmailFlow: MarketIntelligenceState['runPostEmailFlow'] = async () => {
     // 0) mark setup as configured before starting tasks
-    await registerMarketingSetup(true);
+    const registeredSetup = await registerMarketingSetup(true);
+
+    if(reconfigureMode && registeredSetup){
+      toast.success('Riconfigurazione completata con successo.');
+      return true;
+    }
+
     try {
       toast.info('Inizio raccolta notizie...');
       // move UI to loading and persist
@@ -517,6 +529,8 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         open,
         setStep,
         setOpen,
+        reconfigureMode,
+        setReconfigureMode,
         initializingStep,
         sectorDescription,
         keywords,

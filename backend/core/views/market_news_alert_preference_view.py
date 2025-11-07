@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db import transaction
 
 from core.models.market_news_alert_preference import MarketNewsAlertPreference
 from core.models.company_info.company_info import CompanyInfo
@@ -129,23 +130,34 @@ class MarketNewsAlertPreferenceView(APIView):
         # Normalize incoming preferences and upsert rows
         saved: Dict[str, Dict[str, Any]] = {}
         for frontend_key, model_key in self.CATEGORY_MAP.items():
-            pref = preferences.get(frontend_key, {}) or {}
-            enabled = bool(pref.get("enabled", True))
-            relevance = str(pref.get("relevance", "high")).lower()
+            pref_in = preferences.get(frontend_key, {}) or {}
+            enabled = bool(pref_in.get("enabled", True))
+            relevance = str(pref_in.get("relevance", "high")).lower()
             if relevance not in self.VALID_RELEVANCE:
                 relevance = "high"
 
-            obj, _ = MarketNewsAlertPreference.objects.update_or_create(
-                company=company,
-                email=email,
-                category=model_key,
-                defaults={
-                    "enabled": enabled,
-                    "relevance": relevance,
-                },
-            )
+            # Evita duplicados sem alterar o schema:
+            # Se existir um ou mais registros (company,category), atualiza TODOS para manter consistência.
+            # Caso não exista, cria um novo.
+            with transaction.atomic():
+                existing_qs = (
+                    MarketNewsAlertPreference.objects.select_for_update()
+                    .filter(company=company, category=model_key)
+                )
+                if existing_qs.exists():
+                    # Atualiza todos os duplicados para refletir os novos valores
+                    existing_qs.update(email=email, enabled=enabled, relevance=relevance)
+                    # Usa o mais recente como referência para resposta
+                    obj = existing_qs.order_by('-created_at', '-id').first()
+                else:
+                    obj = MarketNewsAlertPreference.objects.create(
+                        company=company,
+                        email=email,
+                        category=model_key,
+                        enabled=enabled,
+                        relevance=relevance,
+                    )
 
-            # build response payload using frontend keys
             saved[frontend_key] = {"enabled": obj.enabled, "relevance": obj.relevance}
 
         return Response(
