@@ -374,10 +374,10 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       const prefs = entry.preferences;
       if (prefs && typeof prefs === 'object') {
         setPreferences((prev) => ({
-          sector: { enabled: Boolean(prefs.sector?.enabled ?? prev.sector.enabled), relevance: (prefs.sector?.relevance ?? prev.sector.relevance) as any },
-          competitor: { enabled: Boolean(prefs.competitor?.enabled ?? prev.competitor.enabled), relevance: (prefs.competitor?.relevance ?? prev.competitor.relevance) as any },
-          client: { enabled: Boolean(prefs.client?.enabled ?? prev.client.enabled), relevance: (prefs.client?.relevance ?? prev.client.relevance) as any },
-          fornitori: { enabled: Boolean(prefs.fornitori?.enabled ?? prev.fornitori.enabled), relevance: (prefs.fornitori?.relevance ?? prev.fornitori.relevance) as any },
+          sector: { enabled: Boolean(prefs.sector?.enabled ?? prev.sector.enabled), relevance: (prefs.sector?.relevance ?? prev.sector.relevance) },
+          competitor: { enabled: Boolean(prefs.competitor?.enabled ?? prev.competitor.enabled), relevance: (prefs.competitor?.relevance ?? prev.competitor.relevance) },
+          client: { enabled: Boolean(prefs.client?.enabled ?? prev.client.enabled), relevance: (prefs.client?.relevance ?? prev.client.relevance) },
+          fornitori: { enabled: Boolean(prefs.fornitori?.enabled ?? prev.fornitori.enabled), relevance: (prefs.fornitori?.relevance ?? prev.fornitori.relevance) },
         }));
       }
     } catch (e) {

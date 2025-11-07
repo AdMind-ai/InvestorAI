@@ -13,7 +13,7 @@ export type SummaryDetailsModalProps = {
 
 // Normalize incoming links to a clean array of URLs.
 function normalizeLinks(rawLinks?: string | string[]): string[] {
-    const URL_REGEX = /(https?:\/\/[^\s'"\]\[]+)/g;
+    const URL_REGEX = /(https?:\/\/[^\s'"[\]]+)/g;
 
     // Prepare a list of raw string segments to scan
     let segments: string[] = [];
