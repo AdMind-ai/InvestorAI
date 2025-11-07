@@ -236,26 +236,34 @@ export default function MarketIntelligenceResults() {
 
                     {!newsLoading && !summariesLoading && !pendingCategoryChange && tab === 'summary' && (
                         <Box sx={{ p: 2, width: "100%" }}>
-                            <Grid container spacing={2}>
-                                {summaries.map((s) => (
-                                    <Grid key={s.id} size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
-                                        <SummaryCard
-                                            title={s.title}
-                                            description={s.description}
-                                            relevance={s.relevance}
-                                            category={s.category}
-                                            onViewLinks={() => setSummaryModal({ open: true, links: s.sources || [], title: s.title, description: s.description, category: s.category })}
-                                        />
+                            {summaries.length === 0 ? (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 6 }}>
+                                    <Typography variant="h6" color="textSecondary">Non ci sono notizie da mostrare.</Typography>
+                                </Box>
+                            ) : (
+                                <>
+                                    <Grid container spacing={2}>
+                                        {summaries.map((s) => (
+                                            <Grid key={s.id} size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
+                                                <SummaryCard
+                                                    title={s.title}
+                                                    description={s.description}
+                                                    relevance={s.relevance}
+                                                    category={s.category}
+                                                    onViewLinks={() => setSummaryModal({ open: true, links: s.sources || [], title: s.title, description: s.description, category: s.category })}
+                                                />
+                                            </Grid>
+                                        ))}
                                     </Grid>
-                                ))}
-                            </Grid>
 
-                            <PaginationControls
-                                count={summaryTotalPages}
-                                page={page}
-                                onChange={handleSummaryPageChange}
-                                containerSx={{ mt: 3 }}
-                            />
+                                    <PaginationControls
+                                        count={summaryTotalPages}
+                                        page={page}
+                                        onChange={handleSummaryPageChange}
+                                        containerSx={{ mt: 3 }}
+                                    />
+                                </>
+                            )}
 
                             <SummaryDetailsModal
                                 open={summaryModal.open}
@@ -272,19 +280,25 @@ export default function MarketIntelligenceResults() {
                         <Box sx={{ px: 2, width: "100%" }}>
                             {error && <Typography color="error">{error}</Typography>}
                             {!newsLoading && !error && (
-                                <NewsTable
-                                    articles={pagedArticles}
-                                    page={page}
-                                    onPageChange={(v) => setPage(v)}
-                                    pageCount={totalPages}
-                                    categories={distinctCategories}
-                                    columnFilter={columnCategoryFilter}
-                                    onColumnFilterChange={(v) => {
-                                        setColumnCategoryFilter(v);
-                                        setPage(1);
-                                    }}
-                                    cellFontSize={"17px"}
-                                />
+                                pagedArticles.length === 0 ? (
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 6 }}>
+                                        <Typography variant="h6" color="textSecondary">Non ci sono notizie da mostrare.</Typography>
+                                    </Box>
+                                ) : (
+                                    <NewsTable
+                                        articles={pagedArticles}
+                                        page={page}
+                                        onPageChange={(v) => setPage(v)}
+                                        pageCount={totalPages}
+                                        categories={distinctCategories}
+                                        columnFilter={columnCategoryFilter}
+                                        onColumnFilterChange={(v) => {
+                                            setColumnCategoryFilter(v);
+                                            setPage(1);
+                                        }}
+                                        cellFontSize={"17px"}
+                                    />
+                                )
                             )}
                         </Box>
                     )}
