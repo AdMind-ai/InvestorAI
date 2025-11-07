@@ -530,7 +530,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
 
       // If any task clearly failed, mark as not configured
       const success = sectorStatus === 'SUCCESS' && competitorsStatus === 'SUCCESS';
-      if (!success) {
+      if (!success && !reconfigureMode) {
         await registerMarketingSetup(false);
       } else {
         // 3) Wait for summaries (MI03) to be persisted after MI01/MI02

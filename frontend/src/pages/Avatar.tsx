@@ -18,6 +18,7 @@ const Avatar: React.FC = () => {
   const [isGenerated, setIsGenerated] = useState(false);
   const isButtonEnabled = text.length > 0 && !!targetLanguage;
 
+  const messageOfDescription = "Il tuo avatar è un ambasciatore digitale: parla per te nel mondo, ti rappresenta fedelmente e apre porte dove la lingua o la distanza sono barriere. Fai parlare la tua immagine in qualsiasi lingua, con il tuo tono di voce e la tua espressione."
 
   // const handleNewGeneration = () => {
   //   setTargetLanguage("");
@@ -51,18 +52,23 @@ const Avatar: React.FC = () => {
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
-        {/*  Title  */}
-        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-          <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
-            Avatar AI
-          </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}>
+          {/*  Title  */}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <Typography variant="h2" sx={{ marginBottom: '0.2vw', marginLeft: '1vw' }}>
+              Avatar AI
+            </Typography>
+          </Box>
+
         </Box>
 
-        <Divider />
+        <Typography variant='subtitle1' sx={{ px: 2, fontSize: '14px' }}>
+          {messageOfDescription}
+        </Typography>
 
         {/* Boxes */}
         <Box
-          sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}
+          sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '82%' }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexDirection: 'row', height: '85%', width: '100%' }}>
             {/* Left Box */}
@@ -154,12 +160,12 @@ const Avatar: React.FC = () => {
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+          <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
             <Button
               disabled={!isButtonEnabled}
               variant="contained"
               onClick={() => setIsGenerated(true)}
-              sx={{ width: '120px', mt: 1 }}
+              sx={{ width: '120px'}}
             >
               Genera
             </Button>
@@ -167,7 +173,7 @@ const Avatar: React.FC = () => {
               disabled={!isButtonEnabled}
               variant="contained"
               onClick={() => setIsGenerated(true)}
-              sx={{ width: '120px', mt: 1 }}
+              sx={{ width: '120px' }}
             >
               Scarica
             </Button>
