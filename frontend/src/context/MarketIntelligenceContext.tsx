@@ -140,7 +140,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   const [summaries, setSummaries] = useState<SummaryItem[]>([]);
   const [summariesTotal, setSummariesTotal] = useState<number>(0);
   const [summariesPage, setSummariesPage] = useState<number>(1);
-  const [summariesPageSize, setSummariesPageSize] = useState<number>(4);
+  const [summariesPageSize, setSummariesPageSize] = useState<number>(6);
   const [summariesLoading, setSummariesLoading] = useState<boolean>(false);
   // News
   const [newsArticles, setNews] = useState<MarketIntelligenceState['newsArticles']>([]);
@@ -262,7 +262,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         if (res.ok) {
           const data = await res.json();
           const configured = Boolean((data && (data.is_configured ?? data.isConfigured)) || false);
-          setStep(configured ? 1 : 0);
+          setStep(configured ? 5 : 0);
         } else {
           setStep(0);
         }
