@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Box, Typography, Button, Stack, TextField, FormControlLabel, Checkbox, FormControl, FormLabel, Chip, Link } from "@mui/material";
 import { useMarketIntelligence } from "../../context/MarketIntelligenceContext";
 
@@ -17,11 +17,29 @@ const style = {
 };
 
 export default function EmailModal({ open, onClose, onNext, onBack }: Props) {
-    const { email, preferences, saveAlertPreferences } = useMarketIntelligence();
+    const { email, preferences, saveAlertPreferences, reconfigureMode, loadAlertPreferencesFromDB } = useMarketIntelligence();
     const [localEmail, setLocalEmail] = useState<string>(email || "");
     const [error, setError] = useState<string | null>(null);
     const [localPrefs, setLocalPrefs] = useState(preferences);
     const [saving, setSaving] = useState(false);
+
+    // Prefill from DB when reconfiguring and modal opens
+    useEffect(() => {
+        const preload = async () => {
+            if (open && reconfigureMode) {
+                await loadAlertPreferencesFromDB?.();
+            }
+        };
+        preload();
+    }, [open, reconfigureMode]);
+
+    // Sync context changes back into local state when reconfigure mode loads them
+    useEffect(() => {
+        if (reconfigureMode) {
+            setLocalEmail(email || "");
+            setLocalPrefs(preferences);
+        }
+    }, [email, preferences, reconfigureMode]);
 
     const validateEmail = (e: string) => {
         // simple email regex

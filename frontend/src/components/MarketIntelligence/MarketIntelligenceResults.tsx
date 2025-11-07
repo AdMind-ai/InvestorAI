@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Stack, ToggleButton, ToggleButtonGroup, CircularProgress } from "@mui/material";
+import { Box, Typography, Stack, ToggleButton, ToggleButtonGroup, CircularProgress, Button } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import MarketOverviewReport from "./MarketOverviewReport";
 import NewsTable from "./Results/NewsTable";
@@ -7,6 +7,7 @@ import { useMarketIntelligence } from "../../context/MarketIntelligenceContext";
 import SummaryCard from "./Summary/SummaryCard";
 import SummaryDetailsModal from "./Summary/SummaryDetailsModal";
 import PaginationControls from "../common/PaginationControls";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 type Category = 'Settore' | 'Competitors' | 'Clienti' | 'Fornitori';
 
@@ -23,7 +24,8 @@ export default function MarketIntelligenceResults() {
 
     const {
         summaries, summariesLoading, loadSummaries, summariesTotal, summariesPageSize,
-        newsArticles, newsLoading, loadNews, overviewReport
+        newsArticles, newsLoading, loadNews, overviewReport,
+        setOpen, setStep, setReconfigureMode
     } = useMarketIntelligence();
     const [error, setError] = useState<string | null>(null);
 
@@ -37,11 +39,22 @@ export default function MarketIntelligenceResults() {
     const categories = ["Settore", "Competitors", "Clienti", "Fornitori"];
 
     // 🧠 Busca inicial de notícias e resumos via contexto
+    const [pendingCategoryChange, setPendingCategoryChange] = useState<boolean>(false);
+
+    // Debounce fetches by 2 seconds when category changes to avoid rapid requests and
+    // to give a short buffer for the user. While waiting, we mark pendingCategoryChange
+    // so the UI hides stale items and shows the loader.
     useEffect(() => {
         setError(null);
-        loadNews(category);
-        loadSummaries({ type: CATEGORY_MAP[category] as 'sector' | 'competitor' | 'client' | 'fornitori', page: 1, pageSize: 4 });
+        setPendingCategoryChange(true);
         setPage(1);
+        const timer = setTimeout(() => {
+            loadNews(category);
+            loadSummaries({ type: CATEGORY_MAP[category] as 'sector' | 'competitor' | 'client' | 'fornitori', page: 1, pageSize: 4 });
+            setPendingCategoryChange(false);
+        }, 300);
+
+        return () => clearTimeout(timer);
     }, [category]);
 
     const handleCategory = (_: React.MouseEvent<HTMLElement>, val: Category | null) => {
@@ -137,7 +150,7 @@ export default function MarketIntelligenceResults() {
                 px: 4,
                 mt: 1,
             }}>
-                <Stack direction="row" alignItems="center">
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <ToggleButtonGroup
                         value={tab}
                         exclusive
@@ -181,6 +194,26 @@ export default function MarketIntelligenceResults() {
                         <ToggleButton value="news">Notizie</ToggleButton>
                         {/* <ToggleButton value="overview">Overview</ToggleButton> */}
                     </ToggleButtonGroup>
+                    <Button variant="outlined"
+                        sx={{
+                            textTransform: "none",
+                            borderRadius: 2,
+                            mb: 3,
+                            color: "#7E7E7E",
+                            borderColor: "#7E7E7E",
+                            gap: 1,
+                            width: '12vw'
+                        }}
+                        onClick={() => {
+                            // Open the configuration wizard starting from the first config step while keeping results visible
+                            setReconfigureMode(true);
+                            setOpen(true);
+                            setStep(1); // step 1 = CustomizeSectorModal
+                        }}
+                    >
+                        <SettingsOutlinedIcon fontSize="small" sx={{ color: '#7E7E7E' }} />
+                        Impostazioni
+                    </Button>
                 </Stack>
 
                 {/* Content box visually attached to the selected tab */}
@@ -195,17 +228,17 @@ export default function MarketIntelligenceResults() {
                     mt: -1,
                     boxShadow: '0 2px 6px rgba(0, 0, 0, 0.16)'
                 }}>
-                    {(newsLoading || summariesLoading) && (
+                    {(newsLoading || summariesLoading || pendingCategoryChange) ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 3 }}>
                             <CircularProgress />
                         </Box>
-                    )}
+                    ) : null}
 
-                    {tab === 'summary' && (
+                    {!newsLoading && !summariesLoading && !pendingCategoryChange && tab === 'summary' && (
                         <Box sx={{ p: 2, width: "100%" }}>
                             <Grid container spacing={2}>
                                 {summaries.map((s) => (
-                                    <Grid key={s.id} size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 4 }}>
+                                    <Grid key={s.id} size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                                         <SummaryCard
                                             title={s.title}
                                             description={s.description}
@@ -235,7 +268,7 @@ export default function MarketIntelligenceResults() {
                         </Box>
                     )}
 
-                    {tab === 'news' && (
+                    {!newsLoading && !summariesLoading && !pendingCategoryChange && tab === 'news' && (
                         <Box sx={{ px: 2, width: "100%" }}>
                             {error && <Typography color="error">{error}</Typography>}
                             {!newsLoading && !error && (

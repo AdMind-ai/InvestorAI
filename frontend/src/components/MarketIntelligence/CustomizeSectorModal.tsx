@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Box, Typography, Button, Stack, TextField, Chip } from "@mui/material";
 import { useMarketIntelligence } from "../../context/MarketIntelligenceContext";
 
@@ -6,9 +6,26 @@ type Props = { open: boolean; onClose: () => void; onNext: () => void; onBack?: 
 
 
 export default function CustomizeSectorModal({ open, onClose, onNext, onBack }: Props) {
-  const { sectorDescription, setSectorDescription, keywords, setKeywords, links, setLinks } = useMarketIntelligence();
+  const { sectorDescription, setSectorDescription, keywords, setKeywords, links, setLinks, reconfigureMode, loadCompanySectorInfo } = useMarketIntelligence();
   const [keywordInput, setKeywordInput] = useState("");
   const [linkInputs, setLinkInputs] = useState<string[]>(links.length ? links : ["", "", ""]);
+
+  // When entering reconfigure mode and modal opens, preload existing sector info
+  useEffect(() => {
+    if (open && reconfigureMode) {
+      loadCompanySectorInfo?.();
+    }
+  }, [open, reconfigureMode]);
+
+  // Keep local link inputs in sync when links are loaded from DB
+  useEffect(() => {
+    if (reconfigureMode && links && links.length) {
+      // Ensure at least 3 inputs for UX consistency
+      const padded = [...links];
+      while (padded.length < 3) padded.push("");
+      setLinkInputs(padded);
+    }
+  }, [links, reconfigureMode]);
 
   const addKeyword = () => {
     const t = keywordInput.trim();

@@ -29,16 +29,49 @@ export default function SummaryCard({ title, description, relevance, category, o
             backgroundColor: '#fff',
             boxShadow: '0 2px 6px rgba(0, 0, 0, 0.16)'
         }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, lineHeight: 1.4, fontSize: '18px' }}>
-                {title}
-            </Typography>
+                    <Typography
+                        variant="subtitle2"
+                        sx={{
+                            fontWeight: 600,
+                            lineHeight: 1.4,
+                            fontSize: '18px',
+                            cursor: onViewLinks ? 'pointer' : 'default',
+                            transition: 'color 120ms ease, text-decoration-color 120ms ease',
+                            // visual affordance: change color and underline on hover/focus when interactive
+                            ...(onViewLinks
+                                ? {
+                                      '&:hover': {
+                                          color: '#0B5FFF',
+                                          textDecoration: 'underline',
+                                          textDecorationThickness: '2px',
+                                      },
+                                      '&:focus': {
+                                          outline: 'none',
+                                      },
+                                  }
+                                : {}),
+                        }}
+                        onClick={() => onViewLinks && onViewLinks()}
+                        tabIndex={onViewLinks ? 0 : -1}
+                        role={onViewLinks ? 'button' : undefined}
+                        onKeyDown={(e) => {
+                            if (!onViewLinks) return;
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                onViewLinks();
+                            }
+                        }}
+                    >
+                        {title}
+                    </Typography>
             <Typography sx={{
-                fontSize: '17px',
+                fontSize: '15px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 display: '-webkit-box',
                 WebkitLineClamp: 5,
                 WebkitBoxOrient: 'vertical',
+                mt: 1
             }}>
                 {description}
             </Typography>

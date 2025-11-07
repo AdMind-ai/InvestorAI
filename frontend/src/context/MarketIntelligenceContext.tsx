@@ -37,6 +37,9 @@ type MarketIntelligenceState = {
   open: boolean;
   setStep: (s: number) => void;
   setOpen: (v: boolean) => void;
+  // When true, user is re-running the configuration while keeping results visible
+  reconfigureMode: boolean;
+  setReconfigureMode: (v: boolean) => void;
   initializingStep: boolean;
   sectorDescription: string;
   keywords: string[];
@@ -73,6 +76,9 @@ type MarketIntelligenceState = {
   // Overview Report
   overviewReport?: string;
   citations: string[];
+  // Loaders (used when reconfiguring to prefill forms)
+  loadCompanySectorInfo?: () => Promise<void>;
+  loadAlertPreferencesFromDB?: () => Promise<void>;
 };
 
 const defaultState: MarketIntelligenceState = {
@@ -80,6 +86,8 @@ const defaultState: MarketIntelligenceState = {
   open: true,
   setStep: () => { },
   setOpen: () => { },
+  reconfigureMode: false,
+  setReconfigureMode: () => { },
   initializingStep: true,
   sectorDescription: "",
   keywords: [],
@@ -117,6 +125,8 @@ const defaultState: MarketIntelligenceState = {
   loadNews: async () => { },
   overviewReport: "",
   citations: [],
+  loadCompanySectorInfo: async () => { },
+  loadAlertPreferencesFromDB: async () => { },
 };
 
 const MarketIntelligenceContext = createContext<MarketIntelligenceState>(defaultState);
@@ -124,6 +134,7 @@ const MarketIntelligenceContext = createContext<MarketIntelligenceState>(default
 export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }) => {
   const [step, setStep] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(true);
+  const [reconfigureMode, setReconfigureMode] = useState<boolean>(false);
   const [initializingStep, setInitializingStep] = useState<boolean>(true);
   const [sectorDescription, setSectorDescription] = useState<string>("");
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -286,7 +297,9 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
 
   const loadSummaries: MarketIntelligenceState['loadSummaries'] = async (params) => {
     try {
+      // indicate loading and clear previous summaries immediately so UI doesn't show stale data
       setSummariesLoading(true);
+      setSummaries([]);
       const apiParams = {
         type: params?.type,
         page: params?.page ?? summariesPage,
@@ -316,7 +329,9 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   };
 
   const loadNews: MarketIntelligenceState['loadNews'] = async (category) => {
+    // indicate loading and clear previous news immediately to avoid showing stale articles
     setNewsLoading(true);
+    setNews([]);
     try {
       const params = new URLSearchParams({ type: CATEGORY_MAP[category] });
       const response = await fetchWithAuth(`/newsapi/market-news/?${params}`, { method: 'GET' });
@@ -328,6 +343,45 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       setNews([]);
     } finally {
       setNewsLoading(false);
+    }
+  };
+
+  // --- New: Load existing company sector info (for reconfiguration prefilling) ---
+  const loadCompanySectorInfo = async () => {
+    try {
+      const res = await fetchWithAuth('/company-info/sector/', { method: 'GET' });
+      if (!res.ok) return;
+      const data = await res.json();
+      // Serializer should expose these keys
+      if (typeof data?.description === 'string') setSectorDescription(data.description);
+      if (Array.isArray(data?.sector_keywords)) setKeywords(data.sector_keywords as string[]);
+      if (Array.isArray(data?.sector_websites)) setLinks(data.sector_websites as string[]);
+    } catch (e) {
+      console.error('Erro ao carregar informações de setor', e);
+    }
+  };
+
+  // --- New: Load saved alert preferences + email (for reconfiguration prefilling) ---
+  const loadAlertPreferencesFromDB = async () => {
+    try {
+      const res = await fetchWithAuth('/market-alert-preferences/', { method: 'GET' });
+      if (!res.ok) return;
+      const data = await res.json();
+      // API returns a list grouped by email or a single object if email filter provided
+      const entry = Array.isArray(data) ? (data[0] || null) : (data ?? null);
+      if (!entry) return;
+      if (typeof entry.email === 'string') setEmail(entry.email);
+      const prefs = entry.preferences;
+      if (prefs && typeof prefs === 'object') {
+        setPreferences((prev) => ({
+          sector: { enabled: Boolean(prefs.sector?.enabled ?? prev.sector.enabled), relevance: (prefs.sector?.relevance ?? prev.sector.relevance) },
+          competitor: { enabled: Boolean(prefs.competitor?.enabled ?? prev.competitor.enabled), relevance: (prefs.competitor?.relevance ?? prev.competitor.relevance) },
+          client: { enabled: Boolean(prefs.client?.enabled ?? prev.client.enabled), relevance: (prefs.client?.relevance ?? prev.client.relevance) },
+          fornitori: { enabled: Boolean(prefs.fornitori?.enabled ?? prev.fornitori.enabled), relevance: (prefs.fornitori?.relevance ?? prev.fornitori.relevance) },
+        }));
+      }
+    } catch (e) {
+      console.error('Erro ao carregar preferências de alerta', e);
     }
   };
 
@@ -440,12 +494,20 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   // --- New: Full flow after email preferences are saved ---
   const runPostEmailFlow: MarketIntelligenceState['runPostEmailFlow'] = async () => {
     // 0) mark setup as configured before starting tasks
-    await registerMarketingSetup(true);
+    const registeredSetup = await registerMarketingSetup(true);
+
     try {
-      toast.info('Inizio raccolta notizie...');
+      if (reconfigureMode && registeredSetup) {
+        toast.success('Configurazioni aggiornate. Le notizie si aggiorneranno a breve secondo le preferenze scelte.');
+      } else {
+        toast.info('Inizio raccolta notizie...');
+      }
+
       // move UI to loading and persist
-      setStep(4);
-      
+      if (!reconfigureMode) {
+        setStep(4);
+      }
+
       // 0.5) Capture current summaries baseline to ensure we wait for NEW summaries
       const getTotal = async (type: 'sector' | 'competitor') => {
         try {
@@ -489,7 +551,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
             competitorOk = nowCompetitor > baseline.competitor || baseline.competitor > 0;
 
             if (sectorOk && competitorOk) break;
-          } catch {/* ignore single failures */}
+          } catch {/* ignore single failures */ }
           await new Promise(res => setTimeout(res, intervalMs));
         }
 
@@ -502,9 +564,12 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       }
     } catch (e) {
       console.error(e);
-      toast.error('Impossibile avviare la raccolta delle notizie.');
-      await registerMarketingSetup(false);
-      setStep(3);
+      if(!reconfigureMode){
+        await registerMarketingSetup(false);
+        setStep(3);
+        toast.error('Impossibile avviare la raccolta delle notizie.');
+      }
+
       return false;
     }
     return false;
@@ -517,6 +582,8 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         open,
         setStep,
         setOpen,
+        reconfigureMode,
+        setReconfigureMode,
         initializingStep,
         sectorDescription,
         keywords,
@@ -549,6 +616,8 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         loadNews,
         overviewReport,
         citations,
+        loadCompanySectorInfo,
+        loadAlertPreferencesFromDB,
       }}
     >
       {children}

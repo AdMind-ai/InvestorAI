@@ -16,7 +16,7 @@ import AvatarIcon from '../assets/icons-sidebar/avatar.svg'
 const cards = [
   {
     title: 'Market Intelligence',
-    description: 'Analizza mercato e competitors con insight aggiornati.',
+    description: 'Analizza mercato, competitor, clienti e fornitori con insight aggiornati.',
     icon: MarketIcon,
     path: '/market-intelligence',
     tool: 'intelligence'
