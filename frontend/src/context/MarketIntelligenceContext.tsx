@@ -535,22 +535,19 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       } else {
         // 3) Wait for summaries (MI03) to be persisted after MI01/MI02
         // We'll poll for increases over the baseline for both sector and competitor.
-        const deadline = Date.now() + 60 * 60 * 1000; // up to 1 hour
+        const deadline = Date.now() + 10 * 60 * 1000; // up to 10 minutes
         const intervalMs = 4000;
         let sectorOk = false;
-        let competitorOk = false;
 
         while (Date.now() < deadline) {
           try {
-            const [nowSector, nowCompetitor] = await Promise.all([
+            const [nowSector] = await Promise.all([
               fetchMarketSummaries({ type: 'sector', page: 1, page_size: 1 }).then(r => Number(r?.total || 0)).catch(() => 0),
-              fetchMarketSummaries({ type: 'competitor', page: 1, page_size: 1 }).then(r => Number(r?.total || 0)).catch(() => 0),
             ]);
 
             sectorOk = nowSector > baseline.sector || baseline.sector > 0; // if there were already summaries, consider OK
-            competitorOk = nowCompetitor > baseline.competitor || baseline.competitor > 0;
 
-            if (sectorOk && competitorOk) break;
+            if (sectorOk) break;
           } catch {/* ignore single failures */ }
           await new Promise(res => setTimeout(res, intervalMs));
         }
