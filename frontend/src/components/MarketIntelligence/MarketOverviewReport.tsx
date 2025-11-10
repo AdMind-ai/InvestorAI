@@ -3,6 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { toast } from 'react-toastify';
+import { api } from '../../api/api';
 import '../../styles/markdown.css';
 
 type Props = {
@@ -15,10 +17,37 @@ const MarketOverviewReport = ({ overviewReport = "", onExport }: Props) => {
   const [expanded, setExpanded] = useState(false);
 
   const handleExportReport = async () => {
-    if (!onExport) return;
     try {
       setIsLoadingExport(true);
-      await onExport();
+
+      const reportText = (overviewReport || '').trim();
+      if (!reportText) {
+        toast.info('Nessun rapporto disponibile per generare il PDF.');
+        return;
+      }
+
+      // If a custom handler is provided and returns a URL, open it; otherwise fall back to internal generation
+      if (onExport) {
+        const maybeUrl = await onExport();
+        if (typeof maybeUrl === 'string' && maybeUrl) {
+          window.open(maybeUrl, '_blank');
+          return;
+        }
+      }
+
+      // Default: call backend endpoint to generate PDF from current overview text
+      const res = await api.post('/esg-news/monthly-reports/generate-pdf', { report: reportText });
+      const pdfUrl = res.data?.url;
+      if (!pdfUrl) {
+        toast.error('URL del PDF non restituita.');
+        return;
+      }
+
+      window.open(pdfUrl, '_blank');
+      toast.success('PDF generato con successo.');
+    } catch (err) {
+      console.error('Errore nella generazione del PDF del Market Overview:', err);
+      toast.error('Errore nella generazione del PDF.');
     } finally {
       setIsLoadingExport(false);
     }

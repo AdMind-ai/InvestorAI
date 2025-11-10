@@ -12,15 +12,11 @@ class ESGArticle(models.Model):
 
     topic = models.CharField(max_length=100, choices=TOPIC_CHOICES)
     title = models.CharField(max_length=250)
-    author = models.CharField(max_length=100, default="Sconosciuto")
-    summary = models.TextField()
-    source = models.CharField(max_length=150)
-    url = models.URLField()
-    language = models.CharField(max_length=30, default="Italian")
+    description = models.TextField()
+    url = models.URLField(max_length=500)
     date_published = models.DateField()
 
     created_at = models.DateTimeField(auto_now_add=True)
-    viewed = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Article - ESG"

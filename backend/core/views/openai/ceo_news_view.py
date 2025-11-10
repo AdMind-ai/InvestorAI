@@ -1,4 +1,4 @@
-from core.tasks.tasks import collect_ceo_news_task
+from core.tasks.ceos_news_tasks import collect_ceo_news_task
 from openai import OpenAI
 import os
 from rest_framework.views import APIView

@@ -1,8 +1,14 @@
+from datetime import datetime
+from core.models.esg_monthly_report_model import ESGMonthlyReport
+from core.serializers.esg_monthly_report_serializer import ESGMonthlyReportDetailSerializer, ESGMonthlyReportSummarySerializer
+from core.utils.marketNews.create_pdf import create_pdf_with_header_footer
+from core.utils.quickdoc.upload_to_blob_storage import upload_to_blob_storage
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from celery.result import AsyncResult
 from backend.celery import app
@@ -89,4 +95,55 @@ class MarketMonthlyReportLatestView(APIView):
 			"report": latest.report or "",
 			"citations": citations_list,
 		}, status=status.HTTP_200_OK)
+  
 
+class ESGMonthlyReportListView(APIView):
+    """GET → Lista ou retorna detalhe de relatórios mensais ESG.
+
+    Query param opcional: ?id=<report_id>
+    Sem id: retorna resumo (id, report_name, report_period)
+    Com id: retorna detalhado.
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        report_id = request.query_params.get("id")
+        if report_id:
+            try:
+                report = ESGMonthlyReport.objects.get(id=int(report_id))
+            except (ValueError, ESGMonthlyReport.DoesNotExist):
+                return Response({"error": "Report not found"}, status=status.HTTP_404_NOT_FOUND)
+            serializer = ESGMonthlyReportDetailSerializer(report)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        qs = ESGMonthlyReport.objects.all().order_by("-report_period")
+        serializer = ESGMonthlyReportSummarySerializer(qs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GeneratePDFMonthlyMarketReportView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    parser_classes = [FormParser, MultiPartParser, JSONParser]
+
+    def post(self, request):
+        report = request.data.get('report') # Report description
+
+        if not report:
+            return Response(
+                {"error": "The report field cannot be empty."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        company = get_user_company(request.user)
+        month_year = datetime.now().strftime("%B_%Y")
+        short_name = company.short_name.replace(" ", "_")
+
+        file_name = f"reports/{short_name}_performance_report_{month_year}.pdf"
+
+        pdf = create_pdf_with_header_footer(report, '', company.website)
+        url_pdf = upload_to_blob_storage(pdf, file_name)
+
+        return Response({"url": url_pdf})
+	

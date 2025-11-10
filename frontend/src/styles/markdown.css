@@ -64,16 +64,46 @@
   border-collapse: collapse;
   width: 100%;
   margin: 0.8em 0;
+  table-layout: fixed; /* enforce proportional widths */
 }
 .markdown-body th,
 .markdown-body td {
   border: 1px solid #E4E4E4;
   padding: 8px 10px;
-  /* Force left alignment for all table cells regardless of markdown alignment markers */
-  text-align: left !important;
+  /* Default left alignment; specific columns adjusted below */
+  text-align: left;
   vertical-align: top;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .markdown-body th {
   background: #F5F5F5;
   font-weight: 700;
+}
+
+/* Zebra rows for readability */
+.markdown-body table tr:nth-child(even) td {
+  background: #FCFCFC;
+}
+
+/* Column alignment and proportional widths (common pattern: Tema | Rilevanza | Fonti) */
+.markdown-body table th:nth-child(1),
+.markdown-body table td:nth-child(1) {
+  text-align: left;
+  width: 60%;
+}
+.markdown-body table th:nth-child(2),
+.markdown-body table td:nth-child(2) {
+  text-align: center;
+  width: 20%;
+}
+.markdown-body table th:nth-child(3),
+.markdown-body table td:nth-child(3) {
+  text-align: center;
+  width: 20%;
+}
+
+/* Tighten header padding slightly to distinguish header */
+.markdown-body th {
+  padding: 7px 10px;
 }

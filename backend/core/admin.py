@@ -2,6 +2,7 @@ from django.contrib import admin
 from django import forms
 from core.models.openai_ceo_conversaitons_model import CEOConversation
 from core.models.esg_article_model import ESGArticle
+from core.models.esg_monthly_report_model import ESGMonthlyReport
 from core.models.ceo_article_model import CEOArticle
 from core.models.openai_chat_models import ChatConversation, ChatMessage
 from core.models.competitor_model import CompetitorSearch, Competitor
@@ -61,10 +62,18 @@ class CompanyRouteRestrictionAdmin(admin.ModelAdmin):
 
 @admin.register(ESGArticle)
 class ESGArticleAdmin(admin.ModelAdmin):
-    list_display = ("topic", "title",
-                    "source", "created_at")
-    list_filter = ("topic", "source", "date_published")
-    search_fields = ("title", "summary", "author")
+    list_display = ("topic", "title", "date_published", "created_at")
+    list_filter = ("topic", "date_published")
+    search_fields = ("title", "description", "url")
+
+
+@admin.register(ESGMonthlyReport)
+class ESGMonthlyReportAdmin(admin.ModelAdmin):
+    list_display = ("company", "report_period", "report_name", "created_at")
+    list_filter = ("company", "report_period")
+    search_fields = ("report_name", "company__long_name")
+    date_hierarchy = 'report_period'
+    ordering = ("-report_period",)
 
 
 class CEOArticleAdminForm(forms.ModelForm):
