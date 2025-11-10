@@ -14,8 +14,6 @@ from .market_report_monthly_view import MarketMonthlyReportTriggerView, MarketMo
 from .perplexity import PerplexityDeepSearchView
 from .perplexity import PerplexityESGNewsView
 from .perplexity import PerplexityCEONewsView
-from .perplexity import MonthlyMarketReportView
-from .perplexity import GeneratePDFMonthlyMarketReportView
 
 from .deepl import DeeplTranslateFileView
 from .deepl import DeeplTranslateTextView
@@ -36,6 +34,15 @@ from .elevenlabs import ElevenlabsTextToSpeechView
 from .combined_article_view import CombinedArticleViewSet
 from .esg_article_view import ESGArticleViewSet
 from .ceo_article_view import CEOArticleViewSet
+from .esg_news_task_view import (
+    ESGNewsFetchTriggerView,
+    ESGMonthlyReportTriggerView,
+    ESGNewsTaskStatusView,
+)
+from .market_report_monthly_view import (
+    GeneratePDFMonthlyMarketReportView,
+    ESGMonthlyReportListView
+)
 from .stocks_view import (
     StockDataView,
     CompanyInfoView,
@@ -70,7 +77,6 @@ __all__ = [
     'PerplexityDeepSearchView',
     'PerplexityESGNewsView',
     'PerplexityCEONewsView',
-    'MonthlyMarketReportView',
     'GeneratePDFMonthlyMarketReportView',
     'DeeplTranslateFileView',
     'DeeplTranslateTextView',
@@ -90,6 +96,11 @@ __all__ = [
     'CombinedArticleViewSet',
     'ESGArticleViewSet',
     'CEOArticleViewSet',
+    'ESGNewsFetchTriggerView',
+    'ESGMonthlyReportTriggerView',
+    'ESGNewsTaskStatusView',
+    'ESGMonthlyReportListView',
+    'GeneratePDFMonthlyMarketReportView',
     'OpenAISendAssistantMessageView',
     'StockDataView',
     'CompanyInfoView',

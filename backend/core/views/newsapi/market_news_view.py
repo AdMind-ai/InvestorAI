@@ -33,7 +33,7 @@ class NewsApiMarketNewsView(APIView):
         if news_type:
             queryset = queryset.filter(type=news_type)
 
-        queryset = queryset.order_by('-created_at')
+        queryset = queryset.order_by('-date_published')
 
         seen_titles_urls = set()
         articles_data = []

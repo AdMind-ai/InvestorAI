@@ -13,6 +13,9 @@ export const login = async (username: string, password: string): Promise<LoginRe
   localStorage.setItem("access", response.data.access);
   localStorage.setItem("refresh", response.data.refresh);
 
+  // Notificar a aplicação que houve login para re-inicializar contextos
+  try { window.dispatchEvent(new Event("login")); } catch { /* noop */ }
+
   return response.data;
 };
 
@@ -24,4 +27,6 @@ export const fetchUserData = async () => {
 export const logout = () => {
   localStorage.removeItem("access");
   localStorage.removeItem("refresh");
+  // Disparar evento para que contextos possam resetar imediatamente
+  try { window.dispatchEvent(new Event("logout")); } catch { /* noop */ }
 };

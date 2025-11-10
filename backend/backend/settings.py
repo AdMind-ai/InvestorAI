@@ -93,49 +93,41 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=18, minute=0),
         'args': ()
     },
-    'news_ceos_weekly': {
-        'task': 'core.tasks.tasks.collect_ceo_news_task',
-        'schedule': crontab(hour=8, minute=0, day_of_week="monday"),
-        'args': () 
+    'news_ceos_morning': {
+        'task': 'core.tasks.ceos_news_tasks.collect_ceo_news_task',
+        'schedule': crontab(hour=6, minute=0),
+        'args': ()
     },
-    # 'fetch_and_store_daily_company_stock_data': {
-    #     'task': 'core.tasks.tasks.fetch_and_store_daily_company_stock_data',
-    #     'schedule': crontab(hour=8, minute=0),
-    #     'args': ()
-    # },
+    'news_ceos_afternoon': {
+        'task': 'core.tasks.ceos_news_tasks.collect_ceo_news_task',
+        'schedule': crontab(hour=18, minute=0),
+        'args': ()
+    },
+    'news_esg_morning': {
+        'task': 'core.tasks.esg_news_tasks.fetch_esg_news_dispatcher',
+        'schedule': crontab(hour=6, minute=0),
+        'args': ()
+    },
+    'news_esg_afternoon': {
+        'task': 'core.tasks.esg_news_tasks.fetch_esg_news_dispatcher',
+        'schedule': crontab(hour=18, minute=0),
+        'args': ()
+    },
     'generate_monthly_market_report': {
         'task': 'core.tasks.market_report_monthly_tasks.generate_monthly_market_report',
         'schedule': crontab(hour=8, minute=0, day_of_month=1),
         'args': ()
     },
-    # "generate_company_Q1_report": {
-    #     "task": "core.tasks.tasks.generate_company_quarterly_report",
-    #     "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=4),
-    #     "args": ("Q1", current_year),
+    
+    # 'news_ceos_weekly': {
+    #     'task': 'core.tasks.tasks.collect_ceo_news_task',
+    #     'schedule': crontab(hour=8, minute=0, day_of_week="monday"),
+    #     'args': () 
     # },
-    # "generate_company_Q2_report": {
-    #     "task": "core.tasks.tasks.generate_company_quarterly_report",
-    #     "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=7),
-    #     "args": ("Q2", current_year),
-    # },
-    # "generate_company_Q3_report": {
-    #     "task": "core.tasks.tasks.generate_company_quarterly_report",
-    #     "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=10),
-    #     "args": ("Q3", current_year),
-    # },
-    # "generate_company_Q4_report": {
-    #     "task": "core.tasks.tasks.generate_company_quarterly_report",
-    #     "schedule": crontab(hour=8, minute=0, day_of_month=1, month_of_year=1),
-    #     "args": ("Q4", current_year),
-    # },
-    # "daily_ceo_articles_fetch": {
-    #     "task": "core.tasks.tasks.daily_ceo_articles_fetch",
-    #     "schedule": crontab(hour=8, minute=0),
-    # },
-    "fetch_all_esg_topics_daily": {
-        "task": "core.tasks.tasks.fetch_all_esg_topics_daily",
-        "schedule": crontab(hour=17, minute=0),
-    }
+    # "fetch_all_esg_topics_daily": {
+    #     "task": "core.tasks.tasks.fetch_all_esg_topics_daily",
+    #     "schedule": crontab(hour=17, minute=0),
+    # }
 }
 
 LOGGING = {

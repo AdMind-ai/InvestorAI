@@ -79,6 +79,8 @@ type MarketIntelligenceState = {
   // Loaders (used when reconfiguring to prefill forms)
   loadCompanySectorInfo?: () => Promise<void>;
   loadAlertPreferencesFromDB?: () => Promise<void>;
+  // Reset all state to defaults (for logout)
+  reset: () => void;
 };
 
 const defaultState: MarketIntelligenceState = {
@@ -127,6 +129,7 @@ const defaultState: MarketIntelligenceState = {
   citations: [],
   loadCompanySectorInfo: async () => { },
   loadAlertPreferencesFromDB: async () => { },
+  reset: () => { },
 };
 
 const MarketIntelligenceContext = createContext<MarketIntelligenceState>(defaultState);
@@ -159,6 +162,34 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   // Overview Report
   const [overviewReport, setOverviewReport] = useState<string>("");
   const [citations, setCitations] = useState<string[]>([]);
+
+  // Reset helper: restore everything to initial values
+  const reset = () => {
+    setStep(0);
+    setOpen(true);
+    setReconfigureMode(false);
+    setInitializingStep(true);
+    setSectorDescription("");
+    setKeywords([]);
+    setLinks([]);
+    setCompanies({ competitors: [], clients: [], fornitori: [] });
+    setPreferences({
+      sector: { enabled: true, relevance: 'high' },
+      competitor: { enabled: true, relevance: 'high' },
+      client: { enabled: true, relevance: 'high' },
+      fornitori: { enabled: true, relevance: 'high' },
+    });
+    setEmail("");
+    setSummaries([]);
+    setSummariesTotal(0);
+    setSummariesPage(1);
+    setSummariesPageSize(6);
+    setSummariesLoading(false);
+    setNews([]);
+    setNewsLoading(false);
+    setOverviewReport("");
+    setCitations([]);
+  };
 
 
   const totalCompanies = () => companies.competitors.length + companies.clients.length + companies.fornitori.length;
@@ -223,6 +254,12 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
   const removeCompany = async (companyName: string | null, category: keyof CompaniesShape) => {
     if (!companyName) return;
 
+    // Optimistic UI: remove immediately from local state
+    setCompanies((prev) => ({
+      ...prev,
+      [category]: prev[category].filter((c) => c.name !== companyName),
+    }));
+
     try {
       const response = await fetchWithAuth("/openai/competitors-search/", {
         method: "DELETE",
@@ -235,14 +272,19 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
 
       if (response.status === 200) {
         toast.success(`${category.slice(0, -1)} "${companyName}" eliminato con successo!`);
-        fetchRalatedCompanies(); // atualiza lista
+        // Sync with backend state to ensure consistency
+        fetchRalatedCompanies();
       } else {
         const resp = await response.json();
         toast.error(resp?.error ?? "Errore nella cancellazione");
+        // Rollback by refetching authoritative list
+        fetchRalatedCompanies();
       }
     } catch (e) {
       console.error(e);
       toast.error("Errore nella cancellazione");
+      // Rollback on error
+      fetchRalatedCompanies();
     }
   };
 
@@ -261,8 +303,9 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
     // Skip any authenticated calls if there's no access token (e.g., on login page)
     const access = localStorage.getItem('access');
     if (!access) {
-      setStep(0);
-      setInitializingStep(false);
+      // On missing token (logout scenario) ensure reset
+      reset();
+      setInitializingStep(false); // Keep false so UI knows initialization finished
       return;
     }
 
@@ -293,6 +336,51 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
       setOverviewReport(reportContent);
       setCitations(citations);
     });
+  }, []);
+
+  // Reagir a eventos globais de login/logout para garantir limpeza ou re-load
+  useEffect(() => {
+    const handleLogout = () => {
+      reset();
+      setInitializingStep(false);
+    };
+    const handleLogin = () => {
+      // Re-inicializa fluxo como se tivesse acabado de montar
+      reset(); // começa limpo
+      setInitializingStep(true);
+      const access = localStorage.getItem('access');
+      if (!access) { setInitializingStep(false); return; }
+      (async () => {
+        try {
+          const res = await fetchWithAuth('/company-info/marketing-setup/', { method: 'GET' });
+          if (res.ok) {
+            const data = await res.json();
+            const configured = Boolean((data && (data.is_configured ?? data.isConfigured)) || false);
+            setStep(configured ? 5 : 0);
+          } else {
+            setStep(0);
+          }
+        } catch {
+          setStep(0);
+        } finally {
+          setInitializingStep(false);
+        }
+      })();
+      fetchRalatedCompanies();
+      fetchMarketOverview().then(({ report, citations }) => {
+        const thinkTagMatch = /<think>[\s\S]*?<\/think>/g;
+        let reportContent = report.replace(thinkTagMatch, '');
+        reportContent = citeLinks(reportContent, citations);
+        setOverviewReport(reportContent);
+        setCitations(citations);
+      });
+    };
+    window.addEventListener('logout', handleLogout);
+    window.addEventListener('login', handleLogin);
+    return () => {
+      window.removeEventListener('logout', handleLogout);
+      window.removeEventListener('login', handleLogin);
+    };
   }, []);
 
   const loadSummaries: MarketIntelligenceState['loadSummaries'] = async (params) => {
@@ -615,6 +703,7 @@ export const MarketIntelligenceProvider = ({ children }: { children: ReactNode }
         citations,
         loadCompanySectorInfo,
         loadAlertPreferencesFromDB,
+        reset,
       }}
     >
       {children}

@@ -2,6 +2,11 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import *
+from .views.esg_news_task_view import (
+     ESGNewsFetchTriggerView,
+     ESGMonthlyReportTriggerView,
+     ESGNewsTaskStatusView,
+)
 from .views.summary_news_view import SummaryNewsListView
 from .views.openai.linkedin_post_view import LinkedinPostView
 from .views.openai.linkedin_scheduled_post_view import LinkedinScheduledPostView
@@ -80,10 +85,7 @@ urlpatterns = [
           name='perplexity-esg-news'),
      path('perplexity/ceo-news/', PerplexityCEONewsView.as_view(),
           name='perplexity-ceo-news'),
-     path('perplexity/market-report/', MonthlyMarketReportView.as_view(),
-          name='monthly-market-report'),
-     path('perplexity/market-report/generate-pdf', GeneratePDFMonthlyMarketReportView.as_view(),
-          name='generate-pdf-monthly-market-report'),
+     
      # Translation Deepl
      path('deepl-sync/file/', DeeplTranslateFileView.as_view(), name='translate-file'),
      path('deepl/text/', DeeplTranslateTextView.as_view(), name='translate-text'),
@@ -95,6 +97,14 @@ urlpatterns = [
      path('openai/audio-transcription/',
           OpenAiAudioTranscriptView.as_view(), name='audio-transcription'),
      path('openai/esg-news/', OpenAIESGNewsView.as_view(), name='openai-esg-news'),
+     # ESG News (Custom tasks & monthly reports separation)
+     path('esg-news/fetch/', ESGNewsFetchTriggerView.as_view(), name='esg-news-fetch'),
+     path('esg-news/report/', ESGMonthlyReportTriggerView.as_view(), name='esg-news-monthly-report'),
+     path('esg-news/task-status/<str:task_id>/', ESGNewsTaskStatusView.as_view(), name='esg-news-task-status'),
+     path('esg-news/monthly-reports/', ESGMonthlyReportListView.as_view(), name='esg-news-monthly-reports'),
+     path('esg-news/monthly-reports/generate-pdf', GeneratePDFMonthlyMarketReportView.as_view(),
+          name='generate-pdf-monthly-market-report'),
+     
      path('openai/market-news/', OpenAIMarketNewsView.as_view(),
           name='openai-market-news'),
      path('openai/competitors-search/', OpenAICompetitorSearchView.as_view(),
