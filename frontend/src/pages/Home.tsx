@@ -60,20 +60,20 @@ const cards = [
 ]
 
 const modalText = `
-“Investor AI” è un tool pensato per “democratizzare” il potenziamento delle attività di Investor Relations, rendendo accessibili anche alle PMI le possibilità dell’Artificial Intelligence nello svolgimento di attività che altrimenti richiederebbero team interni dedicati e risorse ingenti.
+“Investor AI” è un tool pensato per “democratizzare” il potenziamento delle attività di Investor Relations, rendendo accessibili anche alle PMI le possibilità dell’Artificial Intelligence nello svolgimento di attività che altrimenti richiederebbero team interni dedicati e risorse ingenti. “Investor AI” propone:
 
-“Investor AI” propone:
+**3 tool di intelligence** per restare sempre aggiornati su 3 leve di difesa del valore aziendale:
+  - il **posizionamento competitivo**, mediante monitoraggio continuo dell’evoluzione del mercato di riferimento, delle azioni poste in campo dai competitor, dai clienti e dai fornitori (*Market Intelligence*);
+  - la **difesa del capitale umano**, mediante il monitoraggio della reputazione della squadra manageriale (*CEO Perception*);
+  - l’**implementazione di strategie di sostenibilità** e la relativa rendicontazione e comunicazione (*ESG Monitoring*).
 
-**3 tool di intelligence** per restare sempre aggiornati su 3 leve di difesa del valore aziendale:  
-  - il posizionamento competitivo, mediante monitoraggio continuo dell’evoluzione del mercato di riferimento e delle azioni poste in campo dai principali competitor (*Market Intelligence*);
-  - la difesa del capitale umano mediante il monitoraggio della reputazione della squadra manageriale (*CEO Perception*);
-  - l’implementazione di strategie di sostenibilità e la relativa rendicontazione e comunicazione (*ESG Monitoring*).
+**3 tool operativi** per comunicare come una grande azienda:  
+  - un **ambiente protetto** in cui interrogare rapidamente documenti e report, ottenere risposte precise e preparare materiali pronti all’uso, anche su informazioni price sensitive non ancora rese note al mercato (*Chat Assistant*);
+  - **strumenti per realizzare documenti e speech** in molteplici lingue ampliando il target di potenziali investitori a livello internazionale (*Earnings Call*).  
+  - **il tuo ambasciatore digitale**, che parla per te nel mondo, ti rappresenta fedelmente e apre porte dove la lingua o la distanza sono barriere (*Avatar AI*).
 
-**2 tool operativi** per comunicare come una grande azienda:  
-  - un ambiente protetto in cui interrogare rapidamente documenti e report, ottenere risposte precise e preparare materiali pronti all’uso, anche su informazioni price sensitive non ancora rese note al mercato (*Chat Assistant*);
-  - strumenti per realizzare documenti e speech in molteplici lingue ampliando il target di potenziali investitori a livello internazionale (*Earnings Call*).  
+I tool di intelligence forniscono la **conoscenza strategica**, i tool operativi la trasformano in **comunicazione efficace**.
 
-In sintesi, i tool di intelligence vi danno la conoscenza strategica, i tool operativi vi permettono di trasformarla in comunicazione efficace.  
 “Investor AI” non è solo un software: è il vostro alleato per crescere, competere e fare la differenza nel mercato dei capitali. È il ponte tra la vostra ambizione e le possibilità che il mercato può offrirvi.
 `
 
@@ -134,20 +134,20 @@ const Home: React.FC = () => {
             <ReactMarkdown
               components={{
                 p: ({ ...props }) => (
-                  <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.6, fontSize: '16px' }} {...props} />
+                  <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.6, fontSize: '17px' }} {...props} />
                 ),
                 strong: ({ ...props }) => (
-                  <Typography component="span" fontWeight="bold" sx={{ fontSize: '18px' }} {...props} />
+                  <Typography component="span" fontWeight="bold" sx={{ fontSize: '17px' }} {...props} />
                 ),
                 em: ({ ...props }) => (
-                  <Typography component="span" fontStyle="italic" sx={{ fontSize: '16px' }} {...props} />
+                  <Typography component="span" fontWeight="bold" color='primary' sx={{ fontSize: '17px' }} {...props} />
                 ),
                 ul: ({ ...props }) => (
-                  <List sx={{ listStyleType: 'disc', pl: 5, fontSize: '16px', mb: 2 }} {...props} />
+                  <List sx={{ listStyleType: 'disc', pl: 5, fontSize: '17px', mb: 2 }} {...props} />
                 ),
                 li: ({ ...props }) => (
                   <ListItem
-                    sx={{ display: 'list-item', py: 0.3, fontSize: '16px' }}
+                    sx={{ display: 'list-item', py: 0.3, fontSize: '17px' }}
                     {...props}
                   />
                 ),
@@ -175,7 +175,7 @@ const Home: React.FC = () => {
         {/* Intelligence Section */}
         <Box sx={{ width: '100%', maxWidth: 1200, mt: 2 }}>
           <Typography variant="h3" sx={{ textAlign: 'center', mb: 3 }}>
-            Tool Di Intelligence
+            Tool di Intelligence
           </Typography>
           <Box
             sx={{
