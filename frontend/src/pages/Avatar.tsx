@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import {
   Box,
   Button,
-  Divider,
   TextField,
   Typography,
 } from "@mui/material";
