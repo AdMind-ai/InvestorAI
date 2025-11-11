@@ -95,26 +95,19 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
                     time.sleep(RETRY_DELAY)
                     continue
                 raise
-            
-        # Extrair o texto JSON da resposta
-        response_text = ""
-        for output in response.output:
-            if output.type == "message":
-                for content in output.content:
-                    if content.type == "output_text":
-                        response_text += content.text
 
         # Garantir JSON válido
-            raw_output = response.output_text
-            
-            logger.info(f"[Search done, raw length={len(raw_output)})")
-            jsonRes = safe_load_json(raw_output)
+        raw_output = response.output_text
+        
+        logger.info(f"[Search done, raw length={len(raw_output)})")
+        jsonRes = safe_load_json(raw_output)
 
-            # Garante que o formato esteja correto
-            results = jsonRes.get("results", [])
-            logger.info(f"📰 {len(results)} artigos encontrados para {ceo_name}")
+        # Garante que o formato esteja correto
+        results = jsonRes.get("results", [])
+        logger.info(f"📰 {len(results)} artigos encontrados para {ceo_name}")
 
-            created_count = 0
+        created_count = 0
+        
         for article in results:
                 sentiment = get_sentiment_analysis(ceo_name, article["content"])
 
