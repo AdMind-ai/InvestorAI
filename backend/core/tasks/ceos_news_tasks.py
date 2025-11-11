@@ -1,9 +1,9 @@
 
 import os
+import time
 from celery import shared_task
-from time import time
 from asyncio.log import logger
-from sqlite3 import IntegrityError
+from django.db import IntegrityError
 from openai import BadRequestError
 from django.db import transaction
 from core.models.ceo_article_model import CEOArticle
@@ -69,12 +69,12 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
             ceo_conversation.conversation_id = conversation_id
             ceo_conversation.save(update_fields=["conversation_id"])
             
-        ceoInfos = f""""
+        ceoInfos = f"""
                 Name: {ceo_name}
                 Company: {company_short_name}
                 Company website: {company_url}
                 """
-                
+        
         MAX_RETRIES = 10
         RETRY_DELAY = 12
 
@@ -107,26 +107,42 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
         logger.info(f"📰 {len(results)} artigos encontrados para {ceo_name}")
 
         created_count = 0
-        
-        for article in results:
-                sentiment = get_sentiment_analysis(ceo_name, article["content"])
 
-                try:
-                    with transaction.atomic():
-                        obj, created = CEOArticle.objects.get_or_create(
-                            url=article["source"],
-                            defaults={
-                                "title": article["title"], 
-                                "content": article["content"],
-                                "date_published": article["date_published"],
-                                "sentiment": sentiment,
-                                "personality": ceo_instance,
-                            },
+        for article in results:
+            sentiment = get_sentiment_analysis(ceo_name, article["content"])
+
+            # Normaliza chaves esperadas
+            title = article.get("title")
+            content = article.get("content")
+            date_published = article.get("date_published")
+            url_value = article.get("source")  # 'source' vem como URL na resposta
+
+            try:
+                with transaction.atomic():
+                    # 1) Se já existe um artigo com a mesma URL para a MESMA personalidade, ignora sem atualizar
+                    if url_value and CEOArticle.objects.filter(url=url_value, personality=ceo_instance).exists():
+                        logger.info(
+                            f"⚠️ URL duplicada para este CEO, ignorando artigo: {url_value} (title='{title}')"
                         )
-                        if created:
-                            created_count += 1
-                except IntegrityError:
-                    logger.info(f"⚠️ Duplicado ignorado: {article['title']}")
+                        continue
+
+                    # 2) Garante correspondência com a constraint única (title, personality)
+                    obj, created = CEOArticle.objects.update_or_create(
+                        title=title,
+                        personality=ceo_instance,
+                        defaults={
+                            "content": content,
+                            "date_published": date_published,
+                            "sentiment": sentiment,
+                            "url": url_value,
+                        },
+                    )
+                    if created:
+                        created_count += 1
+            except IntegrityError as e:
+                logger.info(
+                    f"⚠️ Conflito de unicidade para '{title}' (CEO={ceo_name}): {e}. Ignorando registro."
+                )
 
 
         logger.info(f"✅ {created_count} novos artigos criados para {ceo_name}")
