@@ -121,9 +121,9 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
                 try:
                     with transaction.atomic():
                         obj, created = CEOArticle.objects.get_or_create(
-                            title=article["title"],
                             url=article["source"],
                             defaults={
+                                "title": article["title"], 
                                 "content": article["content"],
                                 "date_published": article["date_published"],
                                 "sentiment": sentiment,
