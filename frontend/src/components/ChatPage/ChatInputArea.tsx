@@ -124,7 +124,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     if (!text.trim()) return;
 
     if (file) {
-      const content = `${text ? text + '\n\n' : ''}📎 **Arquivo:** ${file.name}`;
+      const content = `${text ? text + '\n\n' : ''}📎 **File:** ${file.name}`;
       onSend(content, 'user', false, file.name);
     } else {
       onSend(text, 'user');

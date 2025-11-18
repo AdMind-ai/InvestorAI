@@ -32,7 +32,7 @@ interface ApiMessage {
 // }
 
 const ChatAssistant: React.FC = () => {
-  const [selectedModel, setSelectedModel] = useState('GPT-5')
+  const [selectedModel, setSelectedModel] = useState('GPT-5.1')
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false);
   const [isOverview, setIsOverview] = useState(false);
