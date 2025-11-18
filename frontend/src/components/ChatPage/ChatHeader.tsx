@@ -63,14 +63,14 @@ interface ChatHeaderProps {
 }
 
 const modelDescriptions: Record<string, { name: string, desc: string }> = {
-  "GPT-5": {
-    name: "GPT-5:",
-    desc: "GPT-5 is the leading model for encoding, reasoning, and agency tasks across all domains."
+  "GPT-5.1": {
+    name: "GPT-5.1:",
+    desc: "GPT-5.1 is the leading model for encoding, reasoning, and agency tasks across all domains."
   }
 }
 
 export const modelMapping: Record<string, string> = {
-  "GPT-5": "gpt-5"
+  "GPT-5.1": "gpt-5.1"
 };
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
