@@ -60,7 +60,7 @@ const cards = [
 ]
 
 const modalText = `
-“Investor AI” è un tool pensato per “democratizzare” il potenziamento delle attività di Investor Relations, rendendo accessibili anche alle PMI le possibilità dell’Artificial Intelligence nello svolgimento di attività che altrimenti richiederebbero team interni dedicati e risorse ingenti. “Investor AI” propone:
+“Investor AI” è un tool pensato per **potenziare le attività di Investor Relations**, rendendo accessibili anche alle PMI le possibilità dell’Artificial Intelligence nello svolgimento di attività che altrimenti richiederebbero team interni dedicati e risorse ingenti. “Investor AI” propone:
 
 **3 tool di intelligence** per restare sempre aggiornati su 3 leve di difesa del valore aziendale:
   - il **posizionamento competitivo**, mediante monitoraggio continuo dell’evoluzione del mercato di riferimento, delle azioni poste in campo dai competitor, dai clienti e dai fornitori (*Market Intelligence*);
