@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { Box, Button, IconButton, Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 import CustomTextArea from '../CustomTextArea';
 import AudioUploadArea from '../AudioUploadArea';

@@ -11,7 +11,7 @@ interface Props {
   supportUrl?: string
 }
 
-const UsageLimitModal: React.FC<Props> = ({ open, onClose, count = null, max = null, featureLabel = 'questa funzione', supportUrl = '/support' }) => {
+const UsageLimitModal: React.FC<Props> = ({ open, onClose, count = null, max = null, featureLabel = 'questa funzione' }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, pt: 2, mb: 1 }}>
