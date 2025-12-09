@@ -136,24 +136,49 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
         created_count = 0
 
         for article in results:
-            sentiment = get_sentiment_analysis(ceo_name, article["content"])
+            # Normalize and extract fields defensively; the response schema may vary.
+            content = article.get("content") or article.get("text") or ''
+            title = article.get("title") or (content[:120] if content else None)
+            date_published = article.get("date_published") or article.get("published")
 
-            # Normaliza chaves esperadas
-            title = article.get("title")
-            content = article.get("content")
-            date_published = article.get("date_published")
-            url_value = article.get("source")  # 'source' vem como URL na resposta
+            # Try several possible URL keys that different prompts/APIs may return
+            possible_url = None
+            for key in ("source", "url", "link", "source_url", "website"):
+                v = article.get(key)
+                if v:
+                    # if v is a dict (sometimes metadata), try to extract 'url'
+                    if isinstance(v, dict):
+                        possible_url = v.get("url") or v.get("href") or None
+                    else:
+                        possible_url = v
+                    if possible_url:
+                        break
+
+            # Normalize URL string
+            url_value = None
+            if possible_url:
+                try:
+                    url_value = str(possible_url).strip()
+                    if url_value == '' or url_value.lower() in ("null", "none"):
+                        url_value = None
+                except Exception:
+                    url_value = None
+
+            sentiment = get_sentiment_analysis(ceo_name, content)
+
+            # Debug logging to help diagnose duplicated-url issue
+            logger.debug(f"Article fields for CEO={ceo_name}: title={title!r}, url={url_value!r}, date={date_published!r}")
 
             try:
                 with transaction.atomic():
-                    # 1) Se já existe um artigo com a mesma URL para a MESMA personalidade, ignora sem atualizar
-                    if url_value and CEOArticle.objects.filter(url=url_value, personality=ceo_instance).exists():
-                        logger.info(
-                            f"⚠️ URL duplicada para este CEO, ignorando artigo: {url_value} (title='{title}')"
-                        )
-                        continue
+                    # 1) If we have a URL, only skip when the same CEO already has that URL.
+                    if url_value:
+                        exists_same_ceo = CEOArticle.objects.filter(url=url_value, personality=ceo_instance).exists()
+                        if exists_same_ceo:
+                            logger.info(f"⚠️ URL duplicada para este CEO, ignorando artigo: {url_value} (title='{title}')")
+                            continue
 
-                    # 2) Garante correspondência com a constraint única (title, personality)
+                    # 2) Otherwise create or update based on (title, personality).
                     obj, created = CEOArticle.objects.update_or_create(
                         title=title,
                         personality=ceo_instance,
