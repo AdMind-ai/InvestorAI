@@ -15,7 +15,7 @@ const Avatar: React.FC = () => {
   const { companyInfoAdm } = useGlobal();
 
   const STATIC_ALLOWED: string[] = [
-    'GREEN OLEO',
+    'Green Oleo S.p.A',
   ];
 
   const ALLOWED_COMPANIES = STATIC_ALLOWED;
