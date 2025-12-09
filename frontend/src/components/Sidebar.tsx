@@ -110,7 +110,7 @@ const Sidebar: React.FC = () => {
   const [activePath, setActivePath] = useState(location.pathname)
   const { companyInfoAdm } = useGlobal()
 
-  const STATIC_ALLOWED: string[] = ['GREEN OLEO']
+  const STATIC_ALLOWED: string[] = ['Green Oleo S.p.A']
   const isAvatarAllowed = companyInfoAdm ? STATIC_ALLOWED.includes(companyInfoAdm.short_name) : false
 
   const handleNavigation = (path: string) => {

@@ -83,7 +83,7 @@ const Home: React.FC = () => {
   const { companyInfoAdm } = useGlobal()
 
   // Allowed companies for Avatar feature (adjust as needed)
-  const STATIC_ALLOWED: string[] = ['GREEN OLEO']
+  const STATIC_ALLOWED: string[] = ['Green Oleo S.p.A']
   const isAvatarAllowed = companyInfoAdm ? STATIC_ALLOWED.includes(companyInfoAdm.short_name) : false
 
   // Show the intro modal only once per login session
