@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useGlobal } from '../context/GlobalContext'
 import { Box, Typography, Modal, IconButton, List, ListItem } from '@mui/material'
 import Layout from '../layouts/Layout'
 import HomeCard from '../components/HomeCard'
@@ -79,6 +80,11 @@ I tool di intelligence forniscono la **conoscenza strategica**, i tool operativi
 
 const Home: React.FC = () => {
   const [openModal, setOpenModal] = useState(false)
+  const { companyInfoAdm } = useGlobal()
+
+  // Allowed companies for Avatar feature (adjust as needed)
+  const STATIC_ALLOWED: string[] = ['GREEN OLEO']
+  const isAvatarAllowed = companyInfoAdm ? STATIC_ALLOWED.includes(companyInfoAdm.short_name) : false
 
   // Show the intro modal only once per login session
   useEffect(() => {
@@ -220,6 +226,11 @@ const Home: React.FC = () => {
           >
             {cards
               .filter(card => card.tool === 'operativi')
+              .filter(card => {
+                // hide avatar card if not allowed for this company
+                if (card.path === '/avatar' && !isAvatarAllowed) return false
+                return true
+              })
               .map((card, index) => (
                 <Box
                   key={index}
