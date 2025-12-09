@@ -125,6 +125,10 @@ urlpatterns = [
           name='get_investing_data'),
      path('openai/linkedin-post/', LinkedinPostView.as_view(), name='openai-linkedin-post'),
      path('openai/linkedin-scheduled/', LinkedinScheduledPostView.as_view(), name='openai-linkedin-scheduled'),
+         # Feature usage endpoint
+         path('usage/feature/',
+              __import__('core.views.feature_usage_view', fromlist=['']).FeatureUsageIncrementView.as_view(),
+              name='feature-usage-increment'),
      path('openai/chat/create-conversation/', ConversationForChatView.as_view(),
           name='openai-chat-create-conversation'),
      path('openai/chat/save-conversation/', SaveConversationView.as_view(),

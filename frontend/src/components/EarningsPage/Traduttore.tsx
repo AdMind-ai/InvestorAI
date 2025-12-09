@@ -6,9 +6,11 @@ import CustomTextArea from '../CustomTextArea'
 import UploadableTextArea from '../upload-components/UploadableTextArea'
 import DocumentList from "../upload-components/DocumentListUploaded";
 import { api } from '../../api/api'
+import { fetchWithAuth } from '../../api/fetchWithAuth'
 import { toast } from "react-toastify";
 import CircularProgress from '@mui/material/CircularProgress';
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
+import UsageLimitModal from './UsageLimitModal'
 
 interface PendingTask {
   task_id: string;
@@ -38,6 +40,9 @@ const Traduttore = () => {
   // const theme = useTheme()
   const [pendingTasks, setPendingTasks] = useState<PendingTask[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [openLimitModal, setOpenLimitModal] = useState<boolean>(false);
+  const [limitCount, setLimitCount] = useState<number | null>(null);
+  const [limitMax, setLimitMax] = useState<number | null>(null);
   
   // Text
   const [text, setText] = useState<string>('');
@@ -98,6 +103,29 @@ const Traduttore = () => {
       return;
     }
 
+    // Check usage limit before proceeding
+    try {
+      const checkRes = await fetchWithAuth('/usage/feature/', {
+        method: 'POST',
+        body: JSON.stringify({ feature: 'traduttore', check_only: true }),
+      });
+      if (!checkRes.ok) {
+        toast.info('Errore nel controllo del limite. Riprova più tardi.');
+        return;
+      }
+      const checkJson = await checkRes.json();
+      if (checkJson.allowed === false) {
+        setLimitCount(typeof checkJson.count === 'number' ? checkJson.count : null);
+        setLimitMax(typeof checkJson.max_limit === 'number' ? checkJson.max_limit : 2);
+        setOpenLimitModal(true);
+        return;
+      }
+    } catch (err) {
+      console.error('Errore controllo limite traduttore', err);
+      toast.error('Errore di rete durante il controllo del limite.');
+      return;
+    }
+
     setDocumentsTranslated([])
     setIsLoading(true); 
     try {
@@ -129,6 +157,16 @@ const Traduttore = () => {
         
         setPendingTasks(tasksStarted); 
 
+        // register usage after successfully starting translation tasks
+        try {
+          await fetchWithAuth('/usage/feature/', {
+            method: 'POST',
+            body: JSON.stringify({ feature: 'traduttore' }),
+          });
+        } catch (err) {
+          console.warn('Errore registrazione uso traduttore', err);
+        }
+
       } else if (text.trim()) { 
         setIsFileTranslated(false);
         const response = await api.post('/deepl/text/', {
@@ -141,6 +179,16 @@ const Traduttore = () => {
         console.log(response.data.translated_text)
         setIsTranslated(true);
         setIsLoading(false);
+
+        // register usage after successful text translation
+        try {
+          await fetchWithAuth('/usage/feature/', {
+            method: 'POST',
+            body: JSON.stringify({ feature: 'traduttore' }),
+          });
+        } catch (err) {
+          console.warn('Errore registrazione uso traduttore', err);
+        }
       } else {
         toast.error('Error: Nessun testo o file da tradurre.');
         setIsLoading(false);
@@ -308,6 +356,13 @@ const Traduttore = () => {
           </Button>
         )}
       </Box>
+      <UsageLimitModal
+        open={openLimitModal}
+        onClose={() => setOpenLimitModal(false)}
+        count={limitCount}
+        max={limitMax}
+        featureLabel="Traduttore"
+      />
     </Box>
     
   )
