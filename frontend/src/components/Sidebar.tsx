@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useGlobal } from '../context/GlobalContext'
 import { Box, List, ListItem, ListItemIcon, Divider } from '@mui/material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from '@mui/material/styles'
@@ -107,6 +108,10 @@ const Sidebar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [activePath, setActivePath] = useState(location.pathname)
+  const { companyInfoAdm } = useGlobal()
+
+  const STATIC_ALLOWED: string[] = ['GREEN OLEO']
+  const isAvatarAllowed = companyInfoAdm ? STATIC_ALLOWED.includes(companyInfoAdm.short_name) : false
 
   const handleNavigation = (path: string) => {
     setActivePath(path)
@@ -175,7 +180,12 @@ const Sidebar: React.FC = () => {
             gap: 'calc(0.5vw)',
           }}
         >
-          {menuItems.map((item, index) => {
+          {menuItems
+            .filter(item => {
+              if (item.path === '/avatar' && !isAvatarAllowed) return false
+              return true
+            })
+            .map((item, index) => {
             const isActive = activePath === item.path
             const isGroupStart = index > 0 && menuItems[index - 1].tool !== item.tool
             return (

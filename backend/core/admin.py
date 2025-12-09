@@ -11,6 +11,7 @@ from core.models.market_company_report import CompanyMarketReport
 from core.models.company_stock_data_model import CompanyStockData
 from core.models.company_quarterly_report import CompanyQuarterlyReport
 from core.models.company_info import CompanyInfo, CEO, RelatedCompany
+from core.models.feature_usage import FeatureUsage
 from core.models.company_info.company_route_restriction import CompanyRouteRestriction
 from core.models.frontend_master_route_list import MasterRouteList
 from core.models.summary_news_model import SummaryNewsArticle
@@ -198,6 +199,13 @@ class CEOAdmin(admin.ModelAdmin):
 @admin.register(CEOConversation)
 class CEOConversationAdmin(admin.ModelAdmin):
     list_display = ('company', 'ceo', 'conversation_id', 'created_at')
+
+
+@admin.register(FeatureUsage)
+class FeatureUsageAdmin(admin.ModelAdmin):
+    list_display = ('module', 'feature', 'company', 'count', 'max_limit', 'last_used')
+    list_filter = ('module', 'feature', 'company')
+    readonly_fields = ('last_used',)
 
 
 @admin.register(LinkedinScheduledPost)

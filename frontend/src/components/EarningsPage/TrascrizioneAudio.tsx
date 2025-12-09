@@ -5,12 +5,17 @@ import AudioUploadArea from '../AudioUploadArea';
 import jsPDF from 'jspdf';
 import downloadIcon from '../../assets/icons/download-icon.svg';
 import { api } from '../../api/api'
+import { fetchWithAuth } from '../../api/fetchWithAuth'
+import UsageLimitModal from './UsageLimitModal'
 
 const Trascrizione = () => {
   const [selectedAudioFile, setSelectedAudioFile] = useState<File | null>(null);
   const [text, setText] = useState<string>('');
   const [showTextArea, setShowTextArea] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openLimitModal, setOpenLimitModal] = useState<boolean>(false);
+  const [limitCount, setLimitCount] = useState<number | null>(null);
+  const [limitMax, setLimitMax] = useState<number | null>(null);
 
   const isButtonEnabled = selectedAudioFile !== null;
 
@@ -27,6 +32,16 @@ const Trascrizione = () => {
         }
       });
       setText(response.data.text);
+
+      // register usage after successful transcription
+      try {
+        await fetchWithAuth('/usage/feature/', {
+          method: 'POST',
+          body: JSON.stringify({ feature: 'trascrizione_audio' }),
+        });
+      } catch (err) {
+        console.warn('Errore registrazione uso trascrizione', err);
+      }
     } catch (error) {
       console.error('Erro ao transcrever o áudio:', error);
       // Adicione tratamento de erro se necessário
@@ -34,8 +49,38 @@ const Trascrizione = () => {
   };
 
   const handleClickTrascrivi = () => {
-    setShowTextArea(true);
-    handleFileUpload();
+    // check limit before performing transcription
+    (async () => {
+      try {
+        const checkRes = await fetchWithAuth('/usage/feature/', {
+          method: 'POST',
+          body: JSON.stringify({ feature: 'trascrizione_audio', check_only: true }),
+        });
+        if (!checkRes.ok) {
+          console.error('Errore controllo limite trascrizione');
+          setLimitCount(null);
+          setLimitMax(null);
+          setOpenLimitModal(true);
+          return;
+        }
+        const checkJson = await checkRes.json();
+        if (checkJson.allowed === false) {
+          setLimitCount(typeof checkJson.count === 'number' ? checkJson.count : null);
+          setLimitMax(typeof checkJson.max_limit === 'number' ? checkJson.max_limit : 2);
+          setOpenLimitModal(true);
+          return;
+        }
+      } catch (err) {
+        console.error('Errore controllo limite trascrizione', err);
+        setLimitCount(null);
+        setLimitMax(null);
+        setOpenLimitModal(true);
+        return;
+      }
+
+      setShowTextArea(true);
+      handleFileUpload();
+    })();
   };
 
   const handleDownloadClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -152,6 +197,13 @@ const Trascrizione = () => {
       >
         Trascrivi
       </Button>
+        <UsageLimitModal
+          open={openLimitModal}
+          onClose={() => setOpenLimitModal(false)}
+          count={limitCount}
+          max={limitMax}
+          featureLabel="Trascrizione audio"
+        />
     </Box>
   );
 }

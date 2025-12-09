@@ -9,6 +9,7 @@ import {
 import Layout from '../layouts/Layout'
 import { useTheme } from '@mui/material/styles'
 import SocialMediaBackground from '../assets/backgrounds/linkedin-background.svg'
+// feature usage checks are performed inside the individual components
 
 import Traduttore from '../components/EarningsPage/Traduttore'
 import CreaSpeech from '../components/EarningsPage/CreaSpeech'
@@ -77,7 +78,7 @@ const EarningsContent: React.FC = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', paddingTop: '1.5vw' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', width: '98%', gap: 2 }}>
-              <ToggleButtonGroup
+                <ToggleButtonGroup
                 value={selectedOption}
                 exclusive
                 onChange={(_, newValue) => newValue && setSelectedOption(newValue)}
@@ -126,6 +127,7 @@ const EarningsContent: React.FC = () => {
           {selectedOption === 'Crea speech' && <CreaSpeech />}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
           {selectedOption === 'Post LinkedIn' && <LinkedinPost />}
+          
         </Box>
       </Box>
     </Layout>

@@ -55,19 +55,39 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
         if not ceo_instance:
             raise ValueError(f"CEO '{ceo_name}' não encontrado.")
         
-        ceo_conversation, created = CEOConversation.objects.get_or_create(
-            company=company_instance,
-            ceo=ceo_instance,
-        )
-        
-        # Garante que exista uma conversation_id válida
-        if ceo_conversation.conversation_id:
-            conversation_id = ceo_conversation.conversation_id
+        # Try to fetch/create the CEOConversation with minimal locking.
+        # We avoid holding a DB lock while calling the external client to create a conversation.
+        with transaction.atomic():
+            ceo_conversation, created = CEOConversation.objects.select_for_update().get_or_create(
+                company=company_instance,
+                ceo=ceo_instance,
+            )
+            existing_conv_id = ceo_conversation.conversation_id
+
+        if existing_conv_id:
+            conversation_id = existing_conv_id
         else:
+            # Create conversation outside DB transaction to avoid long locks
+            logger.info(f"🆕 Creating new conversation for CEO {ceo_name}")
             new_conversation = client.conversations.create()
             conversation_id = new_conversation.id
-            ceo_conversation.conversation_id = conversation_id
-            ceo_conversation.save(update_fields=["conversation_id"])
+
+            # Try to save conversation_id only if another process hasn't already set it
+            try:
+                with transaction.atomic():
+                    obj = CEOConversation.objects.select_for_update().get(pk=ceo_conversation.pk)
+                    if not obj.conversation_id:
+                        obj.conversation_id = conversation_id
+                        obj.save(update_fields=["conversation_id"])
+                        logger.info(f"✅ Conversation id saved for CEO {ceo_name}: {conversation_id}")
+                    else:
+                        # Another process set it first; use that one
+                        conversation_id = obj.conversation_id
+                        logger.info(f"ℹ️ Conversation id already set by another worker for {ceo_name}: {conversation_id}")
+            except CEOConversation.DoesNotExist:
+                # Extremely unlikely: if row disappeared, create it
+                CEOConversation.objects.create(company=company_instance, ceo=ceo_instance, conversation_id=conversation_id)
+                logger.info(f"✅ Conversation record created with id for CEO {ceo_name}: {conversation_id}")
             
         ceoInfos = f"""
                 Name: {ceo_name}
@@ -78,6 +98,7 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
         MAX_RETRIES = 10
         RETRY_DELAY = 12
 
+        response = None
         for attempt in range(MAX_RETRIES):
             try:
                 response = client.responses.create(
@@ -87,14 +108,20 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
                     store=True,
                     timeout=900,
                 )
-                break  # deu certo, sai do loop
+                break  # success
 
             except BadRequestError as e:
-                if "conversation_locked" in str(e):
-                    logger.warning(f"🕒 Conversa bloqueada (tentativa {attempt+1}/{MAX_RETRIES}), esperando...")
+                msg = str(e)
+                # handle conversation lock with retry
+                if "conversation_locked" in msg or "locked" in msg:
+                    logger.warning(f"🕒 Conversa bloqueada (tentativa {attempt+1}/{MAX_RETRIES}) para {ceo_name}, esperando {RETRY_DELAY}s...")
                     time.sleep(RETRY_DELAY)
                     continue
+                # re-raise other BadRequest errors
                 raise
+
+        if response is None:
+            raise RuntimeError(f"OpenAI response not obtained for {ceo_name} after {MAX_RETRIES} attempts")
 
         # Garantir JSON válido
         raw_output = response.output_text

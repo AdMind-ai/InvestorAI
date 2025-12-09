@@ -6,8 +6,10 @@ import { useState, useEffect } from 'react'
 import CustomTextArea from '../CustomTextArea'
 import AudioPlayer from '../AudioPlayer';
 import { api } from '../../api/api';
+import { fetchWithAuth } from '../../api/fetchWithAuth';
 import CircularProgress from '@mui/material/CircularProgress';
 import { toast } from 'react-toastify';
+import UsageLimitModal from './UsageLimitModal'
 
 // interface CreaSpeechProps {
 //   onChange: (isEnabled: boolean) => void
@@ -42,6 +44,9 @@ const CreaSpeech: React.FC = () => {
   const [isGenerated, setIsGenerated] = useState<boolean>(false);
   const [audioSrc, setAudioSrc] = useState<string>('');
   const voiceOptions = Object.keys(voiceMap);
+  const [openLimitModal, setOpenLimitModal] = useState<boolean>(false);
+  const [limitCount, setLimitCount] = useState<number | null>(null);
+  const [limitMax, setLimitMax] = useState<number | null>(null);
 
   const CHARACTER_LIMIT = 10000;
   const isOverLimit = text.length > CHARACTER_LIMIT;
@@ -63,6 +68,29 @@ const CreaSpeech: React.FC = () => {
       return
     }
 
+    // check limit before generating
+    try {
+      const checkRes = await fetchWithAuth('/usage/feature/', {
+        method: 'POST',
+        body: JSON.stringify({ feature: 'crea_speech', check_only: true }),
+      });
+      if (!checkRes.ok) {
+        toast.error('Errore nel controllo del limite.');
+        return;
+      }
+      const checkJson = await checkRes.json();
+      if (checkJson.allowed === false) {
+        setLimitCount(typeof checkJson.count === 'number' ? checkJson.count : null);
+        setLimitMax(typeof checkJson.max_limit === 'number' ? checkJson.max_limit : 2);
+        setOpenLimitModal(true);
+        return;
+      }
+    } catch (err) {
+      console.error('Errore controllo limite crea speech', err);
+      toast.error('Errore di rete durante il controllo del limite.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await api.post('/elevenlabs/text-to-speech/', {
@@ -81,6 +109,15 @@ const CreaSpeech: React.FC = () => {
       const audioUrl = `data:audio/mp3;base64,${base64Audio}`;
       setAudioSrc(audioUrl);
       setIsGenerated(true);
+      // register usage
+      try {
+        await fetchWithAuth('/usage/feature/', {
+          method: 'POST',
+          body: JSON.stringify({ feature: 'crea_speech' }),
+        });
+      } catch (err) {
+        console.warn('Errore registrazione uso crea speech', err);
+      }
     } catch (error) {
       console.error('Errore nella generazione audio', error);
       alert('Errore durante la generazione dell\'audio. Riprova.');
@@ -138,6 +175,13 @@ const CreaSpeech: React.FC = () => {
       >
         {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Genera'}
       </Button>
+      <UsageLimitModal
+        open={openLimitModal}
+        onClose={() => setOpenLimitModal(false)}
+        count={limitCount}
+        max={limitMax}
+        featureLabel="Crea speech"
+      />
     </Box>
 
   )

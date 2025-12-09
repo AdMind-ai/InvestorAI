@@ -9,8 +9,19 @@ import Layout from "../layouts/Layout";
 import LinedDropdown from "../components/dropdowns/LinedDropdown";
 import avatarVideo from "../assets/mp4/annaavataradmindai.mp4";
 // import AvatarImg from '../assets/image.svg'
+import { useGlobal } from "../context/GlobalContext";
 
 const Avatar: React.FC = () => {
+  const { companyInfoAdm } = useGlobal();
+
+  const STATIC_ALLOWED: string[] = [
+    'GREEN OLEO',
+  ];
+
+  const ALLOWED_COMPANIES = STATIC_ALLOWED;
+
+  const isAllowed = companyInfoAdm ? ALLOWED_COMPANIES.includes(companyInfoAdm.short_name) : false;
+
   const [targetLanguage, setTargetLanguage] = useState<string | string[]>("");
 
   const [text, setText] = useState<string>("");
@@ -18,12 +29,6 @@ const Avatar: React.FC = () => {
   const isButtonEnabled = text.length > 0 && !!targetLanguage;
 
   const messageOfDescription = "Il tuo avatar è un ambasciatore digitale: parla per te nel mondo, ti rappresenta fedelmente e apre porte dove la lingua o la distanza sono barriere. Fai parlare la tua immagine in qualsiasi lingua, con il tuo tono di voce e la tua espressione."
-
-  // const handleNewGeneration = () => {
-  //   setTargetLanguage("");
-  //   setIsGenerated(false);
-  //   setText("");
-  // };
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -51,6 +56,17 @@ const Avatar: React.FC = () => {
   return (
     <Layout>
       <Box sx={{ padding: '3vh', overflow: 'auto', height: '100%', width: '100%' }}>
+        {!isAllowed ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 6 }}>
+            <Typography variant="h4" sx={{ mb: 2 }}>Avatar non disponibile</Typography>
+            <Typography variant="body1" sx={{ mb: 2, maxWidth: 600, textAlign: 'center' }}>
+              Questa funzionalità non è ancora attivata per la tua azienda. Se ritieni che dovrebbe esserlo, contatta l'amministratore del tuo account.
+            </Typography>
+            <Button variant="contained" onClick={() => window.open('/support','_blank')}>Contatta supporto</Button>
+          </Box>
+        ) : (
+          <>
+            {/* Avatar UI for allowed companies */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mr: 2 }}>
           {/*  Title  */}
           <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -178,6 +194,9 @@ const Avatar: React.FC = () => {
             </Button>
           </Box>
         </Box>
+
+          </>
+        )}
 
       </Box>
     </Layout>

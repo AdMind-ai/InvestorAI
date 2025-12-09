@@ -93,24 +93,16 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=18, minute=0),
         'args': ()
     },
-    'news_ceos_morning': {
+    'news_ceos_weekly': {
         'task': 'core.tasks.ceos_news_tasks.collect_ceo_news_task',
-        'schedule': crontab(hour=6, minute=0),
+        # run once weekly on Monday at 06:00 (timezone: Europe/Rome)
+        'schedule': crontab(hour=6, minute=0, day_of_week='monday'),
         'args': ()
     },
-    'news_ceos_afternoon': {
-        'task': 'core.tasks.ceos_news_tasks.collect_ceo_news_task',
-        'schedule': crontab(hour=18, minute=0),
-        'args': ()
-    },
-    'news_esg_morning': {
+    'news_esg_weekly': {
         'task': 'core.tasks.esg_news_tasks.fetch_esg_news_dispatcher',
-        'schedule': crontab(hour=6, minute=0),
-        'args': ()
-    },
-    'news_esg_afternoon': {
-        'task': 'core.tasks.esg_news_tasks.fetch_esg_news_dispatcher',
-        'schedule': crontab(hour=18, minute=0),
+        # run once weekly on Monday at 06:00 (timezone: Europe/Rome)
+        'schedule': crontab(hour=6, minute=0, day_of_week='monday'),
         'args': ()
     },
     'generate_monthly_market_report': {
