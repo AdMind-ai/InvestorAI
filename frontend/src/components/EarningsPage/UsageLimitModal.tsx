@@ -20,7 +20,7 @@ const UsageLimitModal: React.FC<Props> = ({ open, onClose, count = null, max = n
         </Avatar>
         <Box>
           <DialogTitle sx={{ p: 0, lineHeight: 1 }}>Limite raggiunto</DialogTitle>
-          <Typography variant="body2" color="text.secondary">Non puoi usare {featureLabel} al momento</Typography>
+          <Typography variant="body2" color="text.secondary">Non puoi usare {featureLabel} al momento.</Typography>
         </Box>
       </Box>
       <DialogContent dividers>

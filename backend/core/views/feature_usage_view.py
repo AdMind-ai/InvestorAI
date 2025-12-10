@@ -40,7 +40,11 @@ class FeatureUsageIncrementView(APIView):
                     return Response({"allowed": False, "count": obj.count, "max_limit": obj.max_limit}, status=status.HTTP_200_OK)
                 return Response({"allowed": True, "count": obj.count, "max_limit": obj.max_limit}, status=status.HTTP_200_OK)
 
-            # no object exists -> use default max for earnings
+            # no object exists -> if default_max is 0, block immediately (feature disabled by default)
+            if default_max == 0:
+                return Response({"allowed": False, "count": 0, "max_limit": 0}, status=status.HTTP_200_OK)
+
+            # otherwise allow (no object and no default limit)
             return Response({"allowed": True, "count": 0, "max_limit": default_max}, status=status.HTTP_200_OK)
 
         try:

@@ -55,7 +55,8 @@ class FeatureUsage(models.Model):
         # if creating for the first time, provide a sensible default max_limit for earnings
         defaults = {'count': 0}
         if module == cls.MODULE_EARNINGS:
-            defaults.setdefault('max_limit', 2)
+            # default max uses for earnings features is 0 (disabled) unless explicitly set
+            defaults.setdefault('max_limit', 0)
 
         obj, created = cls.objects.get_or_create(module=module, feature=feature, company=company, defaults=defaults)
 
