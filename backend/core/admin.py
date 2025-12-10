@@ -193,7 +193,7 @@ class CompetitorAdmin(admin.ModelAdmin):
 
 @admin.register(CEO)
 class CEOAdmin(admin.ModelAdmin):
-    list_display = ('name', 'role', 'company')
+    list_display = ('name', 'role', 'company', 'additional_info')
 
 
 @admin.register(CEOConversation)

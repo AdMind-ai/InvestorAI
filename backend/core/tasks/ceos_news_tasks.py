@@ -95,6 +95,9 @@ def fetch_ceo_news(self, ceo_name, company_short_name, company_url):
                 Company website: {company_url}
                 """
         
+        if (ceo_instance.additional_info):
+            ceoInfos += f"\nAdditional info: {ceo_instance.additional_info}"
+        
         MAX_RETRIES = 10
         RETRY_DELAY = 12
 
