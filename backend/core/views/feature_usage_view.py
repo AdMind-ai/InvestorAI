@@ -34,7 +34,7 @@ class FeatureUsageIncrementView(APIView):
         if check_only:
             obj = FeatureUsage.objects.filter(module=module, feature=feature, company=company).first()
             # default max limit for earnings if no object exists
-            default_max = 2 if module == FeatureUsage.MODULE_EARNINGS else None
+            default_max = 0 if module == FeatureUsage.MODULE_EARNINGS else None
             if obj:
                 if obj.max_limit is not None and obj.count >= obj.max_limit:
                     return Response({"allowed": False, "count": obj.count, "max_limit": obj.max_limit}, status=status.HTTP_200_OK)

@@ -7,6 +7,7 @@ class CEO(models.Model):
         CompanyInfo, related_name='ceos', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     role = models.CharField(max_length=128)
+    additional_info = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "CEO"
