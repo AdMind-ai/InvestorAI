@@ -129,8 +129,8 @@ class CompetitorSearchAdmin(admin.ModelAdmin):
 
 @admin.register(MarketNewsArticle)
 class MarketNewsArticleAdmin(admin.ModelAdmin):
-    list_display = ('company', 'type', 'title', 'date_published', 'created_at')
-    list_filter = ('type', 'date_published', 'created_at')
+    list_display = ('company', 'company_fk', 'type', 'title', 'date_published', 'created_at')
+    list_filter = ('type', 'date_published', 'created_at', 'company_fk')
     search_fields = ('company', 'title', 'url')
     ordering = ('-created_at',)
 

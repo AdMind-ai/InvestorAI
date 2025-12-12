@@ -1,4 +1,5 @@
 from rest_framework import status, permissions
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from core.models.company_info import CompanyInfo
@@ -8,6 +9,7 @@ from core.utils.get_company_info import get_user_company
 from core.utils.openai_client import client
 
 class MarketNewsSetupView(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
