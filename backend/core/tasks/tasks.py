@@ -697,7 +697,7 @@ def _update_message(message_id, content, citations):
 
 
 @shared_task
-def async_translate_file(deepl_key, blob_name, target, origin, filename_no_ext=None):
+def async_translate_file(deepl_key, blob_name, target, origin, filename_no_ext=None, glossary_id=None):
     # blob_name: ex "usuario/uuid_nomeoriginal.pdf"
     user_folder = os.path.dirname(blob_name)        # "usuario"
     base_name = os.path.basename(blob_name)         # "uuid_nomeoriginal.pdf"
@@ -718,7 +718,7 @@ def async_translate_file(deepl_key, blob_name, target, origin, filename_no_ext=N
     with open(temp_path, 'rb') as f:
         translation = DeeplTranslation(deepl_key)
         translated_file_path = translation.translate_file(
-            f, target, origin, filename_no_ext)
+            f, target, origin, filename_no_ext, glossary_id=glossary_id)
 
     # 3. Criar caminho final do arquivo traduzido com extensão
     translated_file_name = os.path.basename(

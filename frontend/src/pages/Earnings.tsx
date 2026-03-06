@@ -16,10 +16,12 @@ import CreaSpeech from '../components/EarningsPage/CreaSpeech'
 import Trascrizione from '../components/EarningsPage/TrascrizioneAudio'
 import LinkedinPost from '../components/EarningsPage/newSocialMedia/LinkedinPost'
 import { LinkedinPostProvider, useLinkedinPost } from '../context/LinkedinPostContext'
+import { GlossaryButton, GlossaryModal } from '../components/EarningsPage/glossary/glossary-manager'
 
 const EarningsContent: React.FC = () => {
   const theme = useTheme();
   const [selectedOption, setSelectedOption] = useState<string>('Traduttore');
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
   const { flowType, setFlowToPlan } = useLinkedinPost();
 
   const Options = [
@@ -107,6 +109,10 @@ const EarningsContent: React.FC = () => {
                 ))}
               </ToggleButtonGroup>
 
+              {selectedOption === 'Traduttore' && (
+                <GlossaryButton onClick={() => setGlossaryOpen(true)} />
+              )}
+
               {/* Right-aligned link that opens the scheduled posts flow */}
               {selectedOption === 'Post LinkedIn' && flowType !== 'plan' && (
                 <Link
@@ -127,6 +133,11 @@ const EarningsContent: React.FC = () => {
           {selectedOption === 'Crea speech' && <CreaSpeech />}
           {selectedOption === 'Trascrizione audio' && <Trascrizione />}
           {selectedOption === 'Post LinkedIn' && <LinkedinPost />}
+          <GlossaryModal
+            open={glossaryOpen}
+            onClose={() => setGlossaryOpen(false)}
+            scope="company"
+          />
           
         </Box>
       </Box>

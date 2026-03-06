@@ -54,7 +54,7 @@ class DeeplTranslation:
     def __init__(self, deepl_key):
         self.key = deepl_key
 
-    def translate_file(self, file, target, origin, original_filename_wo_ext=None):
+    def translate_file(self, file, target, origin, original_filename_wo_ext=None, glossary_id=None):
         file_b = file.read()
         translator = deepl.Translator(self.key)
 
@@ -71,18 +71,37 @@ class DeeplTranslation:
         source_lang = self.TARGET.get(origin)
 
         try:
-            if source_lang != 'EL' and target_lang != 'EL':
-                glossary = self.GLOSSARIES[
-                    f'{source_lang[:2]}_{target_lang[:2]}'
-                ]
+            # Use provided glossary_id if available, otherwise fallback to hardcoded
+            if glossary_id:
                 translator.translate_document(
                     file_b,
                     temp_file,
                     filename=file.name,
                     target_lang=target_lang,
                     source_lang=source_lang[:2],
-                    glossary=glossary,
+                    glossary=glossary_id,
                 )
+            elif source_lang != 'EL' and target_lang != 'EL':
+                glossary_key = f'{source_lang[:2]}_{target_lang[:2]}'
+                fallback_glossary = self.GLOSSARIES.get(glossary_key)
+                
+                if fallback_glossary:
+                    translator.translate_document(
+                        file_b,
+                        temp_file,
+                        filename=file.name,
+                        target_lang=target_lang,
+                        source_lang=source_lang[:2],
+                        glossary=fallback_glossary,
+                    )
+                else:
+                    translator.translate_document(
+                        file_b,
+                        temp_file,
+                        filename=file.name,
+                        target_lang=target_lang,
+                        source_lang=source_lang[:2],
+                    )
             else:
                 translator.translate_document(
                     file_b,
@@ -121,7 +140,7 @@ class DeeplTranslation:
 
         return os.path.basename(temp_file.name)
 
-    def translate_text(self, text, origin, target):
+    def translate_text(self, text, origin, target, glossary_id=None):
         translator = deepl.Translator(self.key)
 
         target_lang = self.TARGET.get(target.lower())
@@ -131,16 +150,24 @@ class DeeplTranslation:
             return {"error": "Invalid language."}
 
         try:
-            if source_lang != 'EL' and target_lang != 'EL':
+            # Use provided glossary_id if available, otherwise fallback to hardcoded
+            if glossary_id:
+                result = translator.translate_text(
+                    text,
+                    source_lang=source_lang[:2],
+                    target_lang=target_lang,
+                    glossary=glossary_id
+                )
+            elif source_lang != 'EL' and target_lang != 'EL':
                 glossary_key = f'{source_lang[:2]}_{target_lang[:2]}'
-                glossary_id = self.GLOSSARIES.get(glossary_key)
+                fallback_glossary_id = self.GLOSSARIES.get(glossary_key)
 
-                if glossary_id:
+                if fallback_glossary_id:
                     result = translator.translate_text(
                         text,
                         source_lang=source_lang[:2],
                         target_lang=target_lang,
-                        glossary=glossary_id
+                        glossary=fallback_glossary_id
                     )
                 else:
                     result = translator.translate_text(

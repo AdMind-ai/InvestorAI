@@ -13,6 +13,8 @@ from django.core.files.storage import default_storage
 from core.serializers.translate_file_serializer import TranslateFileSerializer
 from core.utils.deepl_translation import DeeplTranslation
 from core.utils.quickdoc.upload_to_blob_storage import upload_to_blob_storage
+from core.services.deepl_glossary_service import DeepLGlossaryService
+from core.utils.get_company_info import get_user_company
 
 from core.tasks.tasks import async_translate_file
 from core.utils.quickdoc.upload_to_blob_storage import generate_sas_token
@@ -88,12 +90,36 @@ class DeeplTranslateFileViewAsync(APIView):
         filename_no_ext, _ = os.path.splitext(filename)
 
         deepl_key = settings.DEEPL_KEY
+        
+        # Try to get glossary_id from database
+        glossary_id = None
+        try:
+            company = get_user_company(request.user)
+            glossary_service = DeepLGlossaryService(deepl_key)
+            
+            # Map language names to codes
+            source_lang_code = DeeplTranslation.TARGET.get(origin, '').split('-')[0]
+            target_lang_code = DeeplTranslation.TARGET.get(target, '').split('-')[0]
+            
+            # Try company glossary first
+            glossary_id = glossary_service.get_glossary_id_for_translation(
+                company_id=company.id,
+                user_id=request.user.id,
+                scope="company",
+                source_lang=source_lang_code.upper(),
+                target_lang=target_lang_code.upper()
+            )
+        except Exception as e:
+            # Log but continue without glossary
+            print(f"Could not fetch glossary for async file translation: {e}")
+        
         task = async_translate_file.delay(
             deepl_key,
             blob_name,
             target,
             origin,
-            filename_no_ext
+            filename_no_ext,
+            glossary_id
         )
         return Response(
             {"task_id": task.id, "filename": blob_name},

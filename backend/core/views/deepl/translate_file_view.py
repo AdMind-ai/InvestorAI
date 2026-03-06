@@ -11,6 +11,8 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 from core.serializers.translate_file_serializer import TranslateFileSerializer
 from core.utils.deepl_translation import DeeplTranslation
+from core.services.deepl_glossary_service import DeepLGlossaryService
+from core.utils.get_company_info import get_user_company
 
 
 class DeeplTranslateFileView(APIView):
@@ -69,7 +71,30 @@ class DeeplTranslateFileView(APIView):
 
         deepl_key = os.getenv('DEEPL_KEY')
         translation = DeeplTranslation(deepl_key)
-        result = translation.translate_file(file, target, origin)
+        
+        # Try to get glossary_id from database
+        glossary_id = None
+        try:
+            company = get_user_company(request.user)
+            glossary_service = DeepLGlossaryService(deepl_key)
+            
+            # Map language names to codes
+            source_lang_code = DeeplTranslation.TARGET.get(origin, '').split('-')[0]
+            target_lang_code = DeeplTranslation.TARGET.get(target, '').split('-')[0]
+            
+            # Try company glossary first
+            glossary_id = glossary_service.get_glossary_id_for_translation(
+                company_id=company.id,
+                user_id=request.user.id,
+                scope="company",
+                source_lang=source_lang_code.upper(),
+                target_lang=target_lang_code.upper()
+            )
+        except Exception as e:
+            # Log but continue without glossary
+            print(f"Could not fetch glossary for file translation: {e}")
+        
+        result = translation.translate_file(file, target, origin, glossary_id=glossary_id)
 
         if 'error' in result:
             return Response(

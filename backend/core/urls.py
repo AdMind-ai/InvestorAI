@@ -11,6 +11,7 @@ from .views.summary_news_view import SummaryNewsListView
 from .views.openai.linkedin_post_view import LinkedinPostView
 from .views.openai.linkedin_scheduled_post_view import LinkedinScheduledPostView
 from .views.market_news_alert_preference_view import MarketNewsAlertPreferenceView
+from .views.glossary_entry_view import GlossaryEntryView
 
 router = DefaultRouter()
 router.register(r'articles', CombinedArticleViewSet, basename='articles')
@@ -77,6 +78,8 @@ urlpatterns = [
      # Market Intelligence - Alert Preferences (email + categories)
      path('market-alert-preferences/', MarketNewsAlertPreferenceView.as_view(),
           name='market-alert-preferences'),
+
+     path('glossary/', GlossaryEntryView.as_view(), name='glossary-entries'),
 
     
      path('perplexity/deep-search/',

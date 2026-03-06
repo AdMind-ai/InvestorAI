@@ -54,6 +54,7 @@ from .stocks_view import (
 
 from .smartscan import SmartScanExtractView, SmartScanChatView
 from .quickdoc_view import QuickDocGenerateView
+from .glossary_entry_view import GlossaryEntryView
 
 __all__ = [
     'MasterRouteListUpdateView',
@@ -111,6 +112,7 @@ __all__ = [
     'SmartScanExtractView',
     'SmartScanChatView',
     'QuickDocGenerateView',
+    'GlossaryEntryView',
     
     'WeeklyCEONewsTaskView',
 ]
