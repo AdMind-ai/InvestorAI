@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import CircularProgress from '@mui/material/CircularProgress';
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import UsageLimitModal from './UsageLimitModal'
+import { buildGlossaryPrompt } from './glossary/glossary-manager'
 
 interface PendingTask {
   task_id: string;
@@ -132,11 +133,14 @@ const Traduttore = () => {
       if (files.length > 0) { 
         setIsFileTranslated(false);
 
+        const glossaryPrompt = await buildGlossaryPrompt(selectedLanguageTarget!, 'company');
+        
         const translationRequests = files.map(file => {
           const formData = new FormData();
           formData.append('file', file);
           formData.append('origin', languageMap[selectedLanguageOriginal!]);
           formData.append('target', languageMap[selectedLanguageTarget!]);
+          if (glossaryPrompt) formData.append('glossary', glossaryPrompt);
           return api.post('/deepl/file/', formData, {
             headers: { "Content-Type": "multipart/form-data" }
           }).then(res => { 
@@ -169,10 +173,13 @@ const Traduttore = () => {
 
       } else if (text.trim()) { 
         setIsFileTranslated(false);
+        const glossaryPrompt = await buildGlossaryPrompt(selectedLanguageTarget!, 'company');
+        
         const response = await api.post('/deepl/text/', {
           text: text,
           origin: languageMap[selectedLanguageOriginal!],
           target: languageMap[selectedLanguageTarget!],
+          glossary: glossaryPrompt,
         });
         
         setTranslatedText(response.data.translated_text);

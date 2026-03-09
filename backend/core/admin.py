@@ -17,6 +17,8 @@ from core.models.frontend_master_route_list import MasterRouteList
 from core.models.summary_news_model import SummaryNewsArticle
 from core.models.linkedin_scheduled_post import LinkedinScheduledPost
 from core.models.market_news_alert_preference import MarketNewsAlertPreference
+from core.models.glossary_entry import GlossaryEntry
+from core.models.deepl_glossary_reference import DeepLGlossaryReference
 # Register your models here.
 
 
@@ -235,6 +237,22 @@ class MarketNewsAlertPreferenceAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
     ordering = ('-created_at',)
     list_per_page = 10
+
+
+@admin.register(GlossaryEntry)
+class GlossaryEntryAdmin(admin.ModelAdmin):
+    list_display = ('original', 'translation', 'company', 'created_by', 'updated_at')
+    search_fields = ('original', 'translation', 'company__long_name', 'created_by__username')
+    list_filter = ('company', 'created_by')
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(DeepLGlossaryReference)
+class DeepLGlossaryReferenceAdmin(admin.ModelAdmin):
+    list_display = ('glossary_name', 'deepl_glossary_id', 'scope', 'company', 'created_by', 'entry_count', 'last_synced_at')
+    search_fields = ('glossary_name', 'deepl_glossary_id', 'company__long_name', 'created_by__username')
+    list_filter = ('scope', 'company', 'created_by')
+    readonly_fields = ('created_at', 'updated_at', 'last_synced_at')
     
 @admin.register(MarketNewsSetup)
 class MarketNewsSetupAdmin(admin.ModelAdmin):
