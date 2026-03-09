@@ -30,7 +30,7 @@ class OpenAISendMessageView(APIView):
 
         content = serializer.validated_data.get('content', '')
         file = serializer.validated_data.get('file', None)
-        model = request.data.get('model', 'gpt-5.1')
+        model = request.data.get('model', 'gpt-5.2')
         searchWebEnabled = request.data.get('searchWebEnabled', 'false').lower() == 'true'
 
         logger.debug(
